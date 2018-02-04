@@ -533,16 +533,16 @@ genastore (char *from, amodes mode, char *reg, wordsizes size, char *to)
 	switch (size)
 	{
 	 case sz_byte:
-	    comprintf("\tif((W1)%s != (R1)%s)\n",reg,from);
-	    comprintf ("\t\tmov_b_rr((W1)%s, (R1)%s);\n", reg, from);
+	    comprintf("\tif((W1)%s != (RR1)%s)\n",reg,from);
+	    comprintf ("\t\tmov_b_rr((W1)%s, (RR1)%s);\n", reg, from);
 	    break;
 	 case sz_word:
-	    comprintf("\tif((W2)%s != (R2)%s)\n",reg,from);
-	    comprintf ("\t\tmov_w_rr((W2)%s, (R2)%s);\n", reg, from);
+	    comprintf("\tif((W2)%s != (RR2)%s)\n",reg,from);
+	    comprintf ("\t\tmov_w_rr((W2)%s, (RR2)%s);\n", reg, from);
 	    break;
 	 case sz_long:
-	    comprintf("\tif((W4)%s != (R4)%s)\n",reg,from);
-	    comprintf ("\t\tmov_l_rr((W4)%s, (R4)%s);\n", reg, from);
+	    comprintf("\tif((W4)%s != (RR4)%s)\n",reg,from);
+	    comprintf ("\t\tmov_l_rr((W4)%s, (RR4)%s);\n", reg, from);
 	    break;
 	 default:
 	    abort ();
@@ -552,12 +552,12 @@ genastore (char *from, amodes mode, char *reg, wordsizes size, char *to)
 	switch (size)
 	{
 	 case sz_word:
-	    comprintf("\tif((W2)(%s+8) != (R2)%s)\n",reg,from);
-	    comprintf ("\t\tmov_w_rr((W2)(%s+8), (R2)%s);\n", reg, from);
+	    comprintf("\tif((W2)(%s+8) != (RR2)%s)\n",reg,from);
+	    comprintf ("\t\tmov_w_rr((W2)(%s+8), (RR2)%s);\n", reg, from);
 	    break;
 	 case sz_long:
-	    comprintf("\tif((W4)(%s+8) != (R4)%s)\n",reg,from);
-	    comprintf ("\t\tmov_l_rr((W4)(%s+8), (R4)%s);\n", reg, from);
+	    comprintf("\tif((W4)(%s+8) != (RR4)%s)\n",reg,from);
+	    comprintf ("\t\tmov_l_rr((W4)(%s+8), (RR4)%s);\n", reg, from);
 	    break;
 	 default:
 	    abort ();

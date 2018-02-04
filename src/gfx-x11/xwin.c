@@ -1286,22 +1286,32 @@ int mousehack_allowed (void)
 }
 
 #ifdef PICASSO96
+/* For the DX_Invalidate() and gfx_unlock_picasso() functions */
+static int p96_double_buffer_firstx, p96_double_buffer_lastx;
+static int p96_double_buffer_first, p96_double_buffer_last;
+static int p96_double_buffer_needs_flushing = 0;
 
-void DX_Invalidate (int first, int last)
+void DX_Invalidate (int x, int y, int width, int height)
 {
-    if (first > last)
-	return;
+        int last, lastx;
 
-    picasso_has_invalid_lines = 1;
-    if (first < picasso_invalid_start)
-	picasso_invalid_start = first;
-    if (last > picasso_invalid_stop)
-	picasso_invalid_stop = last;
-
-    while (first <= last) {
-	picasso_invalid_lines[first] = 1;
-	first++;
-    }
+        if (width == 0 || height == 0)
+                return;
+        if (y < 0 || height < 0) {
+                y = 0;
+                height = picasso_vidinfo.height;
+        }
+        if (x < 0 || width < 0) {
+                x = 0;
+                width = picasso_vidinfo.width;
+        }
+        last = y + height - 1;
+        lastx = x + width - 1;
+        p96_double_buffer_first = y;
+        p96_double_buffer_last  = last;
+        p96_double_buffer_firstx = x;
+        p96_double_buffer_lastx = lastx;
+        p96_double_buffer_needs_flushing = 1;
 }
 
 static int palette_update_start=256;

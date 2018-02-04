@@ -34,6 +34,11 @@
  * Some basic information about the the target CPU                       *
  *************************************************************************/
 
+/*  R1, R2, R4 collides with ARM registers defined in ucontext */
+#define R1 RR1
+#define R2 RR2
+#define R4 RR4
+
 #define EAX_INDEX 0
 #define ECX_INDEX 1
 #define EDX_INDEX 2
@@ -3753,8 +3758,10 @@ struct cpuinfo_x86 {
   uae_u32	x86_hwcap;
   uae_u8	x86_model;
   uae_u8	x86_mask;
+  bool		x86_has_xmm2;
   int		cpuid_level;    // Maximum supported CPUID level, -1=no CPUID
   char		x86_vendor_id[16];
+  uintptr	x86_clflush_size;
 };
 struct cpuinfo_x86 cpuinfo;
 
@@ -3892,6 +3899,11 @@ raw_init_cpu(void)
   c->x86_model = c->x86_mask = 0;	/* So far unknown... */
   c->x86_vendor_id[0] = '\0';		/* Unset */
   c->x86_hwcap = 0;
+#ifdef __x86_64__
+  c->x86_clflush_size = 64;
+#else
+  c->x86_clflush_size = 32;
+#endif
 
   /* Get vendor name */
   c->x86_vendor_id[12] = '\0';
@@ -3915,6 +3927,10 @@ raw_init_cpu(void)
 		c->x86_model |= (tfms >> 12) & 0xf0; /* extended model */
 	c->x86_brand_id = brand_id & 0xff;
 	c->x86_mask = tfms & 15;
+    if (c->x86_hwcap & (1 << 19))
+    {
+  	  c->x86_clflush_size = ((brand_id >> 8) & 0xff) * 8;
+    }
   } else {
 	/* Have CPUID level 0 only - unheard of */
 	c->x86 = 4;
@@ -3982,7 +3998,7 @@ raw_init_cpu(void)
   }
 
   /* Have CMOV support? */
-  have_cmov = c->x86_hwcap & (1 << 15);
+  have_cmov = (c->x86_hwcap & (1 << 15)) != 0;
 #if defined(__x86_64__)
   if (!have_cmov) {
 	  write_log("x86-64 implementations are bound to have CMOV!\n");
@@ -3990,6 +4006,8 @@ raw_init_cpu(void)
   }
 #endif
 
+  c->x86_has_xmm2 = (c->x86_hwcap & (1 << 26)) != 0;
+  
   /* Can the host CPU suffer from partial register stalls? */
   have_rat_stall = (c->x86_vendor == X86_VENDOR_INTEL);
 #if 1
@@ -4268,8 +4286,6 @@ LENDFUNC(NONE,WRITE,2,raw_fmov_ext_mr,(MEMW m, FR r))
 
 LOWFUNC(NONE,WRITE,2,raw_fmov_ext_mr_drop,(MEMW m, FR r))
 {
-    int rs;
-
     make_tos(r);
     raw_fstpt(m);	/* store and pop it */
     live.onstack[live.tos]=-1;

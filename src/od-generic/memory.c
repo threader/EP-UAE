@@ -1,4 +1,3 @@
-
 /*
  * PUAE - The Un*x Amiga Emulator
  *
@@ -6,7 +5,7 @@
  *
  * Copyright 2004 Richard Drummond
  * Copyright     -2013 Toni Wilen
- * Copyright 2010-2013 Mustafa Tufan
+ * Copyright 2010-2014 Mustafa Tufan
  */
 
 #include "sysconfig.h"
@@ -14,7 +13,7 @@
 
 #include "options.h"
 #include "autoconf.h"
-#if !defined(ANDROID) && !defined(__native_client__)
+#if defined(__GLIBC__) || defined(__APPLE__)
 #include <sys/sysctl.h>
 #endif
 #include "include/memory_uae.h"

@@ -257,7 +257,7 @@ struct inputdevice_functions inputdevicefunc_joystick = {
 /*
  * Set default inputdevice config for joysticks
  */
-int input_get_default_joystick (struct uae_input_device *uid, int num, int port, int af, int mode, bool gp)
+int input_get_default_joystick (struct uae_input_device *uid, int num, int port, int af, int mode, bool gp, bool joymouseswap)
 {
 	unsigned int i;
 

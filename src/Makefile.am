@@ -86,10 +86,13 @@ if TARGET_BIGENDIAN
 genlinetoscr_args = -b
 endif
 
-uae_extraLDFLAGS = -fwhole-program
+
+uae_extraLDFLAGS=
 
 if BUILD_MACOSX_BUNDLE
 uae_extraLDFLAGS += -Wno-error=unused-command-line-argument-hard-error-in-future -mmacosx-version-min=10.7
+else
+uae_extraLDFLAGS += -fwhole-program
 endif
 
 uae$(EXEEXT):	$(uae_OBJECTS) $(uae_DEPENDENCIES)

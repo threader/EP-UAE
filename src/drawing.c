@@ -694,7 +694,7 @@ static int linetoscr_diw_start, linetoscr_diw_end;
 static int native_ddf_left, native_ddf_right;
 
 static int pixels_offset;
-static int src_pixel, ham_src_pixel;
+static int src_pixel;
 /* How many pixels in window coordinates which are to the left of the left border.  */
 static int unpainted;
 
@@ -822,7 +822,6 @@ static void pfield_init_linetoscr (bool border)
 #endif
 
 	unpainted = visible_left_border < playfield_start ? 0 : visible_left_border - playfield_start;
-	ham_src_pixel = MAX_PIXELS_PER_LINE + res_shift_from_window (playfield_start - native_ddf_left);
 	unpainted = res_shift_from_window (unpainted);
 
 	int first_x = sprite_first_x;
@@ -956,7 +955,7 @@ static void pfield_do_fill_line (int start, int stop, bool blank)
 	}
 }
 
-STATIC_INLINE void fill_line2 (int startpos, int len)
+static void fill_line2 (int startpos, int len)
 {
 	int shift;
 	int nints, nrem;
@@ -1004,18 +1003,36 @@ STATIC_INLINE void fill_line2 (int startpos, int len)
 	}
 }
 
-static void fill_line (void)
+static void fill_line_border (void)
 {
-	int hs = coord_hw_to_window_x (hsyncstartpos * 2);
+	int lastpos = visible_left_border;
+	int endpos = visible_left_border + gfxvidinfo.inwidth;
+
+	// full hblank
 	if (hposblank) {
 		hposblank = 3;
-		fill_line2 (visible_left_border, gfxvidinfo.inwidth);
-	} else if (hs >= gfxvidinfo.inwidth) {
-		fill_line2 (visible_left_border, gfxvidinfo.inwidth);
-	} else {
-		fill_line2 (visible_left_border, hs);
-		hposblank = 2;
-		fill_line2 (visible_left_border + hs, gfxvidinfo.inwidth);
+		fill_line2(lastpos, gfxvidinfo.inwidth);
+		return;
+	}
+	// hblank not visible
+	if (hblank_left_start <= lastpos && hblank_right_stop >= endpos) {
+		fill_line2(lastpos, gfxvidinfo.inwidth);
+		return;
+	}
+
+	// left, right or both hblanks visible
+	if (lastpos < hblank_left_start) {
+		int t = hblank_left_start < endpos ? hblank_left_start : endpos;
+		pfield_do_fill_line(lastpos, t, true);
+		lastpos = t;
+	}
+	if (lastpos < hblank_right_stop) {
+		int t = hblank_right_stop < endpos ? hblank_right_stop : endpos;
+		pfield_do_fill_line(lastpos, t, false);
+		lastpos = t;
+	}
+	if (lastpos < endpos) {
+		pfield_do_fill_line(lastpos, endpos, true);
 	}
 }
 
@@ -1597,7 +1614,7 @@ static void init_ham_decoding (void)
 {
 	int unpainted_amiga = unpainted;
 
-	ham_decode_pixel = ham_src_pixel;
+	ham_decode_pixel = src_pixel;
 	ham_lastcolor = color_reg_get (&colors_for_drawing, 0);
 
 	if (!bplham) {
@@ -1709,6 +1726,17 @@ static void decode_ham (int pix, int stoppos, bool blank)
 			ham_linebuf[ham_decode_pixel++] = ham_lastcolor;
 		}
 	}
+}
+
+static void erase_ham_right_border(int pix, int stoppos, bool blank)
+{
+	if (stoppos < playfield_end)
+		return;
+	// erase right border in HAM modes or old HAM data may be visible
+	// if DDFSTOP < DIWSTOP (Uridium II title screen)
+	int todraw_amiga = res_shift_from_window (stoppos - pix);
+	while (todraw_amiga-- > 0)
+		ham_linebuf[ham_decode_pixel++] = 0;
 }
 
 static void gen_pfield_tables (void)
@@ -2117,7 +2145,7 @@ static void pfield_expand_dp_bplcon (void)
 	bplplanecnt = dp_for_drawing->nr_planes;
 	bplham = dp_for_drawing->ham_seen;
 	bplehb = dp_for_drawing->ehb_seen;
-	if ((currprefs.chipset_mask & CSMASK_AGA) && (dp_for_drawing->bplcon2 & 0x0200))
+	if ((currprefs.chipset_mask & CSMASK_ECS_DENISE) && (dp_for_drawing->bplcon2 & 0x0200))
 		bplehb = 0;
 	issprites = dip_for_drawing->nr_sprites > 0;
 #ifdef ECS_DENISE
@@ -2286,14 +2314,23 @@ static void do_color_changes (line_draw_func worker_border, line_draw_func worke
 		if (lastpos >= endpos)
 			break;
 	}
-/*	if (vp < visible_top_start || vp >= visible_bottom_stop) {
+#if 1
+	if (vp < visible_top_start || vp >= visible_bottom_stop) {
 		// outside of visible area
 		// Just overwrite with black. Above code needs to run because of custom registers,
 		// not worth the trouble for separate code path just for max 10 lines or so
 		(*worker_border) (visible_left_border, visible_left_border + gfxvidinfo.inwidth, true);
-	}*/
-
+	}
+#endif
 }
+
+STATIC_INLINE bool is_color_changes(struct draw_info *di)
+{
+	int regno = curr_color_changes[di->first_color_change].regno;
+	int changes = di->nr_color_changes;
+	return changes > 1 || (changes == 1 && regno != 0xffff && regno != -1);
+}
+
 enum double_how {
 	dh_buf,
 	dh_line,
@@ -2305,6 +2342,7 @@ static void pfield_draw_line (int lineno, int gfx_ypos, int follow_ypos)
 // REMOVEME: static int warned = 0;
 	int border = 0;
 	int do_double = 0;
+	bool have_color_changes;
 	enum double_how dh;
 
 	dp_for_drawing = line_decisions + lineno;
@@ -2359,15 +2397,12 @@ static void pfield_draw_line (int lineno, int gfx_ypos, int follow_ypos)
 		break;
 	}
 
-#if 0
-	if (border && dp_for_drawing->plfleft < -1)
-		border = -1; // blank last "missing" line
-#endif
+	have_color_changes = is_color_changes(dip_for_drawing);
 
 	dh = dh_line;
 	xlinebuffer = gfxvidinfo.linemem;
 	if (xlinebuffer == 0 && do_double
-		&& (border == 0 || dip_for_drawing->nr_color_changes > 0))
+		&& (border == 0 || have_color_changes))
 		xlinebuffer = gfxvidinfo.emergmem, dh = dh_emerg;
 	if (xlinebuffer == 0)
 		xlinebuffer = row_map[gfx_ypos], dh = dh_buf;
@@ -2384,19 +2419,16 @@ static void pfield_draw_line (int lineno, int gfx_ypos, int follow_ypos)
 		/* The problem is that we must call decode_ham() BEFORE we do the
 		   sprites. */
 		if (dp_for_drawing->ham_seen) {
+			int ohposblank = hposblank;
 			init_ham_decoding ();
-			if (dip_for_drawing->nr_color_changes == 0) {
-				/* The easy case: need to do HAM decoding only once for the
-				 * full line. */
-				decode_ham (visible_left_border, visible_right_border, false);
-			} else /* Argh. */ {
-				int ohposblank = hposblank;
-				do_color_changes (dummy_worker, decode_ham, lineno);
-				hposblank = ohposblank;
-				// reset colors to state before above do_color_changes()
-				adjust_drawing_colors (dp_for_drawing->ctable, (dp_for_drawing->ham_seen || bplehb) ? -1 : 0);
+			do_color_changes (dummy_worker, decode_ham, lineno);
+			if (have_color_changes) {
+				// do_color_changes() did color changes, reset colors back to original state
+				adjust_drawing_colors (dp_for_drawing->ctable, -1);
 				pfield_expand_dp_bplcon ();
 			}
+			hposblank = ohposblank;
+			ham_decode_pixel = src_pixel;
 			bplham = dp_for_drawing->ham_at_start;
 		}
 
@@ -2438,8 +2470,9 @@ static void pfield_draw_line (int lineno, int gfx_ypos, int follow_ypos)
 
 		if (dip_for_drawing->nr_sprites)
 			pfield_erase_hborder_sprites ();
-	} else if (border > 0) {
-		// border > 0: top or bottom border
+
+	} else if (border > 0) { // border > 0: top or bottom border
+
 		bool dosprites = false;
 
 		adjust_drawing_colors (dp_for_drawing->ctable, 0);
@@ -2453,14 +2486,23 @@ static void pfield_draw_line (int lineno, int gfx_ypos, int follow_ypos)
 		}
 #endif
 
-		if (!dosprites && dip_for_drawing->nr_color_changes == 0) {
-			fill_line ();
-			do_flush_line (gfx_ypos);
+		if (!dosprites && !have_color_changes) {
+			if (dp_for_drawing->plfleft < -1) {
+				// blanked border line
+				int tmp = hposblank;
+				hposblank = 1;
+				fill_line_border ();
+				hposblank = tmp;
+			} else {
+				// normal border line
+				fill_line_border ();
+			}
 
+			do_flush_line (gfx_ypos);
 			if (do_double) {
 				if (dh == dh_buf) {
 					xlinebuffer = row_map[follow_ypos] - linetoscr_x_adjust_bytes;
-					fill_line ();
+					fill_line_border ();
 				}
 				/* If dh == dh_line, do_flush_line will re-use the rendered line
 				 * from linemem.  */
@@ -2473,7 +2515,6 @@ static void pfield_draw_line (int lineno, int gfx_ypos, int follow_ypos)
 		if (dosprites) {
 
 			int i;
-
 			for (i = 0; i < dip_for_drawing->nr_sprites; i++)
 				draw_sprites_aga (curr_sprite_entries + dip_for_drawing->first_sprite_entry + i, 1);
 			do_color_changes (pfield_do_linetoscr_bordersprite_aga, pfield_do_linetoscr_bordersprite_aga, lineno);
@@ -2506,7 +2547,7 @@ static void pfield_draw_line (int lineno, int gfx_ypos, int follow_ypos)
 		// top or bottom blanking region
 		int tmp = hposblank;
 		hposblank = 1;
-		fill_line ();
+		fill_line_border ();
 		do_flush_line (gfx_ypos);
 		hposblank = tmp;
 
@@ -2623,7 +2664,7 @@ static void init_drawing_frame (void)
 			}
 		}
 
-		if (programmedmode && gfxvidinfo.gfx_resolution_reserved >= RES_HIRES && gfxvidinfo.gfx_vresolution_reserved >= VRES_DOUBLE) {
+		if (currprefs.gfx_autoresolution_vga && programmedmode && gfxvidinfo.gfx_resolution_reserved >= RES_HIRES && gfxvidinfo.gfx_vresolution_reserved >= VRES_DOUBLE) {
 			if (largest_res == RES_SUPERHIRES && (gfxvidinfo.gfx_resolution_reserved < RES_SUPERHIRES || gfxvidinfo.gfx_vresolution_reserved < 1)) {
 				// enable full doubling/superhires support if programmed mode. It may be "half-width" only and may fit in normal display window.
 				gfxvidinfo.gfx_resolution_reserved = RES_SUPERHIRES;

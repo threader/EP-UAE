@@ -75,9 +75,13 @@ inline int c99_snprintf(char* str, size_t size, const char* format, ...)
 #define ABS(x) abs(x)
 #endif
 
+#ifdef USE_GLIB
+#include <glib.h>
+#else
 #define g_free free
 #define g_malloc malloc
 #define g_new(type, num) ((type*)calloc(sizeof(type),num))
+#endif
 
 enum device_endian {
     DEVICE_NATIVE_ENDIAN,
@@ -118,8 +122,30 @@ typedef struct DisplaySurface {
 uint16_t le16_to_cpu(uint16_t v);
 uint32_t le32_to_cpu(uint32_t v);
 
-static inline void cpu_to_32wu(uint32_t *p, uint32_t v)
+#define le_bswap(v, size) (v)
+#define cpu_to_le16(x) (x)
+
+STATIC_INLINE void stl_he_p(void *ptr, uint32_t v)
 {
+	memcpy(ptr, &v, sizeof(v));
+}
+STATIC_INLINE void stl_le_p(void *ptr, uint32_t v)
+{
+	stl_he_p(ptr, le_bswap(v, 32));
+}
+STATIC_INLINE int ldl_he_p(const void *ptr)
+{
+	int32_t r;
+	memcpy(&r, ptr, sizeof(r));
+	return r;
+}
+STATIC_INLINE int ldl_le_p(const void *ptr)
+{
+	return le_bswap(ldl_he_p(ptr), 32);
+}
+STATIC_INLINE void cpu_to_32wu(uint32_t *p, uint32_t v)
+{
+	stl_le_p(p, v);
 }
 
 void graphic_hw_update(QemuConsole *con);

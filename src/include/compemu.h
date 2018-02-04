@@ -15,7 +15,7 @@
 #ifndef COMPEMU_H
 #define COMPEMU_H
 
-#include "flags_x86.h"
+//#include "flags_x86.h"
 
 /** REMOVEME:
   * We have a unified type for pointer values
@@ -280,11 +280,16 @@ typedef struct {
 extern int touchcnt;
 
 
-#define IMMS uae_s32
-#define IMM uae_u32
+#define IMM uae_s32
+#define RR1  uae_u32
+#define RR2  uae_u32
+#define RR4  uae_u32
+/*
+  R1, R2, R4 collides with ARM registers defined in ucontext
 #define R1  uae_u32
 #define R2  uae_u32
 #define R4  uae_u32
+*/
 #define W1  uae_u32
 #define W2  uae_u32
 #define W4  uae_u32
@@ -316,219 +321,19 @@ extern int touchcnt;
 #define DECLARE(func) extern void func
 #endif
 
-
 /* What we expose to the outside */
-DECLARE(bt_l_ri(R4 r, IMM i));
-DECLARE(bt_l_rr(R4 r, R4 b));
-DECLARE(btc_l_ri(RW4 r, IMM i));
-DECLARE(btc_l_rr(RW4 r, R4 b));
-DECLARE(bts_l_ri(RW4 r, IMM i));
-DECLARE(bts_l_rr(RW4 r, R4 b));
-DECLARE(btr_l_ri(RW4 r, IMM i));
-DECLARE(btr_l_rr(RW4 r, R4 b));
-DECLARE(mov_l_rm(W4 d, IMM s));
-DECLARE(call_r(R4 r));
-DECLARE(sub_l_mi(IMM d, IMM s));
-DECLARE(mov_l_mi(IMM d, IMM s));
-DECLARE(mov_w_mi(IMM d, IMM s));
-DECLARE(mov_b_mi(IMM d, IMM s));
-DECLARE(rol_b_ri(RW1 r, IMM i));
-DECLARE(rol_w_ri(RW2 r, IMM i));
-DECLARE(rol_l_ri(RW4 r, IMM i));
-DECLARE(rol_l_rr(RW4 d, R1 r));
-DECLARE(rol_w_rr(RW2 d, R1 r));
-DECLARE(rol_b_rr(RW1 d, R1 r));
-DECLARE(shll_l_rr(RW4 d, R1 r));
-DECLARE(shll_w_rr(RW2 d, R1 r));
-DECLARE(shll_b_rr(RW1 d, R1 r));
-DECLARE(ror_b_ri(R1 r, IMM i));
-DECLARE(ror_w_ri(R2 r, IMM i));
-DECLARE(ror_l_ri(R4 r, IMM i));
-DECLARE(ror_l_rr(R4 d, R1 r));
-DECLARE(ror_w_rr(R2 d, R1 r));
-DECLARE(ror_b_rr(R1 d, R1 r));
-DECLARE(shrl_l_rr(RW4 d, R1 r));
-DECLARE(shrl_w_rr(RW2 d, R1 r));
-DECLARE(shrl_b_rr(RW1 d, R1 r));
-DECLARE(shra_l_rr(RW4 d, R1 r));
-DECLARE(shra_w_rr(RW2 d, R1 r));
-DECLARE(shra_b_rr(RW1 d, R1 r));
-DECLARE(shll_l_ri(RW4 r, IMM i));
-DECLARE(shll_w_ri(RW2 r, IMM i));
-DECLARE(shll_b_ri(RW1 r, IMM i));
-DECLARE(shrl_l_ri(RW4 r, IMM i));
-DECLARE(shrl_w_ri(RW2 r, IMM i));
-DECLARE(shrl_b_ri(RW1 r, IMM i));
-DECLARE(shra_l_ri(RW4 r, IMM i));
-DECLARE(shra_w_ri(RW2 r, IMM i));
-DECLARE(shra_b_ri(RW1 r, IMM i));
-DECLARE(setcc(W1 d, IMM cc));
-DECLARE(setcc_m(IMM d, IMM cc));
-DECLARE(cmov_b_rr(RW1 d, R1 s, IMM cc));
-DECLARE(cmov_w_rr(RW2 d, R2 s, IMM cc));
-DECLARE(cmov_l_rr(RW4 d, R4 s, IMM cc));
-DECLARE(cmov_l_rm(RW4 d, IMM s, IMM cc));
-DECLARE(bsf_l_rr(W4 d, R4 s));
-DECLARE(pop_m(IMM d));
-DECLARE(push_m(IMM d));
-DECLARE(pop_l(W4 d));
-DECLARE(push_l_i(IMM i));
-DECLARE(push_l(R4 s));
-DECLARE(clear_16(RW4 r));
-DECLARE(clear_8(RW4 r));
-DECLARE(sign_extend_16_rr(W4 d, R2 s));
-DECLARE(sign_extend_8_rr(W4 d, R1 s));
-DECLARE(zero_extend_16_rr(W4 d, R2 s));
-DECLARE(zero_extend_8_rr(W4 d, R1 s));
-DECLARE(imul_64_32(RW4 d, RW4 s));
-DECLARE(mul_64_32(RW4 d, RW4 s));
-DECLARE(imul_32_32(RW4 d, R4 s));
-DECLARE(mov_b_rr(W1 d, R1 s));
-DECLARE(mov_w_rr(W2 d, R2 s));
-DECLARE(mov_l_rrm_indexed(W4 d, R4 baser, R4 index));
-DECLARE(mov_w_rrm_indexed(W2 d, R4 baser, R4 index));
-DECLARE(mov_b_rrm_indexed(W1 d, R4 baser, R4 index));
-DECLARE(mov_l_mrr_indexed(R4 baser, R4 index, R4 s));
-DECLARE(mov_w_mrr_indexed(R4 baser, R4 index, R2 s));
-DECLARE(mov_b_mrr_indexed(R4 baser, R4 index, R1 s));
-DECLARE(mov_l_rm_indexed(W4 d, IMM base, R4 index));
-DECLARE(mov_l_rR(W4 d, R4 s, IMM offset));
-DECLARE(mov_w_rR(W2 d, R4 s, IMM offset));
-DECLARE(mov_b_rR(W1 d, R4 s, IMM offset));
-DECLARE(mov_l_brR(W4 d, R4 s, IMM offset));
-DECLARE(mov_w_brR(W2 d, R4 s, IMM offset));
-DECLARE(mov_b_brR(W1 d, R4 s, IMM offset));
-DECLARE(mov_l_Ri(R4 d, IMM i, IMM offset));
-DECLARE(mov_w_Ri(R4 d, IMM i, IMM offset));
-DECLARE(mov_b_Ri(R4 d, IMM i, IMM offset));
-DECLARE(mov_l_Rr(R4 d, R4 s, IMM offset));
-DECLARE(mov_w_Rr(R4 d, R2 s, IMM offset));
-DECLARE(mov_b_Rr(R4 d, R1 s, IMM offset));
-DECLARE(lea_l_brr(W4 d, R4 s, IMM offset));
-DECLARE(lea_l_brr_indexed(W4 d, R4 s, R4 index, IMM factor, IMM offset));
-DECLARE(mov_l_bRr(R4 d, R4 s, IMM offset));
-DECLARE(mov_w_bRr(R4 d, R2 s, IMM offset));
-DECLARE(mov_b_bRr(R4 d, R1 s, IMM offset));
-DECLARE(gen_bswap_32(RW4 r));
-DECLARE(gen_bswap_16(RW2 r));
-DECLARE(mov_l_rr(W4 d, R4 s));
-DECLARE(mov_l_mr(IMM d, R4 s));
-DECLARE(mov_w_mr(IMM d, R2 s));
-DECLARE(mov_w_rm(W2 d, IMM s));
-DECLARE(mov_b_mr(IMM d, R1 s));
-DECLARE(mov_b_rm(W1 d, IMM s));
-DECLARE(mov_l_ri(W4 d, IMM s));
-DECLARE(mov_w_ri(W2 d, IMM s));
-DECLARE(mov_b_ri(W1 d, IMM s));
-DECLARE(add_l_mi(IMM d, IMM s) );
-DECLARE(add_w_mi(IMM d, IMM s) );
-DECLARE(add_b_mi(IMM d, IMM s) );
-DECLARE(test_l_ri(R4 d, IMM i));
-DECLARE(test_l_rr(R4 d, R4 s));
-DECLARE(test_w_rr(R2 d, R2 s));
-DECLARE(test_b_rr(R1 d, R1 s));
-DECLARE(and_l_ri(RW4 d, IMM i));
-DECLARE(and_l(RW4 d, R4 s));
-DECLARE(and_w(RW2 d, R2 s));
-DECLARE(and_b(RW1 d, R1 s));
-DECLARE(or_l_ri(RW4 d, IMM i));
-DECLARE(or_l(RW4 d, R4 s));
-DECLARE(or_w(RW2 d, R2 s));
-DECLARE(or_b(RW1 d, R1 s));
-DECLARE(adc_l(RW4 d, R4 s));
-DECLARE(adc_w(RW2 d, R2 s));
-DECLARE(adc_b(RW1 d, R1 s));
-DECLARE(add_l(RW4 d, R4 s));
-DECLARE(add_w(RW2 d, R2 s));
-DECLARE(add_b(RW1 d, R1 s));
-DECLARE(sub_l_ri(RW4 d, IMM i));
-DECLARE(sub_w_ri(RW2 d, IMM i));
-DECLARE(sub_b_ri(RW1 d, IMM i));
-DECLARE(add_l_ri(RW4 d, IMM i));
-DECLARE(add_w_ri(RW2 d, IMM i));
-DECLARE(add_b_ri(RW1 d, IMM i));
-DECLARE(sbb_l(RW4 d, R4 s));
-DECLARE(sbb_w(RW2 d, R2 s));
-DECLARE(sbb_b(RW1 d, R1 s));
-DECLARE(sub_l(RW4 d, R4 s));
-DECLARE(sub_w(RW2 d, R2 s));
-DECLARE(sub_b(RW1 d, R1 s));
-DECLARE(cmp_l(R4 d, R4 s));
-DECLARE(cmp_l_ri(R4 r, IMM i));
-DECLARE(cmp_w(R2 d, R2 s));
-DECLARE(cmp_b(R1 d, R1 s));
-DECLARE(xor_l(RW4 d, R4 s));
-DECLARE(xor_w(RW2 d, R2 s));
-DECLARE(xor_b(RW1 d, R1 s));
-DECLARE(live_flags(void));
-DECLARE(dont_care_flags(void));
-DECLARE(duplicate_carry(void));
-DECLARE(restore_carry(void));
-DECLARE(start_needflags(void));
-DECLARE(end_needflags(void));
-DECLARE(make_flags_live(void));
-DECLARE(call_r_11(R4 r, W4 out1, R4 in1, IMM osize, IMM isize));
-DECLARE(call_r_02(R4 r, R4 in1, R4 in2, IMM isize1, IMM isize2));
-DECLARE(readmem_new(R4 address, W4 dest, IMM offset, IMM size, W4 tmp));
-DECLARE(writemem_new(R4 address, R4 source, IMM offset, IMM size, W4 tmp));
-DECLARE(forget_about(W4 r));
-DECLARE(nop(void));
+#define DECLARE_MIDFUNC(func) extern void func
 
-DECLARE(f_forget_about(FW r));
-DECLARE(fmov_pi(FW r));
-DECLARE(fmov_log10_2(FW r));
-DECLARE(fmov_log2_e(FW r));
-DECLARE(fmov_loge_2(FW r));
-DECLARE(fmov_1(FW r));
-DECLARE(fmov_0(FW r));
-DECLARE(fmov_rm(FW r, MEMR m));
-DECLARE(fmov_mr(MEMW m, FR r));
-DECLARE(fmovi_rm(FW r, MEMR m));
-DECLARE(fmovi_mrb(MEMW m, FR r, double *bounds));
-DECLARE(fmovs_rm(FW r, MEMR m));
-DECLARE(fmovs_mr(MEMW m, FR r));
-DECLARE(fcuts_r(FRW r));
-DECLARE(fcut_r(FRW r));
-DECLARE(fmov_ext_mr(MEMW m, FR r));
-DECLARE(fmov_ext_rm(FW r, MEMR m));
-DECLARE(fmov_rr(FW d, FR s));
-DECLARE(fldcw_m_indexed(R4 index, IMM base));
-DECLARE(ftst_r(FR r));
-DECLARE(dont_care_fflags(void));
-DECLARE(fsqrt_rr(FW d, FR s));
-DECLARE(fabs_rr(FW d, FR s));
-DECLARE(frndint_rr(FW d, FR s));
-DECLARE(fgetexp_rr(FW d, FR s));
-DECLARE(fgetman_rr(FW d, FR s));
-DECLARE(fsin_rr(FW d, FR s));
-DECLARE(fcos_rr(FW d, FR s));
-DECLARE(ftan_rr(FW d, FR s));
-DECLARE(fsincos_rr(FW d, FW c, FR s));
-DECLARE(fscale_rr(FRW d, FR s));
-DECLARE(ftwotox_rr(FW d, FR s));
-DECLARE(fetox_rr(FW d, FR s));
-DECLARE(fetoxM1_rr(FW d, FR s));
-DECLARE(ftentox_rr(FW d, FR s));
-DECLARE(flog2_rr(FW d, FR s));
-DECLARE(flogN_rr(FW d, FR s));
-DECLARE(flogNP1_rr(FW d, FR s));
-DECLARE(flog10_rr(FW d, FR s));
-DECLARE(fasin_rr(FW d, FR s));
-DECLARE(facos_rr(FW d, FR s));
-DECLARE(fatan_rr(FW d, FR s));
-DECLARE(fatanh_rr(FW d, FR s));
-DECLARE(fsinh_rr(FW d, FR s));
-DECLARE(fcosh_rr(FW d, FR s));
-DECLARE(ftanh_rr(FW d, FR s));
-DECLARE(fneg_rr(FW d, FR s));
-DECLARE(fadd_rr(FRW d, FR s));
-DECLARE(fsub_rr(FRW d, FR s));
-DECLARE(fmul_rr(FRW d, FR s));
-DECLARE(frem_rr(FRW d, FR s));
-DECLARE(frem1_rr(FRW d, FR s));
-DECLARE(fdiv_rr(FRW d, FR s));
-DECLARE(fcmp_rr(FR d, FR s));
-DECLARE(fflags_into_flags(W2 tmp));
+#if defined(__x86_64__) || defined(__i386__)
+#include "compemu_midfunc_x86.h"
+#endif
+
+#ifdef __arm__
+#include "compemu_midfunc_arm.h"
+#endif
+
+
+#undef DECLARE_MIDFUNC
 
 extern int failure;
 #define FAIL(x) do { failure|=x; } while (0)

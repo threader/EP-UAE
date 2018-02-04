@@ -2224,9 +2224,9 @@ int input_get_default_mouse (struct uae_input_device *uid, int num, int port, in
  */
 void gfx_default_options (struct uae_prefs *p)
 {
+#if 0
 	int type = get_sdlgfx_type ();
 
-#if 0
 //fixme
 	if (type == SDLGFX_DRIVER_AMIGAOS4 || type == SDLGFX_DRIVER_CYBERGFX || type == SDLGFX_DRIVER_BWINDOW  || type == SDLGFX_DRIVER_QUARTZ)
 		p->map_raw_keys = 1;

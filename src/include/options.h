@@ -13,7 +13,7 @@
 
 #define UAEMAJOR 2
 #define UAEMINOR 8
-#define UAESUBREV 0
+#define UAESUBREV 1
 
 #include "uae_types.h"
 
@@ -371,6 +371,7 @@ struct uae_prefs {
 	struct wh gfx_size;
 	struct wh gfx_size_win_xtra[6];
 	struct wh gfx_size_fs_xtra[6];
+	bool gfx_autoresolution_vga;
 	int gfx_autoresolution;
 	int gfx_autoresolution_delay;
 	int gfx_autoresolution_minv, gfx_autoresolution_minh;
@@ -432,7 +433,7 @@ struct uae_prefs {
 	int turbo_emulation;
 	bool headless;
 	int filesys_limit;
-	int filesys_max_name;
+	unsigned int filesys_max_name;
 	int filesys_max_file_size;
 
 	int cs_compatible;
