@@ -1,0 +1,84 @@
+Just quickly assembled binary with removing : 
+qemuvga/cirrus_vga.o qemuvga/qemuuaeglue.o qemuvga/vga.o qemuvga/lsi53c895a.o 
+
+something like this if configured against sdl: 
+gcc -fomit-frame-pointer -ffast-math   -fdiagnostics-show-option -Wall -Wextra -pedantic -Wno-unused-parameter -Wno-format -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-format -Wmissing-prototypes -Wstrict-prototypes -DREGPARAM= -pthread -g -O2 -DUSE_GL   -std=c99  -g -O2   -o uae   -fwhole-program main.o newcpu.o newcpu_common.o memory.o rommgr.o custom.o serial.o dongle.o cia.o blitter.o autoconf.o traps.o keybuf.o expansion.o inputrecord.o diskutil.o zfile.o zfile_archive.o cfgfile.o picasso96.o inputdevice.o gfxutil.o audio.o sinctable.o statusline.o drawing.o consolehook.o native2amiga.o disk.o crc32.o savestate.o arcadia.o cdtv.o cd32_fmv.o uaeexe.o uaelib.o uaeresource.o uaeserial.o fdi2raw.o hotkeys.o amax.o ar.o driveclick.o enforcer.o misc.o uaenet.o a2065.o gayle.o blkdev.o blkdev_cdimage.o scsi.o ncr_scsi.o missing.o readcpu.o hrtmon.rom.o events.o calc.o sana2.o scp.o specialmonitors.o gfxboard.o aros.rom.o md-ppc-gcc/libmachdep.a jd-sdl/libjoydep.a sd-uss/libsnddep.a gfx-sdl/libgfxdep.a gui-gtk/libguidep.a keymap/libkeymap.a archivers/dms/libdms.a archivers/zip/libzip.a caps/libcaps.a blitfunc.o blittable.o cpustbl.o cpudefs.o libcpuemu.a writelog.o filesys.o fsdb.o fsusage.o   hardfile.o scsitape.o filesys_unix.o fsdb_unix.o   hardfile_unix.o bsdsocket-posix-new.o bsdsocket.o scsi-none.o debug.o identify.o  td-posix/libthreaddep.a od-linux/libosdep.a -lgtk-x11-2.0 -lgdk-x11-2.0 -lpangocairo-1.0 -latk-1.0 -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lpangoft2-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lfontconfig -lfreetype -lGL -lGLU   -L/usr/lib/powerpc-linux-gnu -lSDL  -ldl -lz  -lm -lstdc++ -L/usr/lib -lpthread
+
+
+------------------------------------------------------------------------------------
+P-UAE 2.8.1
+Git Commit: c7f312dff7074fb8223cf715d179b2bb4f1984f2
+Build date: Feb  3 2018 18:01:38
+------------------------------------------------------------------------------------
+Copyright 1995-2002 Bernd Schmidt
+          1999-2014 Toni Wilen
+          2003-2007 Richard Drummond
+          2006-2014 Mustafa 'GnoStiC' Tufan
+
+See the source for a full list of contributors.
+This is free software; see the file COPYING for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+------------------------------------------------------------------------------------
+Enumerating display devices.. 
+Sorting devices and modes..
+Desktop: W=1024 H=768 B=0. CXVS=1024 CYVS=768
+DeviceString 'DeviceName' [DeviceID]
+-: DeviceName [DeviceKey]
+0: 1280x1024, 32-bit (!75)
+1 display modes.
+done
+Found 0 joystick(s)
+SDLGFX: Initialized.
+SDLGFX: Using SDL version 1.2.15.
+SDLGFX: Display is 32 bits deep.
+SDLGFX: Found screenmode: 1440x960.
+SDLGFX: Found screenmode: 1440x900.
+SDLGFX: Found screenmode: 1280x960.
+SDLGFX: Found screenmode: 1280x854.
+SDLGFX: Found screenmode: 1280x800.
+SDLGFX: Found screenmode: 1280x720.
+SDLGFX: Found screenmode: 1152x768.
+SDLGFX: Found screenmode: 1024x768.
+SDLGFX: Found screenmode: 848x480.
+SDLGFX: Found screenmode: 800x600.
+SDLGFX: Found screenmode: 720x480.
+SDLGFX: Found screenmode: 640x480.
+load config '/home/mike/././.uaerc':0
+Opening cfgfile '/home/mike/././.uaerc': OK
+unknown config entry: 'compfpu=true'
+unknown config entry: 'compforcesettings=false'
+unknown config entry: 'comp_oldsegv=false'
+unknown config entry: 'comp_trustnaddr=indirect'
+unknown config entry: 'sdl.map_raw_keys=false'
+unknown config entry: 'enable_jit=yes'
+unknown config entry: 'comp_log=false'
+unknown config entry: 'comp_log_compiled=false'
+unknown config entry: 'unix.savestate_path=~/'
+unknown config entry: 'unix.cpu_idle=0'
+unknown config entry: 'ppc.use_tbc=yes'
+unknown config entry: 'x11.low_bandwidth=false'
+unknown config entry: 'x11.use_mitshm=false'
+unknown config entry: 'x11.map_raw_keys=false'
+obsolete config entry 'kickstart_key_file'
+unknown config entry: 'scsi_device='
+obsolete config entry 'sound_adjust'
+obsolete config entry 'sound_latency'
+unknown config entry: 'comp_trustbyte=indirect'
+unknown config entry: 'comp_trustword=indirect'
+unknown config entry: 'comp_trustlong=indirect'
+unknown config entry: 'comp_optimize=true'
+unknown config entry: 'comp_constjump=true'
+unknown config entry: 'comp_test_consistency=false'
+unknown config entry: 'comp_flushmode=hard'
+obsolete config entry 'gfx_correct_aspect'
+unknown config entry: 'hide_cursor=true'
+obsolete config entry 'catweasel_io'
+obsolete config entry 'state_replay'
+obsolete config entry 'state_replay_buffer'
+Graphics card memory size 33554432 (0x2000000) larger than maximum reserved 0 (0x0).
+Zorro III fastmem size 268435456 (0x10000000) larger than max reserved 0 (0x0).
+Can't open /dev/dsp: No such file or directory
+Sound driver unavailable: Sound output disabled
+malloc(): memory corruption
+Aborted
+
