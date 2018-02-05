@@ -6,13 +6,13 @@ gcc -fomit-frame-pointer -ffast-math   -fdiagnostics-show-option -Wall -Wextra -
 
 PUAE/src/gfxboard.c:
 	//vga_common_init(&vga.vga);
-	//cirrus_init_common(&vga, board->chiptype, 0,  NULL, NULL);
+	//cirrus_init_common(&vga, board->chiptype, 0, NULL, NULL); 
 
-------------------------------------------------------------------------------------
-P-UAE 2.8.1
-Git Commit: c7f312dff7074fb8223cf715d179b2bb4f1984f2
-Build date: Feb  3 2018 18:01:38
-------------------------------------------------------------------------------------
+I might have abandoned a port prior due to porting the problem along with memory changes in the past
+
+------------------------------------------------------------------------------------ P-UAE 
+2.8.1 Git Commit: c7f312dff7074fb8223cf715d179b2bb4f1984f2 Build date: Feb 3 2018 18:01:38 
+------------------------------------------------------------------------------------ 
 Copyright 1995-2002 Bernd Schmidt
           1999-2014 Toni Wilen
           2003-2007 Richard Drummond
