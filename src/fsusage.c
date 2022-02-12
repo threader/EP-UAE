@@ -36,12 +36,7 @@
    BLOCKS FROMSIZE-byte blocks, rounding away from zero.
    TOSIZE must be positive.  Return -1 if FROMSIZE is not positive.  */
 
-<<<<<<< HEAD
-static long
-adjust_blocks (long blocks, int fromsize, int tosize)
-=======
 static long adjust_blocks (long blocks, int fromsize, int tosize)
->>>>>>> p-uae/v2.1.0
 {
   if (tosize <= 0)
     abort ();
@@ -61,42 +56,25 @@ static long adjust_blocks (long blocks, int fromsize, int tosize)
 #include <windows.h>
 int get_fs_usage (const char *path, const char *disk, struct fs_usage *fsp)
 {
-<<<<<<< HEAD
-    char buf2[1024];
-=======
     char buf2[MAX_DPATH];
->>>>>>> p-uae/v2.1.0
     DWORD SectorsPerCluster;
     DWORD BytesPerSector;
     DWORD NumberOfFreeClusters;
     DWORD TotalNumberOfClusters;
 
-<<<<<<< HEAD
-    GetFullPathName (path, sizeof buf2, buf2, NULL);
-=======
 	GetFullPathName (path, sizeof buf2, buf2, NULL);
->>>>>>> p-uae/v2.1.0
 
     buf2[3] = 0;
 
     if (!GetDiskFreeSpace (buf2, &SectorsPerCluster, &BytesPerSector,
 			   &NumberOfFreeClusters, &TotalNumberOfClusters)) {
-<<<<<<< HEAD
-	/* lasterror = GetLastError ();*/
-	return -1;
-=======
 		/* lasterror = GetLastError ();*/
 		return -1;
->>>>>>> p-uae/v2.1.0
     }
 
     /* HACK ALERT! WinNT returns 0 in TotalNumberOfClusters for an audio-CD, which calls the GURU! */
     if ((TotalNumberOfClusters == 0) && (GetDriveType (buf2) == DRIVE_CDROM))
-<<<<<<< HEAD
-	TotalNumberOfClusters = 327680;
-=======
 		TotalNumberOfClusters = 327680;
->>>>>>> p-uae/v2.1.0
 
     BytesPerSector *= SectorsPerCluster;
     fsp->fsu_blocks = adjust_blocks (TotalNumberOfClusters, BytesPerSector, 512);
@@ -120,11 +98,7 @@ int get_fs_usage (const char *path, const char *disk, struct fs_usage *fsp)
     int result = -1;
 
     if (info) {
-<<<<<<< HEAD
-        BPTR lock = Lock (path, SHARED_LOCK);
-=======
 	BPTR lock = Lock (path, SHARED_LOCK);
->>>>>>> p-uae/v2.1.0
 	if (lock) {
 	    if (Info (lock, info)) {
 		fsp->fsu_blocks = adjust_blocks (info->id_NumBlocks,
@@ -157,13 +131,8 @@ int get_fs_usage (const char *path, const char *disk, struct fs_usage *fsp)
     dev_t device = dev_for_path (path);
 
     if (device >0) {
-<<<<<<< HEAD
-    	fs_info info;
-    	if (fs_stat_dev (device, &info) == 0) {
-=======
 	fs_info info;
 	if (fs_stat_dev (device, &info) == 0) {
->>>>>>> p-uae/v2.1.0
 	    fsp->fsu_blocks = adjust_blocks (info.total_blocks,
 					     info.block_size,
 					     512);
@@ -175,11 +144,7 @@ int get_fs_usage (const char *path, const char *disk, struct fs_usage *fsp)
 	    fsp->fsu_ffree = info.free_nodes;
 
 	    result = 0;
-<<<<<<< HEAD
     	}
-=======
-	}
->>>>>>> p-uae/v2.1.0
     }
     return result;
 };
@@ -233,12 +198,7 @@ int get_fs_usage (const char *path, const char *disk, struct fs_usage *fsp)
    Return the actual number of bytes read, zero for EOF, or negative
    for an error.  */
 
-<<<<<<< HEAD
-static int
-safe_read (int desc, char *ptr, int len)
-=======
 static int safe_read (int desc, char *ptr, int len)
->>>>>>> p-uae/v2.1.0
 {
   int n_chars;
 
