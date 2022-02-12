@@ -7,7 +7,6 @@
   */
 
 struct zfile;
-<<<<<<< HEAD
 extern int is_zlib;
 
 extern struct zfile *zfile_fopen (const char *, const char *);
@@ -20,7 +19,7 @@ extern size_t zfile_fread  (void *b, size_t l1, size_t l2, struct zfile *z);
 extern size_t zfile_fwrite  (const void *b, size_t l1, size_t l2, struct zfile *z);
 extern void zfile_exit (void);
 extern int execute_command (char *);
-=======
+
 struct zvolume;
 struct zdirectory;
 
@@ -66,14 +65,12 @@ extern int zfile_ferror (struct zfile *z);
 extern uae_u8 *zfile_getdata (struct zfile *z, uae_s64 offset, int len);
 extern void zfile_exit (void);
 extern int execute_command (TCHAR *);
->>>>>>> p-uae/v2.1.0
+
 extern int zfile_iscompressed (struct zfile *z);
 extern int zfile_zcompress (struct zfile *dst, void *src, int size);
 extern int zfile_zuncompress (void *dst, int dstsize, struct zfile *src, int srcsize);
 extern int zfile_gettype (struct zfile *z);
-<<<<<<< HEAD
 extern uae_u32 zfile_crc32 (struct zfile *f);
-=======
 extern int zfile_zopen (const TCHAR *name, zfile_callback zc, void *user);
 extern TCHAR *zfile_getname (struct zfile *f);
 extern TCHAR *zfile_getfilename (struct zfile *f);
@@ -101,7 +98,6 @@ extern TCHAR *zfile_geterror (void);
 
 #define ZFD_RAWDISK_AMIGA 0x10000
 #define ZFD_RAWDISK_PC 0x200000
->>>>>>> p-uae/v2.1.0
 
 #define ZFILE_UNKNOWN 0
 #define ZFILE_CONFIGURATION 1
@@ -111,8 +107,6 @@ extern TCHAR *zfile_geterror (void);
 #define ZFILE_HDF 5
 #define ZFILE_STATEFILE 6
 #define ZFILE_NVR 7
-<<<<<<< HEAD
-=======
 #define ZFILE_HDFRDB 8
 #define ZFILE_CDIMAGE 9
 
@@ -135,4 +129,3 @@ extern unsigned int zfile_read_archive (void *d, void *b, unsigned int size);
 extern void zfile_close_archive (void *d);
 extern void *zfile_open_archive (const TCHAR *path, int flags);
 extern int zfile_exists_archive(const TCHAR *path, const TCHAR *rel);
->>>>>>> p-uae/v2.1.0

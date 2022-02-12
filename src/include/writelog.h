@@ -21,9 +21,6 @@
 extern void write_log   (const char *, ...) PRINTF_FORMAT;
 extern void flush_log   (void);
 extern void set_logfile (const char *logfile_name);
-<<<<<<< HEAD
-=======
 extern void uae_reset (int);
->>>>>>> p-uae/v2.1.0
 
 #endif /* WRITELOG_H */

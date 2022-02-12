@@ -18,26 +18,15 @@
 
 <<<<<<< HEAD
 #define UAEMAJOR   0
-#define UAEMINOR   8
-#define UAESUBREV 29
-=======
-#define UAEMAJOR   2
-#define UAEMINOR   1
+#define UAEMINOR   0
 #define UAESUBREV  0
->>>>>>> p-uae/v2.1.0
 
 #define UAEVERSION (256*65536L*UAEMAJOR + 65536L*UAEMINOR + UAESUBREV)
 
 #ifdef PACKAGE_NAME
-<<<<<<< HEAD
 # define UAE_NAME PACKAGE_NAME
 #else
-# define UAE_NAME "E-UAE"
-=======
-#define UAE_NAME PACKAGE_NAME
-#else
-#define UAE_NAME "PUAE (Ex-UAE)"
->>>>>>> p-uae/v2.1.0
+# define UAE_NAME "EP-UAE"
 #endif
 
 #define STRINGIZE(x) #x
@@ -45,8 +34,4 @@
 
 #define UAE_VERSION_STRING \
 	UAE_NAME " " MAKE_VERSION_STRING (UAEMAJOR, UAEMINOR, UAESUBREV)
-<<<<<<< HEAD
-
-=======
->>>>>>> p-uae/v2.1.0
 #endif

@@ -47,11 +47,7 @@
 #  define uae_msleep(msecs) Sleep (msecs)
 # else
 #  if defined TARGET_AMIGAOS
-<<<<<<< HEAD
-#   if defined __amigaos4__ || defined __MORPHOS__ 
-=======
 #   if defined __amigaos4__ || defined __MORPHOS__
->>>>>>> p-uae/v2.1.0
 #    define uae_msleep(msecs) TimeDelay (0, msecs / ONE_THOUSAND, (msecs % ONE_THOUSAND) * ONE_THOUSAND)
 #   else
 #    define uae_msleep(msecs) Delay (msecs <= 20 ? 1 : msecs/20);

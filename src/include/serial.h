@@ -28,8 +28,6 @@ extern void serial_flush_buffer (void);
 
 extern void serial_hsynchandler (void);
 extern void serial_check_irq (void);
-<<<<<<< HEAD
-=======
 
 extern int uaeser_getdatalenght (void);
 extern int uaeser_getbytespending (void*);
@@ -49,4 +47,3 @@ extern int enet_readseravail (void);
 extern int enet_readser (uae_u16 *buffer);
 extern int enet_open (TCHAR *name);
 extern void enet_close (void);
->>>>>>> p-uae/v2.1.0
