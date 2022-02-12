@@ -36,11 +36,7 @@ void gui_led (int led, int on)
 {
 }
 
-<<<<<<< HEAD
-void gui_hd_led (int led)
-=======
 void gui_hd_led (int unitnum, int led)
->>>>>>> p-uae/v2.1.0
 {
 }
 
@@ -235,27 +231,16 @@ static void print_configuration (void)
     y++;
     tui_gotoxy (OPTION_COLUMN, y++);
     sprintf (tmp, "VIDEO: %d:%d%s %s", currprefs.gfx_width, currprefs.gfx_height,
-<<<<<<< HEAD
-	     currprefs.gfx_lores ? " (lores)" : "", "" /*colormodes[currprefs.color_mode]*/);
-=======
 	     currprefs.gfx_lores_mode ? " (lores)" : "", "" /*colormodes[currprefs.color_mode]*/);
->>>>>>> p-uae/v2.1.0
     tui_puts (tmp);
 
     tui_gotoxy (OPTION_COLUMN+7, y++);
     if (currprefs.gfx_linedbl)
 	tui_puts ("Doubling lines, ");
-<<<<<<< HEAD
-    if (currprefs.gfx_correct_aspect)
-	tui_puts ("Aspect corrected");
-    else
-	tui_puts ("Not aspect corrected");
-=======
 /*    if (currprefs.gfx_correct_aspect)
 	tui_puts ("Aspect corrected");
     else
 	tui_puts ("Not aspect corrected");*/
->>>>>>> p-uae/v2.1.0
     tui_gotoxy (OPTION_COLUMN+7, y++);
     if (currprefs.gfx_xcenter)
 	tui_puts ("X centered");
@@ -282,11 +267,7 @@ static void print_configuration (void)
 	sprintf (tmp, "Picasso 96 %d MB", currprefs.gfxmem_size / 0x100000);
 	tui_puts(tmp);
     } else
-<<<<<<< HEAD
- 	tui_puts ("Picasso 96 Off");
-=======
 	tui_puts ("Picasso 96 Off");
->>>>>>> p-uae/v2.1.0
     y++;
 
     tui_gotoxy (OPTION_COLUMN, y++);
@@ -480,11 +461,7 @@ static void VideoOptions (void)
 	    c = 3;
 	    break;
 	 case 4:
-<<<<<<< HEAD
-	    currprefs.gfx_lores = !currprefs.gfx_lores;
-=======
 	    currprefs.gfx_lores_mode = !currprefs.gfx_lores_mode;
->>>>>>> p-uae/v2.1.0
 	    break;
 	 case 5:
 	    currprefs.gfx_xcenter = (currprefs.gfx_xcenter + 1) % 3;
@@ -495,15 +472,9 @@ static void VideoOptions (void)
 	 case 7:
 	    currprefs.gfx_linedbl = !currprefs.gfx_linedbl;
 	    break;
-<<<<<<< HEAD
-	 case 8:
-	    currprefs.gfx_correct_aspect = !currprefs.gfx_correct_aspect;
-	    break;
-=======
 /*	 case 8:
 	    currprefs.gfx_correct_aspect = !currprefs.gfx_correct_aspect;
 	    break;*/
->>>>>>> p-uae/v2.1.0
 	 case 9:
 	    currprefs.gfx_framerate++;
 	    if (currprefs.gfx_framerate > 9)
