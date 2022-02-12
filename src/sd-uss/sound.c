@@ -25,42 +25,25 @@
 #endif
 
 int sound_fd;
-<<<<<<< HEAD
-static int have_sound = 0;
-static unsigned long formats;
-
-uae_u16 sndbuffer[44100];
-uae_u16 *sndbufpt;
-int sndbufsize;
-=======
 unsigned int have_sound = 0;
 static unsigned long formats;
 
 uae_u16 paula_sndbuffer[44100];
 uae_u16 *paula_sndbufpt;
 int paula_sndbufsize;
->>>>>>> p-uae/v2.1.0
 
 static int exact_log2 (int v)
 {
     int l = 0;
     while ((v >>= 1) != 0)
-<<<<<<< HEAD
-	l++;
-=======
 		l++;
->>>>>>> p-uae/v2.1.0
     return l;
 }
 
 void close_sound (void)
 {
     if (have_sound)
-<<<<<<< HEAD
-	close (sound_fd);
-=======
 		close (sound_fd);
->>>>>>> p-uae/v2.1.0
 }
 
 /* Try to determine whether sound is available.  This is only for GUI purposes.  */
@@ -101,26 +84,6 @@ int init_sound (void)
     sound_fd = open ("/dev/dsp", O_WRONLY);
     have_sound = !(sound_fd < 0);
     if (! have_sound) {
-<<<<<<< HEAD
-	perror ("Can't open /dev/dsp");
-	if (errno != EBUSY)
-	    sound_available = 0;
-	return 0;
-    }
-    if (ioctl (sound_fd, SNDCTL_DSP_GETFMTS, &formats) == -1) {
-	perror ("ioctl failed - can't use sound");
-	close (sound_fd);
-	have_sound = 0;
-	return 0;
-    }
-
-    dspbits = currprefs.sound_bits;
-    ioctl (sound_fd, SNDCTL_DSP_SAMPLESIZE, &dspbits);
-    ioctl (sound_fd, SOUND_PCM_READ_BITS, &dspbits);
-    if (dspbits != currprefs.sound_bits) {
-	fprintf (stderr, "Can't use sound with %d bits\n", currprefs.sound_bits);
-	return 0;
-=======
 		perror ("Can't open /dev/dsp");
 		if (errno != EBUSY)
 		    sound_available = 0;
@@ -133,13 +96,12 @@ int init_sound (void)
 		return 0;
     }
 
-    dspbits = 16;
+    dspbits = currprefs.sound_bits;
     ioctl (sound_fd, SNDCTL_DSP_SAMPLESIZE, &dspbits);
     ioctl (sound_fd, SOUND_PCM_READ_BITS, &dspbits);
-    if (dspbits != 16) {
-		fprintf (stderr, "Can't use sound with %d bits\n", dspbits);
-		return 0;
->>>>>>> p-uae/v2.1.0
+    if (dspbits != currprefs.sound_bits) {
+	fprintf (stderr, "Can't use sound with %d bits\n", currprefs.sound_bits);
+	return 0;
     }
 
     tmp = currprefs.sound_stereo;
@@ -150,24 +112,18 @@ int init_sound (void)
     ioctl (sound_fd, SOUND_PCM_READ_RATE, &rate);
     /* Some soundcards have a bit of tolerance here. */
     if (rate < currprefs.sound_freq * 90 / 100 || rate > currprefs.sound_freq * 110 / 100) {
-<<<<<<< HEAD
-	fprintf (stderr, "Can't use sound with desired frequency %d\n", currprefs.sound_freq);
-	return 0;
-=======
 		fprintf (stderr, "Can't use sound with desired frequency %d\n", currprefs.sound_freq);
 		return 0;
->>>>>>> p-uae/v2.1.0
     }
 
     bufsize = rate * currprefs.sound_latency * (dspbits / 8) * (currprefs.sound_stereo ? 2 : 1) / 1000;
 
     tmp = 0x00040000 + exact_log2 (bufsize);
     ioctl (sound_fd, SNDCTL_DSP_SETFRAGMENT, &tmp);
-<<<<<<< HEAD
-    ioctl (sound_fd, SNDCTL_DSP_GETBLKSIZE, &sndbufsize);
+    ioctl (sound_fd, SNDCTL_DSP_GETBLKSIZE, &paula_sndbufsize);
 
     obtainedfreq = currprefs.sound_freq;
-
+/* note Bigendian breakage! */
     if (dspbits == 16) {
 	/* Will this break horribly on bigendian machines? Possible... Not any more - Rich */
 	if (!(formats & AFMT_S16_NE))
@@ -182,27 +138,12 @@ int init_sound (void)
     }
     sound_available = 1;
     printf ("Sound driver found and configured for %d bits at %d Hz, buffer is %d bytes (%d ms).\n",
-	    dspbits, rate, sndbufsize, sndbufsize * 1000 / (rate * dspbits / 8 * (currprefs.sound_stereo ? 2 : 1)));
-    sndbufpt = sndbuffer;
-=======
-    ioctl (sound_fd, SNDCTL_DSP_GETBLKSIZE, &paula_sndbufsize);
-
-    obtainedfreq = currprefs.sound_freq;
-
-    if (!(formats & AFMT_S16_NE))
-		return 0;
-    init_sound_table16 ();
-    sample_handler = currprefs.sound_stereo ? sample16s_handler : sample16_handler;
-
-    sound_available = 1;
-    printf ("Sound driver found and configured for %d bits at %d Hz, buffer is %d bytes (%d ms).\n",
 	    dspbits, rate, paula_sndbufsize, paula_sndbufsize * 1000 / (rate * dspbits / 8 * (currprefs.sound_stereo ? 2 : 1)));
     paula_sndbufpt = paula_sndbuffer;
 
 #ifdef DRIVESOUND
 	driveclick_init();
 #endif
->>>>>>> p-uae/v2.1.0
 
     return 1;
 }
@@ -221,10 +162,6 @@ void resume_sound (void)
 
 void sound_volume (int dir)
 {
-<<<<<<< HEAD
-}
-
-=======
 /*
     currprefs.sound_volume -= dir * 10;
     if (currprefs.sound_volume < 0)
@@ -241,7 +178,6 @@ void restart_sound_buffer (void)
 }
 
 
->>>>>>> p-uae/v2.1.0
 /*
  * Handle audio specific cfgfile options
  */

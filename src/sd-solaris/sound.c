@@ -36,17 +36,6 @@
 #endif
 #endif
 
-<<<<<<< HEAD
-int sndbufsize;
-int sound_fd;
-static int have_sound;
-uae_u16 sndbuffer[44100];
-uae_u16 *sndbufpt;
-
-static void clearbuffer (void)
-{
-    memset (sndbuffer, 0 , sizeof (sndbuffer));
-=======
 int paula_sndbufsize;
 int sound_fd;
 unsigned int have_sound;
@@ -56,7 +45,6 @@ uae_u16 *paula_sndbufpt;
 static void clearbuffer (void)
 {
     memset (paula_sndbuffer, 0 , sizeof (paula_sndbuffer));
->>>>>>> p-uae/v2.1.0
 }
 
 void close_sound(void)
@@ -78,16 +66,11 @@ int setup_sound (void)
 
 int init_sound (void)
 {
-<<<<<<< HEAD
     int rate, dspbits;
-=======
-    int rate;
->>>>>>> p-uae/v2.1.0
 
     struct audio_info sfd_info;
 
     rate = currprefs.sound_freq;
-<<<<<<< HEAD
     dspbits = currprefs.sound_bits;
     AUDIO_INITINFO(&sfd_info);
     sfd_info.play.sample_rate = rate;
@@ -96,27 +79,16 @@ int init_sound (void)
     sfd_info.play.encoding = (dspbits == 8 ) ? AUDIO_ENCODING_ULAW : AUDIO_ENCODING_LINEAR;
     if (ioctl (sound_fd, AUDIO_SETINFO, &sfd_info)) {
 	write_log ("Can't use sample rate %d with %d bits, %s.\n", rate, dspbits, (dspbits == 8) ? "ulaw" : "linear");
-=======
-    AUDIO_INITINFO(&sfd_info);
-    sfd_info.play.sample_rate = rate;
-    sfd_info.play.channels = 1;
-    sfd_info.play.precision = 16;
-    sfd_info.play.encoding = AUDIO_ENCODING_LINEAR;
-    if (ioctl (sound_fd, AUDIO_SETINFO, &sfd_info)) {
-	write_log ("Can't use sample rate %d.\n", rate);
->>>>>>> p-uae/v2.1.0
 	return 0;
     }
 
     init_sound_table16 ();
-<<<<<<< HEAD
 
     if (dspbits == 8)
 	sample_handler = sample_ulaw_handler;
     else
 	sample_handler = sample16_handler;
-
-    sndbufpt = sndbuffer;
+    paula_sndbufpt = paula_sndbuffer;
     obtainedfreq = rate;
 
     sound_available = 1;
@@ -124,20 +96,7 @@ int init_sound (void)
     sndbufsize = (sndbufsize + 1) & ~1;
 
     write_log ("Sound driver found and configured for %d bits, %s at %d Hz, buffer is %d bytes.\n",
-	       dspbits, (dspbits ==8) ? "ulaw" : "linear", rate, sndbufsize);
-=======
-    sample_handler = sample16_handler;
-
-    paula_sndbufpt = paula_sndbuffer;
-    obtainedfreq = rate;
-
-    sound_available = 1;
-    paula_sndbufsize = rate * currprefs.sound_latency * 2 * (currprefs.sound_stereo ? 2 : 1) / 1000;
-    paula_sndbufsize = (paula_sndbufsize + 1) & ~1;
-
-    write_log ("Sound driver found and configured at %d Hz, buffer is %d bytes.\n",
-	       rate, paula_sndbufsize);
->>>>>>> p-uae/v2.1.0
+	       dspbits, (dspbits ==8) ? "ulaw" : "linear", paula_rate, sndbufsize);
     return 1;
 }
 
