@@ -25,19 +25,11 @@
 char alsa_device[256];
 int  alsa_verbose;
 
-<<<<<<< HEAD
-static int have_sound = 0;
-
-uae_u16 sndbuffer[44100];
-uae_u16 *sndbufpt;
-int sndbufsize;
-=======
 unsigned int have_sound = 0;
 
 uae_u16 paula_sndbuffer[44100];
 uae_u16 *paula_sndbufpt;
 int paula_sndbufsize;
->>>>>>> p-uae/v2.1.0
 
 snd_pcm_t *alsa_playback_handle = 0;
 int bytes_per_frame;
@@ -59,21 +51,6 @@ static int open_sound(void)
 /* Try to determine whether sound is available.  This is only for GUI purposes.  */
 int setup_sound (void)
 {
-<<<<<<< HEAD
-  int err;
-  sound_available = 0;
-  if ((err = open_sound()) < 0) {
-    /* TODO: if the pcm was busy, we should the same as sd-uss does.
-       tell the caller that sound is available. in any other
-       condition we should just return 0. */
-    write_log ("Cannot open audio device: %s.\n", snd_strerror (err));
-    return 0;
-  }
-  snd_pcm_close (alsa_playback_handle);
-  alsa_playback_handle = 0;
-  sound_available = 1;
-  return 1;
-=======
 	int err;
 	sound_available = 0;
 
@@ -89,7 +66,6 @@ int setup_sound (void)
 	alsa_playback_handle = 0;
 	sound_available = 1;
 	return 1;
->>>>>>> p-uae/v2.1.0
 }
 
 static int set_hw_params(snd_pcm_t *pcm,
@@ -106,24 +82,6 @@ static int set_hw_params(snd_pcm_t *pcm,
 
     err = snd_pcm_hw_params_any (pcm, hw_params);
     if (err < 0)
-<<<<<<< HEAD
-	return err;
-    err = snd_pcm_hw_params_set_access (pcm, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
-    if (err < 0)
-	return err;
-    err = snd_pcm_hw_params_set_format (pcm, hw_params, format);
-    if (err < 0)
-	return err;
-    err = snd_pcm_hw_params_set_channels (pcm, hw_params, channels);
-    if (err < 0)
-	return err;
-    err = snd_pcm_hw_params_set_rate_near (pcm, hw_params, rate, 0);
-    if (err < 0)
-	return err;
-    err = snd_pcm_hw_params_set_buffer_time_near (pcm, hw_params, buffer_time, NULL);
-    if (err < 0)
-	return err;
-=======
 		return err;
 
     err = snd_pcm_hw_params_set_access (pcm, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
@@ -146,20 +104,13 @@ static int set_hw_params(snd_pcm_t *pcm,
     if (err < 0)
 		return err;
 
->>>>>>> p-uae/v2.1.0
     snd_pcm_hw_params_get_buffer_size (hw_params, buffer_frames);
     err = snd_pcm_hw_params_set_periods_near (pcm, hw_params, &periods, NULL);
     if (err < 0)
        return err;
     if (periods == 1)
-<<<<<<< HEAD
-	return -EINVAL;
-    err = snd_pcm_hw_params(pcm, hw_params);
-
-=======
 		return -EINVAL;
     err = snd_pcm_hw_params(pcm, hw_params);
->>>>>>> p-uae/v2.1.0
     snd_pcm_hw_params_get_period_size (hw_params, period_frames, NULL);
     return 0;
 }
@@ -173,24 +124,6 @@ static int set_sw_params(snd_pcm_t *pcm,
 
     err = snd_pcm_sw_params_current (pcm, sw_params);
     if (err < 0)
-<<<<<<< HEAD
-	return err;
-    err = snd_pcm_sw_params_set_start_threshold(pcm, sw_params, (buffer_frames / period_frames) * period_frames);
-    if (err < 0)
-	return err;
-    err = snd_pcm_sw_params_set_avail_min(pcm, sw_params, period_frames);
-    if (err < 0)
-	return err;
-    err = snd_pcm_sw_params_set_stop_threshold(pcm, sw_params, buffer_frames);
-    if (err < 0)
-	return err;
-    err = snd_pcm_sw_params_set_xfer_align(pcm, sw_params, 1);
-    if (err < 0)
-	return err;
-    err = snd_pcm_sw_params(pcm, sw_params);
-    if (err < 0)
-	return err;
-=======
 		return err;
 
     err = snd_pcm_sw_params_set_start_threshold(pcm, sw_params, (buffer_frames / period_frames) * period_frames);
@@ -212,7 +145,6 @@ static int set_sw_params(snd_pcm_t *pcm,
     err = snd_pcm_sw_params(pcm, sw_params);
     if (err < 0)
 		return err;
->>>>>>> p-uae/v2.1.0
     return 0;
 }
 
@@ -235,53 +167,20 @@ int init_sound (void)
 
     snd_output_stdio_attach (&alsa_out, stderr, 0);
 
-<<<<<<< HEAD
     dspbits  = currprefs.sound_bits;
-=======
-    dspbits  = 16;
->>>>>>> p-uae/v2.1.0
     channels = currprefs.sound_stereo ? 2 : 1;
     rate     = currprefs.sound_freq;
 
     have_sound = 0;
     alsa_playback_handle = 0;
-<<<<<<< HEAD
-    if ((err = open_sound()) < 0) {
-	write_log ("Cannot open audio device: %s\n", snd_strerror (err));
-	goto nosound;
-=======
 	printf("ALSA lib version: %s\n", SND_LIB_VERSION_STR);
     if ((err = open_sound()) < 0) {
 		write_log ("ALSA: Can't open audio device: %s\n", snd_strerror (err));
 		goto nosound;
->>>>>>> p-uae/v2.1.0
     }
 
     buffer_time = currprefs.sound_latency * 1000;
     if (buffer_time < 1000 || buffer_time > 500000)
-<<<<<<< HEAD
-	buffer_time = 100000;
-
-    if ((err = snd_pcm_hw_params_malloc (&hw_params)) < 0) {
-	write_log ("Cannot allocate hardware parameter structure: %s.\n", snd_strerror (err));
-	goto nosound;
-    }
-    if ((err = snd_pcm_sw_params_malloc (&sw_params)) < 0) {
-	write_log ("Cannot allocate software parameter structure: %s.\n", snd_strerror (err));
-	goto nosound;
-    }
-
-    switch (dspbits) {
-	case 8:
-	    format = SND_PCM_FORMAT_S8;
-	    break;
-	case 16:
-	    format = SND_PCM_FORMAT_S16;
-	    break;
-	default:
-	    write_log ("%d-bit samples not supported by UAE.\n", dspbits);
-	    goto nosound;
-=======
 		buffer_time = 100000;
 
     if ((err = snd_pcm_hw_params_malloc (&hw_params)) < 0) {
@@ -303,24 +202,11 @@ int init_sound (void)
 		default:
 		    write_log ("%d-bit samples not supported by UAE.\n", dspbits);
 		    goto nosound;
->>>>>>> p-uae/v2.1.0
     }
 
     bytes_per_frame = dspbits / 8 * channels;
 
     if ((err = set_hw_params (alsa_playback_handle, hw_params, &rate, channels, format, &buffer_time, &buffer_frames, &period_frames)) < 0) {
-<<<<<<< HEAD
-	write_log ("Cannot set hw parameters: %s.\n", snd_strerror (err));
-	goto nosound;
-    }
-
-    if ((err = set_sw_params (alsa_playback_handle, sw_params, buffer_frames, period_frames)) < 0) {
-	write_log ("Cannot set sw parameters: %s.\n", snd_strerror (err));
-	goto nosound;
-    }
-
-    sndbufsize = period_frames * bytes_per_frame;
-=======
 		write_log ("Cannot set hw parameters: %s.\n", snd_strerror (err));
 		goto nosound;
     }
@@ -331,35 +217,19 @@ int init_sound (void)
     }
 
     paula_sndbufsize = period_frames * bytes_per_frame;
->>>>>>> p-uae/v2.1.0
     snd_pcm_hw_params_free (hw_params);
     snd_pcm_sw_params_free (sw_params);
 
     if ((err = snd_pcm_prepare (alsa_playback_handle)) < 0) {
-<<<<<<< HEAD
-	write_log ("Cannot prepare audio interface for use: %s.\n", snd_strerror (err));
-	goto nosound;
-=======
 		write_log ("Cannot prepare audio interface for use: %s.\n", snd_strerror (err));
 		goto nosound;
->>>>>>> p-uae/v2.1.0
     }
 
     obtainedfreq = currprefs.sound_freq;
 
-<<<<<<< HEAD
-    if (dspbits == 16) {
-	init_sound_table16 ();
-	sample_handler = currprefs.sound_stereo ? sample16s_handler : sample16_handler;
-    } else {
-	init_sound_table8 ();
-	sample_handler = currprefs.sound_stereo ? sample8s_handler : sample8_handler;
-    }
-=======
     init_sound_table16 ();
     sample_handler = currprefs.sound_stereo ? sample16s_handler : sample16_handler;
 
->>>>>>> p-uae/v2.1.0
     have_sound = 1;
     sound_available = 1;
 
@@ -368,30 +238,18 @@ int init_sound (void)
 	       dspbits, rate, buffer_time, period_frames * bytes_per_frame);
 
     if (alsa_verbose)
-<<<<<<< HEAD
-	snd_pcm_dump (alsa_playback_handle, alsa_out);
-
-    sndbufpt = sndbuffer;
-=======
 		snd_pcm_dump (alsa_playback_handle, alsa_out);
 
     paula_sndbufpt = paula_sndbuffer;
->>>>>>> p-uae/v2.1.0
 
     return 1;
 
  nosound:
     have_sound = 0;
     if (hw_params)
-<<<<<<< HEAD
-	snd_pcm_hw_params_free (hw_params);
-    if (sw_params)
-	snd_pcm_sw_params_free (sw_params);
-=======
 		snd_pcm_hw_params_free (hw_params);
     if (sw_params)
 		snd_pcm_sw_params_free (sw_params);
->>>>>>> p-uae/v2.1.0
 
     close_sound ();
     return 0;
@@ -404,34 +262,23 @@ void reset_sound (void)
 void pause_sound (void)
 {
     if (alsa_playback_handle)
-<<<<<<< HEAD
-	snd_pcm_drop (alsa_playback_handle);
-=======
 		snd_pcm_drop (alsa_playback_handle);
->>>>>>> p-uae/v2.1.0
 }
 
 void resume_sound (void)
 {
     if (alsa_playback_handle)
-<<<<<<< HEAD
-	snd_pcm_prepare (alsa_playback_handle);
-=======
 		snd_pcm_prepare (alsa_playback_handle);
->>>>>>> p-uae/v2.1.0
 }
 
 void sound_volume (int dir)
 {
 }
 
-<<<<<<< HEAD
-=======
 void restart_sound_buffer (void)
 {
 }
 
->>>>>>> p-uae/v2.1.0
 /*
  * Handle audio specific cfgfile options
  */
