@@ -19,13 +19,8 @@
 #include <string.h>
 #include <time.h>
 
-<<<<<<< HEAD
 #include "sysconfig.h"
 #include "sysdeps.h"
-=======
-#include "sysconfig.h"
-#include "sysdeps.h"
->>>>>>> p-uae/v2.1.0
 #include "zfile.h"
 
 #include "cdata.h"
@@ -38,14 +33,8 @@
 #include "crc_csum.h"
 #include "pfile.h"
 
-<<<<<<< HEAD
 
-
-static USHORT Process_Track(struct zfile *, struct zfile *, UCHAR *, UCHAR *, USHORT, USHORT, USHORT);
-static USHORT Unpack_Track(UCHAR *, UCHAR *, USHORT, USHORT, UCHAR, UCHAR);
-static void printbandiz(UCHAR *, USHORT);
 static void dms_decrypt(UCHAR *, USHORT);
-
 
 static char modes[7][7]={"NOCOMP","SIMPLE","QUICK ","MEDIUM","DEEP  ","HEAVY1","HEAVY2"};
 static USHORT PWDCRC;
@@ -55,7 +44,7 @@ UCHAR *text;
 
 
 USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT opt, USHORT PCRC, USHORT pwd){
-=======
+
 static int dolog = 0;
 
 #define DMSFLAG_ENCRYPTED 2
@@ -100,35 +89,21 @@ static void addextra(TCHAR *name, struct zfile **extra, uae_u8 *p, int size)
 
 USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT opt, USHORT PCRC, USHORT pwd, int part, struct zfile **extra)
 {
->>>>>>> p-uae/v2.1.0
 	USHORT from, to, geninfo, c_version, cmode, hcrc, disktype, pv, ret;
 	ULONG pkfsize, unpkfsize;
 	UCHAR *b1, *b2;
 	time_t date;
-
-<<<<<<< HEAD
-
-	b1 = (UCHAR *)calloc((size_t)TRACK_BUFFER_LEN,1);
-	if (!b1) return ERR_NOMEMORY;
-	b2 = (UCHAR *)calloc((size_t)TRACK_BUFFER_LEN,1);
-=======
 	passfound = 0;
 	passretries = 2;
 	b1 = xcalloc(UCHAR,TRACK_BUFFER_LEN);
 	if (!b1) return ERR_NOMEMORY;
 	b2 = xcalloc(UCHAR,TRACK_BUFFER_LEN);
->>>>>>> p-uae/v2.1.0
 	if (!b2) {
 		free(b1);
 		return ERR_NOMEMORY;
 	}
-<<<<<<< HEAD
-	text = (UCHAR *)calloc((size_t)TEMP_BUFFER_LEN,1);
-	if (!text) {
-=======
 	dms_text = xcalloc(UCHAR,TEMP_BUFFER_LEN);
 	if (!dms_text) {
->>>>>>> p-uae/v2.1.0
 		free(b1);
 		free(b2);
 		return ERR_NOMEMORY;
@@ -139,11 +114,7 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 	if (zfile_fread(b1,1,HEADLEN,fi) != HEADLEN) {
 		free(b1);
 		free(b2);
-<<<<<<< HEAD
-		free(text);
-=======
 		free(dms_text);
->>>>>>> p-uae/v2.1.0
 		return ERR_SREAD;
 	}
 
@@ -151,26 +122,13 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 		/*  Check the first 4 bytes of file to see if it is "DMS!"  */
 		free(b1);
 		free(b2);
-<<<<<<< HEAD
-		free(text);
-=======
 		free(dms_text);
->>>>>>> p-uae/v2.1.0
 		return ERR_NOTDMS;
 	}
 
 	hcrc = (USHORT)((b1[HEADLEN-2]<<8) | b1[HEADLEN-1]);
 	/* Header CRC */
 
-<<<<<<< HEAD
-	if (hcrc != CreateCRC(b1+4,(ULONG)(HEADLEN-6))) {
-		free(b1);
-		free(b2);
-		free(text);
-		return ERR_HCRC;
-	}
-	
-=======
 	if (hcrc != dms_CreateCRC(b1+4,(ULONG)(HEADLEN-6))) {
 		free(b1);
 		free(b2);
@@ -178,14 +136,11 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 		return ERR_HCRC;
 	}
 
->>>>>>> p-uae/v2.1.0
 	geninfo = (USHORT) ((b1[10]<<8) | b1[11]);	/* General info about archive */
 	date = (time_t) ((((ULONG)b1[12])<<24) | (((ULONG)b1[13])<<16) | (((ULONG)b1[14])<<8) | (ULONG)b1[15]);	/* date in standard UNIX/ANSI format */
 	from = (USHORT) ((b1[16]<<8) | b1[17]);		/*  Lowest track in archive. May be incorrect if archive is "appended" */
 	to = (USHORT) ((b1[18]<<8) | b1[19]);		/*  Highest track in archive. May be incorrect if archive is "appended" */
 
-<<<<<<< HEAD
-=======
 	if (part && from < 30) {
 		free(b1);
 		free(b2);
@@ -193,7 +148,6 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 		return DMS_FILE_END;
 	}
 
->>>>>>> p-uae/v2.1.0
 	pkfsize = (ULONG) ((((ULONG)b1[21])<<16) | (((ULONG)b1[22])<<8) | (ULONG)b1[23]);	/*  Length of total packed data as in archive   */
 	unpkfsize = (ULONG) ((((ULONG)b1[25])<<16) | (((ULONG)b1[26])<<8) | (ULONG)b1[27]);	/*  Length of unpacked data. Usually 901120 bytes  */
 
@@ -202,24 +156,9 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 	cmode = (USHORT) ((b1[52]<<8) | b1[53]);        /*  Compression mode mostly used in this archive  */
 
 	PWDCRC = PCRC;
+/* notes */
+	//if ( (cmd == CMD_VIEW) || (cmd == CMD_VIEWFULL) ) {
 
-<<<<<<< HEAD
-	if ( (cmd == CMD_VIEW) || (cmd == CMD_VIEWFULL) ) {
-
-		pv = (USHORT)(c_version/100);
-		write_log(" Created with DMS version %d.%02d ",pv,c_version-pv*100);
-		if (geninfo & 0x80)
-			write_log("Registered\n");
-		else
-			write_log("Evaluation\n");
-
-		write_log(" Creation date : %s",ctime(&date));
-		write_log(" Lowest track in archive : %d\n",from);
-		write_log(" Highest track in archive : %d\n",to);
-		write_log(" Packed data size : %lu\n",pkfsize);
-		write_log(" Unpacked data size : %lu\n",unpkfsize);
-		write_log(" Disk type of archive : ");
-=======
 	if (dolog) {
 
 		pv = (USHORT)(c_version/100);
@@ -235,7 +174,6 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 		write_log (" Packed data size : %lu\n",pkfsize);
 		write_log (" Unpacked data size : %lu\n",unpkfsize);
 		write_log (" Disk type of archive : ");
->>>>>>> p-uae/v2.1.0
 
 		/*  The original DMS from SDS software (DMS up to 1.11) used other values    */
 		/*  in disk type to indicate formats as MS-DOS, AMax and Mac, but it was     */
@@ -246,51 +184,6 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 			case 0:
 			case 1:
 				/* Can also be a non-dos disk */
-<<<<<<< HEAD
-				write_log("AmigaOS 1.0 OFS\n");
-				break;
-			case 2:
-				write_log("AmigaOS 2.0 FFS\n");
-				break;
-			case 3:
-				write_log("AmigaOS 3.0 OFS / International\n");
-				break;
-			case 4:
-				write_log("AmigaOS 3.0 FFS / International\n");
-				break;
-			case 5:
-				write_log("AmigaOS 3.0 OFS / Dir Cache\n");
-				break;
-			case 6:
-				write_log("AmigaOS 3.0 FFS / Dir Cache\n");
-				break;
-			case 7:
-				write_log("FMS Amiga System File\n");
-				break;
-			default:
-				write_log("Unknown\n");
-		}
-
-		write_log(" Compression mode used : ");
-		if (cmode>6)
-			write_log("Unknown !\n");
-		else
-			write_log("%s\n",modes[cmode]);
-
-		write_log(" General info : ");
-		if ((geninfo==0)||(geninfo==0x80)) write_log("None");
-		if (geninfo & 1) write_log("NoZero ");
-		if (geninfo & 2) write_log("Encrypted ");
-		if (geninfo & 4) write_log("Appends ");
-		if (geninfo & 8) write_log("Banner ");
-		if (geninfo & 16) write_log("HD ");
-		if (geninfo & 32) write_log("MS-DOS ");
-		if (geninfo & 64) write_log("DMS_DEV_Fixed ");
-		if (geninfo & 256) write_log("FILEID.DIZ");
-		write_log("\n");
-
-		write_log(" Info Header CRC : %04X\n\n",hcrc);
-=======
 				write_log ("AmigaOS 1.0 OFS\n");
 				break;
 			case 2:
@@ -334,7 +227,6 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 		write_log ("\n");
 
 		write_log (" Info Header CRC : %04X\n\n",hcrc);
->>>>>>> p-uae/v2.1.0
 
 	}
 
@@ -342,16 +234,11 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 		/*  It's not a DMS compressed disk image, but a FMS archive  */
 		free(b1);
 		free(b2);
-<<<<<<< HEAD
-		free(text);
-=======
 		free(dms_text);
->>>>>>> p-uae/v2.1.0
 		return ERR_FMS;
 	}
 
-
-<<<<<<< HEAD
+#if 0
 	if (cmd == CMD_VIEWFULL)	{
 		write_log(" Track   Plength  Ulength  Cmode   USUM  HCRC  DCRC Cflag\n");
 		write_log(" ------  -------  -------  ------  ----  ----  ---- -----\n");
@@ -359,15 +246,12 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 
 	if (((cmd==CMD_UNPACK) || (cmd==CMD_SHOWBANNER)) && (geninfo & 2) && (!pwd))
 		return ERR_NOPASSWD;
-=======
+#endif 
 	if (dolog)	{
 		write_log (" Track   Plength  Ulength  Cmode   USUM  HCRC  DCRC Cflag\n");
 		write_log (" ------  -------  -------  ------  ----  ----  ---- -----\n");
 	}
 
-	//	if (((cmd==CMD_UNPACK) || (cmd==CMD_SHOWBANNER)) && (geninfo & 2) && (!pwd))
-	//		return ERR_NOPASSWD;
->>>>>>> p-uae/v2.1.0
 
 	ret=NO_PROBLEM;
 
@@ -375,7 +259,6 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 
 	if (cmd != CMD_VIEW) {
 		if (cmd == CMD_SHOWBANNER) /*  Banner is in the first track  */
-<<<<<<< HEAD
 			ret = Process_Track(fi,NULL,b1,b2,cmd,opt,(geninfo & 2)?pwd:0);
 		else {
 			while ( (ret=Process_Track(fi,fo,b1,b2,cmd,opt,(geninfo & 2)?pwd:0)) == NO_PROBLEM ) ;
@@ -383,7 +266,6 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 	}
 
 	if ((cmd == CMD_VIEWFULL) || (cmd == CMD_SHOWDIZ) || (cmd == CMD_SHOWBANNER)) write_log("\n");
-=======
 			ret = Process_Track(fi,NULL,b1,b2,cmd,opt,geninfo,extra);
 		else {
 			for (;;) {
@@ -421,7 +303,6 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 	}
 
 	if ((cmd == CMD_VIEWFULL) || (cmd == CMD_SHOWDIZ) || (cmd == CMD_SHOWBANNER)) write_log ("\n");
->>>>>>> p-uae/v2.1.0
 
 	if (ret == DMS_FILE_END) ret = NO_PROBLEM;
 
@@ -435,27 +316,16 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 
 	free(b1);
 	free(b2);
-<<<<<<< HEAD
-	free(text);
-=======
 	free(dms_text);
->>>>>>> p-uae/v2.1.0
 
 	return ret;
 }
 
-<<<<<<< HEAD
 
-
-static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR *b2, USHORT cmd, USHORT opt, USHORT pwd){
+static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR *b2, USHORT cmd, USHORT opt, int dmsflags, struct zfile **extra){
 	USHORT hcrc, dcrc, usum, number, pklen1, pklen2, unpklen, l, r;
 	UCHAR cmode, flags;
-=======
-static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR *b2, USHORT cmd, USHORT opt, int dmsflags, struct zfile **extra){
-	USHORT hcrc, dcrc, usum, number, pklen1, pklen2, unpklen, l;
-	UCHAR cmode, flags;
 	int crcerr = 0;
->>>>>>> p-uae/v2.1.0
 
 
 	l = (USHORT)zfile_fread(b1,1,THLEN,fi);
@@ -473,11 +343,7 @@ static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR
 	/*  Track Header CRC  */
 	hcrc = (USHORT)((b1[THLEN-2] << 8) | b1[THLEN-1]);
 
-<<<<<<< HEAD
-	if (CreateCRC(b1,(ULONG)(THLEN-2)) != hcrc) return ERR_THCRC;
-=======
 	if (dms_CreateCRC(b1,(ULONG)(THLEN-2)) != hcrc) return ERR_THCRC;
->>>>>>> p-uae/v2.1.0
 
 	number = (USHORT)((b1[2] << 8) | b1[3]);	/*  Number of track  */
 	pklen1 = (USHORT)((b1[6] << 8) | b1[7]);	/*  Length of packed track data as in archive  */
@@ -487,8 +353,7 @@ static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR
 	cmode = b1[13];		/*  compression mode used  */
 	usum = (USHORT)((b1[14] << 8) | b1[15]);	/*  Track Data CheckSum AFTER unpacking  */
 	dcrc = (USHORT)((b1[16] << 8) | b1[17]);	/*  Track Data CRC BEFORE unpacking  */
-
-<<<<<<< HEAD
+#if 0
 	if (cmd == CMD_VIEWFULL) {
 		if (number==80)
 			write_log(" FileID   ");
@@ -500,7 +365,7 @@ static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR
 			write_log("   %2d     ",(short)number);
 
 	    write_log("%5d    %5d   %s  %04X  %04X  %04X    %0d\n", pklen1, unpklen, modes[cmode], usum, hcrc, dcrc, flags);
-=======
+#endif 
 	if (dolog)
 		write_log ("DMS: track=%d\n", number);
 
@@ -515,27 +380,21 @@ static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR
 			write_log ("   %2d     ",(short)number);
 
 	    write_log ("%5d    %5d   %s  %04X  %04X  %04X    %0d\n", pklen1, unpklen, modes[cmode], usum, hcrc, dcrc, flags);
->>>>>>> p-uae/v2.1.0
+
 	}
 
 	if ((pklen1 > TRACK_BUFFER_LEN) || (pklen2 >TRACK_BUFFER_LEN) || (unpklen > TRACK_BUFFER_LEN)) return ERR_BIGTRACK;
 
 	if (zfile_fread(b1,1,(size_t)pklen1,fi) != pklen1) return ERR_SREAD;
 
-<<<<<<< HEAD
-	if (CreateCRC(b1,(ULONG)pklen1) != dcrc) return ERR_TDCRC;
-
-=======
 	if (dms_CreateCRC(b1,(ULONG)pklen1) != dcrc) {
 		log_error (number);
 		crcerr = 1;
 	}
->>>>>>> p-uae/v2.1.0
 	/*  track 80 is FILEID.DIZ, track 0xffff (-1) is Banner  */
 	/*  and track 0 with 1024 bytes only is a fake boot block with more advertising */
 	/*  FILE_ID.DIZ is never encrypted  */
 
-<<<<<<< HEAD
 	if (pwd && (number!=80)) dms_decrypt(b1,pklen1);
 
 	if ((cmd == CMD_UNPACK) && (number<80) && (unpklen>2048)) {
@@ -573,7 +432,6 @@ static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR
 		if (r != NO_PROBLEM) return r;
 		if (usum != Calc_CheckSum(b2,(ULONG)unpklen)) return ERR_CSUM;
 		printbandiz(b2,unpklen);
-=======
 	//if (pwd && (number!=80)) dms_decrypt(b1,pklen1);
 
 	if ((cmd == CMD_UNPACK) && (number<80) && (unpklen>2048)) {
@@ -612,7 +470,6 @@ static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR
 		Unpack_Track(b1, b2, pklen2, unpklen, cmode, flags, number, pklen1, usum, dmsflags & DMSFLAG_ENCRYPTED);
 		addextra("FILEID.DIZ", extra, b2, unpklen);
 		//printbandiz(b2,unpklen);
->>>>>>> p-uae/v2.1.0
 	}
 
 	return NO_PROBLEM;
@@ -621,11 +478,8 @@ static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR
 
 
 
-<<<<<<< HEAD
-static USHORT Unpack_Track(UCHAR *b1, UCHAR *b2, USHORT pklen2, USHORT unpklen, UCHAR cmode, UCHAR flags){
-=======
 static USHORT Unpack_Track_2(UCHAR *b1, UCHAR *b2, USHORT pklen2, USHORT unpklen, UCHAR cmode, UCHAR flags){
->>>>>>> p-uae/v2.1.0
+
 	switch (cmode){
 		case 0:
 			/*   No Compression   */
@@ -679,16 +533,6 @@ static USHORT Unpack_Track_2(UCHAR *b1, UCHAR *b2, USHORT pklen2, USHORT unpklen
 
 }
 
-<<<<<<< HEAD
-
-/*  DMS uses a lame encryption  */
-static void dms_decrypt(UCHAR *p, USHORT len){
-	USHORT t;
-
-	while (len--){
-		t = (USHORT) *p;
-		*p++ ^= (UCHAR)PWDCRC;
-=======
 /*  DMS uses a lame encryption  */
 static void dms_decrypt(UCHAR *p, USHORT len, UCHAR *src){
 	USHORT t;
@@ -696,13 +540,10 @@ static void dms_decrypt(UCHAR *p, USHORT len, UCHAR *src){
 	while (len--){
 		t = (USHORT) *src++;
 		*p++ = t ^ (UCHAR)PWDCRC;
->>>>>>> p-uae/v2.1.0
 		PWDCRC = (USHORT)((PWDCRC >> 1) + t);
 	}
 }
 
-<<<<<<< HEAD
-=======
 static USHORT Unpack_Track(UCHAR *b1, UCHAR *b2, USHORT pklen2, USHORT unpklen, UCHAR cmode, UCHAR flags, USHORT number, USHORT pklen1, USHORT usum1, int enc)
 {
 	USHORT r, err = NO_PROBLEM;
@@ -762,7 +603,6 @@ static USHORT Unpack_Track(UCHAR *b1, UCHAR *b2, USHORT pklen2, USHORT unpklen, 
 	free (tmp);
 	return err;
 }
->>>>>>> p-uae/v2.1.0
 
 
 static void printbandiz(UCHAR *m, USHORT len){
@@ -772,19 +612,12 @@ static void printbandiz(UCHAR *m, USHORT len){
 	while (i<m+len) {
 		if (*i == 10) {
 			*i=0;
-<<<<<<< HEAD
 			write_log("%s\n",j);
-=======
-			write_log ("%s\n",j);
->>>>>>> p-uae/v2.1.0
 			j=i+1;
 		}
 		i++;
 	}
-<<<<<<< HEAD
 
-=======
->>>>>>> p-uae/v2.1.0
 }
 
 

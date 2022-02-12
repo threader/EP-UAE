@@ -75,11 +75,6 @@
 #define DIR_SEPARATORS ":\\/"
 
 
-<<<<<<< HEAD
-extern UCHAR *text;
-
-=======
 extern UCHAR *dms_text;
 extern USHORT dms_lastlen, dms_np;
->>>>>>> p-uae/v2.1.0
 
