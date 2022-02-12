@@ -106,11 +106,7 @@ static void *fdi_malloc	(int size)
 	return (int*)p + 1;
 }
 #else
-<<<<<<< HEAD
-#define	fdi_free free
-=======
 #define fdi_free xfree
->>>>>>> p-uae/v2.1.0
 #define	fdi_malloc xmalloc
 #endif
 
@@ -118,11 +114,7 @@ static void *fdi_malloc	(int size)
 #define	MAX_DST_BUFFER 40000
 #define	MAX_MFM_SYNC_BUFFER 60000
 #define	MAX_TIMING_BUFFER 400000
-<<<<<<< HEAD
-#define	MAX_TRACKS 166
-=======
 #define MAX_TRACKS 168
->>>>>>> p-uae/v2.1.0
 
 struct fdi_cache {
 	uae_u32 *avgp, *minp, *maxp;
@@ -149,10 +141,7 @@ struct fdi {
 	unsigned int bit_rate;
 	int disk_type;
 	int write_protect;
-<<<<<<< HEAD
-=======
 	int reversed_side;
->>>>>>> p-uae/v2.1.0
 	int err;
 	uae_u8 header[2048];
 	unsigned int track_offsets[MAX_TRACKS];
@@ -207,17 +196,10 @@ static const uae_u8 *expand_tree (const uae_u8 *stream, NODE *node)
 			temp = *stream++;
 			temp2 =	0x80;
 		}
-<<<<<<< HEAD
-		node->left = fdi_malloc	(sizeof	(NODE));
-		memset (node->left, 0, sizeof (NODE));
-		stream_temp = expand_tree (stream, node->left);
-		node->right = fdi_malloc (sizeof (NODE));
-=======
 		node->left = fdi_malloc (NODE, 1);
 		memset (node->left, 0, sizeof (NODE));
 		stream_temp = expand_tree (stream, node->left);
 		node->right = fdi_malloc (NODE ,1);
->>>>>>> p-uae/v2.1.0
 		memset (node->right, 0,	sizeof (NODE));
 		return expand_tree (stream_temp, node->right);
 	}
@@ -1377,11 +1359,7 @@ static uae_u8 *fdi_decompress (unsigned int pulses, uae_u8 *sizep, const uae_u8 
 			src += 4;
 		}
 	} else if (mode	== 1) {
-<<<<<<< HEAD
-		dst = fdi_malloc (pulses * 4);
-=======
 		dst = fdi_malloc (uae_u8, pulses *4);
->>>>>>> p-uae/v2.1.0
 		*dofree	= 1;
 		fdi_decode (src, pulses, dst);
 	} else {
@@ -1576,11 +1554,7 @@ static void fdi2_decode (FDI *fdi, unsigned long totalavg, uae_u32 *avgp, uae_u3
 	unsigned long standard_MFM_2_bit_cell_size = totalavg /	50000;
 	unsigned long standard_MFM_8_bit_cell_size = totalavg /	12500;
 	unsigned int real_size, i, nexti, eodat, randval;
-<<<<<<< HEAD
-        int outstep;
-=======
 	int outstep;
->>>>>>> p-uae/v2.1.0
 	unsigned int indexoffset = *indexoffsetp;
 	uae_u8 *d = fdi->track_dst_buffer;
 	uae_u16	*pt = fdi->track_dst_buffer_timing;
@@ -1712,11 +1686,7 @@ static void fdi2_decode (FDI *fdi, unsigned long totalavg, uae_u32 *avgp, uae_u3
 			}
 			if (outstep == 1 && indexoffset == i)
 			    *indexoffsetp = bitoffset;
-<<<<<<< HEAD
- 		}
-=======
 		}
->>>>>>> p-uae/v2.1.0
 
 		/* gets the size in bits from the pulse width, considering the current average bitrate */
 		adjusted_pulse = pulse;
@@ -1797,11 +1767,7 @@ static void fdi2_decode (FDI *fdi, unsigned long totalavg, uae_u32 *avgp, uae_u3
 
 		/* after one pass to correctly initialize the average bitrate, outputs the bits */
 		if (outstep == 1) {
-<<<<<<< HEAD
-		        unsigned int j;
-=======
 			unsigned int j;
->>>>>>> p-uae/v2.1.0
 			for (j = real_size; j > 1; j--)
 				addbit (d, 0);
 			addbit (d, 1);
@@ -1833,11 +1799,8 @@ static void fdi2_celltiming (FDI *fdi, unsigned	long totalavg, unsigned int bito
 	double avg_bit_len;
 	unsigned int i;
 
-<<<<<<< HEAD
-=======
 	if (out == NULL)
 		return;
->>>>>>> p-uae/v2.1.0
 	avg_bit_len = (double)totalavg / (double)bitoffset;
 	pt2 = fdi->track_dst_buffer_timing;
 	pt = out;
@@ -1904,11 +1867,7 @@ static int decode_lowlevel_track (FDI *fdi, unsigned int track, struct fdi_cache
 			idx_off3 = 4;
 		}
 	} else {
-<<<<<<< HEAD
-		idxp = fdi_malloc (pulses * 2);
-=======
 		idxp = fdi_malloc (uae_u8, pulses * 2);
->>>>>>> p-uae/v2.1.0
 		idx_free = 1;
 		for (i = 0; i <	pulses;	i++) {
 			idxp[i * 2 + 0]	= 2;
@@ -1943,11 +1902,7 @@ static int decode_lowlevel_track (FDI *fdi, unsigned int track, struct fdi_cache
 		{
 			while ((i != j) && (p1[idx_off1] > p1[idx_off2])) { /* falling edge, replace with "<" for rising edge */
 				i++;
-<<<<<<< HEAD
- 				p1 += idx_off3;
-=======
 				p1 += idx_off3;
->>>>>>> p-uae/v2.1.0
 				if (i >= pulses) {
 					i = 0;
 					p1 = idxp;
@@ -2063,11 +2018,7 @@ FDI *fdi2raw_header(struct zfile *f)
 	FDI *fdi;
 
 	debuglog ("ALLOC: memory allocated %d\n", fdi_allocated);
-<<<<<<< HEAD
-	fdi = fdi_malloc (sizeof(FDI));
-=======
 	fdi = fdi_malloc (FDI, 1);
->>>>>>> p-uae/v2.1.0
 	memset (fdi, 0,	sizeof (FDI));
 	fdi->file = f;
 	oldseek	= zfile_ftell (fdi->file);
@@ -2078,26 +2029,11 @@ FDI *fdi2raw_header(struct zfile *f)
 		fdi_free(fdi);
 		return NULL;
 	}
-<<<<<<< HEAD
-	if ((fdi->header[140] != 1 && fdi->header[140] != 2) ||	fdi->header[141] != 0) {
-=======
 	if (fdi->header[140] != 1 && fdi->header[140] != 2) {
->>>>>>> p-uae/v2.1.0
 		fdi_free(fdi);
 		return NULL;
 	}
 
-<<<<<<< HEAD
-	fdi->mfmsync_buffer = fdi_malloc (MAX_MFM_SYNC_BUFFER *	sizeof(int));
-	fdi->track_src_buffer =	fdi_malloc (MAX_SRC_BUFFER);
-	fdi->track_dst_buffer =	fdi_malloc (MAX_DST_BUFFER);
-	fdi->track_dst_buffer_timing = fdi_malloc (MAX_TIMING_BUFFER);
-
-	fdi->last_track	= ((fdi->header[142] <<	8) + fdi->header[143]) + 1;
-	fdi->last_track	*= fdi->header[144] + 1;
-	if (fdi->last_track > MAX_TRACKS)
-		fdi->last_track	= MAX_TRACKS;
-=======
 	if (fdi->header[140] * 256 + fdi->header[141] >= 2 * 256 + 1) {
 		uae_u32 crc = get_crc32(fdi->header, 508);
 		uae_u32 crc2 = (fdi->header[508] << 24) | (fdi->header[509] << 16) | (fdi->header[510] << 8) | fdi->header[511];
@@ -2119,15 +2055,11 @@ FDI *fdi2raw_header(struct zfile *f)
 		write_log ("FDI: last_track >= MAX_TRACKS (%d >= %d)\n", fdi->last_track, MAX_TRACKS);
 		fdi->last_track = MAX_TRACKS - 1;
 	}
->>>>>>> p-uae/v2.1.0
 	fdi->last_head = fdi->header[144];
 	fdi->disk_type = fdi->header[145];
 	fdi->rotation_speed = fdi->header[146] + 128;
 	fdi->write_protect = fdi->header[147] &	1;
-<<<<<<< HEAD
-=======
 	fdi->reversed_side = (fdi->header[147] & 4) ? 1 : 0;
->>>>>>> p-uae/v2.1.0
 	outlog ("FDI version %d.%d\n", fdi->header[140], fdi->header[141]);
 	outlog ("last_track=%d rotation_speed=%d\n", fdi->last_track, fdi->rotation_speed);
 
@@ -2188,10 +2120,7 @@ static int fdi2raw_loadrevolution_2 (FDI *fdi, uae_u16 *mfmbuf, uae_u16 *trackti
 
 int fdi2raw_loadrevolution (FDI *fdi, uae_u16 *mfmbuf, uae_u16 *tracktiming, unsigned int track, unsigned int *tracklength, int mfm)
 {
-<<<<<<< HEAD
-=======
 	track ^= fdi->reversed_side;
->>>>>>> p-uae/v2.1.0
 	return fdi2raw_loadrevolution_2 (fdi, mfmbuf, tracktiming, track, tracklength, 0, 0, mfm);
 }
 
@@ -2199,16 +2128,10 @@ int fdi2raw_loadtrack (FDI *fdi, uae_u16 *mfmbuf, uae_u16 *tracktiming, unsigned
 {
 	uae_u8 *p;
 	int outlen;
-<<<<<<< HEAD
-        unsigned int indexoffset = 0;
-	struct fdi_cache *cache = &fdi->cache[track];
-
-=======
 	unsigned int indexoffset = 0;
 	struct fdi_cache *cache = &fdi->cache[track];
 
 	track ^= fdi->reversed_side;
->>>>>>> p-uae/v2.1.0
 	if (cache->lowlevel)
 		return fdi2raw_loadrevolution_2 (fdi, mfmbuf, tracktiming, track, tracklength, indexoffsetp, multirev, mfm);
 
@@ -2278,10 +2201,7 @@ int fdi2raw_loadtrack (FDI *fdi, uae_u16 *mfmbuf, uae_u16 *tracktiming, unsigned
 		if (cache->lowlevel)
 			return fdi2raw_loadrevolution_2 (fdi, mfmbuf, tracktiming, track, tracklength, indexoffsetp, multirev, mfm);
 		*tracklength = fdi->out;
-<<<<<<< HEAD
 
-=======
->>>>>>> p-uae/v2.1.0
 		for (i = 0; i <	((*tracklength) + 15) / (2 * 8); i++) {
 			uae_u8 *data = fdi->track_dst_buffer + i * 2;
 			*mfmbuf++ = 256	* *data	+ *(data + 1);
