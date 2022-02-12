@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-INCLUDES = \
-	-I$(top_srcdir)/src/include -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)
-=======
 AM_CFLAGS    = @UAE_CFLAGS@
 AM_CPPFLAGS  = @UAE_CPPFLAGS@
 AM_CPPFLAGS += -I$(top_srcdir)/src/include -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)
->>>>>>> p-uae/v2.1.0
 
 SUBDIRS = \
 	tools @MACHDEP@ @THREADDEP@ @GFX_DEP@ @SND_DEP@ @JOY_DEP@ @GUI_DEP@ \
@@ -26,11 +21,7 @@ BUILT_SOURCES = \
 	blit.h blitfunc.h blitfunc.c blittable.c \
 	linetoscr.c \
 	cpudefs.c \
-<<<<<<< HEAD
-	cpuemu_0.c cpuemu_5.c cpuemu_6.c \
-=======
 	cpuemu_0.c cpuemu_11.c cpuemu_12.c cpuemu_20.c cpuemu_31.c \
->>>>>>> p-uae/v2.1.0
 	cpustbl.c cputbl.h \
 	compemu.c \
 	compstbl.c comptbl.h
@@ -38,11 +29,7 @@ BUILT_SOURCES = \
 CLEANFILES = \
 	blit.h blitfunc.h blitfunc.c blittable.c \
 	cpudefs.c \
-<<<<<<< HEAD
-	cpuemu_0.c cpuemu_5.c cpuemu_6.c \
-=======
 	cpuemu_0.c cpuemu_11.c cpuemu_12.c cpuemu_20.c cpuemu_31.c \
->>>>>>> p-uae/v2.1.0
 	cpustbl.c cputbl.h \
 	compemu.c \
 	compstbl.c comptbl.h \
@@ -53,11 +40,7 @@ DISTCLEANFILES = \
 	target.h md-fpp.h
 
 bin_PROGRAMS  = \
-<<<<<<< HEAD
-	uae readdisk
-=======
 	uae readdisk make_hdf
->>>>>>> p-uae/v2.1.0
 
 if BUILD_MACOSX_BUNDLE
 bundle = @PACKAGE_NAME@.app
@@ -92,11 +75,7 @@ dist_noinst_DATA = \
 	table68k inputevents.def filesys.asm
 
 noinst_HEADERS = \
-<<<<<<< HEAD
-	include/akiko.h		include/ar.h		\
-=======
 	include/akiko.h		include/ar.h		include/amax.h \
->>>>>>> p-uae/v2.1.0
 	include/audio.h		include/autoconf.h	\
 	include/blitter.h	include/blkdev.h	\
 	include/bsdsocket.h 	include/caps.h		\
@@ -105,13 +84,6 @@ noinst_HEADERS = \
 	include/commpipe.h	include/compemu.h	\
 	include/cpu_prefetch.h  include/custom.h	\
 	include/custom_private.h                        \
-<<<<<<< HEAD
-	include/crc32.h					\
-	include/debug.h		include/disk.h 		\
-	include/drawing.h 	include/driveclick.h	\
-	include/enforcer.h	include/ersatz.h	\
-	include/events.h 	include/execlib.h 	\
-=======
 	include/crc32.h		include/consolehook.h	\
 	include/arcadia.h	include/cdtv.h		\
 	include/debug.h		include/disk.h 		\
@@ -121,7 +93,6 @@ noinst_HEADERS = \
 	include/enforcer.h	include/ersatz.h	\
 	include/events.h 	include/events_jit.h 	include/events_normal.h \
 	include/execlib.h 	\
->>>>>>> p-uae/v2.1.0
 	include/fdi2raw.h	include/filesys.h	\
 	include/fpp-ieee.h	include/fpp-unknown.h	\
 	include/fsdb.h		include/fsusage.h	\
@@ -149,11 +120,7 @@ noinst_HEADERS = \
 	include/unzip.h		\
 	include/version.h                               \
 	include/writelog.h \
-<<<<<<< HEAD
-	include/xwin.h		include/zfile.h		\
-=======
 	include/xwin.h		include/zfile.h		include/diskutil.h \
->>>>>>> p-uae/v2.1.0
 	targets/t-amiga.h	targets/t-beos.h        \
 	targets/t-unix.h	targets/t-win32.h
 
@@ -166,43 +133,23 @@ EXTRA_DIST = \
 	test/test_optflag.c test/Makefile.in test/Makefile.am
 
 uae_SOURCES = \
-<<<<<<< HEAD
-	main.c newcpu.c fpp.c memory.c events.c custom.c serial.c cia.c \
-	blitter.c autoconf.c traps.c ersatz.c keybuf.c expansion.c \
-	zfile.c cfgfile.c picasso96.c inputdevice.c \
-	gfxutil.c audio.c sinctable.c drawing.c \
-	native2amiga.c disk.c crc32.c savestate.c unzip.c \
-	uaeexe.c uaelib.c fdi2raw.c hotkeys.c \
-	ar.c driveclick.c enforcer.c misc.c \
-=======
-	main.c newcpu.c memory.c rommgr.c custom.c serial.c dongle.c cia.c \
+	main.c newcpu.c memory.c events.c rommgr.c custom.c serial.c dongle.c cia.c \
 	blitter.c autoconf.c traps.c ersatz.c keybuf.c expansion.c \
 	diskutil.c zfile.c cfgfile.c picasso96.c inputdevice.c \
 	gfxutil.c audio.c sinctable.c drawing.c consolehook.c \
 	native2amiga.c disk.c crc32.c savestate.c unzip.c arcadia.c cdtv.c cd32_fmv.c \
 	uaeexe.c uaelib.c uaeresource.c fdi2raw.c hotkeys.c amax.c \
 	ar.c driveclick.c enforcer.c misc.c a2065.c gayle.c ncr_scsi.c \
->>>>>>> p-uae/v2.1.0
 	missing.c readcpu.c
 
 EXTRA_uae_SOURCES = \
 	bsdsocket.c bsdsocket-posix-new.c build68k.c catweasel.c cdrom.c \
-<<<<<<< HEAD
-	compemu_fpp.c compemu_raw_x86.c compemu_support.c \
-	debug.c identify.c filesys.c filesys_bootrom.c fsdb.c fsdb_unix.c fsusage.c genblitter.c \
-	gencpu.c gengenblitter.c gencomp.c genlinetoscr.c hardfile.c \
-	hardfile_unix.c scsi-none.c \
-	scsiemul.c svgancui.c tui.c \
-	blkdev-libscg.c filesys_unix.c \
-	akiko.c ar.c blkdev.c blitops.c \
-=======
 	fpp.c compemu_fpp.c compemu_raw_x86.c compemu_support.c \
 	debug.c identify.c filesys.c filesys_bootrom.c fsdb.c fsdb_unix.c fsusage.c genblitter.c \
 	gencpu.c gengenblitter.c gencomp.c genlinetoscr.c hardfile.c \
 	hardfile_unix.c scsi-none.c scsiemul.c svgancui.c tui.c \
 	blkdev-libscg.c filesys_unix.c amax.c \
 	akiko.c cd32_fmv.c ar.c blkdev.c blitops.c scsi.c \
->>>>>>> p-uae/v2.1.0
 	writelog.c
 
 uae_DEPENDENCIES = \
@@ -249,20 +196,14 @@ uae_LDADD = \
 	@THREADDEP@/libthreaddep.a	\
 	@OSDEP@/libosdep.a
 
-<<<<<<< HEAD
-=======
 uae_LDADD += @UAE_LIBS@ @MATHLIB@
->>>>>>> p-uae/v2.1.0
 
 readdisk_SOURCES = \
 	readdisk.c missing.c
 
-<<<<<<< HEAD
-=======
 make_hdf_SOURCES = \
 	make_hdf.c
 
->>>>>>> p-uae/v2.1.0
 libcpuemu_a_SOURCES =
 libcpuemu_a_LIBADD =		@CPUOBJS@ @JITOBJS@
 libcpuemu_a_DEPENDENCIES =	@CPUOBJS@ @JITOBJS@
@@ -274,16 +215,10 @@ cpustbl.c:	cpuemu_0.c
 
 cputbl.h:	cpuemu_0.c
 
-<<<<<<< HEAD
-cpuemu_5.c:	cpuemu_0.c
-
-cpuemu_6.c:	cpuemu_0.c
-=======
 cpuemu_11.c:	cpuemu_0.c
 cpuemu_12.c:	cpuemu_0.c
 cpuemu_20.c:	cpuemu_0.c
 cpuemu_31.c:	cpuemu_0.c
->>>>>>> p-uae/v2.1.0
 
 compemu.c:	tools/gencomp
 		./tools/gencomp
@@ -293,15 +228,6 @@ compstbl.c:	compemu.c
 comptbl.h:	compemu.c
 
 cpuemu_nf_%.o: cpuemu_%.c
-<<<<<<< HEAD
-	$(CC) $(INCLUDES) -c $(CPPFLAGS) $(CFLAGS) $(DEBUGFLAGS) $(NO_SCHED_CFLAGS) -DNOFLAGS $< -o $@
-
-cpuemu_%.o: cpuemu_%.c
-	$(CC) $(INCLUDES) -c $(CPPFLAGS) $(CFLAGS) $(DEBUGFLAGS) $(NO_SCHED_CFLAGS) $< -o $@
-
-cpustbl_nf.o: cpustbl.c
-	$(CC) $(INCLUDES) -c $(CPPFLAGS) $(CFLAGS) $(DEBUGFLAGS) $(NO_SCHED_CFLAGS) -DNOFLAGS cpustbl.c -o $@
-=======
 	$(COMPILE) -DNOFLAGS $< -c -o $@
 
 cpuemu_%.o: cpuemu_%.c
@@ -309,7 +235,6 @@ cpuemu_%.o: cpuemu_%.c
 
 cpustbl_nf.o: cpustbl.c
 	$(COMPILE) -DNOFLAGS cpustbl.c -c -o $@
->>>>>>> p-uae/v2.1.0
 
 
 blit.h:		tools/genblitter
