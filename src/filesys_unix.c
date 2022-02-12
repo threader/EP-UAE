@@ -2,11 +2,7 @@
   * UAE - The Un*x Amiga Emulator
   *
   * Miscellaneous support for virtual filesystems on Unix.
-<<<<<<< HEAD
-  * 
-=======
   *
->>>>>>> p-uae/v2.1.0
   * Copyright 2004 Richard Drummond
   */
 
@@ -37,11 +33,7 @@
 
 
 /*
-<<<<<<< HEAD
- * Try to determine whether the host filesystem 
-=======
  * Try to determine whether the host filesystem
->>>>>>> p-uae/v2.1.0
  * containing path is read-only - which, depending
  * on the host OS - isn't as easy as you might
  * think. ;-)
@@ -52,11 +44,7 @@
 int filesys_is_readonly (const char *path)
 {
     /* If we don't know, we'll claim it's read/write */
-<<<<<<< HEAD
-    int readonly = 0; 
-=======
     int readonly = 0;
->>>>>>> p-uae/v2.1.0
 
 #ifdef STAT_STATVFS
 
@@ -68,11 +56,7 @@ int filesys_is_readonly (const char *path)
 #else
 # ifdef __linux__
 # define ISOFS_SUPER_MAGIC 0x9660
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> p-uae/v2.1.0
     /* statvfs() is broken in many glibc implementations
      * so we don't use that. Instead, we'll be naive and
      * use statfs() and decide based on the filesystem
@@ -82,13 +66,8 @@ int filesys_is_readonly (const char *path)
     struct statfs buf;
 
     if (statfs (path, &buf) == 0) {
-<<<<<<< HEAD
-        if (buf.f_type == ISOFS_SUPER_MAGIC)
-            readonly = 1;
-=======
 		if (buf.f_type == ISOFS_SUPER_MAGIC)
 		    readonly = 1;
->>>>>>> p-uae/v2.1.0
     }
 
 # endif
