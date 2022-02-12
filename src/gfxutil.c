@@ -8,13 +8,6 @@
 
 #include "sysconfig.h"
 #include "sysdeps.h"
-<<<<<<< HEAD
-#include "custom.h"
-#include "xwin.h"
-#include "uae_endian.h"
-
-#define	RED 	0
-=======
 #include "options.h"
 #include "custom.h"
 #include "rtgmodes.h"
@@ -30,7 +23,6 @@ int getvsyncrate (int hz)
 }
 
 #define	RED 0
->>>>>>> p-uae/v2.1.0
 #define	GRN	1
 #define	BLU	2
 
@@ -45,22 +37,15 @@ static uae_u8 dither[4][4] =
   { 14 /* 15 */, 7, 13, 5 }
 };
 
-<<<<<<< HEAD
 
 uae_u32 doMask (int p, int bits, int shift)
 {
     /* scale to 0..255, shift to align msb with mask, and apply mask */
-    uae_u32 val = p << 24;
-=======
-unsigned int doMask (int p, int bits, int shift)
-{
-    /* scale to 0..255, shift to align msb with mask, and apply mask */
-	unsigned long val;
+	uae_u32 val;
 
 	if (flashscreen)
 		p ^= 0xff;
 	val = p << 24;
->>>>>>> p-uae/v2.1.0
     if (!bits)
 	return 0;
     val >>= (32 - bits);
@@ -94,13 +79,9 @@ unsigned int doMask256 (int p, int bits, int shift)
     /* p is a value from 0 to 255 (Amiga color value)
      * shift to align msb with mask, and apply mask */
 
-<<<<<<< HEAD
-    unsigned int val = p * 0x01010101UL;
-=======
 	unsigned long val = p * 0x01010101UL;
 	if (bits == 0)
 		return 0;
->>>>>>> p-uae/v2.1.0
     val >>= (32 - bits);
     val <<= shift;
 
@@ -110,9 +91,6 @@ unsigned int doMask256 (int p, int bits, int shift)
 static unsigned int doColor (int i, int bits, int shift)
 {
     int shift2;
-<<<<<<< HEAD
-    if(bits >= 8) shift2 = 0; else shift2 = 8 - bits;
-=======
 
 	if (flashscreen)
 		i ^= 0xffffffff;
@@ -120,7 +98,6 @@ static unsigned int doColor (int i, int bits, int shift)
 		shift2 = 0;
 	else
 		shift2 = 8 - bits;
->>>>>>> p-uae/v2.1.0
     return (i >> shift2) << shift;
 }
 
@@ -129,22 +106,6 @@ static unsigned int doAlpha (int alpha, int bits, int shift)
     return (alpha & ((1 << bits) - 1)) << shift;
 }
 
-<<<<<<< HEAD
-
-void alloc_colors64k (int rw, int gw, int bw, int rs, int gs, int bs, int aw, int as, int alpha, int byte_swap)
-{
-    unsigned int i;
-    unsigned int bpp = rw + gw + bw + aw;
-
-    for (i = 0; i < 4096; i++) {
-	int r = ((i >> 8) << 4) | (i >> 8);
-	int g = (((i >> 4) & 0xf) << 4) | ((i >> 4) & 0x0f);
-	int b = ((i & 0xf) << 4) | (i & 0x0f);
-
-	xcolors[i] = doMask(r, rw, rs) | doMask(g, gw, gs) | doMask(b, bw, bs) | doAlpha (alpha, aw, as);
-
-        if (byte_swap) {
-=======
 static float video_gamma (float value, float gamma, float bri, float con)
 {
 	double factor;
@@ -289,8 +250,8 @@ void alloc_colors_rgb (int rw, int gw, int bw, int rs, int gs, int bs, int aw, i
 
 void alloc_colors64k (int rw, int gw, int bw, int rs, int gs, int bs, int aw, int as, int alpha, int byte_swap)
 {
-	int bpp = rw + gw + bw + aw;
-	int i, j;
+    unsigned int i;
+    unsigned int bpp = rw + gw + bw + aw;
 
 	video_calc_gammatable();
 	j = 256;
@@ -303,43 +264,13 @@ void alloc_colors64k (int rw, int gw, int bw, int rs, int gs, int bs, int aw, in
 		b = gamma[b + j];
 	xcolors[i] = doMask(r, rw, rs) | doMask(g, gw, gs) | doMask(b, bw, bs) | doAlpha (alpha, aw, as);
 	if (byte_swap) {
->>>>>>> p-uae/v2.1.0
 	    if (bpp <= 16)
 		xcolors[i] = bswap_16 (xcolors[i]);
 	    else
 		xcolors[i] = bswap_32 (xcolors[i]);
 	}
-<<<<<<< HEAD
 
         if (bpp <= 16) {
-	    /* Fill upper 16 bits of each colour value
-	     * with a copy of the colour. */
-	    xcolors[i] = xcolors[i] * 0x00010001;
-	}
-    }
-
-#ifdef AGA
-    /* create AGA color tables */
-    for (i = 0; i < 256; i++) {
-	xredcolors  [i] = doColor (i, rw, rs) | doAlpha (alpha, aw, as);
-	xgreencolors[i] = doColor (i, gw, gs) | doAlpha (alpha, aw, as);
-	xbluecolors [i] = doColor (i, bw, bs) | doAlpha (alpha, aw, as);
-
-        if (byte_swap) {
-	    if (bpp <= 16) {
-		xredcolors  [i] = bswap_16 (xredcolors[i]);
-		xgreencolors[i] = bswap_16 (xgreencolors[i]);
-		xbluecolors [i] = bswap_16 (xbluecolors[i]);
-	    } else {
-		xredcolors  [i] = bswap_32 (xredcolors[i]);
-		xgreencolors[i] = bswap_32 (xgreencolors[i]);
-		xbluecolors [i] = bswap_32 (xbluecolors[i]);
-	    }
-	}
-
-        if (bpp <= 16) {
-=======
-	if (bpp <= 16) {
 	    /* Fill upper 16 bits of each colour value
 	     * with a copy of the colour. */
 			xcolors[i] |= xcolors[i] * 0x00010001;
@@ -358,6 +289,18 @@ void alloc_colors64k (int rw, int gw, int bw, int rs, int gs, int bs, int aw, in
 		redc[2 * 256 + i] = xredcolors[255];
 		grec[2 * 256 + i] = xgreencolors[255];
 		bluc[2 * 256 + i] = xbluecolors[255];
+/* note */
+        if (byte_swap) {
+	  	  if (bpp <= 16) {
+				xredcolors  [i] = bswap_16 (xredcolors[i]);
+				xgreencolors[i] = bswap_16 (xgreencolors[i]);
+				xbluecolors [i] = bswap_16 (xbluecolors[i]);
+		    } else {
+				xredcolors  [i] = bswap_32 (xredcolors[i]);
+				xgreencolors[i] = bswap_32 (xgreencolors[i]);
+				xbluecolors [i] = bswap_32 (xbluecolors[i]);
+	    }
+	}
 	    }
 #ifdef GFXFILTER
 	if (usedfilter && usedfilter->yuv) {
@@ -368,7 +311,6 @@ void alloc_colors64k (int rw, int gw, int bw, int rs, int gs, int bs, int aw, in
 			xgreencolors[i] = doColor (gamma[j], 6, 5);
 			xbluecolors[i] = doColor (gamma[j], 5, 0);
 	if (bpp <= 16) {
->>>>>>> p-uae/v2.1.0
 	    /* Fill upper 16 bits of each colour value with
 	     * a copy of the colour. */
 	    xredcolors  [i] = xredcolors  [i] * 0x00010001;
@@ -376,9 +318,6 @@ void alloc_colors64k (int rw, int gw, int bw, int rs, int gs, int bs, int aw, in
 	    xbluecolors [i] = xbluecolors [i] * 0x00010001;
 	}
     }
-<<<<<<< HEAD
-#endif
-=======
 		for (i = 0; i < 4096; i++) {
 			int r = ((i >> 8) << 4) | (i >> 8);
 			int g = (((i >> 4) & 0xf) << 4) | ((i >> 4) & 0x0f);
@@ -426,7 +365,6 @@ void alloc_colors64k (int rw, int gw, int bw, int rs, int gs, int bs, int aw, in
 	xredcolor_m = (1 << rw) - 1;
 	xgreencolor_m = (1 << gw) - 1;
 	xbluecolor_m = (1 << bw) - 1;
->>>>>>> p-uae/v2.1.0
 }
 
 static int color_diff[4096];
