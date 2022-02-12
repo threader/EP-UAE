@@ -30,12 +30,6 @@ static uae_sem_t n2asem;
 
 void native2amiga_install (void)
 {
-<<<<<<< HEAD
-    init_comm_pipe (&native2amiga_pending, 10, 2);
-    uae_sem_init (&n2asem, 0, 1);
-}
-
-=======
 	init_comm_pipe (&native2amiga_pending, 100, 2);
     uae_sem_init (&n2asem, 0, 1);
 }
@@ -48,7 +42,6 @@ void native2amiga_reset (void)
 	p->writer_waiting = 0;
 };
 
->>>>>>> p-uae/v2.1.0
 /*
  * to be called when the Amiga boots, i.e. by filesys_diagentry()
  */
@@ -56,14 +49,11 @@ void native2amiga_startup (void)
 {
 }
 
-<<<<<<< HEAD
-=======
 int native2amiga_isfree (void)
 {
 	return comm_pipe_has_data (&native2amiga_pending) == 0;
 }
 
->>>>>>> p-uae/v2.1.0
 #ifdef SUPPORT_THREADS
 
 void uae_Cause (uaecptr interrupt)
@@ -115,40 +105,24 @@ void uae_NotificationHack (uaecptr port, uaecptr nr)
 }
 
 #endif
-
+ */ note */
 void uae_NewList (uaecptr list)
 {
-<<<<<<< HEAD
-    put_long (list, list + 4);
-    put_long (list + 4, 0);
-    put_long (list + 8, list);
-=======
 	put_long_slow (list, list + 4);
 	put_long_slow (list + 4, 0);
 	put_long_slow (list + 8, list);
->>>>>>> p-uae/v2.1.0
 }
 
 uaecptr uae_AllocMem (TrapContext *context, uae_u32 size, uae_u32 flags)
 {
-<<<<<<< HEAD
     m68k_dreg (&context->regs, 0) = size;
     m68k_dreg (&context->regs, 1) = flags;
-=======
-	m68k_dreg (regs, 0) = size;
-	m68k_dreg (regs, 1) = flags;
->>>>>>> p-uae/v2.1.0
     return CallLib (context, get_long (4), -198); /* AllocMem */
 }
 
 void uae_FreeMem (TrapContext *context, uaecptr memory, uae_u32 size)
 {
-<<<<<<< HEAD
     m68k_dreg (&context->regs, 0) = size;
     m68k_areg (&context->regs, 1) = memory;
-=======
-	m68k_dreg (regs, 0) = size;
-	m68k_areg (regs, 1) = memory;
->>>>>>> p-uae/v2.1.0
     CallLib (context, get_long (4), -0xD2); /* FreeMem */
 }
