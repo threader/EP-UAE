@@ -16,7 +16,6 @@
  *       Need to fix this.
  */
 
-<<<<<<< HEAD
 #define UAEMAJOR   0
 #define UAEMINOR   0
 #define UAESUBREV  0
