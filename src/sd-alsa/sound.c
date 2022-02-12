@@ -111,6 +111,7 @@ static int set_hw_params(snd_pcm_t *pcm,
     if (periods == 1)
 		return -EINVAL;
     err = snd_pcm_hw_params(pcm, hw_params);
+
     snd_pcm_hw_params_get_period_size (hw_params, period_frames, NULL);
     return 0;
 }
@@ -227,9 +228,13 @@ int init_sound (void)
 
     obtainedfreq = currprefs.sound_freq;
 
-    init_sound_table16 ();
-    sample_handler = currprefs.sound_stereo ? sample16s_handler : sample16_handler;
-
+    if (dspbits == 16) {
+	init_sound_table16 ();
+	sample_handler = currprefs.sound_stereo ? sample16s_handler : sample16_handler;
+    } else {
+	init_sound_table8 ();
+	sample_handler = currprefs.sound_stereo ? sample8s_handler : sample8_handler;
+    }
     have_sound = 1;
     sound_available = 1;
 
