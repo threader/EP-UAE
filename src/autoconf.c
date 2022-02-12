@@ -1,13 +1,3 @@
-<<<<<<< HEAD
- /*
-  * UAE - The Un*x Amiga Emulator
-  *
-  * AutoConfig devices
-  *
-  * Copyright 1995, 1996 Bernd Schmidt
-  * Copyright 1996 Ed Hanway
-  */
-=======
 /*
 * UAE - The Un*x Amiga Emulator
 *
@@ -16,7 +6,6 @@
 * Copyright 1995, 1996 Bernd Schmidt
 * Copyright 1996 Ed Hanway
 */
->>>>>>> p-uae/v2.1.0
 
 #include "sysconfig.h"
 #include "sysdeps.h"
@@ -34,93 +23,13 @@
 /* Commonly used autoconfig strings */
 
 uaecptr EXPANSION_explibname, EXPANSION_doslibname, EXPANSION_uaeversion;
-<<<<<<< HEAD
 uaecptr EXPANSION_uaedevname, EXPANSION_explibbase = 0, EXPANSION_haveV36;
 uaecptr EXPANSION_bootcode, EXPANSION_nullfunc;
 uaecptr EXPANSION_cddevice;
-=======
-uaecptr EXPANSION_uaedevname, EXPANSION_explibbase = 0;
-uaecptr EXPANSION_bootcode, EXPANSION_nullfunc;
->>>>>>> p-uae/v2.1.0
 
 /* ROM tag area memory access */
 
 uae_u8 *rtarea;
-<<<<<<< HEAD
-
-static uae_u32 rtarea_lget (uaecptr) REGPARAM;
-static uae_u32 rtarea_wget (uaecptr) REGPARAM;
-static uae_u32 rtarea_bget (uaecptr) REGPARAM;
-static void rtarea_lput (uaecptr, uae_u32) REGPARAM;
-static void rtarea_wput (uaecptr, uae_u32) REGPARAM;
-static void rtarea_bput (uaecptr, uae_u32) REGPARAM;
-static uae_u8 *rtarea_xlate (uaecptr) REGPARAM;
-
-addrbank rtarea_bank = {
-    rtarea_lget, rtarea_wget, rtarea_bget,
-    rtarea_lput, rtarea_wput, rtarea_bput,
-    rtarea_xlate, default_check, NULL
-};
-
-uae_u8 REGPARAM2 *rtarea_xlate (uaecptr addr)
-{
-    addr &= 0xFFFF;
-    return rtarea + addr;
-}
-
-uae_u32 REGPARAM2 rtarea_lget (uaecptr addr)
-{
-#ifdef JIT
-    special_mem |= SPECIAL_MEM_READ;
-#endif
-    addr &= 0xFFFF;
-    return (uae_u32)(rtarea_wget (addr) << 16) + rtarea_wget (addr+2);
-}
-
-uae_u32 REGPARAM2 rtarea_wget (uaecptr addr)
-{
-#ifdef JIT
-    special_mem |= SPECIAL_MEM_READ;
-#endif
-    addr &= 0xFFFF;
-    return (rtarea[addr]<<8) + rtarea[addr+1];
-}
-
-uae_u32 REGPARAM2 rtarea_bget (uaecptr addr)
-{
-#ifdef JIT
-    special_mem |= SPECIAL_MEM_READ;
-#endif
-    addr &= 0xFFFF;
-    return rtarea[addr];
-}
-
-void REGPARAM2 rtarea_lput (uaecptr addr, uae_u32 value)
-{
-#ifdef JIT
-    special_mem |= SPECIAL_MEM_WRITE;
-#endif
-}
-
-void REGPARAM2 rtarea_wput (uaecptr addr, uae_u32 value)
-{
-#ifdef JIT
-    special_mem |= SPECIAL_MEM_WRITE;
-#endif
-}
-
-void REGPARAM2 rtarea_bput (uaecptr addr, uae_u32 value)
-{
-#ifdef JIT
-    special_mem |= SPECIAL_MEM_WRITE;
-#endif
-}
-
-
-/* some quick & dirty code to fill in the rt area and save me a lot of
- * scratch paper
- */
-=======
 uaecptr rtarea_base = RTAREA_DEFAULT;
 
 static uae_u32 REGPARAM3 rtarea_lget (uaecptr) REGPARAM;
@@ -202,62 +111,28 @@ static void REGPARAM2 rtarea_bput (uaecptr addr, uae_u32 value)
 /* some quick & dirty code to fill in the rt area and save me a lot of
 * scratch paper
 */
->>>>>>> p-uae/v2.1.0
 
 static int rt_addr;
 static int rt_straddr;
 
 uae_u32 addr (int ptr)
 {
-<<<<<<< HEAD
-    return (uae_u32)ptr + RTAREA_BASE;
-=======
 	return (uae_u32)ptr + rtarea_base;
->>>>>>> p-uae/v2.1.0
 }
 
 void db (uae_u8 data)
 {
-<<<<<<< HEAD
-    rtarea[rt_addr++] = data;
-=======
 	rtarea[rt_addr++] = data;
->>>>>>> p-uae/v2.1.0
 }
 
 void dw (uae_u16 data)
 {
-<<<<<<< HEAD
-    rtarea[rt_addr++] = (uae_u8)(data >> 8);
-    rtarea[rt_addr++] = (uae_u8)data;
-=======
 	rtarea[rt_addr++] = (uae_u8)(data >> 8);
 	rtarea[rt_addr++] = (uae_u8)data;
->>>>>>> p-uae/v2.1.0
 }
 
 void dl (uae_u32 data)
 {
-<<<<<<< HEAD
-    rtarea[rt_addr++] = data >> 24;
-    rtarea[rt_addr++] = data >> 16;
-    rtarea[rt_addr++] = data >> 8;
-    rtarea[rt_addr++] = data;
-}
-
-/* store strings starting at the end of the rt area and working
- * backward.  store pointer at current address
- */
-
-uae_u32 ds (const char *str)
-{
-    int len = strlen (str) + 1;
-
-    rt_straddr -= len;
-    strcpy ((char *)rtarea + rt_straddr, str);
-
-    return addr (rt_straddr);
-=======
 	rtarea[rt_addr++] = data >> 24;
 	rtarea[rt_addr++] = data >> 16;
 	rtarea[rt_addr++] = data >> 8;
@@ -290,83 +165,43 @@ uae_u32 ds (const TCHAR *str)
 {
 	uae_u32 v = ds_ansi (str);
 	return v;
->>>>>>> p-uae/v2.1.0
 }
 
 void calltrap (uae_u32 n)
 {
-<<<<<<< HEAD
-    dw (0xA000 + n);
-=======
 	dw (0xA000 + n);
->>>>>>> p-uae/v2.1.0
 }
 
 void org (uae_u32 a)
 {
-<<<<<<< HEAD
-    rt_addr = a - RTAREA_BASE;
-=======
 	if ( ((a & 0xffff0000) != 0x00f00000) && ((a & 0xffff0000) != rtarea_base) )
 		write_log ("ORG: corrupt address! %08X", a);
 	rt_addr = a & 0xffff;
->>>>>>> p-uae/v2.1.0
 }
 
 uae_u32 here (void)
 {
-<<<<<<< HEAD
-    return addr (rt_addr);
-=======
 	return addr (rt_addr);
->>>>>>> p-uae/v2.1.0
 }
 
 void align (int b)
 {
-<<<<<<< HEAD
-    rt_addr = (rt_addr + b - 1) & ~(b - 1);
-=======
 	rt_addr = (rt_addr + b - 1) & ~(b - 1);
->>>>>>> p-uae/v2.1.0
 }
 
 static uae_u32 REGPARAM2 nullfunc (TrapContext *context)
 {
-<<<<<<< HEAD
-    write_log ("Null function called\n");
-    return 0;
-=======
 	write_log ("Null function called\n");
 	return 0;
->>>>>>> p-uae/v2.1.0
 }
 
 static uae_u32 REGPARAM2 getchipmemsize (TrapContext *context)
 {
-<<<<<<< HEAD
-    return allocated_chipmem;
-=======
 	return allocated_chipmem;
->>>>>>> p-uae/v2.1.0
 }
 
 static uae_u32 REGPARAM2 uae_puts (TrapContext *context)
 {
-<<<<<<< HEAD
-    puts ((char *)get_real_address (m68k_areg (&context->regs, 0)));
-    return 0;
-}
-
-static void rtarea_init_mem (void)
-{
-    rtarea = mapped_malloc (0x10000, "rtarea");
-    if (!rtarea) {
-	write_log ("virtual memory exhausted (rtarea)!\n");
-	abort ();
-    }
-    rtarea_bank.baseaddr = rtarea;
-=======
 	puts ((char*)get_real_address (m68k_areg (regs, 0)));
 	return 0;
 }
@@ -379,55 +214,10 @@ void rtarea_init_mem (void)
 		abort ();
 	}
 	rtarea_bank.baseaddr = rtarea;
->>>>>>> p-uae/v2.1.0
 }
 
 void rtarea_init (void)
 {
-<<<<<<< HEAD
-    uae_u32 a;
-    char uaever[100];
-
-    rt_straddr = 0xFF00 - 2;
-    rt_addr = 0;
-
-    init_traps ();
-
-    rtarea_init_mem ();
-
-    sprintf (uaever, "uae-%d.%d.%d", UAEMAJOR, UAEMINOR, UAESUBREV);
-
-    EXPANSION_uaeversion = ds (uaever);
-    EXPANSION_explibname = ds ("expansion.library");
-    EXPANSION_doslibname = ds ("dos.library");
-    EXPANSION_uaedevname = ds ("uae.device");
-
-    deftrap (NULL); /* Generic emulator trap */
-
-    EXPANSION_nullfunc = here ();
-    calltrap (deftrap (nullfunc));
-    dw (RTS);
-
-    a = here();
-   /* Dummy trap - removing this breaks the filesys emulation. */
-    org (RTAREA_BASE + 0xFF00);
-    calltrap (deftrap2 (nullfunc, TRAPFLAG_NO_RETVAL, ""));
-
-    org (RTAREA_BASE + 0xFF80);
-    calltrap (deftrap2 (getchipmemsize, TRAPFLAG_DORET, ""));
-
-    org (RTAREA_BASE + 0xFF10);
-    calltrap (deftrap2 (uae_puts, TRAPFLAG_NO_RETVAL, ""));
-    dw (RTS);
-
-    org (a);
-
-#ifdef FILESYS
-    filesys_install_code ();
-#endif
-
-    init_extended_traps ();
-=======
 	uae_u32 a;
 	TCHAR uaever[100];
 
@@ -447,9 +237,10 @@ void rtarea_init (void)
 	EXPANSION_uaedevname = ds ("uae.device");
 
 	deftrap (NULL); /* Generic emulator trap */
-
-	dw (0);
-	dw (0);
+/* note nullfunc */
+    EXPANSION_nullfunc = here ();
+    calltrap (deftrap (nullfunc));
+    dw (RTS);
 
 	a = here();
 	/* Dummy trap - removing this breaks the filesys emulation. */
@@ -474,25 +265,17 @@ void rtarea_init (void)
 
 	uae_boot_rom_size = here() - rtarea_base;
 	init_extended_traps ();
->>>>>>> p-uae/v2.1.0
 }
 
 volatile int uae_int_requested = 0;
 
 void set_uae_int_flag (void)
 {
-<<<<<<< HEAD
-    rtarea[0xFFFB] = uae_int_requested;
-=======
 	rtarea[0xFFFB] = uae_int_requested & 1;
->>>>>>> p-uae/v2.1.0
 }
 
 void rtarea_setup (void)
 {
-<<<<<<< HEAD
-}
-=======
 	uaecptr base = need_uae_boot_rom ();
 	if (base) {
 		write_log ("RTAREA located at %08X\n", base);
@@ -529,4 +312,3 @@ uaecptr makedatatable (uaecptr resid, uaecptr resname, uae_u8 type, uae_s8 prior
 	return datatable;
 }
 
->>>>>>> p-uae/v2.1.0
