@@ -13,20 +13,11 @@
 /* Output for big-endian target if true, little-endian is false. */
 int do_bigendian;
 
-<<<<<<< HEAD
-typedef enum
-{
-    DEPTH_8BPP,
-    DEPTH_16BPP,
-    DEPTH_32BPP,
-} DEPTH_T;
-=======
 typedef int DEPTH_T;
 
 #define DEPTH_8BPP 0
 #define DEPTH_16BPP 1
 #define DEPTH_32BPP 2
->>>>>>> p-uae/v2.1.0
 #define DEPTH_MAX DEPTH_32BPP
 
 static const char *get_depth_str (DEPTH_T bpp)
@@ -49,16 +40,6 @@ static const char *get_depth_type_str (DEPTH_T bpp)
 	return "uae_u32";
 }
 
-<<<<<<< HEAD
-
-typedef enum
-{
-    HMODE_NORMAL,
-    HMODE_DOUBLE,
-    HMODE_HALVE,
-} HMODE_T;
-#define HMODE_MAX HMODE_HALVE
-=======
 typedef int HMODE_T;
 
 #define HMODE_NORMAL	0
@@ -69,16 +50,11 @@ typedef int HMODE_T;
 #define HMODE_HALVE2	5
 #define HMODE_HALVE2F	6
 #define HMODE_MAX HMODE_HALVE2F
->>>>>>> p-uae/v2.1.0
 
 static const char *get_hmode_str (HMODE_T hmode)
 {
     if (hmode == HMODE_DOUBLE)
 	return "_stretch1";
-<<<<<<< HEAD
-   else if (hmode == HMODE_HALVE)
-	return "_shrink1";
-=======
    else if (hmode == HMODE_DOUBLE2X)
 	return "_stretch2";
    else if (hmode == HMODE_HALVE1)
@@ -89,7 +65,6 @@ static const char *get_hmode_str (HMODE_T hmode)
 	return "_shrink2";
    else if (hmode == HMODE_HALVE2F)
 	return "_shrink2f";
->>>>>>> p-uae/v2.1.0
    else
 	return "";
 }
@@ -139,66 +114,6 @@ void outlnf (const char *s, ...)
     fputc ('\n', outfile);
 }
 
-<<<<<<< HEAD
-static void out_linetoscr_decl (DEPTH_T bpp, HMODE_T hmode, int aga)
-{
-    outlnf ("static int NOINLINE linetoscr_%s%s%s (int spix, int dpix, int stoppos)",
-	    get_depth_str (bpp),
-	    get_hmode_str (hmode), aga ? "_aga" : "");
-}
-
-static void out_linetoscr_do_srcpix (DEPTH_T bpp, HMODE_T hmode, int aga, CMODE_T cmode)
-{
-    if (aga && cmode != CMODE_DUALPF)
-	outln ( 	"    spix_val = pixdata.apixels[spix] ^ xor_val;");
-    else if (cmode != CMODE_HAM)
-	outln ( 	"    spix_val = pixdata.apixels[spix];");
-}
-
-static void out_linetoscr_do_dstpix (DEPTH_T bpp, HMODE_T hmode, int aga, CMODE_T cmode)
-{
-    if (aga && cmode == CMODE_HAM)
-	outln (	        "    dpix_val = CONVERT_RGB (ham_linebuf[spix]);");
-    else if (cmode == CMODE_HAM)
-	outln (		"    dpix_val = xcolors[ham_linebuf[spix]];");
-    else if (aga && cmode == CMODE_DUALPF) {
-	outln (		"    if (spriteagadpfpixels[spix]) {");
-	outln (		"        dpix_val = colors_for_drawing.acolors[spriteagadpfpixels[spix]];");
-	outln (		"        spriteagadpfpixels[spix] = 0;");
-	outln (		"    } else {");
-	outln (		"        unsigned int val = lookup[spix_val];");
-	outln (		"        if (lookup_no[spix_val] == 2)");
-	outln (		"            val += dblpfofs[bpldualpf2of];");
-	outln (		"	 val ^= xor_val;");
-	outln (		"        dpix_val = colors_for_drawing.acolors[val];");
-	outln (		"    }");
-    } else if (cmode == CMODE_DUALPF) {
-	outln (		"    dpix_val = colors_for_drawing.acolors[lookup[spix_val]];");
-    } else if (aga && cmode == CMODE_EXTRAHB) {
-	outln (		"    if (spix_val >= 32 && spix_val < 64) {");
-	outln (		"        unsigned int c = (colors_for_drawing.color_regs_aga[spix_val - 32] >> 1) & 0x7F7F7F;");
-	outln (		"        dpix_val = CONVERT_RGB (c);");
-	outln (		"    } else");
-	outln (		"        dpix_val = colors_for_drawing.acolors[spix_val];");
-    } else if (cmode == CMODE_EXTRAHB) {
-	outln (		"    if (spix_val <= 31)");
-	outln (		"        dpix_val = colors_for_drawing.acolors[spix_val];");
-	outln (		"    else");
-	outln (		"        dpix_val = xcolors[(colors_for_drawing.color_regs_ecs[spix_val - 32] >> 1) & 0x777];");
-    } else
-	outln (		"    dpix_val = colors_for_drawing.acolors[spix_val];");
-}
-
-static void out_linetoscr_do_incspix (DEPTH_T bpp, HMODE_T hmode, int aga, CMODE_T cmode)
-{
-    if (hmode == HMODE_HALVE)
-	outln (		"    spix += 2;");
-    else
-	outln (		"    spix++;");
-}
-
-static void out_linetoscr_mode (DEPTH_T bpp, HMODE_T hmode, int aga, CMODE_T cmode)
-=======
 static void out_linetoscr_decl (DEPTH_T bpp, HMODE_T hmode, int aga, int spr)
 {
     outlnf ("static int NOINLINE linetoscr_%s%s%s%s (int spix, int dpix, int stoppos)",
@@ -368,45 +283,18 @@ static void out_sprite (DEPTH_T bpp, HMODE_T hmode, CMODE_T cmode, int aga, int 
 }
 
 static void out_linetoscr_mode (DEPTH_T bpp, HMODE_T hmode, int aga, int spr, CMODE_T cmode)
->>>>>>> p-uae/v2.1.0
 {
     int old_indent = set_indent (8);
 
     if (aga && cmode == CMODE_DUALPF) {
-<<<<<<< HEAD
-	outln (        "int *lookup    = bpldualpfpri ? dblpf_ind2_aga : dblpf_ind1_aga;");
-	outln (        "int *lookup_no = bpldualpfpri ? dblpf_2nd2     : dblpf_2nd1;");
-    } else if (cmode == CMODE_DUALPF)
-	outln (        "int *lookup = bpldualpfpri ? dblpf_ind2 : dblpf_ind1;");
-=======
 		outln (        "int *lookup    = bpldualpfpri ? dblpf_ind2_aga : dblpf_ind1_aga;");
 		outln (        "int *lookup_no = bpldualpfpri ? dblpf_2nd2     : dblpf_2nd1;");
     } else if (cmode == CMODE_DUALPF)
 		outln (        "int *lookup = bpldualpfpri ? dblpf_ind2 : dblpf_ind1;");
->>>>>>> p-uae/v2.1.0
 
 
     /* TODO: add support for combining pixel writes in 8-bpp modes. */
 
-<<<<<<< HEAD
-    if (bpp == DEPTH_16BPP && hmode != HMODE_DOUBLE) {
-	outln (		"int rem;");
-	outln (		"if (((long)&buf[dpix]) & 2) {");
-	outln (		"    uae_u32 spix_val;");
-	outln (		"    uae_u32 dpix_val;");
-
-	out_linetoscr_do_srcpix (bpp, hmode, aga, cmode);
-	out_linetoscr_do_dstpix (bpp, hmode, aga, cmode);
-	out_linetoscr_do_incspix (bpp, hmode, aga, cmode);
-
-	outln (		"    buf[dpix++] = dpix_val;");
-	outln (		"}");
-	outln (		"if (dpix >= stoppos)");
-	outln (		"    return spix;");
-	outln (		"rem = (((long)&buf[stoppos]) & 2);");
-	outln (		"if (rem)");
-	outln (		"    stoppos--;");
-=======
     if (bpp == DEPTH_16BPP && hmode != HMODE_DOUBLE && hmode != HMODE_DOUBLE2X && spr == 0) {
 		outln (		"int rem;");
 		outln (		"if (((long)&buf[dpix]) & 2) {");
@@ -424,57 +312,17 @@ static void out_linetoscr_mode (DEPTH_T bpp, HMODE_T hmode, int aga, int spr, CM
 		outln (		"rem = (((long)&buf[stoppos]) & 2);");
 		outln (		"if (rem)");
 		outln (		"    stoppos--;");
->>>>>>> p-uae/v2.1.0
     }
 
 
     outln (		"while (dpix < stoppos) {");
-<<<<<<< HEAD
-=======
     if (spr)
 		outln (		"    uae_u32 sprpix_val;");
->>>>>>> p-uae/v2.1.0
     outln (		"    uae_u32 spix_val;");
     outln (		"    uae_u32 dpix_val;");
     outln (		"    uae_u32 out_val;");
     outln (		"");
 
-<<<<<<< HEAD
-    out_linetoscr_do_srcpix (bpp, hmode, aga, cmode);
-    out_linetoscr_do_dstpix (bpp, hmode, aga, cmode);
-    out_linetoscr_do_incspix (bpp, hmode, aga, cmode);
-
-    outln (		"    out_val = dpix_val;");
-
-    if (hmode != HMODE_DOUBLE && bpp == DEPTH_16BPP) {
-	out_linetoscr_do_srcpix (bpp, hmode, aga, cmode);
-	out_linetoscr_do_dstpix (bpp, hmode, aga, cmode);
-	out_linetoscr_do_incspix (bpp, hmode, aga, cmode);
-
-	if (do_bigendian)
-	    outln (	"    out_val = (out_val << 16) | (dpix_val & 0xFFFF);");
-	else
-	    outln (	"    out_val = (out_val & 0xFFFF) | (dpix_val << 16);");
-    }
-
-    if (hmode == HMODE_DOUBLE) {
-	if (bpp == DEPTH_8BPP) {
-	    outln (	"    *((uae_u16 *)&buf[dpix]) = (uae_u16) out_val;");
-	    outln (	"    dpix += 2;");
-	} else if (bpp == DEPTH_16BPP) {
-	    outln (	"    *((uae_u32 *)&buf[dpix]) = out_val;");
-	    outln (	"    dpix += 2;");
-	} else {
-	    outln (	"    buf[dpix++] = out_val;");
-	    outln (	"    buf[dpix++] = out_val;");
-	}
-    } else {
-	if (bpp == DEPTH_16BPP) {
-	    outln (	"    *((uae_u32 *)&buf[dpix]) = out_val;");
-	    outln (	"    dpix += 2;");
-	 } else
-	    outln (	"    buf[dpix++] = out_val;");
-=======
     out_linetoscr_do_srcpix (bpp, hmode, aga, cmode, spr);
     out_linetoscr_do_dstpix (bpp, hmode, aga, cmode, spr);
     out_linetoscr_do_incspix (bpp, hmode, aga, cmode, spr);
@@ -549,25 +397,11 @@ static void out_linetoscr_mode (DEPTH_T bpp, HMODE_T hmode, int aga, int spr, CM
 				outln (	"    buf[dpix++] = out_val;");
 		    }
 		}
->>>>>>> p-uae/v2.1.0
     }
 
     outln (		"}");
 
 
-<<<<<<< HEAD
-    if (bpp == DEPTH_16BPP && hmode != HMODE_DOUBLE) {
-	outln (		"if (rem) {");
-	outln (		"    uae_u32 spix_val;");
-	outln (		"    uae_u32 dpix_val;");
-
-	out_linetoscr_do_srcpix (bpp, hmode, aga, cmode);
-	out_linetoscr_do_dstpix (bpp, hmode, aga, cmode);
-	out_linetoscr_do_incspix (bpp, hmode, aga, cmode);
-
-	outln (		"    buf[dpix++] = dpix_val;");
-	outln (		"}");
-=======
     if (bpp == DEPTH_16BPP && hmode != HMODE_DOUBLE && hmode != HMODE_DOUBLE2X && spr == 0) {
 		outln (		"if (rem) {");
 		outln (		"    uae_u32 spix_val;");
@@ -579,7 +413,6 @@ static void out_linetoscr_mode (DEPTH_T bpp, HMODE_T hmode, int aga, int spr, CM
 
 		outln (		"    buf[dpix++] = dpix_val;");
 		outln (		"}");
->>>>>>> p-uae/v2.1.0
     }
 
     set_indent (old_indent);
@@ -587,37 +420,6 @@ static void out_linetoscr_mode (DEPTH_T bpp, HMODE_T hmode, int aga, int spr, CM
     return;
 }
 
-<<<<<<< HEAD
-static void out_linetoscr (DEPTH_T bpp, HMODE_T hmode, int aga)
-{
-    if (aga)
-	outln  ("#ifdef AGA");
-
-    out_linetoscr_decl (bpp, hmode, aga);
-    outln  (	"{");
-
-    outlnf (	"    %s *buf = (%s *) xlinebuffer;", get_depth_type_str (bpp), get_depth_type_str (bpp));
-    if (aga)
-	outln (	"    uae_u8 xor_val = (uae_u8)(dp_for_drawing->bplcon4 >> 8);");
-    outln  (	"");
-
-    outln  (	"    if (dp_for_drawing->ham_seen) {");
-    out_linetoscr_mode (bpp, hmode, aga, CMODE_HAM);
-    outln  (	"    } else if (bpldualpf) {");
-    out_linetoscr_mode (bpp, hmode, aga, CMODE_DUALPF);
-    outln  (	"    } else if (bplehb) {");
-    out_linetoscr_mode (bpp, hmode, aga, CMODE_EXTRAHB);
-    outln  (	"    } else {");
-    out_linetoscr_mode (bpp, hmode, aga, CMODE_NORMAL);
-
-    outln  (	"    }\n");
-    outln  (	"    return spix;");
-    outln  (	"}");
-
-    if (aga)
-	outln (	"#endif");
-    outln  (	"");
-=======
 static void out_linetoscr (DEPTH_T bpp, HMODE_T hmode, int aga, int spr)
 {
     if (aga)
@@ -649,21 +451,14 @@ static void out_linetoscr (DEPTH_T bpp, HMODE_T hmode, int aga, int spr)
 	    if (aga)
 			outln (	"#endif");
 	    outln  (	"");
->>>>>>> p-uae/v2.1.0
 }
 
 int main (int argc, char *argv[])
 {
    DEPTH_T bpp;
-<<<<<<< HEAD
-   int aga;
-   HMODE_T hmode;
-   int i;
-=======
    int aga, spr;
    HMODE_T hmode;
    unsigned int i;
->>>>>>> p-uae/v2.1.0
 
     do_bigendian = 0;
 
@@ -685,17 +480,12 @@ int main (int argc, char *argv[])
 
    for (bpp = DEPTH_8BPP; bpp <= DEPTH_MAX; bpp++) {
 	for (aga = 0; aga <= 1 ; aga++) {
-<<<<<<< HEAD
-	    for (hmode = HMODE_NORMAL; hmode <= HMODE_MAX; hmode++)
-		out_linetoscr (bpp, hmode, aga);
-=======
 	    if (aga && bpp == DEPTH_8BPP)
 		continue;
 	    for (spr = 0; spr <= 1; spr++) {
 		for (hmode = HMODE_NORMAL; hmode <= HMODE_MAX; hmode++)
 		    out_linetoscr (bpp, hmode, aga, spr);
 	    }
->>>>>>> p-uae/v2.1.0
 	}
     }
     return 0;
