@@ -6,17 +6,14 @@
   * (c) 1996 Ed Hanway
   */
 
-<<<<<<< HEAD
-=======
 #define RTAREA_DEFAULT 0xf00000
 #define RTAREA_BACKUP  0xef0000
 
->>>>>>> p-uae/v2.1.0
 extern uae_u32 addr (int);
 extern void db (uae_u8);
 extern void dw (uae_u16);
 extern void dl (uae_u32);
-<<<<<<< HEAD
+
 extern uae_u32 ds (const char *);
 extern void calltrap (uae_u32);
 extern void org (uae_u32);
@@ -28,7 +25,7 @@ extern uae_u32 here (void);
 #else
 # define deftrap2(f, mode, str) define_trap((f), (mode), "")
 #endif
-=======
+
 extern uae_u32 ds_ansi (const uae_char*);
 extern uae_u32 ds (const char *);
 extern uae_u8 dbg (uaecptr);
@@ -36,7 +33,6 @@ extern void calltrap (uae_u32);
 extern void org (uae_u32);
 extern uae_u32 here (void);
 extern uaecptr makedatatable (uaecptr resid, uaecptr resname, uae_u8 type, uae_s8 priority, uae_u16 ver, uae_u16 rev);
->>>>>>> p-uae/v2.1.0
 
 extern void align (int);
 
@@ -56,8 +52,6 @@ extern uaecptr ROM_hardfile_resname, ROM_hardfile_resid;
 extern uaecptr ROM_hardfile_init;
 extern uaecptr filesys_initcode;
 
-<<<<<<< HEAD
-=======
 extern int is_hardfile (int unit_no);
 extern int nr_units (void);
 extern int nr_directory_units (struct uae_prefs*);
@@ -95,7 +89,6 @@ extern void filesys_flush_cache (void);
 extern void filesys_free_handles (void);
 extern void filesys_vsync (void);
 
->>>>>>> p-uae/v2.1.0
 extern void filesys_install (void);
 extern void filesys_install_code (void);
 extern void filesys_store_devinfo (uae_u8 *);
@@ -104,11 +97,8 @@ extern void hardfile_reset (void);
 extern void emulib_install (void);
 extern void expansion_init (void);
 extern void expansion_cleanup (void);
-<<<<<<< HEAD
 
 extern uae_u8 *rtarea;
 
 #define RTAREA_BASE 0xF00000
-=======
 extern void expansion_clear (void);
->>>>>>> p-uae/v2.1.0

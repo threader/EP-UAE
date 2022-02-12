@@ -39,7 +39,6 @@ extern int rpt_available;
 extern frame_time_t syncbase;
 
 extern void compute_vsynctime (void);
-<<<<<<< HEAD
 extern void do_cycles_ce (long cycles);
 
 
@@ -49,7 +48,6 @@ extern unsigned int is_lastline;
 extern unsigned long nextevent;
 
 typedef void (*evfunc)(void);
-=======
 extern void init_eventtab (void);
 extern void do_cycles_ce (long cycles);
 extern void do_cycles_ce020 (int clocks);
@@ -62,12 +60,10 @@ typedef void (*evfunc)(void);
 typedef void (*evfunc2)(uae_u32);
 
 typedef unsigned long int evt;
->>>>>>> p-uae/v2.1.0
 
 struct ev
 {
     int active;
-<<<<<<< HEAD
     unsigned long int evtime, oldcycles;
     evfunc handler;
 };
@@ -158,7 +154,6 @@ STATIC_INLINE void do_extra_cycles (unsigned long cycles_to_add)
 
 #define countdown pissoff
 
-=======
     evt evtime, oldcycles;
     evfunc handler;
 };
@@ -203,5 +198,4 @@ STATIC_INLINE int current_hpos (void)
     return (get_cycles () - eventtab[ev_hsync].oldcycles) / CYCLE_UNIT;
 }
 
->>>>>>> p-uae/v2.1.0
 #endif

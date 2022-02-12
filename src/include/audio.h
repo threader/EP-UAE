@@ -13,7 +13,6 @@ extern void aud1_handler (void);
 extern void aud2_handler (void);
 extern void aud3_handler (void);
 
-<<<<<<< HEAD
 extern void AUDxDAT (unsigned int nr, uae_u16 value);
 extern void AUDxVOL (unsigned int nr, uae_u16 value);
 extern void AUDxPER (unsigned int nr, uae_u16 value);
@@ -22,7 +21,6 @@ extern void AUDxLCL (unsigned int nr, uae_u16 value);
 extern void AUDxLEN (unsigned int nr, uae_u16 value);
 
 extern void ahi_install (void);
-=======
 extern void AUDxDAT (int nr, uae_u16 value);
 extern void AUDxVOL (int nr, uae_u16 value);
 extern void AUDxPER (int nr, uae_u16 value);
@@ -33,19 +31,16 @@ extern void AUDxLEN (int nr, uae_u16 value);
 extern int init_audio (void);
 extern void ahi_install (void);
 extern void audio_reset (void);
->>>>>>> p-uae/v2.1.0
 extern void update_audio (void);
 extern void schedule_audio (void);
 extern void audio_evhandler (void);
 extern void audio_hsync (int);
 extern void audio_update_adkmasks (void);
 extern void audio_update_irq (uae_u16);
-<<<<<<< HEAD
 extern void update_sound (unsigned int freq);
 
 extern int  audio_setup (void);
 extern int  audio_init (void);
-=======
 extern void update_sound (int freq, int longframe, int linetoggle);
 extern void led_filter_audio (void);
 extern void set_audio (void);
@@ -53,7 +48,6 @@ extern int audio_activate (void);
 extern void audio_vsync (void);
 
 extern int  audio_setup (void);
->>>>>>> p-uae/v2.1.0
 extern void audio_close (void);
 extern void audio_reset (void);
 extern void audio_pause (void);
@@ -63,8 +57,6 @@ extern void audio_volume (int);
 void switch_audio_interpol (void);
 
 extern int sound_available;
-<<<<<<< HEAD
-=======
 
 extern void audio_sampleripper(int);
 extern int sampleripper_enabled;
@@ -108,4 +100,3 @@ STATIC_INLINE int get_audio_ismono (int stereomode)
 #define SOUND_MAX_LOG_DELAY 10
 #define MIXED_STEREO_MAX 16
 #define MIXED_STEREO_SCALE 32
->>>>>>> p-uae/v2.1.0

@@ -16,17 +16,10 @@ STATIC_INLINE frame_time_t uae_gethrtime (void)
 {
 #ifdef HAVE_MACHDEP_TIMER
     if (currprefs.use_processor_clock)
-<<<<<<< HEAD
-	return machdep_gethrtime ();
-    else
-#endif
-	return osdep_gethrtime ();
-=======
 		return machdep_gethrtime ();
     else
 #endif
 		return osdep_gethrtime ();
->>>>>>> p-uae/v2.1.0
 }
 
 STATIC_INLINE frame_time_t uae_gethrtimebase (void)

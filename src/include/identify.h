@@ -7,21 +7,13 @@
 
 struct mem_labels
 {
-<<<<<<< HEAD
-    const char *name;
-=======
     const TCHAR *name;
->>>>>>> p-uae/v2.1.0
     uae_u32 adr;
 };
 
 struct customData
 {
-<<<<<<< HEAD
-    const char *name;
-=======
     const TCHAR *name;
->>>>>>> p-uae/v2.1.0
     uae_u32 adr;
     uae_u8 rw, special;
 };

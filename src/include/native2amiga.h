@@ -26,11 +26,7 @@ void uae_NewList(uaecptr list);
 
 /*
  * The following functions are shortcuts for calling
-<<<<<<< HEAD
- * the exec.library function with CallLib(), so they
-=======
  * the exec.library function with CallLib (), so they
->>>>>>> p-uae/v2.1.0
  * are only available in a trap function. This trap
  * function has to be setup with deftrap2() and
  * TRAPFLAG_EXTRA_STACK and stack magic is required.
@@ -44,11 +40,8 @@ void uae_FreeMem (TrapContext *context, uaecptr memory, uae_u32 size);
  */
 void native2amiga_install (void);
 
-<<<<<<< HEAD
-=======
 void native2amiga_reset (void);
 
->>>>>>> p-uae/v2.1.0
 /*
  * to be called when the Amiga boots, i.e. by filesys_diagentry()
  */
@@ -66,10 +59,6 @@ extern smp_comm_pipe native2amiga_pending;
 
 STATIC_INLINE void do_uae_int_requested (void)
 {
-<<<<<<< HEAD
-    uae_int_requested = 1;
-=======
     uae_int_requested |= 1;
     set_uae_int_flag ();
->>>>>>> p-uae/v2.1.0
 }

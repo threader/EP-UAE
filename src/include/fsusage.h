@@ -18,19 +18,11 @@
 /* Space usage statistics for a filesystem.  Blocks are 512-byte. */
 struct fs_usage
 {
-<<<<<<< HEAD
-  long fsu_blocks;		/* Total blocks. */
-  long fsu_bfree;		/* Free blocks available to superuser. */
-  long fsu_bavail;		/* Free blocks available to non-superuser. */
-  long fsu_files;		/* Total file nodes. */
-  long fsu_ffree;		/* Free file nodes. */
-=======
   unsigned long fsu_blocks;		/* Total blocks. */
   unsigned long fsu_bfree;		/* Free blocks available to superuser. */
   unsigned long fsu_bavail;		/* Free blocks available to non-superuser. */
   unsigned long fsu_files;		/* Total file nodes. */
   unsigned long fsu_ffree;		/* Free file nodes. */
->>>>>>> p-uae/v2.1.0
 };
 
 #ifndef __P
@@ -41,9 +33,5 @@ struct fs_usage
 #endif  /* GCC.  */
 #endif  /* Not __P.  */
 
-<<<<<<< HEAD
 int get_fs_usage __P ((const char *path, const char *disk,
 		       struct fs_usage *fsp));
-=======
-int get_fs_usage __P ((const char *path, const char *disk, struct fs_usage *fsp));
->>>>>>> p-uae/v2.1.0

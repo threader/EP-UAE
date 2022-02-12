@@ -12,7 +12,6 @@
 
 #ifndef SET_CFLG
 
-<<<<<<< HEAD
 #define SET_CFLG(regs, x) (CFLG(regs) = (x))
 #define SET_NFLG(regs, x) (NFLG(regs) = (x))
 #define SET_VFLG(regs, x) (VFLG(regs) = (x))
@@ -32,8 +31,9 @@
  SET_VFLG (regs, 0); \
 } while (0)
 
+#if 0
 #define COPY_CARRY(regs) (SET_XFLG (regs, GET_CFLG (regs)))
-=======
+
 #define SET_CFLG(x) (CFLG() = (x))
 #define SET_NFLG(x) (NFLG() = (x))
 #define SET_VFLG(x) (VFLG() = (x))
@@ -52,9 +52,9 @@
 	SET_NFLG (0); \
 	SET_VFLG (0); \
 } while (0)
-
 #define COPY_CARRY() (SET_XFLG (GET_CFLG ()))
->>>>>>> p-uae/v2.1.0
+#endif 
+
 #endif
 
 extern const int areg_byteinc[];
@@ -70,15 +70,11 @@ extern int fpp_movem_index2[256];
 extern int fpp_movem_next[256];
 #endif
 
-<<<<<<< HEAD
 struct regstruct;
 
 typedef unsigned long cpuop_func (uae_u32, struct regstruct *regs) REGPARAM;
 typedef  void cpuop_func_ce (uae_u32, struct regstruct *regs) REGPARAM;
-=======
-typedef unsigned long cpuop_func (uae_u32) REGPARAM;
-typedef void cpuop_func_ce (uae_u32) REGPARAM;
->>>>>>> p-uae/v2.1.0
+
 
 struct cputbl {
     cpuop_func *handler;
@@ -86,11 +82,7 @@ struct cputbl {
 };
 
 #ifdef JIT
-<<<<<<< HEAD
-typedef unsigned long compop_func (uae_u32) REGPARAM;
-=======
 typedef unsigned long REGPARAM3 compop_func (uae_u32) REGPARAM;
->>>>>>> p-uae/v2.1.0
 
 struct comptbl {
     compop_func *handler;
@@ -99,15 +91,9 @@ struct comptbl {
 };
 #endif
 
-<<<<<<< HEAD
 extern unsigned long op_illg (uae_u32, struct regstruct *regs) REGPARAM;
 
-typedef char flagtype;
-=======
-extern unsigned long op_illg (uae_u32) REGPARAM;
-
 typedef uae_u8 flagtype;
->>>>>>> p-uae/v2.1.0
 
 #ifdef FPUEMU
 /* You can set this to long double to be more accurate. However, the
@@ -117,7 +103,6 @@ typedef uae_u8 flagtype;
 
 #if USE_LONG_DOUBLE
 typedef long double fptype;
-<<<<<<< HEAD
 #else
 typedef double fptype;
 #endif
@@ -127,7 +112,7 @@ extern struct regstruct
 {
     uae_u32 regs[16];
     struct flag_struct ccrflags;
-=======
+
 #define LDPTR tbyte ptr
 #else
 typedef double fptype;
@@ -164,25 +149,21 @@ struct cache040
 struct regstruct
 {
     uae_u32 regs[16];
->>>>>>> p-uae/v2.1.0
 
     uae_u32 pc;
     uae_u8 *pc_p;
     uae_u8 *pc_oldp;
 
-<<<<<<< HEAD
     uae_u16 irc;
     uae_u16 ir;
 
     uae_u32 spcflags;
 
     uaecptr  usp,isp,msp;
-=======
     uae_u16 irc, ir;
     uae_u32 spcflags;
 
     uaecptr usp, isp, msp;
->>>>>>> p-uae/v2.1.0
     uae_u16 sr;
     flagtype t1;
     flagtype t0;
@@ -190,7 +171,6 @@ struct regstruct
     flagtype m;
     flagtype x;
     flagtype stopped;
-<<<<<<< HEAD
     unsigned int intmask;
 
     uae_u32 vbr;
@@ -207,7 +187,6 @@ struct regstruct
     uae_u32 sfc, dfc;
 
     uae_u32 kick_mask;
-=======
     int intmask;
 	int ipl, ipl_pin;
 
@@ -234,13 +213,11 @@ struct regstruct
 #endif
 
     uae_u32 pcr;
->>>>>>> p-uae/v2.1.0
     uae_u32 address_space_mask;
 
     uae_u8 panic;
     uae_u32 panic_pc, panic_addr;
 
-<<<<<<< HEAD
 } regs, lastint_regs;
 
 typedef struct {
@@ -258,21 +235,18 @@ typedef union {
     struct blockinfo_t* bi;
 } cacheline;
 
-=======
 	uae_u32 prefetch020data;
 	uae_u32 prefetch020addr;
 	int ce020memcycles;
 };
 
 extern struct regstruct regs;
->>>>>>> p-uae/v2.1.0
 
 STATIC_INLINE uae_u32 munge24 (uae_u32 x)
 {
     return x & regs.address_space_mask;
 }
 
-<<<<<<< HEAD
 STATIC_INLINE void set_special (struct regstruct *regs, uae_u32 x)
 {
     regs->spcflags |= x;
@@ -364,7 +338,6 @@ STATIC_INLINE void m68k_setstopped (struct regstruct *regs, int stop)
 
 extern uae_u32 get_disp_ea_020 (struct regstruct *regs, uae_u32 base, uae_u32 dp) REGPARAM;
 extern uae_u32 get_disp_ea_000 (struct regstruct *regs, uae_u32 base, uae_u32 dp) REGPARAM;
-=======
 extern int mmu_enabled, mmu_triggered;
 extern int cpu_cycles;
 extern int cpucycleunit;
@@ -500,27 +473,26 @@ extern uae_u32 get_bitfield_040mmu (uae_u32 src, uae_u32 bdata[2], uae_s32 offse
 extern void put_bitfield_040mmu (uae_u32 dst, uae_u32 bdata[2], uae_u32 val, uae_s32 offset, int width);
 
 extern int get_cpu_model(void);
->>>>>>> p-uae/v2.1.0
 
 /* Hack to stop conflict with AROS Exception function */
 #ifdef __AROS__
 # undef Exception
 #endif
 
-<<<<<<< HEAD
 extern void MakeSR (struct regstruct *regs) REGPARAM;
 extern void MakeFromSR (struct regstruct *regs) REGPARAM;
 extern void Exception (int, struct regstruct *regs, uaecptr) REGPARAM;
 extern void Interrupt (unsigned int level);
-=======
+#if 0
 extern void MakeSR (void) REGPARAM;
 extern void MakeFromSR (void) REGPARAM;
 extern void Exception (int, uaecptr) REGPARAM;
+#endif 
 extern void NMI (void);
 extern void NMI_delayed (void);
 extern void prepare_interrupt (uae_u32);
 extern void doint (void);
->>>>>>> p-uae/v2.1.0
+
 extern void dump_counts (void);
 extern int m68k_move2c (int, uae_u32 *);
 extern int m68k_movec2 (int, uae_u32 *);
@@ -531,7 +503,7 @@ extern void init_m68k_full (void);
 extern void m68k_go (int);
 extern void m68k_dumpstate (void *, uaecptr *);
 extern void m68k_disasm (void *, uaecptr, uaecptr *, int);
-<<<<<<< HEAD
+
 extern void m68k_disasm_ea (void *f, uaecptr addr, uaecptr *nextpc, int cnt, uae_u32 *seaddr, uae_u32 *deaddr);
 extern void sm68k_disasm(char *, char *, uaecptr addr, uaecptr *nextpc);
 extern void m68k_reset (void);
@@ -548,11 +520,7 @@ extern void fbcc_opp     (uae_u32, struct regstruct *regs, uaecptr, uae_u32);
 extern void fsave_opp    (uae_u32, struct regstruct *regs);
 extern void frestore_opp (uae_u32, struct regstruct *regs);
 extern uae_u32 fpp_get_fpsr (const struct regstruct *regs);
-=======
-extern void sm68k_disasm (char*, char*, uaecptr addr, uaecptr *nextpc);
-extern void m68k_reset (int);
-extern int getDivu68kCycles(uae_u32 dividend, uae_u16 divisor);
-extern int getDivs68kCycles(uae_s32 dividend, uae_s16 divisor);
+
 extern void m68k_do_rte (void);
 
 extern void mmu_op (uae_u32, uae_u32);
@@ -569,14 +537,12 @@ extern uae_u32 fpp_get_fpsr (void);
 extern void fpu_reset (void);
 extern void fpux_save (int*);
 extern void fpux_restore (int*);
->>>>>>> p-uae/v2.1.0
 
 extern void exception3 (uae_u32 opcode, uaecptr addr, uaecptr fault);
 extern void exception3i (uae_u32 opcode, uaecptr addr, uaecptr fault);
 extern void exception2 (uaecptr addr, uaecptr fault);
 extern void cpureset (void);
 
-<<<<<<< HEAD
 extern void fill_prefetch_slow (struct regstruct *regs);
 
 STATIC_INLINE int notinrom (void)
@@ -625,7 +591,6 @@ extern void compemu_reset (void);
 #else
 #define flush_icache(X) do {} while (0)
 #endif
-=======
 extern void fill_prefetch_slow (void);
 
 #define CPU_OP_NAME(a) op ## a
@@ -671,4 +636,3 @@ struct cpum2c {
 	char *regname;
 };
 extern struct cpum2c m2cregs[];
->>>>>>> p-uae/v2.1.0

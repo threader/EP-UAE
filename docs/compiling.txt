@@ -30,13 +30,6 @@ Here are a selection of the the supported options:
 The config script for UAE supports a bunch of compile-time options for
 selecting what features are built into UAE. Here's a selection:
 
-<<<<<<< HEAD
---enable-jit
-  Build CPU emulation with JIT compiler. Currently only supported on
-  x86 platforms (known to work on Linux, Solaris, AROS, and BeOS, but
-  should work on most Unix-like platforms, providing you are building
-  with GCC). Defaults to enabled when building for x86.
-=======
 --enable-fpu
   Build CPU emulation with suppport for optional emulation of a math
   coprocessor (Motoroloa 68881/2, etc.). Defaults to true.
@@ -57,7 +50,6 @@ selecting what features are built into UAE. Here's a selection:
   Linux, Solaris, AROS, and BeOS, but should work on most Unix-like
   platforms, providing you are building with GCC). Defaults to enabled
   when building for x86.
->>>>>>> p-uae/v2.1.0
 
 --enable-natmem
   If building the JIT, include support for direct memory access (which
@@ -91,11 +83,7 @@ selecting what features are built into UAE. Here's a selection:
 --enable-bsdsock
   Build with support for emulated network stack (an emulated
   bsdsocket.library). This works only on Unix platforms at the moment
-<<<<<<< HEAD
-  (including Linux and OS X).
-=======
   (including Linux, Solaris and OS X).
->>>>>>> p-uae/v2.1.0
 
 --with-caps
   Build with support for IPF (CAPS) images. This requires the IPF
@@ -159,12 +147,9 @@ configure script to specify where these are installed.
 
 On Linux systems, if libscg is not available, E-UAE tries to use a
 Linux-specific SCSI emulation that is based on some ioctl() commands.
-<<<<<<< HEAD
-=======
 
 
 Misc
 -------------
 
 --host=i586 --target=i586 CFLAGS="-m32" LDFLAGS="-m32"
->>>>>>> p-uae/v2.1.0

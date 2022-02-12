@@ -8,20 +8,15 @@
 
 <<<<<<< HEAD
 extern void gui_init (int argc, char **argv);
-=======
-extern int gui_init (void);
->>>>>>> p-uae/v2.1.0
 extern int gui_open (void);
 extern int gui_update (void);
 extern void gui_exit (void);
 extern void gui_led (int, int);
 extern void gui_handle_events (void);
-<<<<<<< HEAD
 extern void gui_filename (int, const char *);
 extern void gui_fps (int fps, int idle);
 extern void gui_hd_led (int);
 extern void gui_cd_led (int);
-=======
 extern void gui_filename (int, const TCHAR *);
 extern void gui_fps (int fps, int idle);
 extern void gui_changesettings (void);
@@ -31,12 +26,10 @@ extern void gui_flicker_led (int, int, int);
 extern void gui_hd_led (int, int);
 extern void gui_cd_led (int, int);
 extern void gui_disk_image_change (int, const TCHAR *);
->>>>>>> p-uae/v2.1.0
 extern unsigned int gui_ledstate;
 extern void gui_display (int shortcut);
 extern void gui_notify_state (int state);
 
-<<<<<<< HEAD
 struct gui_info
 {
     uae_u8 drive_motor[4];          /* motor on off */
@@ -54,7 +47,7 @@ struct gui_info
 #define NUM_LEDS (1 + 1 + 1 + 1 + 1 + 4)
 
 extern struct gui_info gui_data;
-=======
+
 extern int no_gui, quit_to_gui;
 
 #define LED_CD_ACTIVE 1
@@ -111,4 +104,3 @@ typedef enum {
     NUMSG_NOCAPS, NUMSG_OLDCAPS, NUMSG_KICKREP, NUMSG_KICKREPNO
 } notify_user_msg;*/
 
->>>>>>> p-uae/v2.1.0

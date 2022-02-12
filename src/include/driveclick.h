@@ -7,12 +7,6 @@
   */
 
 
-<<<<<<< HEAD
-struct drvsample {
-    int len;
-    int pos;
-    uae_s16 *p;
-=======
 #define CLICK_TRACKS 84
 
 struct drvsample {
@@ -21,7 +15,6 @@ struct drvsample {
     uae_s16 *p;
     unsigned int indexes[CLICK_TRACKS];
     unsigned int lengths[CLICK_TRACKS];
->>>>>>> p-uae/v2.1.0
 };
 
 #define DS_CLICK 0
@@ -49,8 +42,6 @@ extern uae_s16 *decodewav (uae_u8 *s, int *len);
 #define DS_NAME_START "drive_start_"
 #define DS_NAME_SNATCH "drive_snatch_"
 
-<<<<<<< HEAD
-=======
 extern int driveclick_fdrawcmd_open(int);
 extern void driveclick_fdrawcmd_close(int);
 extern void driveclick_fdrawcmd_detect(void);
@@ -58,4 +49,3 @@ extern void driveclick_fdrawcmd_seek(int, int);
 extern void driveclick_fdrawcmd_motor(int, int);
 extern void driveclick_fdrawcmd_vsync(void);
 extern int driveclick_pcdrivemask, driveclick_pcdrivenum;
->>>>>>> p-uae/v2.1.0

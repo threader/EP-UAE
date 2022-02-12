@@ -6,32 +6,25 @@
   * Copyright 1997 Bernd Schmidt
   */
 
-<<<<<<< HEAD
-struct hardfiledata {
-    uae_u64 size;
-=======
 struct hardfilehandle;
 
 struct hardfiledata {
+    uae_u64 size;
     uae_u64 virtsize; // virtual size
     uae_u64 physsize; // physical size (dynamic disk)
->>>>>>> p-uae/v2.1.0
     uae_u64 offset;
     int nrcyls;
     int secspertrack;
     int surfaces;
     int reservedblocks;
-<<<<<<< HEAD
     unsigned int blocksize;
     void *handle;
     int readonly;
-=======
     int blocksize;
     struct hardfilehandle *handle;
     int handle_valid;
     int readonly;
     int dangerous;
->>>>>>> p-uae/v2.1.0
     int flags;
     uae_u8 *cache;
     int cache_valid;
@@ -44,12 +37,8 @@ struct hardfiledata {
     unsigned int cylinders;
     unsigned int sectors;
     unsigned int heads;
-<<<<<<< HEAD
     uae_u64 size2;
     uae_u64 offset2;
-};
-
-=======
     uae_u8 *virtual_rdb;
     uae_u64 virtual_size;
     int unitnum;
@@ -101,22 +90,17 @@ struct hd_hardfiledata {
 #define HD_CONTROLLER_PCMCIA_SRAM 12
 #define HD_CONTROLLER_PCMCIA_IDE 13
 
->>>>>>> p-uae/v2.1.0
 #define FILESYS_VIRTUAL 0
 #define FILESYS_HARDFILE 1
 #define FILESYS_HARDFILE_RDB 2
 #define FILESYS_HARDDRIVE 3
 
-<<<<<<< HEAD
 #define FILESYS_FLAG_DONOTSAVE 1
 
-=======
->>>>>>> p-uae/v2.1.0
 #define MAX_FILESYSTEM_UNITS 30
 
 struct uaedev_mount_info;
 extern struct uaedev_mount_info options_mountinfo;
-<<<<<<< HEAD
 extern void free_mountinfo (struct uaedev_mount_info *);
 
 extern int nr_units (struct uaedev_mount_info *mountinfo);
@@ -151,24 +135,15 @@ extern void filesys_flush_cache (void);
 extern struct hardfiledata *get_hardfile_data (int nr);
 #define FILESYS_MAX_BLOCKSIZE 2048
 extern int hdf_open (struct hardfiledata *hfd, const char *name);
-=======
 
 extern struct hardfiledata *get_hardfile_data (int nr);
 #define FILESYS_MAX_BLOCKSIZE 2048
 extern int hdf_open (struct hardfiledata *hfd, const TCHAR *name);
->>>>>>> p-uae/v2.1.0
 extern int hdf_dup (struct hardfiledata *dhfd, const struct hardfiledata *shfd);
 extern void hdf_close (struct hardfiledata *hfd);
 extern int hdf_read (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
 extern int hdf_write (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
 extern int hdf_getnumharddrives (void);
-<<<<<<< HEAD
-extern char *hdf_getnameharddrive (int index, int flags);
-extern int hdf_init (void);
-extern int isspecialdrive (const char *name);
-extern void filesys_cleanup (void);
-extern int filesys_is_readonly (const char *path);
-=======
 extern char *hdf_getnameharddrive (int index, int flags, int *sectorsize, int *dangerousdrive);
 extern int isspecialdrive (const char *name);
 extern void filesys_cleanup (void);
@@ -193,4 +168,3 @@ extern int hdf_read_target (struct hardfiledata *hfd, void *buffer, uae_u64 offs
 extern int hdf_write_target (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
 extern int hdf_resize_target (struct hardfiledata *hfd, uae_u64 newsize);
 extern void getchsgeometry (uae_u64 size, int *pcyl, int *phead, int *psectorspertrack);
->>>>>>> p-uae/v2.1.0

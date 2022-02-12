@@ -9,7 +9,6 @@
 
 #ifdef DEBUGGER
 
-<<<<<<< HEAD
 extern int debugging;
 extern int exception_debugging;
 extern int debug_copper;
@@ -20,7 +19,6 @@ extern void activate_debugger (void);
 
 extern void record_copper (uaecptr addr, unsigned int hpos, unsigned int vpos);
 extern void record_copper_reset (void);
-=======
 #define	MAX_HIST 500
 #define MAX_LINEWIDTH 100
 
@@ -124,6 +122,5 @@ extern void debug_draw_cycles (uae_u8 *buf, int bpp, int line, int width, int he
 #else
 
 STATIC_INLINE void activate_debugger (void) { };
->>>>>>> p-uae/v2.1.0
 
 #endif

@@ -2,17 +2,11 @@ dnl Process this file with autoconf to produce a configure script.
 dnl Written 1996, 1997, 1998 Bernd Schmidt
 dnl
 dnl Updated, re-written and generally mauled 2003 Richard Drummond
-<<<<<<< HEAD
-
-AC_PREREQ(2.55)
-AC_INIT(E-UAE, 0.8.29-WIP4, ,e-uae)
-=======
 dnl Updated and generally mauled 2008 Mustafa Tufan
 dnl
 
 AC_PREREQ(2.55)
 AC_INIT(PUAE, 2.1.0, ,puae)
->>>>>>> p-uae/v2.1.0
 AC_CONFIG_SRCDIR([bootstrap.sh])
 AM_CONFIG_HEADER([src/sysconfig.h])
 AC_CANONICAL_TARGET
@@ -120,20 +114,14 @@ AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
 AC_TYPE_SIGNAL
 AC_FUNC_UTIME_NULL
-<<<<<<< HEAD
 AC_CHECK_FUNCS(getcwd getopt strdup gettimeofday sigaction mkdir rmdir)
 AC_CHECK_FUNCS(select strerror strstr isnan isinf setitimer alarm sync)
 AC_CHECK_FUNCS(tcgetattr cfmakeraw readdir_r vprintf vsprintf vfprintf)
-AC_CHECK_FUNCS(strcasecmp stricmp strcmpi)
-AC_CHECK_FUNCS(nanosleep usleep sleep)
-=======
 AC_CHECK_FUNCS(gettimeofday sigaction)
-AC_CHECK_FUNCS(select strerror isnan isinf setitimer alarm sync)
 AC_CHECK_FUNCS(readdir_r)
 AC_CHECK_FUNCS(strdup strstr strcasecmp stricmp strcmpi)
 AC_CHECK_FUNCS(nanosleep usleep sleep)
 AC_CHECK_FUNCS(vprintf vsprintf vfprintf)
->>>>>>> p-uae/v2.1.0
 
 dnl AC_CHECK_FUNCS(statvfs statfs)
 dnl AC_VAR_TIMEZONE_EXTERNALS - broken on *BSD
@@ -187,10 +175,8 @@ AC_CACHE_SAVE
 dnl
 dnl  Check for libz
 dnl
-<<<<<<< HEAD
 CHECK_ZLIB
 
-=======
 AC_CHECK_LIB(z, inflateEnd, [zlib_cv_libz=yes], [zlib_cv_libz=no])
 AC_CHECK_HEADER(zlib.h, [zlib_cv_zlib_h=yes], [zlib_cv_zlib_h=no])
 if test "$zlib_cv_libz" = "yes" -a "$zlib_cv_zlib_h" = "yes"
@@ -199,7 +185,6 @@ then
 else
     AC_MSG_ERROR(Check for libz failed)
 fi
->>>>>>> p-uae/v2.1.0
 
 dnl
 dnl  Check for pthreads
@@ -221,7 +206,6 @@ fi
 dnl
 dnl  Check for dlopen
 dnl
-<<<<<<< HEAD
 SAVE_LIBS="$LIBS"
 LIBS="$LIBS -ldl"
 AC_CHECK_LIB(dl, dlopen, [
@@ -229,12 +213,6 @@ AC_CHECK_LIB(dl, dlopen, [
   ], [
     LIBS="$SAVE_LIBS"
   ]
-=======
-AC_CHECK_LIB(dl, dlopen, [
-    UAE_LIBS="-ldl $UAE_LIBS"
-    AC_DEFINE(HAVE_DLOPEN, 1, "Define to 1 if you have 'dlopen' function)
-  ],
->>>>>>> p-uae/v2.1.0
 )
 
 dnl
@@ -320,19 +298,16 @@ MDFPP_H=fpp-unknown.h
 case $host_cpu in
      i[[3-6]]86)
        HOST_CPU=i386
-<<<<<<< HEAD
        MDFPP_H=fpp-ieee.h       
        ;;
      amd64 | x86_64)
        HOST_CPU=amd64
        MDFPP_H=fpp-ieee.h       
-=======
        MDFPP_H=fpp-ieee.h
        ;;
      amd64 | x86_64)
        HOST_CPU=amd64
        MDFPP_H=fpp-ieee.h
->>>>>>> p-uae/v2.1.0
        ;;
      powerpc)
        HOST_CPU=ppc
@@ -354,12 +329,8 @@ dnl  We always set this for now. It's only used in the audio emulation,
 dnl  where the option is to do multiplication or table look-up. On just
 dnl  about any CPU it's worthwhile running E-UAE on, multiplication will be
 dnl  better.
-<<<<<<< HEAD
-
-=======
 dnl should we move this in enable-gccopt ?
 dnl
->>>>>>> p-uae/v2.1.0
 AC_DEFINE(MULTIPLICATION_PROFITABLE, 1, [Define to 1 if your CPU profitably supports multiplication.])
 
 
@@ -368,10 +339,7 @@ dnl  Find out what compiler we have
 dnl
 HAVE_GCC27=no
 HAVE_GCC30=no
-<<<<<<< HEAD
-=======
 HAVE_GCC40=no
->>>>>>> p-uae/v2.1.0
 HAVE_GLIBC2=no
 
 AC_MSG_CHECKING([for GCC 2.7 or higher])
@@ -390,8 +358,6 @@ if [[ "x$HAVE_GCC27" = "xyes" ]]; then
   ], [AC_MSG_RESULT(yes); HAVE_GCC30=yes], AC_MSG_RESULT(no))
 fi
 
-<<<<<<< HEAD
-=======
 if [[ "x$HAVE_GCC30" = "xyes" ]]; then
   AC_MSG_CHECKING([for GCC 4.0 or higher])
   AC_EGREP_CPP(yes,
@@ -401,7 +367,6 @@ if [[ "x$HAVE_GCC30" = "xyes" ]]; then
   ], [AC_MSG_RESULT(yes); HAVE_GCC40=yes], AC_MSG_RESULT(no))
 fi
 
->>>>>>> p-uae/v2.1.0
 if test $ac_cv_prog_gcc = yes; then
   if test $HAVE_GCC27 != yes; then
     AC_MSG_WARN([Version 2.7 or better of GCC is recommended])
@@ -491,18 +456,12 @@ JOY_NAME=none
 
 DO_PROFILING=no
 if [[ "$HOST_CPU" = "i386" ]]; then
-<<<<<<< HEAD
-=======
 dnl -o "$HOST_CPU" = "amd64" ]]; then
->>>>>>> p-uae/v2.1.0
   WANT_JIT=yes
 else
   WANT_JIT=no
 fi
-<<<<<<< HEAD
-=======
 
->>>>>>> p-uae/v2.1.0
 NATMEM=no
 NOFLAGS=no
 WANT_DGA=no
@@ -511,24 +470,18 @@ WANT_THREADS=dunno
 NEED_THREAD_SUPPORT=no
 WANT_AUTOCONFIG=dunno
 WANT_SCSIEMU=no
-<<<<<<< HEAD
-=======
 WANT_GAYLE=no
 WANT_A2065=no
 WANT_A2091=no
 WANT_AMAX=no
 WANT_NCR=no
->>>>>>> p-uae/v2.1.0
 WANT_AGA=yes
 WANT_CD32=dunno
 WANT_CDTV=dunno
 WANT_BSDSOCK=dunno
 WANT_UI=dunno
 WANT_AUDIO=dunno
-<<<<<<< HEAD
-=======
 WANT_FPU=yes
->>>>>>> p-uae/v2.1.0
 WANT_COMPATIBLE=yes
 WANT_CYCLEEXACT=yes
 WANT_CAPS=no
@@ -538,11 +491,7 @@ WANT_ENFORCER=dunno
 MATHLIB=-lm
 
 dnl
-<<<<<<< HEAD
-dnl  Override defaults for specfic targets
-=======
 dnl  Override defaults for specific targets
->>>>>>> p-uae/v2.1.0
 dnl
 if [[ "$HOST_OS" = "linux" ]]; then
   JOY_DEP=jd-linuxold
@@ -602,24 +551,19 @@ dnl
 dnl Win32 build has its own writelog.c
 dnl
 if [[ "$OSDEP" != "od-win32" ]]; then
-<<<<<<< HEAD
    EXTRAOBJS=writelog.o
 fi
 
 
-
-=======
    EXTRAOBJS='writelog.$(OBJEXT)'
 fi
 
 
->>>>>>> p-uae/v2.1.0
 dnl
 dnl  Options
 dnl
 
-AC_ARG_ENABLE(profiling,       AS_HELP_STRING([--enable-profiling],       [Build a profiling (SLOW!) version]),                       [DO_PROFILING=$enableval],[])
-<<<<<<< HEAD
+AC_ARG_ENABLE(profiling,       AS_HELP_STRING([--enable-profiling], 
 AC_ARG_ENABLE(aga,             AS_HELP_STRING([--enable-aga],             [Enable AGA chipset emulation (default yes)]),              [WANT_AGA=$enableval],[])
 AC_ARG_ENABLE(cdtv,            AS_HELP_STRING([--enable-cdtv],            [Enable CDTV emulation (default no)]),                      [WANT_CDTV=$enableval],[])
 AC_ARG_ENABLE(cd32,            AS_HELP_STRING([--enable-cd32],            [Enable CD32 emulation (default no)]),                      [WANT_CD32=$enableval],[])
@@ -641,7 +585,6 @@ AC_ARG_ENABLE(vidmode,         AS_HELP_STRING([--enable-vidmode],         [X11 v
 AC_ARG_ENABLE(ui,              AS_HELP_STRING([--enable-ui],              [Use a user interface if possible (default on)]),           [WANT_UI=$enableval],[])
 AC_ARG_ENABLE(audio,	       AS_HELP_STRING([--enable-audio],           [Enable audio output (default auto)]),                      [WANT_AUDIO=$enableval],[])
 AC_ARG_ENABLE(fdi,	       AS_HELP_STRING([--enable-fdi],             [Enable FDI support (default yes)]),                        [WANT_FDI=$enableval],[])
-=======
 AC_ARG_ENABLE(a2065,           AS_HELP_STRING([--enable-a2065],           [Enable A2065 Ethernet emulation (default no)]),            [WANT_A2065=$enableval],[])
 AC_ARG_ENABLE(a2091,           AS_HELP_STRING([--enable-a2091],           [Enable A2091 SCSI emulation (default no)]),                [WANT_A2091=$enableval],[])
 AC_ARG_ENABLE(action-replay,   AS_HELP_STRING([--enable-action-replay],   [Enable Action Replay cartridge emulation (default yes)]),  [WANT_ACTION_REPLAY=$enableval],[])
@@ -672,7 +615,6 @@ AC_ARG_ENABLE(threads,         AS_HELP_STRING([--enable-threads],         [Enabl
 AC_ARG_ENABLE(ui,              AS_HELP_STRING([--enable-ui],              [Use a user interface if possible (default on)]),           [WANT_UI=$enableval],[])
 AC_ARG_ENABLE(vidmode,         AS_HELP_STRING([--enable-vidmode],         [X11 version: Use the XF86VidMode extension]),              [WANT_VIDMODE=$enableval],[])
 AC_ARG_ENABLE(xarcade,         AS_HELP_STRING([--disable-xarcade],        [Disable keymaps for X-Arcade joysticks (default: enabled)]),  [WANT_XARCADE=$enableval],[WANT_XARCADE=yes])
->>>>>>> p-uae/v2.1.0
 
 AC_ARG_WITH(sdl,
   AS_HELP_STRING([--with-sdl], [Use SDL library for low-level functions]),
@@ -769,11 +711,7 @@ if [[ "x$WANT_SDL" != "xno" ]]; then
     SAVE_CPPFLAGS=$CPPFLAGS
     SAVE_LIBS=$LIBS
     CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
-<<<<<<< HEAD
-    LIBS="$LIBS $SDL_LIBS"
-=======
     LIBS="$SDL_LIBS $LIBS"
->>>>>>> p-uae/v2.1.0
 
     AC_TRY_LINK(
     [
@@ -806,11 +744,8 @@ fi
 
 if test $ac_cv_prog_gcc = yes; then
   WARNING_CFLAGS="$WARNING_CFLAGS -Wall -Wno-unused -Wno-format -W -Wmissing-prototypes -Wstrict-prototypes"
-<<<<<<< HEAD
-  OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -fomit-frame-pointer"
-=======
   OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -fomit-frame-pointer -ffast-math"
->>>>>>> p-uae/v2.1.0
+# notes fast-math
 fi
 
 if [[ "x$DO_PROFILING" = "xyes" ]]; then
@@ -827,8 +762,6 @@ fi
 
 UAE_CFLAGS="$OPTIMIZE_CFLAGS $DEBUG_CFLAGS $WARNING_CFLAGS"
 
-
-<<<<<<< HEAD
 dnl
 dnl  Check CPU emulation options
 dnl
@@ -848,7 +781,6 @@ if [[ "x$WANT_CYCLEEXACT" != "xno" ]]; then
   CPUOBJS="$CPUOBJS cpuemu_6.o"
 fi
 
-=======
 dnl -----------------------------------------------
 dnl  Check CPU emulation options
 dnl -----------------------------------------------
@@ -892,7 +824,6 @@ if [[ "x$WANT_FPU" != "xno" ]]; then
   UAE_DEFINES="$UAE_DEFINES -DFPUEMU"
   CPUOBJS="$CPUOBJS fpp.\$(OBJEXT)"
 fi
->>>>>>> p-uae/v2.1.0
 
 if [[ "x$HAVE_GCC27" = "xyes" -a "$HOST_CPU" = "i386" -a "x$DO_PROFILING" = "xno" ]]; then
   dnl strength-reduce is turned off not because of paranoia, but because it
@@ -924,30 +855,12 @@ dnl  Check whether to build JIT
 dnl
 AC_MSG_CHECKING([whether to build JIT compiler])
 JITOBJS=""
-<<<<<<< HEAD
-if [[ "x$WANT_JIT" != "xno" -a "$HOST_CPU" = "i386" ]]; then
-=======
 if [[ "x$WANT_JIT" != "xno" ]]; then
 if [[ "$HOST_CPU" = "i386" -o "$HOST_CPU" = "amd64" ]]; then
->>>>>>> p-uae/v2.1.0
   UAE_DEFINES="$UAE_DEFINES -DJIT"
   if [[ "x$NATMEM" = "xyes" ]]; then
     NATMEM="0x50000000"
   fi
-<<<<<<< HEAD
-  if [[ "x$NATMEM" != "xno" ]]; then
-    UAE_DEFINES="$UAE_DEFINES -DNATMEM_OFFSET=$NATMEM"
-  fi
-  JITOBJS="compstbl.o compemu.o compemu_support.o compemu_fpp.o"
-  if [[ "x$NOFLAGS" != "xno" ]]; then
-    JITOBJS="$JITOBJS cpustbl_nf.o"
-    JITOBJS="$JITOBJS cpuemu_nf_0.o"
-    if [[ "x$WANT_COMPATIBLE" != "xno" ]]; then
-      JITOBJS="$JITOBJS cpuemu_nf_5.o"
-    fi
-    if [[ "x$WANT_CYCLEEXACT" != "xno" ]]; then
-      JITOBJS="$JITOBJS cpuemu_nf_6.o"
-=======
 dnl  if [[ "x$NATMEM" != "xno" ]]; then
 dnl FIXME:    UAE_DEFINES="$UAE_DEFINES -DNATMEM_OFFSET=$NATMEM"
 dnl  fi
@@ -960,7 +873,6 @@ dnl  fi
     fi
     if [[ "x$WANT_CYCLEEXACT" != "xno" ]]; then
       JITOBJS="$JITOBJS cpuemu_nf_6.\$(OBJEXT)"
->>>>>>> p-uae/v2.1.0
     fi
   fi
   AC_MSG_RESULT(yes)
@@ -974,10 +886,7 @@ dnl  fi
     AC_MSG_RESULT(no)
   )
   CFLAGS="$SAVE_CFLAGS"
-<<<<<<< HEAD
-=======
 fi
->>>>>>> p-uae/v2.1.0
 else
   AC_MSG_RESULT(no)
 fi
@@ -1057,10 +966,9 @@ if [[ "$GFX_DEP" = "gfx-x11" ]]; then
     TMP_SAVE_LIBS=$LIBS
     LIBS="$X_LIBS $LIBS"
     AC_CHECK_LIB(Xxf86dga, XF86DGAQueryExtension, HAVE_DGA=yes, HAVE_DGA=no, [ $X_PRE_LIBS -lXext -lX11 $X_EXTRA_LIBS ])
-<<<<<<< HEAD
+
     echo $LIBS
-=======
->>>>>>> p-uae/v2.1.0
+
     LIBS=$TMP_SAVE_LIBS
     if [[ "x$HAVE_DGA" = "xno" ]]; then
       AC_MSG_WARN([Could not find DGA extension, ignoring --enable-dga])
@@ -1167,12 +1075,10 @@ dnl See if we can at least compile SHM support
   GFX_LIBS="$X_LIBS $X_PRE_LIBS -lXext -lX11 $X_EXTRA_LIBS"
 fi
 
-<<<<<<< HEAD
 
 dnl
 dnl
 dnl  Check which sound target to use
-=======
 dnl
 dnl
 dnl
@@ -1181,7 +1087,6 @@ AC_MSG_NOTICE([================================================================]
 dnl
 dnl  Check which sound target to use
 dnl
->>>>>>> p-uae/v2.1.0
 AC_MSG_CHECKING([for sound target to build])
 
 if [[ "x$WANT_AUDIO" != "xno" ]]; then
@@ -1268,8 +1173,6 @@ AC_MSG_RESULT("$GUI_NAME")
 
 
 dnl
-<<<<<<< HEAD
-=======
 dnl  Do we want AMAX support
 dnl
 AC_MSG_CHECKING([whether to build AMAX support])
@@ -1326,7 +1229,6 @@ else
 fi
 
 dnl
->>>>>>> p-uae/v2.1.0
 dnl  Do we want AGA emulation
 dnl
 AC_MSG_CHECKING([whether to build AGA emulation])
@@ -1337,10 +1239,6 @@ else
   AC_MSG_RESULT(no)
 fi
 
-<<<<<<< HEAD
-
-=======
->>>>>>> p-uae/v2.1.0
 dnl
 dnl  Do we want Autoconfig?
 dnl
@@ -1351,17 +1249,10 @@ if [[ "x$WANT_AUTOCONFIG" != "xno" ]]; then
   dnl  Configure hard disk emulation
   UAE_DEFINES="$UAE_DEFINES -DFILESYS"
   NEED_THREAD_SUPPORT=yes
-<<<<<<< HEAD
-  FILESYSOBJS="filesys.o fsdb.o fsusage.o hardfile.o"
-  if [[ "x$HOST_OS" != "xwin32" ]]; then
-    FILESYSOBJS="$FILESYSOBJS filesys_unix.o fsdb_unix.o hardfile_unix.o"
-  else
-    FILESYSOBJS="$FILESYSOBJS"
-=======
   FILESYSOBJS='filesys.$(OBJEXT) fsdb.$(OBJEXT) fsusage.$(OBJEXT) hardfile.$(OBJEXT)'
   if [[ "x$HOST_OS" != "xwin32" ]]; then
-    FILESYSOBJS="$FILESYSOBJS filesys_unix.\$(OBJEXT) fsdb_unix.\$(OBJEXT) hardfile_unix.\$(OBJEXT)"
->>>>>>> p-uae/v2.1.0
+    FILESYSOBJS="$FILESYSOBJS filesys_unix.\$(OBJEXT) fsdb_unix.\$(OBJEXT) hardfile_unix.\$(OBJEXT)"  else
+    FILESYSOBJS="$FILESYSOBJS"
   fi
   dnl  Filesys support currently requires threads, because hardfile
   dnl  support requires threads and we can't currently separate the
@@ -1392,14 +1283,9 @@ if [[ "x$WANT_SCSIEMU" = "xyes" ]]; then
   else
     if [[ "$OSDEP" = "od-amiga" ]]; then
       AC_MSG_RESULT(yes)
-<<<<<<< HEAD
-      SCSIOBJS="scsiemul.o blkdev.o"
-      UAE_DEFINES="$UAE_DEFINES -DSCSIEMU"
-=======
       SCSIOBJS='scsiemul.$(OBJEXT) blkdev.$(OBJEXT) scsi.$(OBJEXT) a2091.$(OBJEXT)'
       UAE_DEFINES="$UAE_DEFINES -DSCSIEMU"
   UAE_DEFINES="$UAE_DEFINES -DA2091"
->>>>>>> p-uae/v2.1.0
       NEED_THREAD_SUPPORT=yes
     else
     SCGLIBS="-lscg -lschily"
@@ -1432,18 +1318,11 @@ typedef int BOOL;
 [{SCSI *scgp = scg_open (0, 0, 0, 0, 0);}],
     [
       AC_MSG_RESULT(yes)
-<<<<<<< HEAD
-      SCSIOBJS="scsiemul.o blkdev.o blkdev-libscg.o"
-      UAE_DEFINES="$UAE_DEFINES -DSCSIEMU"
-      UAE_CPPFLAGS="$UAE_CPPFLAGS $LIBSCG_CPPFLAGS"
-      UAE_LIBS="$UAE_LIBS $LIBSCG_LIBS"
-=======
       SCSIOBJS='scsiemul.$(OBJEXT) blkdev.$(OBJEXT) blkdev-libscg.$(OBJEXT) scsi.$(OBJEXT) a2091.$(OBJEXT)'
       UAE_DEFINES="$UAE_DEFINES -DSCSIEMU"
   UAE_DEFINES="$UAE_DEFINES -DA2091"
       UAE_CPPFLAGS="$UAE_CPPFLAGS $LIBSCG_CPPFLAGS"
       UAE_LIBS="$LIBSCG_LIBS $UAE_LIBS"
->>>>>>> p-uae/v2.1.0
       NEED_THREAD_SUPPORT=yes
     ],
     [
@@ -1461,17 +1340,6 @@ typedef int BOOL;
 [{SCSI *scgp = scg_open (0, 0, 0, 0, 0);}],
       [
         AC_MSG_RESULT(yes)
-<<<<<<< HEAD
-        SCSIOBJS="scsiemul.o blkdev.o blkdev-libscg.o"
-        UAE_DEFINES="$UAE_DEFINES -DSCSIEMU"
-        NEED_THREAD_SUPPORT=yes
-        if [[ "$srcdir" != "." ]]; then
-          AC_CONFIG_LINKS(src/libscg.a:src/libscg.a)
-          AC_CONFIG_LINKS(src/libschily.a:src/libschily.a)
-	  UAE_LIBS="$UAE_LIBS $LIBSCG_LIBS"
-        else
-          UAE_LIBS="$UAE_LIBS -L. $SCGLIBS"
-=======
         SCSIOBJS='scsiemul.$(OBJEXT) blkdev.$(OBJEXT) blkdev-libscg.$(OBJEXT) scsi.$(OBJEXT) a2091.$(OBJEXT)'
         UAE_DEFINES="$UAE_DEFINES -DSCSIEMU"
   UAE_DEFINES="$UAE_DEFINES -DA2091"
@@ -1482,7 +1350,6 @@ typedef int BOOL;
 	  UAE_LIBS="$LIBSCG_LIBS $UAE_LIBS"
         else
           UAE_LIBS="-L. $SCGLIBS $UAE_LIBS"
->>>>>>> p-uae/v2.1.0
         fi
       ],
       [
@@ -1496,14 +1363,9 @@ typedef int BOOL;
 [{struct cdrom_generic_command cmd; ioctl (0, CDROM_SEND_PACKET, &cmd);}],
 	[
 	   AC_MSG_RESULT(yes)
-<<<<<<< HEAD
-	   SCSIOBJS="scsiemul.o blkdev.o"
-	   UAE_DEFINES="$UAE_DEFINES -DSCSIEMU -DSCSIEMU_LINUX_IOCTL"
-=======
 	   SCSIOBJS='scsiemul.$(OBJEXT) blkdev.$(OBJEXT) scsi.$(OBJEXT) a2091.$(OBJEXT)'
 	   UAE_DEFINES="$UAE_DEFINES -DSCSIEMU -DSCSIEMU_LINUX_IOCTL"
   UAE_DEFINES="$UAE_DEFINES -DA2091"
->>>>>>> p-uae/v2.1.0
 	   NEED_THREAD_SUPPORT=yes
 	],
 	[
@@ -1523,11 +1385,7 @@ else
   AC_MSG_RESULT(no)
 fi
 if [[ "x$WANT_SCSIEMU" != "xyes" ]]; then
-<<<<<<< HEAD
-  SCSIOBJS="scsi-none.o"
-=======
   SCSIOBJS='scsi-none.$(OBJEXT)'
->>>>>>> p-uae/v2.1.0
   AC_MSG_RESULT(no)
 fi
 
@@ -1547,11 +1405,7 @@ if [[ "x$WANT_CDTV" != "xno" ]]; then
     WANT_CDTV=no
   else
     UAE_DEFINES="$UAE_DEFINES -DCDTV"
-<<<<<<< HEAD
-    CDOBJS="cdrom.o"
-=======
     CDOBJS='cdrom.$(OBJEXT)'
->>>>>>> p-uae/v2.1.0
   fi
 else
   AC_MSG_RESULT(no)
@@ -1581,15 +1435,9 @@ if [[ "x$WANT_CD32" != "xno" ]]; then
     else
       UAE_DEFINES="$UAE_DEFINES -DCD32"
       if [[ "x$WANT_CDTV" = "xno" ]]; then
-<<<<<<< HEAD
-        CDOBJS="cdrom.o"
-      fi
-      CDOBJS="$CDOBJS akiko.o"
-=======
         CDOBJS='cdrom.$(OBJEXT)'
       fi
       CDOBJS="$CDOBJS akiko.\$(OBJEXT)"
->>>>>>> p-uae/v2.1.0
     fi
   fi
 else
@@ -1609,20 +1457,12 @@ if [[ "x$WANT_BSDSOCK" != "xno" ]]; then
   else
     NEED_THREAD_SUPPORT=yes
     UAE_DEFINES="$UAE_DEFINES -DBSDSOCKET"
-<<<<<<< HEAD
-    BSDSOCKOBJS="bsdsocket-posix-new.o bsdsocket.o"
-=======
     BSDSOCKOBJS='bsdsocket-posix-new.$(OBJEXT) bsdsocket.$(OBJEXT)'
->>>>>>> p-uae/v2.1.0
     AC_MSG_RESULT(yes)
   fi
 else
   AC_MSG_RESULT(no)
-<<<<<<< HEAD
-  BSDSOCKOBJS="bsdsocket.o"
-=======
   BSDSOCKOBJS='bsdsocket.$(OBJEXT)'
->>>>>>> p-uae/v2.1.0
 fi
 
 
@@ -1649,11 +1489,7 @@ if [[ "x$WANT_THREADS" = "xyes" -o "x$NEED_THREAD_SUPPORT" = "xyes" ]]; then
   if [[ "$THREADDEP" = "td-posix" ]]; then
     CC="$PTHREAD_CC"
     UAE_CFLAGS="$UAE_CFLAGS $PTHREAD_CFLAGS"
-<<<<<<< HEAD
-    UAE_LIBS="$UAE_LIBS $PTHREAD_LIBS"
-=======
     UAE_LIBS="$PTHREAD_LIBS $UAE_LIBS"
->>>>>>> p-uae/v2.1.0
 
     dnl Hack to use named semaphores on OS X/darwin
     dnl This needs to be properly checked when detecting pthreads!
@@ -1676,11 +1512,7 @@ dnl
 if [[ "x$WANT_SDL" = "xyes" ]]; then
    UAE_DEFINES="$UAE_DEFINES -DUSE_SDL"
    JOY_DEP=jd-sdl
-<<<<<<< HEAD
-   UAE_LIBS="$UAE_LIBS $SDL_LIBS"
-=======
    UAE_LIBS="$SDL_LIBS $UAE_LIBS"
->>>>>>> p-uae/v2.1.0
    UAE_CPPFLAGS="$UAE_CPPFLAGS $SDL_CFLAGS"
 fi
 
@@ -1708,8 +1540,6 @@ if [[ "x$WANT_CAPS" != "xno" ]]; then
     fi
   fi
   CPPFLAGS="$SAVE_CPPFLAGS"
-<<<<<<< HEAD
-=======
 
   if [[ "$HAVE_CAPS" = "yes" ]]; then
     dnl Check for CAPSImage framework on OS X.
@@ -1720,7 +1550,6 @@ if [[ "x$WANT_CAPS" != "xno" ]]; then
     ])
     LIBS="$SAVE_LIBS"
   fi
->>>>>>> p-uae/v2.1.0
 fi
 
 
@@ -1739,11 +1568,7 @@ AC_MSG_CHECKING([whether to build internal debugger/monitor])
 if [[ "x$WANT_DEBUGGER" != "xno" ]]; then
   AC_MSG_RESULT(yes)
   UAE_DEFINES="$UAE_DEFINES -DDEBUGGER"
-<<<<<<< HEAD
-  DEBUGOBJS="debug.o identify.o"
-=======
   DEBUGOBJS='debug.$(OBJEXT) identify.$(OBJEXT)'
->>>>>>> p-uae/v2.1.0
 else
   AC_MSG_RESULT(no)
 fi
@@ -1753,11 +1578,7 @@ dnl
 dnl  Support state saving/loading?
 dnl
 AC_MSG_CHECKING([whether to build support for saving/loading emulator state])
-<<<<<<< HEAD
-if [[ "x$WANT_STATESAVING" != "xno" ]]; then
-=======
 if [[ "x$WANT_SAVESTATE" != "xno" ]]; then
->>>>>>> p-uae/v2.1.0
   AC_MSG_RESULT(yes)
   UAE_DEFINES="$UAE_DEFINES -DSAVESTATE"
 else
@@ -1793,12 +1614,10 @@ else
   AC_MSG_RESULT(no)
 fi
 
-
-<<<<<<< HEAD
 LIBS="$LIBS $UAE_LIBS $GUI_LIBS $GFX_LIBS $SND_LIBS $JOY_LIBS $MATHLIB"
 CPPFLAGS="$CPPFLAGS $UAE_DEFINES $UAE_CPPFLAGS $GFX_CPPFLAGS"
 CFLAGS="$CFLAGS $UAE_CFLAGS $GUI_CFLAGS $GFX_CFLAGS $SND_CFLAGS $JOY_CFLAGS"
-=======
+
 dnl
 dnl  Include keymapping for X-Arcade joysticks
 dnl
@@ -1951,7 +1770,7 @@ AC_MSG_NOTICE([================================================================]
 UAE_LIBS="$GUI_LIBS $GFX_LIBS $SND_LIBS $JOY_LIBS $UAE_LIBS"
 UAE_CPPFLAGS="$UAE_CPPFLAGS $UAE_DEFINES $GFX_CPPFLAGS"
 UAE_CFLAGS="$OPTIMIZED_FLAGS $UAE_CFLAGS $GUI_CFLAGS $GFX_CFLAGS $SND_CFLAGS $JOY_CFLAGS"
->>>>>>> p-uae/v2.1.0
+
 
 AC_CONFIG_LINKS(src/target.h:src/targets/$TARGETDEP)
 AC_CONFIG_LINKS(src/machdep:src/$MACHDEP)
@@ -2019,13 +1838,10 @@ AM_CONDITIONAL(TARGET_BEOS,  test x$OSDEP = xod-beos)
 AM_CONDITIONAL(TARGET_WIN32, test x$OSDEP = xod-win32)
 AM_CONDITIONAL(BUILD_MACOSX_BUNDLE, test x$OSDEP = xod-macosx)
 
-<<<<<<< HEAD
-=======
 AC_SUBST(UAE_CFLAGS)
 AC_SUBST(UAE_CPPFLAGS)
 AC_SUBST(UAE_LIBS)
 
->>>>>>> p-uae/v2.1.0
 AC_SUBST(ac_cv_c_inline)
 AC_SUBST(WRCPRG)
 AC_SUBST(NO_SCHED_CFLAGS)
@@ -2076,9 +1892,5 @@ if [[ "x$cross_compiling" = "xyes" ]]; then
   mkdir -p src/tools
   cd  src/tools && ../../"$srcdir"/src/tools/configure --cache-file=/dev/null --host=$build --target=$host
 fi
-<<<<<<< HEAD
-=======
 
 AC_DEFINE(ECS_DENISE,1,[we want ecs_denise])
-
->>>>>>> p-uae/v2.1.0
