@@ -12,8 +12,6 @@
 ; 200?.??.?? Picasso96 vblank hack (TW)
 ; 2006.03.04 Mousehack code integrated (TW)
 ; 2006.18.07 FileSystem.resource find routine access fault fixed (TW)
-<<<<<<< HEAD
-=======
 ; 2007.03.30 mousehack do not start multiple times anymore (TW)
 ; 2007.06.15 uninitialized variable in memory type selection fixed (stupid me) (TW)
 ; 2007.08.09 started implementing removable drive support (TW)
@@ -24,7 +22,6 @@
 ; 2008.12.25 mousehack cursor sync
 ; 2009.01.20 clipboard sharing
 ; 2009.12.27 console hook
->>>>>>> p-uae/v2.1.0
 
 AllocMem = -198
 FreeMem = -210
@@ -46,21 +43,6 @@ NRF_WAIT_REPLY = 8
 NRF_NOTIFY_INITIAL = 16
 NRF_MAGIC = $80000000
 
-<<<<<<< HEAD
-	dc.l 16
-our_seglist:
-	dc.l 0 ;/* NextSeg */
-start:
-	bra filesys_mainloop
-	dc.l make_dev-start
-	dc.l filesys_init-start
-	dc.l exter_server-start
-	dc.l bootcode-start
-	dc.l setup_exter-start
-
-	dc.l p96vsyncfix1-start
-	dc.l mousehack_x-start
-=======
 	dc.l 16 								; 4
 our_seglist:
 	dc.l 0 									; 8 /* NextSeg */
@@ -75,7 +57,6 @@ start:
 	dc.l mh_e-start				;7 40
 	dc.l clipboard_init-start 	;8 44
 	;52
->>>>>>> p-uae/v2.1.0
 
 bootcode:
 	lea.l doslibname(pc),a1
@@ -86,8 +67,6 @@ bootcode:
 	jsr (a0)
 	rts
 
-<<<<<<< HEAD
-=======
 residenthack
 	movem.l d0-d2/a0-a2/a6,-(sp)
 	move.l 4.w,a6
@@ -151,7 +130,6 @@ residentcodejump2
 	cnop 0,4
 residentcodeend:
 
->>>>>>> p-uae/v2.1.0
 filesys_init:
 	movem.l d0-d7/a0-a6,-(sp)
 	move.l 4.w,a6
@@ -160,36 +138,12 @@ filesys_init:
 	move.l (a0),a5
 	lea.l explibname(pc),a1 ; expansion lib name
 	moveq #36,d0
-<<<<<<< HEAD
-	moveq #0,d5
-=======
 	moveq #1,d5
->>>>>>> p-uae/v2.1.0
 	jsr  -552(a6) ; OpenLibrary
 	tst.l d0
 	bne.b FSIN_explibok
 	lea.l explibname(pc),a1 ; expansion lib name
 	moveq #0,d0
-<<<<<<< HEAD
-	moveq #1,d5
-	jsr  -552(a6) ; OpenLibrary
-FSIN_explibok:
-	move.l d0,a4
-	move.l #PP_TOTAL,d0
-	moveq #1,d1 ; MEMF_PUBLIC
-	jsr AllocMem(a6)
-	move.l d0,a3  ; param packet
-	move.l a4,PP_EXPLIB(a3)
-
-	moveq #0,d6
-FSIN_init_units:
-	cmp.l  $10c(a5),d6
-	bcc.b FSIN_units_ok
-	move.l d6,-(sp)
-FSIN_nextsub:
-	moveq   #1,d7
-	move.l a3,-(sp)
-=======
 	moveq #0,d5
 	jsr  -552(a6) ; OpenLibrary
 FSIN_explibok:
@@ -214,7 +168,6 @@ FSIN_nextsub:
 	beq.s .oldks
 	bset #2,d7
 .oldks	move.l a3,-(sp)
->>>>>>> p-uae/v2.1.0
 	move.l a3,a0
 	bsr.w make_dev
 	move.l (sp)+,a3
@@ -224,15 +177,6 @@ FSIN_nextsub:
 	addq.w #1,d6
 	swap d6
 	bra.s FSIN_nextsub
-<<<<<<< HEAD
-FSIN_nomoresub:
-	move.l (sp)+,d6
-	addq.w #1,d6
-	bra.b  FSIN_init_units
-
-FSIN_units_ok:
-	move.l 4.w,a6
-=======
 FSIN_nomoresub:	
 	move.l (sp)+,d6
 	addq.w #1,d6
@@ -245,7 +189,6 @@ FSIN_units_ok:
 
 FSIN_none:
 	move.l 4.w,a6
->>>>>>> p-uae/v2.1.0
 	move.l a4,a1
 	jsr -414(a6) ; CloseLibrary
 
@@ -280,12 +223,8 @@ FSIN_none:
 ;FSIN_scandone:
 ;	jsr -$007e(a6) ; Enable
 
-<<<<<<< HEAD
-	; add >2MB chip RAM to memory list
-=======
 
 filesys_dev_storeinfo	; add >2MB chip RAM to memory list
->>>>>>> p-uae/v2.1.0
 	move.w #$FF80,d0
 	bsr.w getrtbase
 	jsr (a0)
@@ -300,8 +239,6 @@ filesys_dev_storeinfo	; add >2MB chip RAM to memory list
 	jsr -618(a6) ; AddMemList
 FSIN_chip_done
 
-<<<<<<< HEAD
-=======
 	lea fstaskname(pc),a0
 	lea fsmounttask(pc),a1
 	moveq #10,d0
@@ -312,17 +249,10 @@ FSIN_chip_done
 	bsr.w getrtbase
 	jsr (a0)
 
->>>>>>> p-uae/v2.1.0
 	movem.l (sp)+,d0-d7/a0-a6
 general_ret:
 	rts
 
-<<<<<<< HEAD
-exter_data:
-exter_server:
-	movem.l a2,-(sp)
-	move.w #$FF50,d0
-=======
 createproc
 	movem.l d2-d4/a2/a6,-(sp)
 	move.l 4.w,a6
@@ -379,7 +309,6 @@ exter_data:
 exter_server:
 	movem.l a2,-(sp)
 	move.w #$FF50,d0 ; exter_int_helper
->>>>>>> p-uae/v2.1.0
 	bsr.w getrtbase
 	moveq.l #0,d0
 	jsr (a0)
@@ -388,20 +317,12 @@ exter_server:
 	; This is the hard part - we have to send some messages.
 	move.l 4.w,a6
 EXTS_loop:
-<<<<<<< HEAD
-	move.w #$FF50,d0 ;exter_int_helper
-=======
 	move.w #$FF50,d0 ; exter_int_helper
->>>>>>> p-uae/v2.1.0
 	bsr.w getrtbase
 	moveq.l #2,d0
 	jsr (a0)
 	cmp.w #1,d0
-<<<<<<< HEAD
-	blt.b EXTS_done
-=======
 	blt.w EXTS_done
->>>>>>> p-uae/v2.1.0
 	bgt.b EXTS_signal_reply
 	jsr -366(a6) ; PutMsg
 	bra.b EXTS_loop
@@ -444,11 +365,7 @@ EXTS_done:
 	move.w #$FF50,d0 ;exter_int_helper
 	bsr.w getrtbase
 	moveq.l #4,d0
-<<<<<<< HEAD
-	jsr (a0)
-=======
 	jsr (a0)	
->>>>>>> p-uae/v2.1.0
 	moveq.l #1,d0 ; clear Z - it was for us.
 exter_server_exit:
 	movem.l (sp)+,a2
@@ -456,10 +373,7 @@ exter_server_exit:
 
 setup_exter:
 	movem.l d0-d1/a0-a1,-(sp)
-<<<<<<< HEAD
-=======
 	bsr.w residenthack
->>>>>>> p-uae/v2.1.0
 	moveq.l #26,d0
 	move.l #$10001,d1
 	jsr AllocMem(a6)
@@ -473,13 +387,10 @@ setup_exter:
 	move.w #$0214,8(a1)
 	moveq.l #3,d0
 	jsr -168(a6) ; AddIntServer
-<<<<<<< HEAD
-=======
 	move.w mh_e(pc),d0
 	beq.s .nomh
 	bsr.w mousehack_init
 .nomh
->>>>>>> p-uae/v2.1.0
 	movem.l (sp)+,d0-d1/a0-a1
 	rts
 
@@ -532,23 +443,12 @@ relocate: ;a0=pointer to executable, returns first segment in A0
 	sub.l a5,a5 ;prev segment
 	moveq #0,d6
 r15	move.l (a2),d2 ; hunk size (header)
-<<<<<<< HEAD
-	lsl.l #2,d2
-	moveq #1,d1
-	btst #30,d3 ; chip mem?
-	beq.s r2
-	bset #1,d1
-r2	bset #16,d1
-	bclr #31,d3
-	bclr #30,d3
-=======
 	moveq #1,d1
 	btst #30,d2 ; chip mem?
 	beq.s r2
 	bset #1,d1
 r2	bset #16,d1
 	lsl.l #2,d2
->>>>>>> p-uae/v2.1.0
 	move.l d2,d0
 	bne.s r17
 	clr.l (a2)+ ; empty hunk
@@ -621,34 +521,17 @@ r9	move.l (a3)+,d2 ;offset
 r13
 	cmp.l #$3f2,d3 ;end
 	bne.s ree
-<<<<<<< HEAD
-
-	addq.l #1,d6
-	cmp.l d6,d7
-	bne.w r3
-
-=======
 	
 	addq.l #1,d6
 	cmp.l d6,d7
 	bne.w r3
 	
->>>>>>> p-uae/v2.1.0
 	moveq #1,d7
 	move.l (a4),a0
 r0	move.l d7,d0
 	movem.l (sp)+,d1-d7/a1-a6
 	rts
-<<<<<<< HEAD
-ree	move.w #30000,d0
-re1	move.w #$f00,$dff180
-	move.w #$00f,$dff180
-	move.w #$0f0,$dff180
-	dbf d0,re1
-	moveq #0,d7
-=======
 ree	moveq #0,d7
->>>>>>> p-uae/v2.1.0
 	bra.s r0
 
 fsres
@@ -696,9 +579,6 @@ fsres4
 	movem.l (sp)+,d1/a0-a2/a6
 	rts
 
-<<<<<<< HEAD
-make_dev: ; IN: A0 param_packet, D6: unit_no, D7: boot, A4: expansionbase
-=======
 addvolumenode
 	movem.l d7/a6,-(sp)
 	move.l d0,d7
@@ -1000,7 +880,6 @@ action_exall
 
 make_dev: ; IN: A0 param_packet, D6: unit_no, D7: b0=autoboot,b1=onthefly,b2=v36+
 	; A4: expansionbase
->>>>>>> p-uae/v2.1.0
 
 	bsr.w fsres
 	move.l d0,PP_FSRES(a0) ; pointer to FileSystem.resource
@@ -1017,18 +896,6 @@ make_dev: ; IN: A0 param_packet, D6: unit_no, D7: b0=autoboot,b1=onthefly,b2=v36
 	jsr (a1)
 	; ret:0=virtual,1=hardfile,2=rdbhardfile,-1=hardfile-donotmount,-2=no more subunits
 	move.l d0,d3
-<<<<<<< HEAD
-	cmp.l #-2,d3
-	beq.w general_ret
-	cmp.l #2,d3
-	beq.s mountalways
-
-	; KS < V36: init regular hardfiles only if filesystem is loaded
-	and.l d5,d0
-	beq.s mountalways ; >= 36
-	tst.l PP_FSSIZE(a0)
-	beq.w general_ret ; no filesystem -> don't mount
-=======
 	cmp.w #-2,d3
 	beq.w general_ret
 
@@ -1039,16 +906,12 @@ make_dev: ; IN: A0 param_packet, D6: unit_no, D7: b0=autoboot,b1=onthefly,b2=v36
 	;bne.s mountalways ; >= 36
 	;btst #1,d7
 	;bne.w mountalways
->>>>>>> p-uae/v2.1.0
 
 mountalways
 	; allocate memory for loaded filesystem
 	move.l PP_FSSIZE(a0),d0
 	beq.s nordbfs1
-<<<<<<< HEAD
-=======
 	bmi.s nordbfs1
->>>>>>> p-uae/v2.1.0
 	move.l a0,-(sp)
 	moveq #1,d1
 	move.l 4.w,a6
@@ -1065,11 +928,7 @@ nordbfs1:
 	move.w #$FF20,d0 ; record in ui.startup (filesys_dev_remember)
 	bsr.w getrtbase
 	jsr (a0)
-<<<<<<< HEAD
-	bra.w dont_mount
-=======
 	bra.s dont_mount
->>>>>>> p-uae/v2.1.0
 
 do_mount:
 	move.l a4,a6
@@ -1086,11 +945,7 @@ do_mount:
 	move.l d0,16(a3)         ; dn_Handler
 	move.l d0,32(a3)         ; dn_SegList
 
-<<<<<<< HEAD
-dont_mount
-=======
 dont_mount:
->>>>>>> p-uae/v2.1.0
 	tst.l PP_FSPTR(a1)	; filesystem?
 	beq.s nordbfs2
 	move.l PP_FSPTR(a1),a0
@@ -1119,26 +974,16 @@ nordbfs2:
 	bne.b MKDV_doboot
 
 MKDV_is_filesys:
-<<<<<<< HEAD
-	move.l #4000,20(a3)     ; dn_StackSize
-	lea.l our_seglist(pc),a1
-	move.l a1,d0
-=======
 	move.l #6000,20(a3)     ; dn_StackSize
 	lea.l our_seglist(pc),a0
 	move.l a0,d0
->>>>>>> p-uae/v2.1.0
 	lsr.l  #2,d0
 	move.l d0,32(a3)        ; dn_SegList
 	moveq #-1,d0
 	move.l d0,36(a3)       ; dn_GlobalVec
 
 MKDV_doboot:
-<<<<<<< HEAD
-	tst.l d7
-=======
 	btst #0,d7
->>>>>>> p-uae/v2.1.0
 	beq.b MKDV_noboot
 
 	move.l 4.w,a6
@@ -1156,22 +1001,6 @@ MKDV_doboot:
 	move.l $104(a5),10(a1) ; filesys_configdev
 	move.l a3,16(a1)        ; devicenode
 	lea.l  74(a4),a0 ; MountList
-<<<<<<< HEAD
-	jmp  -270(a6) ; Enqueue()
-
-MKDV_noboot:
-	move.l a3,a0
-	moveq #0,d1
-	move.l d1,a1
-	moveq #-1,d0
-	move.l a4,a6 ; expansion base
-	jmp  -150(a6) ; AddDosNode
-
-filesys_mainloop:
-	move.l 4.w,a6
-	moveq.l #0,d0
-	move.l d0,a1
-=======
 	jsr  -270(a6) ; Enqueue()
 	moveq #0,d0
 	rts
@@ -1272,7 +1101,6 @@ addfsonthefly ; d1 = fs index
 filesys_mainloop:
 	move.l 4.w,a6
 	sub.l a1,a1
->>>>>>> p-uae/v2.1.0
 	jsr -294(a6) ; FindTask
 	move.l d0,a0
 	lea.l $5c(a0),a5 ; pr_MsgPort
@@ -1288,11 +1116,6 @@ filesys_mainloop:
 	; 4: command chain
 	; 8: second thread's lock chain
 	; 12: dummy message
-<<<<<<< HEAD
-	; 32: the volume (80+44+1 bytes)
-	; 157: mousehack started-flag
-	move.l #80+44+1+20+12+1,d0
-=======
 	; 32: the volume (44+80+1 bytes)
 	; 157: mousehack started-flag
 	; 158: device node on/off status
@@ -1303,7 +1126,6 @@ filesys_mainloop:
 	; 176: my task
 	; 180: device node
 	move.l #12+20+(80+44+1)+(1+3)+4+4+4+(1+3)+4+4,d0
->>>>>>> p-uae/v2.1.0
 	move.l #$10001,d1 ; MEMF_PUBLIC | MEMF_CLEAR
 	jsr AllocMem(a6)
 	move.l d0,a3
@@ -1311,8 +1133,6 @@ filesys_mainloop:
 	move.l d6,(a3)
 	move.l d6,4(a3)
 	move.l d6,8(a3)
-<<<<<<< HEAD
-=======
 	move.l a2,160(a3)
 	st 158(a3)
 
@@ -1330,7 +1150,6 @@ filesys_mainloop:
 	moveq #0,d1
 	bsr.w allocdevice
 	move.l d0,168(a3)
->>>>>>> p-uae/v2.1.0
 
 	moveq.l #0,d5 ; No commands queued.
 
@@ -1345,10 +1164,6 @@ filesys_mainloop:
 	bsr.w getrtbase
 	moveq.l #0,d0
 	jsr (a0)
-<<<<<<< HEAD
-
-	bsr.w mousehack_init
-=======
 	move.l d0,d2
 
 	moveq #1,d0
@@ -1360,7 +1175,6 @@ filesys_mainloop:
 	bsr.w diskinsertremove
 .nonotif
 
->>>>>>> p-uae/v2.1.0
 	bra.w FSML_Reply
 
 	; We abuse some of the fields of the message we get. Offset 0 is
@@ -1372,14 +1186,6 @@ filesys_mainloop:
 	; processing by now, so it's safe to reply to it.
 
 FSML_loop:
-<<<<<<< HEAD
-	bsr.w mousehack_init
-	move.l a5,a0
-	jsr -384(a6) ; WaitPort
-	move.l a5,a0
-	jsr -372(a6) ; GetMsg
-	move.l d0,a4
-=======
 
 	move.l a5,a0
 	jsr -372(a6) ; GetMsg
@@ -1401,7 +1207,6 @@ FSML_loop:
 .nodc
 	move.l a4,d0
 	beq.s FSML_loop
->>>>>>> p-uae/v2.1.0
 
 	; notify reply?
 	cmp.w #38, 18(a4)
@@ -1425,11 +1230,7 @@ nonoti
 	move.l a4,a1
 	moveq #38,d0
 	jsr FreeMem(a6)
-<<<<<<< HEAD
-	bra.s FSML_loop
-=======
 	bra.w FSML_loop
->>>>>>> p-uae/v2.1.0
 
 nonotif
 	move.l 10(a4),d3 ; ln_Name
@@ -1445,11 +1246,7 @@ nonotif
 	move.l (a2),a0
 FSML_check_old:
 	move.l a0,d0
-<<<<<<< HEAD
-	beq.b FSML_loop
-=======
 	beq.w FSML_loop
->>>>>>> p-uae/v2.1.0
 	move.l (a0),a1
 	move.l d0,a0
 	; This field may be accessed concurrently by several UAE threads.
@@ -1481,11 +1278,7 @@ FSML_FromDOS:
 
 FSML_DoCommand:
 	bsr.b LockCheck  ; Make sure there are enough locks for the C code to grab.
-<<<<<<< HEAD
-	move.w #$FF30,d0
-=======
 	move.w #$FF30,d0 ; filesys_handler
->>>>>>> p-uae/v2.1.0
 	bsr.w getrtbase
 	jsr (a0)
 	tst.l d0
@@ -1505,8 +1298,6 @@ FSML_Reply:
 	bra.w FSML_loop
 
 ReplyOne:
-<<<<<<< HEAD
-=======
 	cmp.l #31,8(a4) ;ACTION_INHIBIT?
 	bne.s FSML_ReplyOne2
 	bsr.w action_inhibit
@@ -1523,7 +1314,6 @@ FSML_ReplyOne2:
 	bra.s .exaretry
 	
 FSML_ReplyOne3:
->>>>>>> p-uae/v2.1.0
 	move.l (a4),a1  ; dp_Link
 	move.l 4(a4),a0 ; dp_Port
 	move.l a5,4(a4)
@@ -1590,35 +1380,6 @@ getrtbase:
 	add.l d0,a0
 	rts
 
-<<<<<<< HEAD
-	;p96 stuff
-
-p96flag	dc.w 0
-p96vsyncfix1
-	cmp.l #34,8(sp) ; picasso_WaitVerticalSync?
-	bne.s p961
-	movem.l d0-d1/a0-a2/a6,-(sp)
-	move.l 4.w,a6
-	sub.l a1,a1
-	jsr -$126(a6) ; FindTask
-	move.l d0,a2
-	move.l a2,a1
-	moveq #-20,d0
-	jsr -$12c(a6) ; SetTaskPri
-	lea p96flag(pc),a0
-	move.w (a0),d1
-p962	cmp.w (a0),d1
-	beq.s p962
-	move.l a2,a1
-	jsr -$12c(a6) ; SetTaskPri
-	moveq #1,d1
-	movem.l (sp)+,d0-d1/a0-a2/a6
-	addq.l #4,sp ; return directly to caller
-p961	rts
-
-
-=======
->>>>>>> p-uae/v2.1.0
 ; mouse hack
 
 newlist:
@@ -1630,11 +1391,7 @@ newlist:
 
 createport:
 	movem.l d2/a2/a6,-(sp)
-<<<<<<< HEAD
-	move.l 4,a6
-=======
 	move.l 4.w,a6
->>>>>>> p-uae/v2.1.0
 	moveq #-1,d0
 	jsr -$014a(a6) ;AllocSignal
 	sub.l a0,a0
@@ -1661,13 +1418,6 @@ createport:
 
 createio:
 	movem.l d2/a2/a6,-(sp)
-<<<<<<< HEAD
-	move.l 4,a6
-	tst.l d0
-	beq.s .f
-	move.l d0,a2
-	moveq #48,d2
-=======
 	move.l 4.w,a6
 	tst.l d0
 	beq.s .f
@@ -1676,22 +1426,11 @@ createio:
 	bne.s .ci
 	moveq #48,d2
 .ci
->>>>>>> p-uae/v2.1.0
 	move.l d2,d0
 	move.l #65536+1,d1
 	jsr AllocMem(a6)
 	move.l d0,a0
 	move.b #10,8(a0) ;NT_MESSAGE
-<<<<<<< HEAD
-	move.l d2,18(a0)
-	move.l a2,14(a0)
-.f	movem.l (sp)+,d2/a2/a6
-	rts
-
-createtask:
-	movem.l d2/d3/a2/a3/a6,-(sp)
-	move.l 4,a6
-=======
 	move.w d2,18(a0)
 	move.l a2,14(a0)
 .f	tst.l d0
@@ -1727,7 +1466,6 @@ createtask:
 	movem.l d2/d3/d4/a2/a3/a6,-(sp)
 	move.l 4.w,a6
 	move.l d0,d4
->>>>>>> p-uae/v2.1.0
 	move.l a0,d2
 	move.l a1,d3
 	move.l #92+2048,d0
@@ -1737,10 +1475,7 @@ createtask:
 	beq .f
 	move.l d0,a2
 	move.b #1,8(a2) ;NT_TASK
-<<<<<<< HEAD
-=======
 	move.b d4,9(a2) ; priority
->>>>>>> p-uae/v2.1.0
 	move.l d2,10(a2)
 	lea 92(a2),a3
 	move.l a3,58(a2)
@@ -1750,44 +1485,6 @@ createtask:
 	move.l a2,a1
 	move.l d3,a2
 	sub.l a3,a3
-<<<<<<< HEAD
-	jsr -$011a(a6) ;AddTask
-.f	movem.l (sp)+,d2/d3/a2/a3/a6
-	rts
-
-mousehack_e: dc.w 0
-mousehack_x: dc.w 0
-mousehack_y: dc.w 0
-
-MH_INT = 0
-MH_FOO = (MH_INT+22)
-MH_IEV = (MH_FOO+16)
-MH_IO = (MH_IEV+22)
-MH_TM = (MH_IO+4)
-MH_END = (MH_TM+4)
-
-mousehack_init:
-	move.l a0,-(sp)
-	tst.b 157(a3)
-	bne.s .no
-	lea mousehack_e(pc),a0
-	tst.w (a0)
-	beq.s .no
-	lea mhname(pc),a0
-	lea mousehack_task(pc),a1
-	bsr createtask
-	st 157(a3)
-.no	move.l (sp)+,a0
-	rts
-
-mousehack_task:
-	move.l 4,a6
-
-	moveq #-1,d0
-	jsr -$014a(a6) ;AllocSignal
-	moveq #0,d2
-	bset d0,d2
-=======
 	move.l a1,d2
 	jsr -$011a(a6) ;AddTask
 	move.l d2,d0
@@ -1999,73 +1696,27 @@ mousehack_task:
 	jsr -$014a(a6) ;AllocSignal
 	moveq #0,d6
 	bset d0,d6
->>>>>>> p-uae/v2.1.0
 
 	sub.l a1,a1
 	jsr -$0126(a6) ;FindTask
 	move.l d0,a4
-<<<<<<< HEAD
-
-=======
 	
->>>>>>> p-uae/v2.1.0
 	moveq #20,d0
 	move.l a4,a1
 	jsr -$012c(a6) ;SetTaskPri
 
 	moveq #0,d0
-<<<<<<< HEAD
-	lea intlibname(pc),a1
-	jsr -$0228(a6)
-	move.l d0,d7
-
-	moveq #0,d0
-=======
->>>>>>> p-uae/v2.1.0
 	move.w #MH_END,d0
 	move.l #65536+1,d1
 	jsr AllocMem(a6)
 	move.l d0,a5
 
-<<<<<<< HEAD
-	bsr.w createport
-	bsr.w createio
-	move.l d0,MH_IO(a5)
-	beq .f
-	move.l d0,a1
-	lea inp_dev(pc),a0
-	moveq #0,d0
-	moveq #0,d1
-	jsr -$01bc(a6) ;OpenDevice
-	tst.l d0
-	bne .f
-
-	bsr.w createport
-	bsr.w createio
-	move.l d0,MH_TM(a5)
-	beq .f
-	move.l d0,a1
-	lea tim_dev(pc),a0
-	moveq #0,d0
-	moveq #0,d1
-	jsr -$01bc(a6) ;OpenDevice
-	tst.l d0
-	bne .f
-
-	lea MH_FOO(a5),a3
-	move.l a4,12(a3);task
-	move.l d2,8(a3) ;sigmask
-	moveq #-1,d0
-	move.l d0,(a3)	;mx
-	move.l d0,4(a3)	;my
-=======
 	lea MH_FOO(a5),a3
 	move.l a6,MH_FOO_EXECBASE(a3)
 	move.l a4,MH_FOO_TASK(a3)
 	move.l d6,MH_FOO_MASK(a3)
 	moveq #-1,d0
 	move.w d0,MH_FOO_CNT(a3)
->>>>>>> p-uae/v2.1.0
 
 	lea MH_INT(a5),a1
 	move.b #2,8(a1) ;NT_INTERRUPT
@@ -2074,18 +1725,6 @@ mousehack_task:
 	move.l a0,10(a1)
 	lea mousehackint(pc),a0
 	move.l a0,18(a1)
-<<<<<<< HEAD
-	move.l a3,14(a1)
-	moveq #5,d0 ;INTB_VERTB
-	jsr -$00a8(a6)
-	bra.s mhloop
-.f	rts
-
-mhloop
-	move.l d2,d0
-	jsr -$013e(a6) ;Wait
-
-=======
 	move.l a5,14(a1)
 	moveq #5,d0 ;INTB_VERTB
 	jsr -$00a8(a6)
@@ -2179,74 +1818,11 @@ mhloop
 	move.l d0,MH_FOO_LIMITCNT(a3)
 .nodims
 
->>>>>>> p-uae/v2.1.0
 	move.l MH_IO(a5),a1
 	lea MH_IEV(a5),a2
 	move.w #11,28(a1) ;IND_WRITEEVENT
 	move.l #22,36(a1) ;sizeof(struct InputEvent)
 	move.l a2,40(a1)
-<<<<<<< HEAD
-	move.b #1,30(a1) ;IOF_QUICK
-
-	move.b #4,4(a2) ;IECLASS_POINTERPOS
-	clr.b 5(a2) ;ie_SubClass
-	clr.w 6(a2) ;ie_Code
-	clr.w 8(a2) ;ie_Qualifier
-
-	move.l d7,a0 ;intbase
-
-	move.l MH_FOO+0(a5),d0
-	move.w 34+14(a0),d1
-	add.w d1,d1
-	sub.w d1,d0
-	move.w d0,10(a2)
-
-	move.l MH_FOO+4(a5),d0
-	move.w 34+12(a0),d1
-	add.w d1,d1
-	sub.w d1,d0
-	ext.l d0
-	move.w d0,12(a2)
-
-	move.l MH_TM(a5),a1
-	move.w #10,28(a1) ;TR_GETSYSTIME
-	move.b #1,30(a1) ;IOF_QUICK
-	jsr -$01c8(a6) ;DoIO
-	move.l MH_TM(a5),a1
-	move.l 32(a1),14(a2)
-	move.l 36(a1),18(a2)
-
-	move.l MH_IO(a5),a1
-	jsr -$01c8(a6) ;DoIO
-
-	bra.w mhloop
-
-mousehackint:
-	move.w mousehack_x(pc),d0
-	ext.l d0
-	move.w mousehack_y(pc),d1
-	ext.l d1
-	cmp.l (a1),d0
-	bne .l1
-	cmp.l 4(a1),d1
-	beq .l2
-.l1 move.l d1,4(a1)
-	move.l d0,(a1)
-	move.l 8(a1),d0
-	move.l 12(a1),a1
-	move.l 4.w,a6
-	jsr -$0144(a6) ; Signal
-.l2 lea $dff000,a0
-	moveq #0,d0
-	rts
-
-inp_dev: dc.b 'input.device',0
-tim_dev: dc.b 'timer.device',0
-mhname: dc.b 'UAE mouse hack',0
-exter_name: dc.b 'UAE filesystem',0
-doslibname: dc.b 'dos.library',0
-intlibname: dc.b 'intuition.library',0
-=======
 
 	move.b mh_e(pc),d0
 	cmp.w #39,d7
@@ -2875,7 +2451,6 @@ fsprocname: dc.b 'UAE fs automount process',0
 doslibname: dc.b 'dos.library',0
 intlibname: dc.b 'intuition.library',0
 gfxlibname: dc.b 'graphics.library',0
->>>>>>> p-uae/v2.1.0
 explibname: dc.b 'expansion.library',0
 fsresname: dc.b 'FileSystem.resource',0
 	END
