@@ -17,202 +17,6 @@
 #include "custom.h"
 #include "newcpu.h"
 #include "cia.h"
-<<<<<<< HEAD
-#include "serial.h"
-
-#ifdef SERIAL_PORT
-# ifndef WIN32
-#  include "osdep/serial.h"
-# else
-#  include "od-win32/parser.h"
-# endif
-#endif
-
-#define SERIALDEBUG	0 /* 0, 1, 2 3 */
-#define SERIALHSDEBUG	0
-#define MODEMTEST	0 /* 0 or 1 */
-
-static int data_in_serdat;	/* new data written to SERDAT */
-static int data_in_serdatr;	/* new data received */
-static int data_in_sershift;	/* data transferred from SERDAT to shift register */
-static uae_u16 serdatshift;	/* serial shift register */
-static int ovrun;
-static int dtr;
-static int serial_period_hsyncs, serial_period_hsync_counter;
-static int ninebit;
-int serdev;
-
-void serial_open(void);
-void serial_close(void);
-
-uae_u16 serper, serdat, serdatr;
-
-static const int allowed_baudrates[] = {
-    0, 110, 300, 600, 1200, 2400, 4800, 9600, 14400,
-    19200, 31400, 38400, 57600, 115200, 128000, 256000, -1
-};
-
-void SERPER (uae_u16 w)
-{
-    int baud = 0, i, per;
-    static int warned;
-
-    if (serper == w)  /* don't set baudrate if it's already ok */
-	return;
-    ninebit = 0;
-    serper = w;
-
-    if (w & 0x8000) {
-	if (!warned) {
-	    write_log( "SERIAL: program uses 9bit mode PC=%x\n", m68k_getpc (&regs) );
-	    warned++;
-	}
-	ninebit = 1;
-    }
-    w &= 0x7fff;
-
-    if (w < 13)
-	w = 13;
-
-    per = w;
-    if (per == 0) per = 1;
-    per = 3546895 / (per + 1);
-    if (per <= 0) per = 1;
-    i = 0;
-    while (allowed_baudrates[i] >= 0 && per > allowed_baudrates[i] * 100 / 97)
-	i++;
-    baud = allowed_baudrates[i];
-
-    serial_period_hsyncs = (((serper & 0x7fff) + 1) * 10) / maxhpos;
-    if (serial_period_hsyncs <= 0)
-	serial_period_hsyncs = 1;
-    serial_period_hsync_counter = 0;
-
-    write_log ("SERIAL: period=%d, baud=%d, hsyncs=%d PC=%x\n", w, baud, serial_period_hsyncs, m68k_getpc (&regs));
-
-    if (ninebit)
-	baud *= 2;
-    if (currprefs.serial_direct) {
-	if (baud != 31400 && baud < 115200)
-	    baud = 115200;
-	serial_period_hsyncs = 1;
-    }
-#ifdef SERIAL_PORT
-    setbaud (baud);
-#endif
-}
-
-static char dochar (int v)
-{
-    v &= 0xff;
-    if (v >= 32 && v < 127) return (char)v;
-    return '.';
-}
-
-static void checkreceive (int mode)
-{
-#ifdef SERIAL_PORT
-    static uae_u32 lastchartime;
-    static int ninebitdata;
-    struct timeval tv;
-    int recdata;
-
-    if (!readseravail ())
-	return;
-
-    if (data_in_serdatr) {
-	/* probably not needed but there may be programs that expect OVRUNs.. */
-	gettimeofday (&tv, NULL);
-	if (tv.tv_sec > lastchartime) {
-	    ovrun = 1;
-	    INTREQ (0x8000 | 0x0800);
-	    while (readser (&recdata));
-	    write_log ("SERIAL: overrun\n");
-	}
-	return;
-    }
-
-    if (ninebit) {
-	for (;;) {
-	    if (!readser (&recdata))
-		return;
-	    if (ninebitdata) {
-		serdatr = (ninebitdata & 1) << 8;
-		serdatr |= recdata;
-		serdatr |= 0x200;
-		ninebitdata = 0;
-		break;
-	    } else {
-		ninebitdata = recdata;
-		if ((ninebitdata & ~1) != 0xa8) {
-		    write_log ("SERIAL: 9-bit serial emulation sync lost, %02.2X != %02.2X\n", ninebitdata & ~1, 0xa8);
-		    ninebitdata = 0;
-		    return;
-		}
-		continue;
-	    }
-	}
-    } else {
-	if (!readser (&recdata))
-	    return;
-	serdatr = recdata;
-	serdatr |= 0x100;
-    }
-    gettimeofday (&tv, NULL);
-    lastchartime = tv.tv_sec + 5;
-    data_in_serdatr = 1;
-    serial_check_irq ();
-#if SERIALDEBUG > 2
-    write_log ("SERIAL: received %02.2X (%c)\n", serdatr & 0xff, dochar (serdatr));
-#endif
-#endif
-}
-
-static void checksend (int mode)
-{
-    int bufstate;
-
-#ifdef SERIAL_PORT
-    bufstate = checkserwrite ();
-#else
-    bufstate = 1;
-#endif
-
-    if (!data_in_serdat && !data_in_sershift)
-	return;
-
-    if (data_in_sershift && mode == 0 && bufstate)
-	data_in_sershift = 0;
-
-    if (data_in_serdat && !data_in_sershift) {
-	data_in_sershift = 1;
-	serdatshift = serdat;
-#ifdef SERIAL_PORT
-	if (ninebit)
-	    writeser (((serdatshift >> 8) & 1) | 0xa8);
-	writeser (serdatshift);
-#endif
-	data_in_serdat = 0;
-        INTREQ (0x8000 | 0x0001);
-#if SERIALDEBUG > 2
-	write_log ("SERIAL: send %04.4X (%c)\n", serdatshift, dochar (serdatshift));
-#endif
-    }
-}
-
-void serial_hsynchandler (void)
-{
-    if (serial_period_hsyncs == 0)
-	return;
-    serial_period_hsync_counter++;
-    if (serial_period_hsyncs == 1 || (serial_period_hsync_counter % (serial_period_hsyncs - 1)) == 0)
-	checkreceive (0);
-    if ((serial_period_hsync_counter % serial_period_hsyncs) == 0)
-	checksend (0);
-}
-
-/* Not (fully) implemented yet: (on windows this work)
-=======
 
 #undef POSIX_SERIAL
 /* Some more or less good way to determine whether we can safely compile in
@@ -354,7 +158,6 @@ void SERPER (uae_u16 w)
 }
 
 /* Not (fully) implemented yet:
->>>>>>> p-uae/v2.1.0
  *
  *  -  Something's wrong with the Interrupts.
  *     (NComm works, TERM does not. TERM switches to a
@@ -362,21 +165,34 @@ void SERPER (uae_u16 w)
  *     of an asynchronous read before switching blind
  *     mode off again. It never gets there on UAE :-< )
  *
-<<<<<<< HEAD
-=======
  *  -  RTS/CTS handshake, this is not really neccessary,
  *     because you can use RTS/CTS "outside" without
  *     passing it through to the emulated Amiga
  *
  *  -  ADCON-Register ($9e write, $10 read) Bit 11 (UARTBRK)
  *     (see "Amiga Intern", pg 246)
->>>>>>> p-uae/v2.1.0
  */
 
 void SERDAT (uae_u16 w)
 {
-<<<<<<< HEAD
     serdat = w;
+    unsigned char z;
+
+    if (!currprefs.use_serial)
+		return;
+    z = (unsigned char)(w&0xff);
+
+    if (currprefs.serial_demand && !dtr) {
+		if (!isbaeh) {
+		    write_log ("SERDAT: Baeh.. Your software needs SERIAL_ALWAYS to work properly.\n");
+		    isbaeh=1;
+		}
+		return;
+    } else {
+		outbuf[outlast++] = z;
+		if (outlast == sizeof outbuf)
+		    serial_flush_buffer();
+    }
 
     if (!(w & 0x3ff)) {
 #if SERIALDEBUG > 1
@@ -399,39 +215,11 @@ void SERDAT (uae_u16 w)
     write_log ("SERIAL: wrote 0x%04x (%c) PC=%x\n", w, dochar (w), m68k_getpc (&regs));
 #endif
 
-=======
-    unsigned char z;
-
-    if (!currprefs.use_serial)
-		return;
-
-    z = (unsigned char)(w&0xff);
-
-    if (currprefs.serial_demand && !dtr) {
-		if (!isbaeh) {
-		    write_log ("SERDAT: Baeh.. Your software needs SERIAL_ALWAYS to work properly.\n");
-		    isbaeh=1;
-		}
-		return;
-    } else {
-		outbuf[outlast++] = z;
-		if (outlast == sizeof outbuf)
-		    serial_flush_buffer();
-    }
-
-#if SERIALDEBUG > 2
-    write_log ("SERDAT: wrote 0x%04x\n", w);
-#endif
-
-    serdat|=0x2000; /* Set TBE in the SERDATR ... */
-    intreq|=1;      /* ... and in INTREQ register */
->>>>>>> p-uae/v2.1.0
     return;
 }
 
 uae_u16 SERDATR (void)
 {
-<<<<<<< HEAD
     serdatr &= 0x03ff;
     if (!data_in_serdat)
 	serdatr |= 0x2000;
@@ -451,15 +239,16 @@ uae_u16 SERDATR (void)
 
 void serial_check_irq (void)
 {
-    if (data_in_serdatr)
-	INTREQ_0 (0x8000 | 0x0800);
-=======
     if (!currprefs.use_serial)
 		return 0;
 #if SERIALDEBUG > 2
     write_log ("SERDATR: read 0x%04x\n", serdat);
 #endif
     waitqueue = 0;
+
+    if (data_in_serdatr)
+	INTREQ_0 (0x8000 | 0x0800);
+
     return serdat;
 }
 
@@ -488,12 +277,10 @@ int SERDATS (void)
 		return 1;
     }
     return 0;
->>>>>>> p-uae/v2.1.0
 }
 
 void serial_dtr_on(void)
 {
-<<<<<<< HEAD
 #if SERIALHSDEBUG > 0
     write_log ("SERIAL: DTR on\n");
 #endif
@@ -503,20 +290,10 @@ void serial_dtr_on(void)
 #ifdef SERIAL_PORT
     setserstat (TIOCM_DTR, dtr);
 #endif
-=======
-#if SERIALDEBUG > 0
-    write_log ("DTR on.\n");
-#endif
-    dtr = 1;
-
-    if (currprefs.serial_demand)
-		serial_open ();
->>>>>>> p-uae/v2.1.0
 }
 
 void serial_dtr_off(void)
 {
-<<<<<<< HEAD
 #if SERIALHSDEBUG > 0
     write_log ("SERIAL: DTR off\n");
 #endif
@@ -526,7 +303,10 @@ void serial_dtr_off(void)
 	serial_close ();
     setserstat(TIOCM_DTR, dtr);
 #endif
-=======
+}
+
+void serial_dtr_off(void)
+{
 #if SERIALDEBUG > 0
     write_log ("DTR off.\n");
 #endif
@@ -552,89 +332,22 @@ static int serial_read (char *buffer)
     }
 
     return 0;
->>>>>>> p-uae/v2.1.0
 }
 
 void serial_flush_buffer (void)
 {
-<<<<<<< HEAD
-}
-
-static uae_u8 oldserbits;
-
-static void serial_status_debug (const char *s)
-{
-#if SERIALHSDEBUG > 1
-    write_log ("%s: DTR=%d RTS=%d CD=%d CTS=%d DSR=%d\n", s,
-	(oldserbits & 0x80) ? 0 : 1, (oldserbits & 0x40) ? 0 : 1,
-	(oldserbits & 0x20) ? 0 : 1, (oldserbits & 0x10) ? 0 : 1, (oldserbits & 0x08) ? 0 : 1);
-#endif
-}
-
-uae_u8 serial_readstatus (uae_u8 dir)
-{
-    int status = 0;
-    uae_u8 serbits = oldserbits;
-
-#ifdef SERIAL_PORT
-    getserstat (&status);
-
-    if (!(status & TIOCM_CAR)) {
-	if (!(serbits & 0x20)) {
-	    serbits |= 0x20;
-#if SERIALHSDEBUG > 0
-	    write_log ("SERIAL: CD off\n");
-#endif
-	}
+    if (serdev == 1) {
+		if (outlast) {
+		    if (sd != 0) {
+				write (sd, outbuf, outlast);
+		    }
+		}
+		outlast = 0;
     } else {
-	if (serbits & 0x20) {
-	    serbits &= ~0x20;
-#if SERIALHSDEBUG > 0
-	    write_log ("SERIAL: CD on\n");
-#endif
-	}
+		outlast = 0;
+		inptr = 0;
+		inlast = 0;
     }
-
-    if (!(status & TIOCM_DSR)) {
-	if (!(serbits & 0x08)) {
-	    serbits |= 0x08;
-#if SERIALHSDEBUG > 0
-	    write_log ("SERIAL: DSR off\n");
-#endif
-	}
-    } else {
-	if (serbits & 0x08) {
-	    serbits &= ~0x08;
-#if SERIALHSDEBUG > 0
-	    write_log ("SERIAL: DSR on\n");
-#endif
-	}
-    }
-
-    if (!(status & TIOCM_CTS)) {
-	if (!(serbits & 0x10)) {
-	    serbits |= 0x10;
-#if SERIALHSDEBUG > 0
-	    write_log ("SERIAL: CTS off\n");
-#endif
-	}
-    } else {
-	if (serbits & 0x10) {
-	    serbits &= ~0x10;
-#if SERIALHSDEBUG > 0
-	    write_log ("SERIAL: CTS on\n");
-#endif
-	}
-    }
-
-    serbits &= 0x08 | 0x10 | 0x20;
-    oldserbits &= ~(0x08 | 0x10 | 0x20);
-    oldserbits |= serbits;
-#endif
-
-    serial_status_debug ("read");
-
-    return oldserbits;
 }
 
 uae_u8 serial_writestatus (uae_u8 newstate, uae_u8 dir)
@@ -685,19 +398,6 @@ uae_u8 serial_writestatus (uae_u8 newstate, uae_u8 dir)
     serial_status_debug ("write");
 
     return oldserbits;
-=======
-    if (serdev == 1) {
-		if (outlast) {
-		    if (sd != 0) {
-				write (sd, outbuf, outlast);
-		    }
-		}
-		outlast = 0;
-    } else {
-		outlast = 0;
-		inptr = 0;
-		inlast = 0;
-    }
 }
 
 int serial_readstatus(void)
@@ -754,22 +454,10 @@ uae_u16 serial_writestatus (int old, int nw)
 		write_log ("CTS %s.\n", ((nw & 0x10) == 0x10) ? "set" : "cleared");
 
     return nw; /* This value could also be changed here */
->>>>>>> p-uae/v2.1.0
 }
 
 void serial_open(void)
 {
-<<<<<<< HEAD
-#ifdef SERIAL_PORT
-    if (serdev)
-	return;
-
-    if (!openser (currprefs.sername)) {
-	write_log ("SERIAL: Could not open device %s\n", currprefs.sername);
-	return;
-    }
-    serdev = 1;
-=======
     if (serdev == 1)
 		return;
 
@@ -797,36 +485,22 @@ void serial_open(void)
 		write_log ("Serial: TCSETATTR failed\n");
 		return;
     }
->>>>>>> p-uae/v2.1.0
 #endif
 }
 
 void serial_close (void)
 {
-<<<<<<< HEAD
 #ifdef SERIAL_PORT
-    closeser ();
-    serdev = 0;
-#endif
-=======
     if (sd >= 0)
 		close (sd);
     serdev = 0;
->>>>>>> p-uae/v2.1.0
+#endif
 }
 
 void serial_init (void)
 {
 #ifdef SERIAL_PORT
     if (!currprefs.use_serial)
-<<<<<<< HEAD
-	return;
-
-    if (!currprefs.serial_demand)
-	serial_open ();
-
-#endif
-=======
 		return;
 
     if (!currprefs.serial_demand)
@@ -835,7 +509,6 @@ void serial_init (void)
 
     serdat = 0x2000;
     return;
->>>>>>> p-uae/v2.1.0
 }
 
 void serial_exit (void)
@@ -844,8 +517,8 @@ void serial_exit (void)
     serial_close ();	/* serial_close can always be called because it	*/
 #endif
     dtr = 0;		/* just closes *opened* filehandles which is ok	*/
-<<<<<<< HEAD
-    oldserbits = 0;	/* when exiting.				*/
+    oldserbits = 0;	/* when exiting.	
+    return;		/* when exiting.				*/
 }
 
 void serial_uartbreak (int v)
@@ -853,7 +526,4 @@ void serial_uartbreak (int v)
 #ifdef SERIAL_PORT
     serialuartbreak (v);
 #endif
-=======
-    return;		/* when exiting.				*/
->>>>>>> p-uae/v2.1.0
 }
