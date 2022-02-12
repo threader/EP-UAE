@@ -14,6 +14,7 @@
 #include "gensound.h"
 #include "sounddep/sound.h"
 
+<<<<<<< HEAD
 #include <hardware/custom.h>
 #include <hardware/cia.h>
 #include <devices/audio.h>
@@ -57,6 +58,23 @@ int sndbufsize;
 int bufidx, devopen, ahiopen ahiopen = FALSE;
 
 int have_sound;
+=======
+#include <exec/memory.h>
+#include <graphics/gfxbase.h>
+
+struct MsgPort    *AHImp    = NULL;
+struct AHIRequest *AHIio[2] = {NULL, NULL};
+struct AHIRequest *linkio   = NULL;
+
+
+unsigned char *buffers[2];
+uae_u16 *paula_sndbuffer;
+uae_u16 *paula_sndbufpt;
+int paula_sndbufsize;
+int bufidx;
+
+unsigned int have_sound;
+>>>>>>> p-uae/v2.1.0
 int clockval;
 int period;
 
@@ -68,33 +86,51 @@ int setup_sound (void)
     return 1;
 }
 
+<<<<<<< HEAD
 static const char *open_AHI (void)
 {
 #ifdef USE_AHIDEVICE
+=======
+static BOOL open_AHI (void)
+{
+>>>>>>> p-uae/v2.1.0
     if ((AHImp = CreateMsgPort())) {
 	if ((AHIio[0] = (struct AHIRequest *)
 		CreateIORequest (AHImp, sizeof (struct AHIRequest)))) {
 	    AHIio[0]->ahir_Version = 4;
 
 	    if (!OpenDevice (AHINAME, 0, (struct IORequest *)AHIio[0], 0)) {
+<<<<<<< HEAD
 	        if ((AHIio[1] = malloc (sizeof(struct AHIRequest)))) {
 		    memcpy (AHIio[1], AHIio[0], sizeof(struct AHIRequest));
       		 ahiopen = TRUE;
 		    return AHINAME;
 
 		   return TRUE;
+=======
+		if ((AHIio[1] = malloc (sizeof(struct AHIRequest)))) {
+		    memcpy (AHIio[1], AHIio[0], sizeof(struct AHIRequest));
+		    return TRUE;
+>>>>>>> p-uae/v2.1.0
 		}
 	    }
 	}
     }
+<<<<<<< HEAD
 #endif
     ahiopen = FALSE;
     return NULL;
+=======
+    return FALSE;
+>>>>>>> p-uae/v2.1.0
 }
 
 static void close_AHI (void)
 {
+<<<<<<< HEAD
 #ifdef USE_AHIDEVICE
+=======
+>>>>>>> p-uae/v2.1.0
     if (!CheckIO ((struct IORequest *)AHIio[0]))
 	WaitIO ((struct IORequest *)AHIio[0]);
 
@@ -109,8 +145,11 @@ static void close_AHI (void)
     AHIio[0] = NULL;
     AHIio[1] = NULL;
     linkio   = NULL;
+<<<<<<< HEAD
 	ahiopen = FALSE;
 #endif
+=======
+>>>>>>> p-uae/v2.1.0
 }
 
 static int get_clockval (void)
@@ -136,7 +175,10 @@ int init_sound (void)
     /* it would have been far less painfull if AmigaOS provided a */
     /* SOUND: device handler */
     int rate;
+<<<<<<< HEAD
     const char *devname = NULL;
+=======
+>>>>>>> p-uae/v2.1.0
 
     atexit (close_sound); /* if only amiga os had resource tracking */
 
@@ -155,6 +197,7 @@ int init_sound (void)
     rate   = currprefs.sound_freq;
     period = (uae_u16)(clockval / rate);
 
+<<<<<<< HEAD
 
     devname = open_AHI ();
     if (devname)
@@ -219,14 +262,41 @@ int init_sound (void)
 	init_sound_table8 ();
 	sample_handler = currprefs.sound_stereo ? sample8s_handler : sample8_handler;
     }
+=======
+    if (!open_AHI ())
+	goto fail;
+
+    /* calculate buffer size */
+    paula_sndbufsize = rate * currprefs.sound_latency * 2 * (currprefs.sound_stereo ? 2 : 1) / 1000;
+    paula_sndbufsize = (paula_sndbufsize + 1) & ~1;
+
+    /* get the buffers */
+    buffers[0] = (void*) AllocMem (paula_sndbufsize,MEMF_PUBLIC | MEMF_CLEAR);
+    buffers[1] = (void*) AllocMem (paula_sndbufsize,MEMF_PUBLIC | MEMF_CLEAR);
+    if (!buffers[0] || !buffers[1])
+	goto fail;
+
+    bufidx    = 0;
+    paula_sndbuffer = paula_sndbufpt = (uae_u16*) buffers[bufidx];
+
+    init_sound_table16 ();
+    sample_handler = currprefs.sound_stereo ? sample16s_handler : sample16_handler;
+>>>>>>> p-uae/v2.1.0
 
     have_sound = 1;
     obtainedfreq = rate;
 
+<<<<<<< HEAD
     write_log ("Sound driver found and configured for %d bits %s "
 	       "at %d Hz, buffer is %d bytes (%s)\n",
 	       currprefs.sound_bits, currprefs.sound_stereo ? "stereo" : "mono",
 	       rate, sndbufsize, devname);
+=======
+    write_log ("Sound driver found and configured for %s "
+	       "at %d Hz, buffer is %d bytes.\n",
+	       currprefs.sound_stereo ? "stereo" : "mono",
+	       rate, paula_sndbufsize);
+>>>>>>> p-uae/v2.1.0
 
     sound_available = 1;
     return 1;
@@ -237,6 +307,7 @@ fail:
 
 void close_sound (void)
 {
+<<<<<<< HEAD
 #ifdef USE_AHIDEVICE
     if (ahiopen) {
 	close_AHI ();
@@ -273,6 +344,19 @@ void close_sound (void)
 #if !defined __amigaos4__ && !defined __MORPHOS__ && !defined __AROS__
 	cia->ciapra = (cia->ciapra & ~(1 << CIAB_LED)) | oldledstate;
 #endif
+=======
+    close_AHI ();
+
+    if (buffers[0]) {
+	FreeMem ((APTR) buffers[0], paula_sndbufsize);
+	buffers[0] = 0;
+    }
+    if (buffers[1]) {
+	FreeMem ((APTR) buffers[1], paula_sndbufsize);
+	buffers[1] = 0;
+    }
+    if (sound_available) {
+>>>>>>> p-uae/v2.1.0
 	sound_available = 0;
     }
 }

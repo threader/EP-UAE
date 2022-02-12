@@ -101,7 +101,11 @@ read_counts (void)
 	fscanf (file, "Total: %lu\n", &total);
 	while (fscanf (file, "%lx: %lu %s\n", &opcode, &count, name) == 3)
 	{
+<<<<<<< HEAD
 	    opcode_next_clev[nr] = 4;
+=======
+	    opcode_next_clev[nr] = 5;
+>>>>>>> p-uae/v2.1.0
 	    opcode_last_postfix[nr] = -1;
 	    opcode_map[nr++] = opcode;
 	    counts[opcode] = count;
@@ -115,7 +119,11 @@ read_counts (void)
 	if (table68k[opcode].handler == -1 && table68k[opcode].mnemo != i_ILLG
 	    && counts[opcode] == 0)
 	{
+<<<<<<< HEAD
 	    opcode_next_clev[nr] = 4;
+=======
+	    opcode_next_clev[nr] = 5;
+>>>>>>> p-uae/v2.1.0
 	    opcode_last_postfix[nr] = -1;
 	    opcode_map[nr++] = opcode;
 	    counts[opcode] = count;
@@ -196,32 +204,56 @@ static __inline__ void gen_update_next_handler(void)
     return; /* Can anything clever be done here? */
 }
 
+<<<<<<< HEAD
 static void gen_writebyte (const char *address, const char *source)
+=======
+static void gen_writebyte (char* address, char* source)
+>>>>>>> p-uae/v2.1.0
 {
     comprintf("\twritebyte(%s,%s,scratchie);\n",address,source);
 }
 
+<<<<<<< HEAD
 static void gen_writeword (const char *address, const char *source)
+=======
+static void gen_writeword (char* address, char* source)
+>>>>>>> p-uae/v2.1.0
 {
     comprintf("\twriteword(%s,%s,scratchie);\n",address,source);
 }
 
+<<<<<<< HEAD
 static void gen_writelong (const char *address, const char *source)
+=======
+static void gen_writelong (char* address, char* source)
+>>>>>>> p-uae/v2.1.0
 {
     comprintf("\twritelong(%s,%s,scratchie);\n",address,source);
 }
 
+<<<<<<< HEAD
 static void gen_readbyte (const char *address, const char *dest)
+=======
+static void gen_readbyte (char* address, char* dest)
+>>>>>>> p-uae/v2.1.0
 {
     comprintf("\treadbyte(%s,%s,scratchie);\n",address,dest);
 }
 
+<<<<<<< HEAD
 static void gen_readword (const char *address, const char *dest)
+=======
+static void gen_readword (char* address, char* dest)
+>>>>>>> p-uae/v2.1.0
 {
     comprintf("\treadword(%s,%s,scratchie);\n",address,dest);
 }
 
+<<<<<<< HEAD
 static void gen_readlong (const char *address, const char *dest)
+=======
+static void gen_readlong (char* address, char* dest)
+>>>>>>> p-uae/v2.1.0
 {
     comprintf("\treadlong(%s,%s,scratchie);\n",address,dest);
 }
@@ -274,7 +306,11 @@ sync_m68k_pc (void)
 /* getv == 1: fetch data; getv != 0: check for odd address. If movem != 0,
  * the calling routine handles Apdi and Aipi modes. */
 static void
+<<<<<<< HEAD
 genamode (amodes mode, const char *reg, wordsizes size, const char *name, int getv, int movem)
+=======
+genamode (amodes mode, char *reg, wordsizes size, char *name, int getv, int movem)
+>>>>>>> p-uae/v2.1.0
 {
     start_brace ();
     switch (mode)
@@ -513,7 +549,11 @@ genamode (amodes mode, const char *reg, wordsizes size, const char *name, int ge
 }
 
 static void
+<<<<<<< HEAD
 genastore (const char *from, amodes mode, const char *reg, wordsizes size, const char *to)
+=======
+genastore (char *from, amodes mode, char *reg, wordsizes size, char *to)
+>>>>>>> p-uae/v2.1.0
 {
     switch (mode)
     {
@@ -521,6 +561,7 @@ genastore (const char *from, amodes mode, const char *reg, wordsizes size, const
 	switch (size)
 	{
 	 case sz_byte:
+<<<<<<< HEAD
 	    comprintf("\tif((uae_u32)%s!=(uae_u32)%s)\n",reg,from);
 	    comprintf ("\t\tmov_b_rr(%s,%s);\n", reg, from);
 	    break;
@@ -530,6 +571,17 @@ genastore (const char *from, amodes mode, const char *reg, wordsizes size, const
 	    break;
 	 case sz_long:
 	    comprintf("\tif((uae_u32)%s!=(uae_u32)%s)\n",reg,from);
+=======
+	    comprintf("\tif(%s!=%s)\n",reg,from);
+	    comprintf ("\t\tmov_b_rr(%s,%s);\n", reg, from);
+	    break;
+	 case sz_word:
+	    comprintf("\tif(%s!=%s)\n",reg,from);
+	    comprintf ("\t\tmov_w_rr(%s,%s);\n", reg, from);
+	    break;
+	 case sz_long:
+	    comprintf("\tif(%s!=%s)\n",reg,from);
+>>>>>>> p-uae/v2.1.0
 	    comprintf ("\t\tmov_l_rr(%s,%s);\n", reg, from);
 	    break;
 	 default:
@@ -540,11 +592,19 @@ genastore (const char *from, amodes mode, const char *reg, wordsizes size, const
 	switch (size)
 	{
 	 case sz_word:
+<<<<<<< HEAD
 	    comprintf("\tif((uae_u32)%s+8!=(uae_u32)%s)\n",reg,from);
 	    comprintf ("\t\tmov_w_rr(%s+8,%s);\n", reg, from);
 	    break;
 	 case sz_long:
 	    comprintf("\tif((uae_u32)%s+8!=(uae_u32)%s)\n",reg,from);
+=======
+	    comprintf("\tif(%s+8!=%s)\n",reg,from);
+	    comprintf ("\t\tmov_w_rr(%s+8,%s);\n", reg, from);
+	    break;
+	 case sz_long:
+	    comprintf("\tif(%s+8!=%s)\n",reg,from);
+>>>>>>> p-uae/v2.1.0
 	    comprintf ("\t\tmov_l_rr(%s+8,%s);\n", reg, from);
 	    break;
 	 default:
@@ -601,7 +661,11 @@ static void genmov16(uae_u32 opcode, struct instr *curi)
     comprintf("\tint dst=scratchie++;\n");
 
     if ((opcode & 0xfff8) == 0xf620) {
+<<<<<<< HEAD
     	/* MOVE16 (Ax)+,(Ay)+ */
+=======
+	/* MOVE16 (Ax)+,(Ay)+ */
+>>>>>>> p-uae/v2.1.0
 	comprintf("\tuae_u16 dstreg=((%s)>>12)&0x07;\n", gen_nextiword());
 	comprintf("\tmov_l_rr(src,8+srcreg);\n");
 	comprintf("\tmov_l_rr(dst,8+dstreg);\n");
@@ -619,7 +683,11 @@ static void genmov16(uae_u32 opcode, struct instr *curi)
 
 
     if ((opcode & 0xfff8) == 0xf620) {
+<<<<<<< HEAD
     	comprintf("\tif (srcreg != dstreg)\n");
+=======
+	comprintf("\tif (srcreg != dstreg)\n");
+>>>>>>> p-uae/v2.1.0
 	comprintf("\tadd_l_ri(srcreg+8,16);\n");
 	comprintf("\tadd_l_ri(dstreg+8,16);\n");
     } else if ((opcode & 0xfff8) == 0xf600)
@@ -900,7 +968,11 @@ flagtypes;
 
 
 static void
+<<<<<<< HEAD
 genflags (flagtypes type, wordsizes size, const char *value, const char *src, const char *dst)
+=======
+genflags (flagtypes type, wordsizes size, char *value, char *src, char *dst)
+>>>>>>> p-uae/v2.1.0
 {
     if (noflags) {
 	switch(type) {
@@ -912,7 +984,11 @@ genflags (flagtypes type, wordsizes size, const char *value, const char *src, co
 	 case flag_sub:
 	    comprintf("\tdont_care_flags();\n");
 	    {
+<<<<<<< HEAD
 		const char *op;
+=======
+		char* op;
+>>>>>>> p-uae/v2.1.0
 		switch(type) {
 		 case flag_add: op="add"; break;
 		 case flag_sub: op="sub"; break;
@@ -995,7 +1071,11 @@ genflags (flagtypes type, wordsizes size, const char *value, const char *src, co
 	    comprintf("\tdont_care_flags();\n");
 	    start_brace();
 	    {
+<<<<<<< HEAD
 		const char *op;
+=======
+		char* op;
+>>>>>>> p-uae/v2.1.0
 		switch(type) {
 		 case flag_or:  op="or"; break;
 		 case flag_eor: op="xor"; break;
@@ -1033,7 +1113,11 @@ genflags (flagtypes type, wordsizes size, const char *value, const char *src, co
 
 	    comprintf("\tdont_care_flags();\n");
 	    {
+<<<<<<< HEAD
 		const char *op;
+=======
+		char* op;
+>>>>>>> p-uae/v2.1.0
 		switch(type) {
 		 case flag_addx: op="adc"; break;
 		 case flag_subx: op="sbb"; break;
@@ -1071,7 +1155,11 @@ genflags (flagtypes type, wordsizes size, const char *value, const char *src, co
 	comprintf("\tdont_care_flags();\n");
 	start_brace();
 	{
+<<<<<<< HEAD
 	    const char *op;
+=======
+	    char* op;
+>>>>>>> p-uae/v2.1.0
 	    switch(type) {
 	     case flag_and: op="and"; break;
 	     case flag_or:  op="or"; break;
@@ -1171,7 +1259,11 @@ genflags (flagtypes type, wordsizes size, const char *value, const char *src, co
      case flag_cmp:
 	comprintf("\tdont_care_flags();\n");
 	{
+<<<<<<< HEAD
 	    const char *op;
+=======
+	    char* op;
+>>>>>>> p-uae/v2.1.0
 	    switch(type) {
 	     case flag_add: op="add"; break;
 	     case flag_sub: op="sub"; break;
@@ -1208,7 +1300,11 @@ genflags (flagtypes type, wordsizes size, const char *value, const char *src, co
 		 uses_cmov;
 	comprintf("\tdont_care_flags();\n");
 	{
+<<<<<<< HEAD
 	    const char *op;
+=======
+	    char* op;
+>>>>>>> p-uae/v2.1.0
 	    switch(type) {
 	     case flag_addx: op="adc"; break;
 	     case flag_subx: op="sbb"; break;
@@ -1303,7 +1399,11 @@ static int  /* returns zero for success, non-zero for failure */
 gen_opcode (unsigned long int opcode)
 {
     struct instr *curi = table68k + opcode;
+<<<<<<< HEAD
     const char *ssize=NULL;
+=======
+    char* ssize=NULL;
+>>>>>>> p-uae/v2.1.0
 
     insn_n_cycles = 2;
     global_failure=0;
@@ -1477,7 +1577,11 @@ gen_opcode (unsigned long int opcode)
      case i_BCLR:
      case i_BSET:
      case i_BTST:
+<<<<<<< HEAD
 		 	genamode (curi->smode, "srcreg", curi->size, "src", 1, 0);
+=======
+			genamode (curi->smode, "srcreg", curi->size, "src", 1, 0);
+>>>>>>> p-uae/v2.1.0
 	genamode (curi->dmode, "dstreg", curi->size, "dst", 1, 0);
 	start_brace();
 	comprintf("\tint s=scratchie++;\n"
@@ -1488,14 +1592,21 @@ gen_opcode (unsigned long int opcode)
 	    comprintf("\tand_l_ri(s,31);\n");
 
 	{
+<<<<<<< HEAD
 	    const char *op;
+=======
+	    char* op;
+>>>>>>> p-uae/v2.1.0
 	    int need_write=1;
 
 	    switch(curi->mnemo) {
 	     case i_BCHG: op="btc"; break;
 	     case i_BCLR: op="btr"; break;
 	     case i_BSET: op="bts"; break;
+<<<<<<< HEAD
 	     default:
+=======
+>>>>>>> p-uae/v2.1.0
 	     case i_BTST: op="bt"; need_write=0; break;
 	    }
 	    comprintf("\t%s_l_rr(dst,s);\n"  /* Answer now in C */
@@ -1788,10 +1899,17 @@ gen_opcode (unsigned long int opcode)
 	comprintf("\tm68k_pc_offset=0;\n");
 	comprintf("\tadd_l(PC_P,src);\n");
 
+<<<<<<< HEAD
 	comprintf("\tcomp_pc_p=(void*)get_const(PC_P);\n");
 	break;
      case i_Bcc:
 	comprintf("\tuae_u32 v,v1,v2;\n");
+=======
+	comprintf("\tcomp_pc_p=(uae_u8*)get_const(PC_P);\n");
+	break;
+     case i_Bcc:
+	comprintf("\tuae_u32 v1,v2;\n");
+>>>>>>> p-uae/v2.1.0
 	genamode (curi->smode, "srcreg", curi->size, "src", 1, 0);
 	/* That source is an immediate, so we can clobber it with abandon */
 	switch(curi->size) {
@@ -1825,7 +1943,11 @@ gen_opcode (unsigned long int opcode)
 	switch(curi->cc) {
 	 case 0:  /* Unconditional jump */
 	    comprintf("\tmov_l_rr(PC_P,src);\n");
+<<<<<<< HEAD
 	    comprintf("\tcomp_pc_p=(void*)get_const(PC_P);\n");
+=======
+	    comprintf("\tcomp_pc_p=(uae_u8*)get_const(PC_P);\n");
+>>>>>>> p-uae/v2.1.0
 	    break;
 	 case 1: break; /* This is silly! */
 	 case 8: failure; break;  /* Work out details! FIXME */
@@ -1905,7 +2027,11 @@ gen_opcode (unsigned long int opcode)
 	    comprintf("\tsub_w_ri(src,1);\n");
 	    comprintf("\t end_needflags();\n");
 	    start_brace();
+<<<<<<< HEAD
 	    comprintf("\tuae_u32 v2,v;\n"
+=======
+	    comprintf("\tuae_u32 v2;\n"
+>>>>>>> p-uae/v2.1.0
 		      "\tuae_u32 v1=get_const(PC_P);\n");
 	    comprintf("\tv2=get_const(offs);\n"
 		      "\tregister_branch(v1,v2,3);\n");
@@ -2649,7 +2775,11 @@ gen_opcode (unsigned long int opcode)
 		"} \n");
 	    start_brace();
 	}
+<<<<<<< HEAD
  	comprintf("\tdont_care_flags();\n");
+=======
+	comprintf("\tdont_care_flags();\n");
+>>>>>>> p-uae/v2.1.0
 	genamode (curi->smode, "srcreg", curi->size, "cnt", 1, 0);
 	genamode (curi->dmode, "dstreg", curi->size, "data", 1, 0);
 	start_brace ();
@@ -2849,7 +2979,20 @@ gen_opcode (unsigned long int opcode)
 	//}
 	break;
 
+<<<<<<< HEAD
      case i_MMUOP:
+=======
+     case i_MMUOP030:
+     case i_PFLUSHN:
+     case i_PFLUSH:
+     case i_PFLUSHAN:
+     case i_PFLUSHA:
+     case i_PLPAR:
+     case i_PLPAW:
+     case i_PTESTR:
+     case i_PTESTW:
+     case i_LPSTOP:
+>>>>>>> p-uae/v2.1.0
 	isjump;
 	failure;
 	break;
@@ -2869,6 +3012,10 @@ static void
 generate_includes (FILE * f)
 {
     fprintf (f, "#include \"sysconfig.h\"\n");
+<<<<<<< HEAD
+=======
+    fprintf (f, "#if defined(JIT)\n");
+>>>>>>> p-uae/v2.1.0
     fprintf (f, "#include \"sysdeps.h\"\n");
     fprintf (f, "#include \"options.h\"\n");
     fprintf (f, "#include \"memory.h\"\n");
@@ -3008,6 +3155,13 @@ generate_one_opcode (int rp, int noflags)
 	comprintf ("return 0;\n");
 	comprintf ("}\n");
 
+<<<<<<< HEAD
+=======
+/*	char name[100] = { 0 };
+	for (int k = 0; lookuptab[i].name[k]; k++)
+		name[k] = lookuptab[i].name[k];*/
+	
+>>>>>>> p-uae/v2.1.0
 	if (aborted) {
 	    fprintf (stblfile, "{ NULL, %ld, 0x%08x }, /* %s */\n", opcode, flags, lookuptab[i].name);
 	    com_discard();
@@ -3037,7 +3191,11 @@ generate_func (int noflags)
     using_exception_3 = 0;
     for (i = 0; i < 1; i++) /* We only do one level! */
     {
+<<<<<<< HEAD
 	cpu_level = 4 - i;
+=======
+	cpu_level = 5 - i;
+>>>>>>> p-uae/v2.1.0
 	postfix = i;
 
 	if (noflags)
@@ -3061,7 +3219,15 @@ generate_func (int noflags)
 		 "#define PART_6 1\n"
 		 "#define PART_7 1\n"
 		 "#define PART_8 1\n"
+<<<<<<< HEAD
 		 "#endif\n\n");
+=======
+		 "#endif\n\n"
+//		 "extern void setzflg_l();\n"
+		 "extern void comp_fpp_opp (uae_u32 opcode, uae_u16 extra);\n"
+		 "extern void comp_fscc_opp (uae_u32 opcode, uae_u16 extra);\n"
+		 "extern void comp_fbcc_opp (uae_u32 opcode);\n\n");
+>>>>>>> p-uae/v2.1.0
 
 	rp = 0;
 	for (j = 1; j <= 8; ++j)
@@ -3095,7 +3261,21 @@ main (int argc, char **argv)
      * I don't dare to touch the 68k version.  */
 
     headerfile = fopen ("comptbl.h", "wb");
+<<<<<<< HEAD
     stblfile = fopen ("compstbl.c", "wb");
+=======
+
+	fprintf (headerfile, "" \
+		"#ifdef NOFLAGS_SUPPORT\n" \
+		"/* 68040 */\n" \
+		"extern const struct comptbl op_smalltbl_0_nf[];\n" \
+		"#endif\n" \
+		"extern const struct comptbl op_smalltbl_0_comp_nf[];\n" \
+		"extern const struct comptbl op_smalltbl_0_comp_ff[];\n" \
+		"");
+	
+	stblfile = fopen ("compstbl.c", "wb");
+>>>>>>> p-uae/v2.1.0
     freopen ("compemu.c", "wb", stdout);
 
     generate_includes (stdout);
@@ -3115,6 +3295,12 @@ main (int argc, char **argv)
     noflags=1;
     generate_func (noflags);
 
+<<<<<<< HEAD
+=======
+    printf ("#endif\n");
+    fprintf (stblfile, "#endif\n");
+
+>>>>>>> p-uae/v2.1.0
     free (table68k);
     return 0;
 }

@@ -30,10 +30,13 @@ void close_sound (void)
 {
 }
 
+<<<<<<< HEAD
 void update_sound (int freq)
 {
 }
 
+=======
+>>>>>>> p-uae/v2.1.0
 void reset_sound (void)
 {
 }

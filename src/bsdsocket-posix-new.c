@@ -67,8 +67,13 @@
 //#define SETSIGNAL	addtosigqueue (sb, 0)
 #define SETSIGNAL \
     do { \
+<<<<<<< HEAD
         uae_Signal (sb->ownertask, sb->sigstosend | ((uae_u32) 1) << sb->signal); \
         sb->dosignal = 1; \
+=======
+	uae_Signal (sb->ownertask, sb->sigstosend | ((uae_u32) 1) << sb->signal); \
+	sb->dosignal = 1; \
+>>>>>>> p-uae/v2.1.0
     } while (0)
 
 
@@ -285,7 +290,11 @@ static int mapsockoptname (int level, int optname)
 	    }
 	    break;
 
+<<<<<<< HEAD
         default:
+=======
+	default:
+>>>>>>> p-uae/v2.1.0
 	    DEBUG_LOG ("Unknown level %d\n", level);
 	    return -1;
     }
@@ -305,10 +314,17 @@ static void mapsockoptreturn(int level, int optname, uae_u32 optval, void *buf)
 		case SO_ACCEPTCONN:
 		case SO_REUSEADDR:
 		case SO_KEEPALIVE:
+<<<<<<< HEAD
 	        case SO_DONTROUTE:
 	        case SO_BROADCAST:
 #ifdef SO_USELOOPBACK
 	        case SO_USELOOPBACK:
+=======
+		case SO_DONTROUTE:
+		case SO_BROADCAST:
+#ifdef SO_USELOOPBACK
+		case SO_USELOOPBACK:
+>>>>>>> p-uae/v2.1.0
 #endif
 		case SO_LINGER:
 		case SO_OOBINLINE:
@@ -322,12 +338,20 @@ static void mapsockoptreturn(int level, int optname, uae_u32 optval, void *buf)
 		case SO_SNDTIMEO:
 		case SO_RCVTIMEO:
 		case SO_TYPE:
+<<<<<<< HEAD
 		    put_long(optval, *(int *)buf);
+=======
+		    put_long (optval, *(int *)buf);
+>>>>>>> p-uae/v2.1.0
 		    break;
 
 		case SO_ERROR:
 		    DEBUG_LOG("New errno is %d\n", mapErrno(*(int *)buf));
+<<<<<<< HEAD
 		    put_long(optval, mapErrno(*(int *)buf));
+=======
+		    put_long (optval, mapErrno(*(int *)buf));
+>>>>>>> p-uae/v2.1.0
 		    break;
 		default:
 		    break;
@@ -347,7 +371,11 @@ static void mapsockoptreturn(int level, int optname, uae_u32 optval, void *buf)
 		case IP_MULTICAST_TTL:
 		case IP_MULTICAST_LOOP:
 		case IP_ADD_MEMBERSHIP:
+<<<<<<< HEAD
 		    put_long(optval, *(int *)buf);
+=======
+		    put_long (optval, *(int *)buf);
+>>>>>>> p-uae/v2.1.0
 		    break;
 
 		default:
@@ -359,7 +387,11 @@ static void mapsockoptreturn(int level, int optname, uae_u32 optval, void *buf)
 	    switch (optname) {
 		case TCP_NODELAY:
 		case TCP_MAXSEG:
+<<<<<<< HEAD
 		    put_long(optval,*(int *)buf);
+=======
+		    put_long (optval,*(int *)buf);
+>>>>>>> p-uae/v2.1.0
 		    break;
 
 		default:
@@ -367,7 +399,11 @@ static void mapsockoptreturn(int level, int optname, uae_u32 optval, void *buf)
 	    }
 	    break;
 
+<<<<<<< HEAD
         default:
+=======
+	default:
+>>>>>>> p-uae/v2.1.0
 	    break;
     }
 }
@@ -385,10 +421,17 @@ static void mapsockoptvalue(int level, int optname, uae_u32 optval, void *buf)
 		case SO_ACCEPTCONN:
 		case SO_REUSEADDR:
 		case SO_KEEPALIVE:
+<<<<<<< HEAD
 	        case SO_DONTROUTE:
 	        case SO_BROADCAST:
 #ifdef SO_USELOOPBACK
 	        case SO_USELOOPBACK:
+=======
+		case SO_DONTROUTE:
+		case SO_BROADCAST:
+#ifdef SO_USELOOPBACK
+		case SO_USELOOPBACK:
+>>>>>>> p-uae/v2.1.0
 #endif
 		case SO_LINGER:
 		case SO_OOBINLINE:
@@ -402,8 +445,13 @@ static void mapsockoptvalue(int level, int optname, uae_u32 optval, void *buf)
 		case SO_SNDTIMEO:
 		case SO_RCVTIMEO:
 		case SO_TYPE:
+<<<<<<< HEAD
 	        case SO_ERROR:
 		    *((int *)buf) = get_long(optval);
+=======
+		case SO_ERROR:
+		    *((int *)buf) = get_long (optval);
+>>>>>>> p-uae/v2.1.0
 		    break;
 		default:
 		    break;
@@ -423,7 +471,11 @@ static void mapsockoptvalue(int level, int optname, uae_u32 optval, void *buf)
 		case IP_MULTICAST_TTL:
 		case IP_MULTICAST_LOOP:
 		case IP_ADD_MEMBERSHIP:
+<<<<<<< HEAD
 		    *((int *)buf) = get_long(optval);
+=======
+		    *((int *)buf) = get_long (optval);
+>>>>>>> p-uae/v2.1.0
 		    break;
 
 		default:
@@ -435,7 +487,11 @@ static void mapsockoptvalue(int level, int optname, uae_u32 optval, void *buf)
 	    switch (optname) {
 		case TCP_NODELAY:
 		case TCP_MAXSEG:
+<<<<<<< HEAD
 		    *((int *)buf) = get_long(optval);
+=======
+		    *((int *)buf) = get_long (optval);
+>>>>>>> p-uae/v2.1.0
 		    break;
 
 		default:
@@ -443,7 +499,11 @@ static void mapsockoptvalue(int level, int optname, uae_u32 optval, void *buf)
 	    }
 	    break;
 
+<<<<<<< HEAD
         default:
+=======
+	default:
+>>>>>>> p-uae/v2.1.0
 	    break;
     }
 }
@@ -690,7 +750,11 @@ uae_u32 bsdthr_WaitSelect (SB)
 		bsd_amigaside_FD_ZERO (sb->sets [set]);
 	    clearsockabort (sb);
 	}
+<<<<<<< HEAD
         else
+=======
+	else
+>>>>>>> p-uae/v2.1.0
 	/* This is perhaps slightly inefficient, but I don't care.. */
 	for (set = 0; set < 3; set++) {
 	    a_set = sb->sets [set];
@@ -709,7 +773,11 @@ uae_u32 bsdthr_WaitSelect (SB)
 	}
 	}
     } else if (r == 0) {         /* Timeout. I think we're supposed to clear the sets.. */
+<<<<<<< HEAD
         for (set = 0; set < 3; set++)
+=======
+	for (set = 0; set < 3; set++)
+>>>>>>> p-uae/v2.1.0
 	    if (sb->sets [set] != 0)
 		bsd_amigaside_FD_ZERO (sb->sets [set]);
     }
@@ -731,7 +799,11 @@ uae_u32 bsdthr_Accept_2 (SB)
 	s2 = getsd (sb, s);
 	sb->ftable[s2-1] = sb->ftable[sb->len];	/* new socket inherits the old socket's properties */
 	DEBUG_LOG ("Accept: AmigaSide %d, NativeSide %d, len %d(%d)",
+<<<<<<< HEAD
 		   sb->resultval, s, &hlen, get_long(sb->a_addrlen));
+=======
+		   sb->resultval, s, &hlen, get_long (sb->a_addrlen));
+>>>>>>> p-uae/v2.1.0
 	printSockAddr (&addr);
 	foo = get_long (sb->a_addrlen);
 	if (foo > 16)
@@ -919,7 +991,11 @@ static void *bsdlib_threadfunc (void *arg)
 
 	    case 6:       /* Accept */
 		sb->resultval = bsdthr_SendRecvAcceptConnect (bsdthr_Accept_2, sb);
+<<<<<<< HEAD
 	        break;
+=======
+		break;
+>>>>>>> p-uae/v2.1.0
 
 	    case 7: {
 		struct hostent *tmphostent = gethostbyaddr (get_real_address (sb->name), sb->a_addrlen, sb->flags);
@@ -1111,8 +1187,13 @@ void host_WaitSelect (TrapContext *context, SB, uae_u32 nfds, uae_u32 readfds, u
     uae_u32 sigs;
 
     if (wssigs) {
+<<<<<<< HEAD
 	m68k_dreg (&context->regs, 0) = 0;
 	m68k_dreg (&context->regs, 1) = wssigs;
+=======
+	m68k_dreg (regs, 0) = 0;
+	m68k_dreg (regs, 1) = wssigs;
+>>>>>>> p-uae/v2.1.0
 	sigs = CallLib (context, get_long (4), -0x132) & wssigs;	// SetSignal()
 	if (sigs) {
 	    DEBUG_LOG ("WaitSelect preempted by signals 0x%08x\n", sigs & wssigs);
@@ -1128,8 +1209,13 @@ void host_WaitSelect (TrapContext *context, SB, uae_u32 nfds, uae_u32 readfds, u
     }
 
     if (nfds == 0) {
+<<<<<<< HEAD
         /* No sockets - Just wait on signals */
 	m68k_dreg (&context->regs, 0) = wssigs;
+=======
+	/* No sockets - Just wait on signals */
+	m68k_dreg (regs, 0) = wssigs;
+>>>>>>> p-uae/v2.1.0
 	sigs = CallLib (context, get_long (4), -0x13e);	// Wait()
 
 	if (sigmp)
@@ -1152,11 +1238,19 @@ void host_WaitSelect (TrapContext *context, SB, uae_u32 nfds, uae_u32 readfds, u
 
     uae_sem_post (&sb->sem);
 
+<<<<<<< HEAD
     m68k_dreg (&context->regs, 0) = (((uae_u32)1) << sb->signal) | sb->eintrsigs | wssigs;
     sigs = CallLib (context, get_long (4), -0x13e); // Wait()
 
     if (sigmp)
         put_long (sigmp, sigs & (sb->eintrsigs | wssigs));
+=======
+    m68k_dreg (regs, 0) = (((uae_u32)1) << sb->signal) | sb->eintrsigs | wssigs;
+    sigs = CallLib (context, get_long (4), -0x13e); // Wait()
+
+    if (sigmp)
+	put_long (sigmp, sigs & (sb->eintrsigs | wssigs));
+>>>>>>> p-uae/v2.1.0
 
     if (sigs & wssigs) {
 	/* Received the signals we were waiting on */
@@ -1226,7 +1320,11 @@ int host_socket (SB, int af, int type, int protocol)
 	return -1;
     } else {
 	int arg = 1;
+<<<<<<< HEAD
         sd = getsd (sb, s);
+=======
+	sd = getsd (sb, s);
+>>>>>>> p-uae/v2.1.0
 	setsockopt (s, SOL_SOCKET, SO_REUSEADDR, &arg, sizeof(arg));
     }
 
@@ -1323,9 +1421,15 @@ void host_getservbynameport (TrapContext *context, SB, uae_u32 name, uae_u32 pro
     int i;
 
     if (type) {
+<<<<<<< HEAD
 	DEBUG_LOG("Getservbyport(%d, %s) = %lx\n", name, get_real_address(proto), s);
     } else {
 	DEBUG_LOG("Getservbyname(%s, %s) = %lx\n", get_real_address(name), get_real_address(proto), s);
+=======
+	DEBUG_LOG("Getservbyport(%d, %s) = %lx\n", name, get_real_address (proto), s);
+    } else {
+	DEBUG_LOG("Getservbyname(%s, %s) = %lx\n", get_real_address (name), get_real_address (proto), s);
+>>>>>>> p-uae/v2.1.0
     }
 
     if (s == NULL) {
@@ -1398,6 +1502,7 @@ int host_sbinit (TrapContext *context, SB)
     sb->hostentsize = 1024;
 
     /* @@@ The thread should be PTHREAD_CREATE_DETACHED */
+<<<<<<< HEAD
     if (uae_start_thread (bsdlib_threadfunc, (void *)sb, &sb->thread)) {
 	write_log ("BSDSOCK: Failed to create thread.\n");
 	uae_sem_destroy (&sb->sem);
@@ -1405,6 +1510,14 @@ int host_sbinit (TrapContext *context, SB)
 	close (sb->sockabort[1]);
 
 	return 0;
+=======
+    if (uae_start_thread ("bsdsocket", bsdlib_threadfunc, (void *)sb, &sb->thread)) {
+		write_log ("BSDSOCK: Failed to create thread.\n");
+		uae_sem_destroy (&sb->sem);
+		close (sb->sockabort[0]);
+		close (sb->sockabort[1]);
+		return 0;
+>>>>>>> p-uae/v2.1.0
     }
     return 1;
 }
@@ -1449,7 +1562,11 @@ uae_u32 host_Inet_NtoA (TrapContext *context, SB, uae_u32 in)
     TRACE (("Inet_NtoA(%lx) -> ", in));
 
     if ((addr = inet_ntoa(ina)) != NULL) {
+<<<<<<< HEAD
 	buf = m68k_areg (&context->regs, 6) + offsetof (struct UAEBSDBase, scratchbuf);
+=======
+	buf = m68k_areg (regs, 6) + offsetof (struct UAEBSDBase, scratchbuf);
+>>>>>>> p-uae/v2.1.0
 	strncpyha (buf, addr, SCRATCHBUFSIZE);
 	TRACE (("%s\n", addr));
 	return buf;
@@ -1520,11 +1637,19 @@ int host_dup2socket (SB, int fd1, int fd2) {
 	    fd2 = getsd (sb, 1);
 		if (fd2 != -1) {
 	    setsd (sb, fd2, dup (s1));
+<<<<<<< HEAD
 		   	TRACE (("%d(%d)\n", fd2, getsock (sb, fd2)));
 	    return (fd2 - 1);
 		} else {
 		  	TRACE(("-1\n"));
 		   	return -1;
+=======
+			TRACE (("%d(%d)\n", fd2, getsock (sb, fd2)));
+	    return (fd2 - 1);
+		} else {
+			TRACE(("-1\n"));
+			return -1;
+>>>>>>> p-uae/v2.1.0
 		}
 	}
     }
@@ -1628,7 +1753,11 @@ uae_u32 host_IoctlSocket (SB, uae_u32 sd, uae_u32 request, uae_u32 arg)
 	case 0x4004667F: /* FIONREAD */
 	    r = ioctl (sock, FIONREAD, &flags);
 	    if (r >= 0) {
+<<<<<<< HEAD
 		put_long(arg, flags);
+=======
+		put_long (arg, flags);
+>>>>>>> p-uae/v2.1.0
 	    }
 	    return r;
 

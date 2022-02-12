@@ -23,7 +23,11 @@ static USHORT mktbl(void);
 
 
 
+<<<<<<< HEAD
 USHORT make_table(USHORT nchar, UCHAR bitlen[],USHORT tablebits, USHORT table[]){
+=======
+USHORT dms_make_table(USHORT nchar, UCHAR bitlen[],USHORT tablebits, USHORT table[]){
+>>>>>>> p-uae/v2.1.0
 	n = avail = nchar;
 	blen = bitlen;
 	tbl = table;
@@ -77,8 +81,13 @@ static USHORT mktbl(void){
 			TabErr = 3;
 			return 0;
 		}
+<<<<<<< HEAD
 		left[i] = mktbl();
 		right[i] = mktbl();
+=======
+		dms_left[i] = mktbl();
+		dms_right[i] = mktbl();
+>>>>>>> p-uae/v2.1.0
 		if (codeword >= tblsiz) {
 			TabErr = 4;
 			return 0;

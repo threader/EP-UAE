@@ -23,6 +23,7 @@
 #include "custom.h"
 #include "savestate.h"
 
+<<<<<<< HEAD
 static int fakestate[2][7] = { {0},{0} };
 
 static int *fs_np;
@@ -36,6 +37,16 @@ static int *fs_xa2;
 
 /* Not static so the DOS code can mess with them */
 int kpb_first, kpb_last;
+=======
+static int fakestate[MAX_JPORTS][7] = { {0},{0} };
+
+static int *fs_np, *fs_ck, *fs_se;
+#ifdef ARCADIA
+static int *fs_xa1, *fs_xa2;
+#endif
+
+static int kpb_first, kpb_last;
+>>>>>>> p-uae/v2.1.0
 
 static int keybuf[256];
 
@@ -60,6 +71,7 @@ int get_next_key (void)
 static void do_fake (int nr)
 {
     int *fake = fakestate[nr];
+<<<<<<< HEAD
 
     nr = compatibility_device[nr];
     setjoystickstate (nr, 0, fake[1] ? -100 : (fake[2] ? 100 : 0), 100);
@@ -70,12 +82,30 @@ static void do_fake (int nr)
 }
 
 void record_key (int kc)
+=======
+	do_fake_joystick (nr, fake);
+}
+
+int record_key (int kc)
+{
+#ifdef INPREC
+	if (input_recording < 0 || pause_emulation)
+#else
+	if (pause_emulation)
+#endif
+		return 0;
+	return record_key_direct (kc);
+}
+
+int record_key_direct (int kc)
+>>>>>>> p-uae/v2.1.0
 {
     int fs = 0;
     int kpb_next = kpb_first + 1;
     int k = kc >> 1;
     int b = !(kc & 1);
 
+<<<<<<< HEAD
     //write_log ("got kc %02.2X\n", ((kc << 7) | (kc >> 1)) & 0xff);
     if (kpb_next == 256)
 	kpb_next = 0;
@@ -102,14 +132,49 @@ void record_key (int kc)
 	case AK_DN: fs = 1; fs_ck[3] = !(kc & 1); break;
 	case AK_RCTRL: case AK_RALT: fs = 1; fs_ck[4] = !(kc & 1); break;
 	case AK_RSH: fs = 1; fs_ck[5] = !(kc & 1); break;
+=======
+	//write_log ("got kc %02X\n", ((kc << 7) | (kc >> 1)) & 0xff);
+    if (kpb_next == 256)
+	kpb_next = 0;
+    if (kpb_next == kpb_last) {
+		write_log ("Keyboard buffer overrun. Congratulations.\n");
+		return 0;
+    }
+
+    if (fs_np != 0) {
+		switch (k) {
+		case AK_NP8: fs = 1; fs_np[0] = b; break;
+		case AK_NP4: fs = 1; fs_np[1] = b; break;
+		case AK_NP6: fs = 1; fs_np[2] = b; break;
+		case AK_NP2: fs = 1; fs_np[3] = b; break;
+		case AK_NP0: case AK_NP5: fs = 1; fs_np[4] = b; break;
+		case AK_NPDEL: case AK_NPDIV: case AK_ENT: fs = 1; fs_np[5] = b; break;
+	}
+    }
+    if (fs_ck != 0) {
+		switch (k) {
+		case AK_UP: fs = 1; fs_ck[0] = b; break;
+		case AK_LF: fs = 1; fs_ck[1] = b; break;
+		case AK_RT: fs = 1; fs_ck[2] = b; break;
+		case AK_DN: fs = 1; fs_ck[3] = b; break;
+		case AK_RCTRL: case AK_RALT: fs = 1; fs_ck[4] = b; break;
+		case AK_RSH: fs = 1; fs_ck[5] = b; break;
+>>>>>>> p-uae/v2.1.0
 	}
     }
     if (fs_se != 0) {
 	switch (k) {
+<<<<<<< HEAD
 	case AK_T: fs = 1; fs_se[0] = b; break;
 	case AK_F: fs = 1; fs_se[1] = b; break;
 	case AK_H: fs = 1; fs_se[2] = b; break;
 	case AK_B: fs = 1; fs_se[3] = b; break;
+=======
+		case AK_W: fs = 1; fs_se[0] = b; break;
+		case AK_A: fs = 1; fs_se[1] = b; break;
+		case AK_D: fs = 1; fs_se[2] = b; break;
+		case AK_S: fs = 1; fs_se[3] = b; break;
+>>>>>>> p-uae/v2.1.0
 	case AK_LALT: fs = 1; fs_se[4] = b; break;
 	case AK_LSH: fs = 1; fs_se[5] = b; break;
 	}
@@ -143,6 +208,7 @@ void record_key (int kc)
 	    do_fake (0);
 	if (JSEM_ISANYKBD (1, &currprefs))
 	    do_fake (1);
+<<<<<<< HEAD
 	return;
     } else {
 	if ((kc >> 1) == AK_RCTRL) {
@@ -182,15 +248,75 @@ void record_key (int kc)
 
     keybuf[kpb_first] = kc;
     kpb_first = kpb_next;
+=======
+		if (JSEM_ISANYKBD (2, &currprefs))
+			do_fake (2);
+		if (JSEM_ISANYKBD (3, &currprefs))
+			do_fake (3);
+		return 0;
+    } else {
+		if ((kc >> 1) == AK_RCTRL) {
+		    kc ^= AK_RCTRL << 1;
+		    kc ^= AK_CTRL << 1;
+		}
+#ifdef ARCADIA
+		if (fs_xa1 || fs_xa2) {
+			int k2 = k;
+			if (k == AK_1)
+				k2 = AK_F1;
+			if (k == AK_2)
+				k2 = AK_F2;
+			if (k == AK_3)
+				k2 = AK_LALT;
+			if (k == AK_4)
+				k2 = AK_RALT;
+			if (k == AK_6)
+				k2 = AK_DN;
+			if (k == AK_LBRACKET || k == AK_LSH)
+				k2 = AK_SPC;
+			if (k == AK_RBRACKET)
+				k2 = AK_RET;
+			if (k == AK_C)
+				k2 = AK_1;
+			if (k == AK_5)
+				k2 = AK_2;
+			if (k == AK_Z)
+				k2 = AK_3;
+			if (k == AK_X)
+				k2 = AK_4;
+			if (k != k2)
+				kc = (k2 << 1) | (b ? 0 : 1);
+		}
+#endif
+    }
+
+#ifdef INPREC
+	if (input_recording > 0) {
+		inprec_rstart(INPREC_KEY);
+		inprec_ru8(kc);
+		inprec_rend();
+	}
+#endif
+
+    keybuf[kpb_first] = kc;
+    kpb_first = kpb_next;
+	return 1;
+>>>>>>> p-uae/v2.1.0
 }
 
 void joystick_setting_changed (void)
 {
+<<<<<<< HEAD
+=======
+	int i;
+
+>>>>>>> p-uae/v2.1.0
     fs_np = fs_ck = fs_se = 0;
 #ifdef ARCADIA
     fs_xa1 = fs_xa2 = 0;
 #endif
 
+<<<<<<< HEAD
     if (JSEM_ISNUMPAD (0, &currprefs))
 	fs_np = fakestate[0];
     else if (JSEM_ISNUMPAD (1, &currprefs))
@@ -217,6 +343,22 @@ void joystick_setting_changed (void)
     else if (JSEM_ISXARCADE2 (1, &currprefs))
 	fs_xa2 = fakestate[1];
 #endif
+=======
+	for (i = 0; i < MAX_JPORTS; i++) {
+		if (JSEM_ISNUMPAD (i, &currprefs))
+			fs_np = fakestate[i];
+		if (JSEM_ISCURSOR (i, &currprefs))
+			fs_ck = fakestate[i];
+		if (JSEM_ISSOMEWHEREELSE (i, &currprefs))
+			fs_se = fakestate[i];
+#ifdef ARCADIA
+		if (JSEM_ISXARCADE1 (i, &currprefs))
+			fs_xa1 = fakestate[i];
+		if (JSEM_ISXARCADE2 (i, &currprefs))
+			fs_xa2 = fakestate[i];
+#endif
+	}
+>>>>>>> p-uae/v2.1.0
 }
 
 void keybuf_init (void)
@@ -225,6 +367,7 @@ void keybuf_init (void)
     inputdevice_updateconfig (&currprefs);
 }
 
+<<<<<<< HEAD
 
 #ifdef SAVESTATE
 
@@ -232,13 +375,25 @@ uae_u8 *save_keyboard (uae_u32 *len)
 {
     uae_u8 *dst, *t;
     dst = t = malloc (8);
+=======
+#ifdef SAVESTATE
+
+uae_u8 *save_keyboard (int *len)
+{
+    uae_u8 *dst, *t;
+	dst = t = xmalloc (uae_u8, 8);
+>>>>>>> p-uae/v2.1.0
     save_u32 (getcapslockstate() ? 1 : 0);
     save_u32 (0);
     *len = 8;
     return t;
 }
 
+<<<<<<< HEAD
 const uae_u8 *restore_keyboard (const uae_u8 *src)
+=======
+uae_u8 *restore_keyboard (uae_u8 *src)
+>>>>>>> p-uae/v2.1.0
 {
     setcapslockstate (restore_u32 ());
     restore_u32 ();

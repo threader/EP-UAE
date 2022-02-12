@@ -10,9 +10,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+<<<<<<< HEAD
 #include "uae_string.h"
 #include "uae_types.h"
 #include <ctype.h>
+=======
+#include <ctype.h>
+#include "uae_string.h"
+#include "uae_types.h"
+>>>>>>> p-uae/v2.1.0
 
 #include "readcpu.h"
 
@@ -215,6 +221,10 @@ int main(int argc, char **argv)
 	    int j;
 	    /* Remove superfluous spaces from the string */
 	    char *opstrp = opcstr, *osendp;
+<<<<<<< HEAD
+=======
+	    char tmp[100], *p;
+>>>>>>> p-uae/v2.1.0
 	    int slen = 0;
 
 	    while (isspace(*opstrp))
@@ -231,6 +241,7 @@ int main(int argc, char **argv)
 	    if (no_insns > 0)
 		printf(",\n");
 	    no_insns++;
+<<<<<<< HEAD
 	    printf("{ %d, %d, {", bitpattern, n_variable);
 	    for (j = 0; j < 16; j++) {
 		printf("%d", bitpos[j]);
@@ -242,6 +253,25 @@ int main(int argc, char **argv)
 		printf("{ %d, %d }%c ", flaguse[i], flagset[i], i == 4 ? ' ' : ',');
 	    }
 	    printf("}, %d, \"%s\"}", sduse, opstrp);
+=======
+	    strcpy (tmp, opstrp);
+	    strcat (tmp, " ");
+	    p = tmp;
+	    while (!isspace(*p++));
+	    *p = 0;
+	    printf("/* %s */\n", tmp);
+	    printf("{0x%04X,%2d,{", bitpattern, n_variable);
+	    for (j = 0; j < 16; j++) {
+		printf("%2d", bitpos[j]);
+		if (j < 15)
+		    printf(",");
+	    }
+	    printf ("},0x%04X,%d,%d,{", bitmask, cpulevel, plevel);
+	    for(i = 0; i < 5; i++) {
+		printf("{%d,%d}%s", flaguse[i], flagset[i], i == 4 ? "" : ",");
+	    }
+	    printf("},%2d,\"%s\"}", sduse, opstrp);
+>>>>>>> p-uae/v2.1.0
 	}
     }
     printf("};\nint n_defs68k = %d;\n", no_insns);

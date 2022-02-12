@@ -20,6 +20,10 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 
+<<<<<<< HEAD
+=======
+#include "options.h"
+>>>>>>> p-uae/v2.1.0
 #include "custom.h"
 
 static void chipsetspeedpanel_init (ChipsetSpeedPanel *pathent);
@@ -67,6 +71,10 @@ static void chipsetspeedpanel_class_init (ChipsetSpeedPanelClass *class)
 				   "framerate-changed",
 				   "sprite-collisions-changed",
 				   "immediate-blits-changed",
+<<<<<<< HEAD
+=======
+				   "leds-on-screen-changed",
+>>>>>>> p-uae/v2.1.0
 				   (void*)0);
     class->chipsetspeedpanel = NULL;
 }
@@ -81,6 +89,7 @@ static void chipsetspeedpanel_init (ChipsetSpeedPanel *panel)
     gtk_frame_set_label_align (GTK_FRAME (panel), 0.01, 0.5);
 
     gtkutil_add_table (GTK_WIDGET (panel),
+<<<<<<< HEAD
         make_label("Draw one\nframe in"), 1, 1, GTK_FILL,
         panel->framerate_widget = gtk_hscale_new (GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 21, 1, 1, 1))), 2, 1, GTK_FILL,
         GTKUTIL_ROW_END,
@@ -103,6 +112,23 @@ static void chipsetspeedpanel_init (ChipsetSpeedPanel *panel)
     gtk_signal_connect (GTK_OBJECT (panel->immediate_blits_widget), "toggled",
 			GTK_SIGNAL_FUNC (on_immediate_blits_changed),
 			panel);
+=======
+	make_label("Draw one\nframe in"), 1, 1, GTK_FILL,
+	panel->framerate_widget = gtk_hscale_new (GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 21, 1, 1, 1))), 2, 1, GTK_FILL, GTKUTIL_ROW_END,
+	make_label ("Sprite collisions"), 1, 1, GTK_FILL,
+	panel->collisions_widget = make_chooser (4, "None", "Sprites only", "Sprites & playfields", "Full"), 2, 1, GTK_EXPAND | GTK_FILL, GTKUTIL_ROW_END,
+
+	panel->immediate_blits_widget = gtk_check_button_new_with_label ("Immediate blits"), 1, 2, GTK_EXPAND, GTKUTIL_ROW_END,
+	GTKUTIL_TABLE_END
+    );
+
+    gtk_scale_set_value_pos (GTK_SCALE (panel->framerate_widget), GTK_POS_TOP);
+    gtk_scale_set_digits (GTK_SCALE (panel->framerate_widget), 0);
+
+    gtk_signal_connect (GTK_OBJECT ( GTK_RANGE(panel->framerate_widget)->adjustment), "value-changed", GTK_SIGNAL_FUNC (on_framerate_changed), panel);
+    gtk_signal_connect (GTK_OBJECT (panel->collisions_widget), "selection-changed", GTK_SIGNAL_FUNC (on_sprite_collisions_changed), panel);
+    gtk_signal_connect (GTK_OBJECT (panel->immediate_blits_widget), "toggled", GTK_SIGNAL_FUNC (on_immediate_blits_changed), panel);
+>>>>>>> p-uae/v2.1.0
 }
 
 static void on_framerate_changed (GtkWidget *w, ChipsetSpeedPanel *panel)
@@ -123,7 +149,10 @@ static void on_immediate_blits_changed (GtkWidget *w, ChipsetSpeedPanel *panel)
      gtk_signal_emit_by_name (GTK_OBJECT(panel), "immediate-blits-changed");
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> p-uae/v2.1.0
 GtkWidget *chipsetspeedpanel_new (void)
 {
     ChipsetSpeedPanel *w = CHIPSETSPEEDPANEL (gtk_type_new (chipsetspeedpanel_get_type ()));

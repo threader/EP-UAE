@@ -23,7 +23,11 @@
 #include "threaddep/thread.h"
 
 /*
+<<<<<<< HEAD
  * Handle CreateNewProc() differences between AmigaOS-like systems 
+=======
+ * Handle CreateNewProc() differences between AmigaOS-like systems
+>>>>>>> p-uae/v2.1.0
  */
 #ifdef __MORPHOS__
 /* CreateNewProc() on MorphOS needs to be told that code is PPC */
@@ -368,7 +372,11 @@ int uae_sem_wait (uae_sem_t *sem)
 	if (sem->value > 0) {
 	    --sem->value;
 	    result = 0;
+<<<<<<< HEAD
         } else {
+=======
+	} else {
+>>>>>>> p-uae/v2.1.0
 	    ReleaseSemaphore (&sem->mutex);
 
 	    /* Block on this semaphore by waiting for
@@ -396,7 +404,11 @@ int uae_sem_trywait (uae_sem_t *sem)
 	if (sem->value > 0) {
 	    --sem->value;
 	    result = 0;
+<<<<<<< HEAD
         }
+=======
+	}
+>>>>>>> p-uae/v2.1.0
     }
     ReleaseSemaphore (&sem->mutex);
     return result;
@@ -462,7 +474,11 @@ static void do_thread (void)
    func (arg);
 }
 
+<<<<<<< HEAD
 int uae_start_thread (void *(*f) (void *), void *arg, uae_thread_id *foo)
+=======
+int uae_start_thread (char *name, void *(*f) (void *), void *arg, uae_thread_id *foo)
+>>>>>>> p-uae/v2.1.0
 {
     struct MsgPort *replyport = CreateMsgPort();
 

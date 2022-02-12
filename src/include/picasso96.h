@@ -1,5 +1,9 @@
 
+<<<<<<< HEAD
 #if 0//def WIN32
+=======
+#ifdef WIN32
+>>>>>>> p-uae/v2.1.0
 
 #include "picasso96_win.h"
 
@@ -309,7 +313,11 @@ struct RenderInfo {
 #define PSSO_Pattern_DrawMode 17
 #define PSSO_Pattern_sizeof 18
 struct Pattern {
+<<<<<<< HEAD
     uae_u8 *Memory;
+=======
+    char *Memory;
+>>>>>>> p-uae/v2.1.0
     uae_u16 XOffset, YOffset;
     uae_u32 FgPen, BgPen;
     uae_u8 Size;					/* Width: 16, Height: (1<<pat_Size) */
@@ -325,7 +333,11 @@ struct Pattern {
 #define PSSO_Template_sizeof 16
 
 struct Template {
+<<<<<<< HEAD
     uae_u8 *Memory;
+=======
+    char *Memory;
+>>>>>>> p-uae/v2.1.0
     uae_s16 BytesPerRow;
     uae_u8 XOffset;
     uae_u8 DrawMode;
@@ -504,6 +516,7 @@ struct picasso96_state_struct
 
 extern void InitPicasso96 (void);
 
+<<<<<<< HEAD
 struct regstruct;
 
 extern uae_u32 picasso_SetDisplay             (struct regstruct *regs) REGPARAM;
@@ -524,6 +537,27 @@ extern uae_u32 picasso_BlitPlanar2Direct      (struct regstruct *regs) REGPARAM;
 extern uae_u32 picasso_BlitTemplate           (struct regstruct *regs) REGPARAM;
 extern uae_u32 picasso_BlitPattern            (struct regstruct *regs) REGPARAM;
 extern uae_u32 picasso_BlitRectNoMaskComplete (struct regstruct *regs) REGPARAM;
+=======
+extern uae_u32 picasso_SetDisplay (void);
+extern uae_u32 picasso_WaitVerticalSync (void);
+extern uae_u32 picasso_CalculateBytesPerRow (void);
+extern uae_u32 picasso_FillRect (void);
+extern uae_u32 picasso_BlitRect (void);
+extern uae_u32 picasso_InvertRect (void);
+extern uae_u32 picasso_SetPanning (void);
+extern uae_u32 picasso_SetGC (void);
+extern uae_u32 picasso_SetDAC (void);
+extern uae_u32 picasso_SetColorArray (void);
+extern uae_u32 picasso_SetSwitch (void);
+extern uae_u32 picasso_SetSwitch (void);
+extern uae_u32 picasso_FindCard (void);
+extern uae_u32 picasso_InitCard (void);
+extern uae_u32 picasso_BlitPlanar2Chunky (void);
+extern uae_u32 picasso_BlitPlanar2Direct (void);
+extern uae_u32 picasso_BlitTemplate (void);
+extern uae_u32 picasso_BlitPattern (void);
+extern uae_u32 picasso_BlitRectNoMaskComplete (void);
+>>>>>>> p-uae/v2.1.0
 
 extern uae_u32 gfxmem_mask;
 extern uae_u8 *gfxmemory;
@@ -548,8 +582,11 @@ extern void DX_Invalidate (int first, int last);
 extern void picasso_enablescreen (int on);
 extern void picasso_refresh (int call_setpalette);
 extern void picasso_handle_vsync (void);
+<<<<<<< HEAD
 extern void init_hz_p96 (void);
 extern void picasso_handle_hsync (void);
+=======
+>>>>>>> p-uae/v2.1.0
 
 extern uae_u8 *gfxmemory;
 
@@ -584,6 +621,12 @@ extern int NDX_FillRect(struct RenderInfo* ri, unsigned long X, unsigned long Y,
 extern int NDX_BlitRect(struct RenderInfo* ri, unsigned long srcx, unsigned long srcy, unsigned long dstx, unsigned long dsty, unsigned long width, unsigned long height, uae_u8 Mask);
 extern int NDX_BlitRectNoMaskComplete(struct RenderInfo* sri,struct RenderInfo* dri, unsigned long srcx, unsigned long srcy, unsigned long dstx, unsigned long dsty, unsigned long width, unsigned long height, uae_u8 OpCode, uae_u32 RGBFmt);
 
+<<<<<<< HEAD
+=======
+extern int picasso_is_special;
+extern int picasso_is_special_read;
+
+>>>>>>> p-uae/v2.1.0
 extern int p96hack_vpos2;
 extern int p96refresh_active;
 #endif

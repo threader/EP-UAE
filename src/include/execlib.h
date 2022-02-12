@@ -32,6 +32,11 @@
 #define NT_LIBRARY  9
 #define NT_SIGNALSEM 15
 
+<<<<<<< HEAD
+=======
+#define SIZEOF_LIBRARY 34
+
+>>>>>>> p-uae/v2.1.0
 #ifndef MEMF_PUBLIC /* protection for AmigaDOS */
 #define MEMF_PUBLIC 1
 #define MEMF_CHIP 2

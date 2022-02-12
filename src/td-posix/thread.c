@@ -29,10 +29,17 @@ int uae_sem_init (uae_sem_t *sem, int pshared, unsigned int value)
     sprintf (name, "/uaesem-%d-%d", getpid (), semno++);
 
     if ((sem->sem = sem_open (name, O_CREAT, 0600, value)) != (sem_t *)SEM_FAILED)
+<<<<<<< HEAD
 	sem_unlink (name);
     else {
 	sem->sem = 0;
 	result = -1;
+=======
+		sem_unlink (name);
+    else {
+		sem->sem = 0;
+		result = -1;
+>>>>>>> p-uae/v2.1.0
     }
     return result;
 }

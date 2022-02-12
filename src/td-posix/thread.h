@@ -86,9 +86,18 @@ STATIC_INLINE int uae_sem_getvalue (uae_sem_t *sem, int *sval)
 typedef pthread_t uae_thread_id;
 #define BAD_THREAD -1
 
+<<<<<<< HEAD
 STATIC_INLINE int uae_start_thread (void *(*f) (void *), void *arg, uae_thread_id *foo)
 {
     return pthread_create (foo, 0, f, arg);
+=======
+STATIC_INLINE int uae_start_thread (char *name, void *(*f) (void *), void *arg, uae_thread_id *foo)
+{
+	int result;
+	result = pthread_create (foo, 0, f, arg);
+
+	return result;
+>>>>>>> p-uae/v2.1.0
 }
 
 STATIC_INLINE int uae_wait_thread (uae_thread_id thread)

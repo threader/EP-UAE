@@ -20,6 +20,10 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 
+<<<<<<< HEAD
+=======
+#include "options.h"
+>>>>>>> p-uae/v2.1.0
 #include "custom.h"
 
 static void chipsettypepanel_init (ChipsetTypePanel *pathent);
@@ -79,7 +83,11 @@ static void chipsettypepanel_init (ChipsetTypePanel *panel)
 	make_label ("Chipset model"), 1, 1, GTK_FILL,
 	panel->chipsettype_widget = make_chooser (4, "OCS", "ECS Agnus", "Full ECS", "AGA"), 2, 1, GTK_EXPAND | GTK_FILL,
 	GTKUTIL_ROW_END,
+<<<<<<< HEAD
         gtkutil_make_radio_group (group, &panel->frequency_widget[0], "NTSC", "PAL", NULL), 1, 2, GTK_EXPAND | GTK_FILL,
+=======
+	gtkutil_make_radio_group (group, &panel->frequency_widget[0], "NTSC", "PAL", NULL), 1, 2, GTK_EXPAND | GTK_FILL,
+>>>>>>> p-uae/v2.1.0
 	GTKUTIL_ROW_END,
 	GTKUTIL_TABLE_END
     );
@@ -106,6 +114,7 @@ static void on_chipsettype_changed (GtkWidget *w, ChipsetTypePanel *panel)
     guint chipset_mask = 0;
 
     if (choice > 0)
+<<<<<<< HEAD
         chipset_mask |= CSMASK_ECS_AGNUS;
     if (choice > 1)
         chipset_mask |= CSMASK_ECS_DENISE;
@@ -114,6 +123,16 @@ static void on_chipsettype_changed (GtkWidget *w, ChipsetTypePanel *panel)
         chipset_mask |= CSMASK_AGA;
 #endif
    
+=======
+	chipset_mask |= CSMASK_ECS_AGNUS;
+    if (choice > 1)
+	chipset_mask |= CSMASK_ECS_DENISE;
+#ifdef AGA
+    if (choice > 2)
+	chipset_mask |= CSMASK_AGA;
+#endif
+
+>>>>>>> p-uae/v2.1.0
     panel->chipset_mask = chipset_mask;
 
     gtk_signal_emit_by_name (GTK_OBJECT(panel), "chipset-changed");
@@ -122,8 +141,13 @@ static void on_chipsettype_changed (GtkWidget *w, ChipsetTypePanel *panel)
 static void on_frequency_changed (GtkWidget *w, ChipsetTypePanel *panel)
 {
      panel->ntscmode = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (panel->frequency_widget[0]));
+<<<<<<< HEAD
    
      gtk_signal_emit_by_name (GTK_OBJECT(panel), "chipset-changed");    
+=======
+
+     gtk_signal_emit_by_name (GTK_OBJECT(panel), "chipset-changed");
+>>>>>>> p-uae/v2.1.0
 }
 
 GtkWidget *chipsettypepanel_new (void)
@@ -136,6 +160,7 @@ GtkWidget *chipsettypepanel_new (void)
 void chipsettypepanel_set_chipset_mask (ChipsetTypePanel *panel, guint chipset_mask)
 {
     int choice = 0;
+<<<<<<< HEAD
    
     if (chipset_mask & CSMASK_ECS_DENISE)
         choice = 2;
@@ -144,6 +169,16 @@ void chipsettypepanel_set_chipset_mask (ChipsetTypePanel *panel, guint chipset_m
 #ifdef AGA
     if (chipset_mask & CSMASK_AGA)
         choice = 3;
+=======
+
+    if (chipset_mask & CSMASK_ECS_DENISE)
+	choice = 2;
+    if (chipset_mask & CSMASK_ECS_AGNUS)
+	choice = 1;
+#ifdef AGA
+    if (chipset_mask & CSMASK_AGA)
+	choice = 3;
+>>>>>>> p-uae/v2.1.0
 #endif
     chooserwidget_set_choice (CHOOSERWIDGET (panel->chipsettype_widget), choice);
 }
@@ -151,6 +186,10 @@ void chipsettypepanel_set_chipset_mask (ChipsetTypePanel *panel, guint chipset_m
 void chipsettypepanel_set_ntscmode (ChipsetTypePanel *panel, guint ntscmode)
 {
    int buttonno = ntscmode == FALSE ? 1 : 0;
+<<<<<<< HEAD
    
+=======
+
+>>>>>>> p-uae/v2.1.0
    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (panel->frequency_widget[buttonno]), TRUE);
 }

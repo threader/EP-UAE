@@ -45,9 +45,15 @@ void reset_sound (void);
 void sound_volume (int dir);
 }
 
+<<<<<<< HEAD
 uae_u16 *sndbuffer;
 uae_u16 *sndbufpt;
 int sndbufsize;
+=======
+uae_u16 *paula_sndbuffer;
+uae_u16 *paula_sndbufpt;
+int paula_sndbufsize;
+>>>>>>> p-uae/v2.1.0
 BSoundPlayer	*gSoundPlayer;
 static int32	 gSoundBufferSize;
 static uae_u16	*gDoubleBufferRead;
@@ -62,6 +68,27 @@ static sem_id sound_sync_sem;
 void stream_func8  (void *user, void *buffer, size_t size, const media_raw_audio_format &format);
 void stream_func16 (void *user, void *buffer, size_t size, const media_raw_audio_format &format);
 
+<<<<<<< HEAD
+=======
+static int exact_log2 (int v)
+{
+    int l = 0;
+    while ((v >>= 1) != 0)
+	l++;
+    return l;
+}
+
+static int get_nearest_power_of_2 (int v)
+{
+    int low = 1 << exact_log2 (v);
+    int hi  = low << 1;
+
+    if ((v - low) < (hi - v))
+	return low;
+    else
+	return hi;
+}
+>>>>>>> p-uae/v2.1.0
 
 int init_sound (void)
 {
@@ -70,9 +97,15 @@ int init_sound (void)
 
     media_raw_audio_format audioFormat;
 
+<<<<<<< HEAD
     gSoundBufferSize = currprefs.sound_freq * currprefs.sound_latency * (currprefs.sound_bits / 8) *
 		       (currprefs.sound_stereo ? 2 : 1) / 1000;
     gSoundBufferSize = (gSoundBufferSize + 7) & ~8;
+=======
+    gSoundBufferSize = currprefs.sound_freq * currprefs.sound_latency *
+		       (currprefs.sound_stereo ? 2 : 1) / 1000;
+    gSoundBufferSize = get_nearest_power_of_2 (gSoundBufferSize);
+>>>>>>> p-uae/v2.1.0
 
     audioFormat.frame_rate    = currprefs.sound_freq;
     audioFormat.channel_count = currprefs.sound_stereo ? 2 : 1;
@@ -80,8 +113,12 @@ int init_sound (void)
     audioFormat.byte_order    = B_MEDIA_HOST_ENDIAN;
     audioFormat.buffer_size   = gSoundBufferSize * sizeof(float);
 
+<<<<<<< HEAD
     gSoundPlayer = new BSoundPlayer (&audioFormat, "UAE SoundPlayer",
 				     currprefs.sound_bits == 8 ? stream_func8 : stream_func16);
+=======
+    gSoundPlayer = new BSoundPlayer (&audioFormat, "UAE SoundPlayer", stream_func16);
+>>>>>>> p-uae/v2.1.0
     sound_ready = (gSoundPlayer != NULL);
 
     if (!currprefs.produce_sound)
@@ -94,6 +131,7 @@ int init_sound (void)
 
     buffer = gDoubleBufferWrite;
     memset (buffer, 0, 4 * gSoundBufferSize);
+<<<<<<< HEAD
     sndbufpt = sndbuffer = buffer;
 
     if (currprefs.sound_bits == 8) {
@@ -108,12 +146,28 @@ int init_sound (void)
 	    sample_handler = sample16_handler;
 	init_sound_table16 ();
     }
+=======
+    paula_sndbufpt = paula_sndbuffer = buffer;
+
+    paula_sndbufsize = sizeof (uae_u16) * gSoundBufferSize;
+    if (currprefs.sound_stereo)
+	sample_handler = sample16s_handler;
+    else
+	sample_handler = sample16_handler;
+    init_sound_table16 ();
+>>>>>>> p-uae/v2.1.0
 
     sound_available = 1;
     obtainedfreq = currprefs.sound_freq;
 
+<<<<<<< HEAD
     write_log ("BeOS sound driver found and configured for %d bits at %d Hz, buffer is %d samples\n",
 	       currprefs.sound_bits, currprefs.sound_freq, gSoundBufferSize);
+=======
+    write_log ("BeOS sound driver found and configured at %d Hz, buffer is %d samples (%d ms)\n",
+	       currprefs.sound_freq, gSoundBufferSize / audioFormat.channel_count,
+	       (gSoundBufferSize / audioFormat.channel_count) * 1000 / currprefs.sound_freq);
+>>>>>>> p-uae/v2.1.0
 
     if (gSoundPlayer) {
 	gSoundPlayer->Start ();
@@ -174,7 +228,11 @@ void finish_sound_buffer (void)
 	gDoubleBufferRead = gDoubleBufferWrite;
 	buffer = gDoubleBufferWrite = p;
     }
+<<<<<<< HEAD
     sndbufpt = sndbuffer = buffer;
+=======
+    paula_sndbufpt = paula_sndbuffer = buffer;
+>>>>>>> p-uae/v2.1.0
 }
 
 void stream_func16 (void *user, void *buffer, size_t size,const media_raw_audio_format &format)
@@ -223,6 +281,7 @@ void stream_func16 (void *user, void *buffer, size_t size,const media_raw_audio_
 	*(dest++) = 0.f;
 }
 
+<<<<<<< HEAD
 void stream_func8 (void *user, void *buffer, size_t size,const media_raw_audio_format &format)
 {
     int32 max_read_sample, avail_sample;
@@ -262,12 +321,25 @@ void stream_func8 (void *user, void *buffer, size_t size,const media_raw_audio_f
 void pause_sound (void)
 {
     close_sound ();
+=======
+void pause_sound (void)
+{
+    if (gSoundPlayer)
+	gSoundPlayer->Stop ();
+
+>>>>>>> p-uae/v2.1.0
     return;
 }
 
 void resume_sound (void)
 {
+<<<<<<< HEAD
     init_sound ();
+=======
+    if (gSoundPlayer)
+	gSoundPlayer->Start ();
+
+>>>>>>> p-uae/v2.1.0
     return;
 }
 

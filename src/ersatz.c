@@ -35,6 +35,20 @@ static int already_failed = 0;
 
 void init_ersatz_rom (uae_u8 *data)
 {
+<<<<<<< HEAD
+=======
+	uae_u8 *end = data + 262144 - 16;
+	/* cpu emulation uses these now */
+	end[1] = 0x18;
+	end[3] = 0x19;
+	end[5] = 0x1a;
+	end[7] = 0x1b;
+	end[9] = 0x1c;
+	end[11] = 0x1d;
+	end[13] = 0x1e;
+	end[15] = 0x1f;
+
+>>>>>>> p-uae/v2.1.0
     *data++ = 0x00; *data++ = 0x08; /* initial SP */
     *data++ = 0x00; *data++ = 0x00;
     *data++ = 0x00; *data++ = 0xF8; /* initial PC */
@@ -68,18 +82,33 @@ void init_ersatz_rom (uae_u8 *data)
     *data++ = 0x4E; *data++ = 0x75;
 }
 
+<<<<<<< HEAD
 static void ersatz_failed (void)
 {
     if (already_failed)
 	return;
     already_failed = 1;
 //    notify_user (NUMSG_KICKREPNO);
+=======
+void ersatz_chipcopy (void)
+{
+	/* because CPU emulation is updated and retrieves SP and PC from chip ram */
+	memcpy (chipmemory, kickmemory, 256);
+}
+
+static void ersatz_failed (void)
+{
+    if (already_failed)
+		return;
+    already_failed = 1;
+>>>>>>> p-uae/v2.1.0
     gui_message ("Diskfile in DF0: is not compatible with Kickstart replacement.\n");
     uae_restart (-1, NULL);
 }
 
 static void ersatz_doio (void)
 {
+<<<<<<< HEAD
     uaecptr request = m68k_areg (&regs, 1);
     switch (get_word (request + 0x1C)) {
      case 9: /* TD_MOTOR is harmless */
@@ -102,6 +131,31 @@ static void ersatz_doio (void)
 	    if (++sec == 11)
 		sec = 0, tr++;
 	}
+=======
+	uaecptr request = m68k_areg (regs, 1);
+    switch (get_word (request + 0x1C)) {
+	case 9: /* TD_MOTOR is harmless */
+		return;
+	case 2: case 0x8002: /* READ commands */
+		break;
+
+	default:
+		write_log ("Only CMD_READ supported in DoIO()\n");
+		ersatz_failed ();
+    }
+    {
+		uaecptr dest = get_long (request + 0x28);
+		int start = get_long (request + 0x2C) / 512;
+		int nsecs = get_long (request + 0x24) / 512;
+		int tr = start / 11;
+		int sec = start % 11;
+		while (nsecs--) {
+		    DISK_ersatz_read (tr, sec, dest);
+		    dest += 512;
+		    if (++sec == 11)
+				sec = 0, tr++;
+		}
+>>>>>>> p-uae/v2.1.0
     }
 }
 
@@ -112,6 +166,7 @@ static void ersatz_init (void)
     uaecptr a;
 
     already_failed = 0;
+<<<<<<< HEAD
     write_log ("initializing kickstart replacement\n");
     if (disk_empty (0)) {
 	already_failed = 1;
@@ -119,11 +174,20 @@ static void ersatz_init (void)
 	gui_message ("You need to have a diskfile in DF0 to use the Kickstart replacement!\n");
 	uae_restart (-1, NULL);
 	return;
+=======
+	write_log ("initializing kickstart replacement\n");
+    if (disk_empty (0)) {
+		already_failed = 1;
+		gui_message ("You need to have a diskfile in DF0 to use the Kickstart replacement!\n");
+		uae_restart (-1, NULL);
+		return;
+>>>>>>> p-uae/v2.1.0
     }
 
     regs.s = 0;
     /* Set some interrupt vectors */
     for (a = 8; a < 0xC0; a += 4) {
+<<<<<<< HEAD
 	put_long (a, 0xF8001A);
     }
     regs.isp = regs.msp = regs.usp = 0x800;
@@ -136,6 +200,20 @@ static void ersatz_init (void)
     for (f = 1; f < 105; f++) {
 	put_word (0x676 - 6*f, 0x4EF9);
 	put_long (0x676 - 6*f + 2, 0xF8000C);
+=======
+		put_long (a, 0xF8001A);
+    }
+    regs.isp = regs.msp = regs.usp = 0x800;
+	m68k_areg (regs, 7) = 0x80000;
+    regs.intmask = 0;
+
+    /* Build a dummy execbase */
+	put_long (4, m68k_areg (regs, 6) = 0x676);
+    put_byte (0x676 + 0x129, 0);
+    for (f = 1; f < 105; f++) {
+		put_word (0x676 - 6*f, 0x4EF9);
+		put_long (0x676 - 6*f + 2, 0xF8000C);
+>>>>>>> p-uae/v2.1.0
     }
     /* Some "supported" functions */
     put_long (0x676 - 456 + 2, 0xF80014);
@@ -150,6 +228,7 @@ static void ersatz_init (void)
     put_long (request + 0x28, 0x4000);
     put_long (request + 0x2C, 0);
     put_long (request + 0x24, 0x200 * 4);
+<<<<<<< HEAD
     m68k_areg (&regs, 1) = request;
     ersatz_doio ();
     /* kickstart disk loader */
@@ -187,6 +266,45 @@ static void ersatz_init (void)
 
     m68k_setpc (&regs, 0x400C);
     fill_prefetch_slow (&regs);
+=======
+	m68k_areg (regs, 1) = request;
+    ersatz_doio ();
+    /* kickstart disk loader */
+    if (get_long (0x4000) == 0x4b49434b) {
+		/* a kickstart disk was found in drive 0! */
+		write_log ("Loading Kickstart rom image from Kickstart disk\n");
+		/* print some notes... */
+		write_log ("NOTE: if UAE crashes set CPU to 68000 and/or chipmem size to 512KB!\n");
+
+		/* read rom image from kickstart disk */
+		put_word (request + 0x1C, 2);
+		put_long (request + 0x28, 0xF80000);
+		put_long (request + 0x2C, 0x200);
+		put_long (request + 0x24, 0x200 * 512);
+		m68k_areg (regs, 1) = request;
+		ersatz_doio ();
+
+		/* read rom image once again to mirror address space.
+	   not elegant, but it works... */
+		put_word (request + 0x1C, 2);
+		put_long (request + 0x28, 0xFC0000);
+		put_long (request + 0x2C, 0x200);
+		put_long (request + 0x24, 0x200 * 512);
+		m68k_areg (regs, 1) = request;
+		ersatz_doio ();
+
+		disk_eject (0);
+
+		m68k_setpc (0xFC0002);
+		fill_prefetch_slow ();
+		uae_reset (0);
+		ersatzkickfile = 0;
+		return;
+    }
+
+    m68k_setpc (0x400C);
+    fill_prefetch_slow ();
+>>>>>>> p-uae/v2.1.0
 
     /* Init the hardware */
     put_long (0x3000, 0xFFFFFFFEul);
@@ -212,6 +330,7 @@ static void ersatz_init (void)
 
 void ersatz_perform (uae_u16 what)
 {
+<<<<<<< HEAD
     switch (what) {
      case EOP_INIT:
 	ersatz_init ();
@@ -251,5 +370,51 @@ void ersatz_perform (uae_u16 what)
      default:
 	write_log ("Internal error. Giving up.\n");
 	ersatz_failed ();
+=======
+	switch (what) {
+	case EOP_INIT:
+		ersatz_init ();
+		break;
+
+	case EOP_SERVEINT:
+		{
+			uae_u16 intreq = get_word (0xDFF01E);
+			/* Just reset all the interrupt request bits */
+			if (intreq & 0x0008)
+				get_byte (0xbfed01); /* possible keyboard interrupt */
+			put_word (0xDFF09C, intreq & 0x3FFF);
+			break;
+		}
+
+	case EOP_DOIO:
+		ersatz_doio ();
+		break;
+
+	case EOP_AVAILMEM:
+		m68k_dreg (regs, 0) = m68k_dreg (regs, 1) & 4 ? 0 : 0x70000;
+		break;
+
+	case EOP_ALLOCMEM:
+		m68k_dreg (regs, 0) = m68k_dreg (regs, 1) & 4 ? 0 : 0x0F000;
+		break;
+
+	case EOP_ALLOCABS:
+		m68k_dreg (regs, 0) = m68k_areg (regs, 1);
+		break;
+
+	case EOP_NIMP:
+		write_log ("Unimplemented Kickstart function called\n");
+		ersatz_failed ();
+
+		/* fall through */
+	case EOP_LOOP:
+		m68k_setpc (0xF80010);
+		break;
+
+	case EOP_OPENLIB:
+	default:
+		write_log ("Internal error. Giving up.\n");
+		ersatz_failed ();
+>>>>>>> p-uae/v2.1.0
     }
 }

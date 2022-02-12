@@ -207,7 +207,11 @@ static int kc_decode (KeySym ks)
      case XK_Super_R: return AK_RAMI;
 #endif
      case XK_Scroll_Lock: return AKS_INHIBITSCREEN;
+<<<<<<< HEAD
      case XK_Print: return AKS_SCREENSHOT;
+=======
+     case XK_Print: return AKS_SCREENSHOT_FILE;
+>>>>>>> p-uae/v2.1.0
     }
     return -1;
 }
@@ -470,8 +474,11 @@ static struct uae_hotkeyseq x11_hotkeys[] =
     { MAKE_HOTKEYSEQ (XK_F12, XK_i, -1, -1,           INPUTEVENT_SPC_INHIBITSCREEN) },
     { MAKE_HOTKEYSEQ (XK_F12, XK_p, -1, -1,           INPUTEVENT_SPC_SCREENSHOT) },
     { MAKE_HOTKEYSEQ (XK_F12, XK_a, -1, -1,           INPUTEVENT_SPC_SWITCHINTERPOL) },
+<<<<<<< HEAD
     { MAKE_HOTKEYSEQ (XK_F12, XK_KP_Add, -1, -1,      INPUTEVENT_SPC_INCRFRAMERATE) },
     { MAKE_HOTKEYSEQ (XK_F12, XK_KP_Subtract, -1, -1, INPUTEVENT_SPC_DECRFRAMERATE) },
+=======
+>>>>>>> p-uae/v2.1.0
     { MAKE_HOTKEYSEQ (XK_F12, XK_F1, -1, -1,	      INPUTEVENT_SPC_FLOPPY0) },
     { MAKE_HOTKEYSEQ (XK_F12, XK_F2, -1, -1,	      INPUTEVENT_SPC_FLOPPY1) },
     { MAKE_HOTKEYSEQ (XK_F12, XK_F3, -1, -1,	      INPUTEVENT_SPC_FLOPPY2) },

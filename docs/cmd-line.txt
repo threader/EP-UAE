@@ -55,7 +55,11 @@ This document (like the rest of the documentation) is a work-in-progress.
 -C<n>
  Selects type of CPU to emulate. The value <n> corresponds to CPU types as
  follows:
+<<<<<<< HEAD
  0: 6800
+=======
+ 0: 68000
+>>>>>>> p-uae/v2.1.0
  1: 68010
  2: 68020
  3: 68020/68881

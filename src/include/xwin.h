@@ -12,11 +12,25 @@ typedef uae_u32 xcolnr;
 typedef int (*allocfunc_type)(int, int, int, xcolnr *);
 
 extern xcolnr xcolors[4096];
+<<<<<<< HEAD
+=======
+extern xcolnr xcolors_16[4096];
+extern xcolnr xcolors_32[4096];
+extern uae_u32 p96_rgbx16[65536];
+
+extern int vsync_switchmode (int, int);
+extern void doflashscreen (void);
+extern int flashscreen;
+>>>>>>> p-uae/v2.1.0
 
 extern int debuggable (void);
 extern void togglemouse (void);
 extern void LED (int);
+<<<<<<< HEAD
 extern void screenshot (int);
+=======
+extern void screenshot (int,int);
+>>>>>>> p-uae/v2.1.0
 
 extern int bits_in_mask (unsigned long mask);
 extern int mask_shift (unsigned long mask);
@@ -25,12 +39,22 @@ extern unsigned int doMask256 (int p, int bits, int shift);
 extern void setup_maxcol (int);
 extern void alloc_colors256 (int (*)(int, int, int, xcolnr *));
 extern void alloc_colors64k (int, int, int, int, int, int, int, int, int, int);
+<<<<<<< HEAD
+=======
+extern void alloc_colors_rgb (int rw, int gw, int bw, int rs, int gs, int bs, int aw, int as, int alpha, int byte_swap,
+			      uae_u32 *rc, uae_u32 *gc, uae_u32 *bc);
+extern void alloc_colors_picasso (int rw, int gw, int bw, int rs, int gs, int bs, int rgbfmt);
+>>>>>>> p-uae/v2.1.0
 extern void setup_greydither (int bits, allocfunc_type allocfunc);
 extern void setup_greydither_maxcol (int maxcol, allocfunc_type allocfunc);
 extern void setup_dither (int bits, allocfunc_type allocfunc);
 extern void DitherLine (uae_u8 *l, uae_u16 *r4g4b4, int x, int y, uae_s16 len, int bits) ASM_SYM_FOR_FUNC("DitherLine");
+<<<<<<< HEAD
 
 
+=======
+extern int getvsyncrate (int hz);
+>>>>>>> p-uae/v2.1.0
 
 struct vidbuf_description
 {
@@ -56,7 +80,11 @@ struct vidbuf_description
      *   - set linemem to point at your buffer
      *   - implement flush_line to copy a single line to the screen
      */
+<<<<<<< HEAD
     uae_u8 *bufmem;
+=======
+    uae_u8 *bufmem, *bufmemend;
+>>>>>>> p-uae/v2.1.0
     uae_u8 *realbufmem;
     uae_u8 *linemem;
     uae_u8 *emergmem;

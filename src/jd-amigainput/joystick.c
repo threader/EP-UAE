@@ -146,7 +146,11 @@ static int init_joysticks (void)
 
     if (!joystickContext) {
 
+<<<<<<< HEAD
     	if (openAmigaInput ()) {
+=======
+	if (openAmigaInput ()) {
+>>>>>>> p-uae/v2.1.0
 
 	    joystickContext = AIN_CreateContext (1, NULL);
 	    if (joystickContext) {
@@ -158,9 +162,15 @@ static int init_joysticks (void)
 		AIN_EnumDevices (joystickContext, enumerateJoysticks, &packet);
 
 		write_log ("Found %d joysticks\n", joystickCount);
+<<<<<<< HEAD
 	       
 	        success = 1;
             }
+=======
+
+		success = 1;
+	    }
+>>>>>>> p-uae/v2.1.0
 	}
     }
 
@@ -181,7 +191,12 @@ static void close_joysticks (void)
     }
     joystickCount = 0;
 
+<<<<<<< HEAD
     AIN_DeleteContext (joystickContext);
+=======
+    if (joystickContext)
+	AIN_DeleteContext (joystickContext);
+>>>>>>> p-uae/v2.1.0
     joystickContext = 0;
 }
 
@@ -297,9 +312,15 @@ static int acquire_joy (unsigned int joynum, int flags)
     joy->handle = AIN_ObtainDevice (joy->context, joy->id);
 
     if (joy->handle)
+<<<<<<< HEAD
         result = 1;
     else
         write_log ("Failed to acquire joy\n");
+=======
+	result = 1;
+    else
+	write_log ("Failed to acquire joy\n");
+>>>>>>> p-uae/v2.1.0
    return result;
 }
 
@@ -308,8 +329,13 @@ static void unacquire_joy (unsigned int joynum)
     struct joystick *joy = &joystickList[joynum];
 
     if (joy->handle) {
+<<<<<<< HEAD
            AIN_ReleaseDevice (joy->context, joy->handle);
            joy->handle = 0;
+=======
+	   AIN_ReleaseDevice (joy->context, joy->handle);
+	   joy->handle = 0;
+>>>>>>> p-uae/v2.1.0
     }
 }
 
@@ -329,7 +355,11 @@ struct inputdevice_functions inputdevicefunc_joystick = {
 /*
  * Set default inputdevice config
  */
+<<<<<<< HEAD
 void input_get_default_joystick (struct uae_input_device *uid)
+=======
+int input_get_default_joystick (struct uae_input_device *uid, int num, int port, int cd32)
+>>>>>>> p-uae/v2.1.0
 {
     unsigned int i, port;
 
@@ -342,4 +372,10 @@ void input_get_default_joystick (struct uae_input_device *uid)
 	uid[i].eventid[ID_BUTTON_OFFSET + 2][0] = port ? INPUTEVENT_JOY2_3RD_BUTTON  : INPUTEVENT_JOY1_3RD_BUTTON;
     }
     uid[0].enabled = 1;
+<<<<<<< HEAD
+=======
+	if (i == 0)
+                return 1;
+        return 0;
+>>>>>>> p-uae/v2.1.0
 }

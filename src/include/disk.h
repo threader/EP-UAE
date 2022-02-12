@@ -6,7 +6,14 @@
   * (c) 1995 Bernd Schmidt
   */
 
+<<<<<<< HEAD
 typedef enum { DRV_35_DD, DRV_35_HD, DRV_525_SD, DRV_35_DD_ESCOM } drive_type;
+=======
+typedef enum { DRV_NONE = -1, DRV_35_DD = 0, DRV_35_HD, DRV_525_SD, DRV_35_DD_ESCOM } drive_type;
+
+#define HISTORY_FLOPPY 0
+#define HISTORY_CD 1
+>>>>>>> p-uae/v2.1.0
 
 extern void DISK_init (void);
 extern void DISK_free (void);
@@ -26,11 +33,21 @@ extern int disk_getwriteprotect (const char *name);
 extern int disk_setwriteprotect (int num, const char *name, int protect);
 extern void disk_creatediskfile (char *name, int type, drive_type adftype, const char *disk_name);
 extern void dumpdisk (void);
+<<<<<<< HEAD
 extern int DISK_history_add (const char *name, int idx);
 extern char *DISK_history_get (int idx);
 int DISK_examine_image (struct uae_prefs *p, int num, uae_u32 *crc32);
 extern char *DISK_get_saveimagepath (const char *name);
 extern void DISK_reinsert (int num);
+=======
+extern int DISK_history_add (const TCHAR *name, int idx, int type, int donotcheck);
+extern char *DISK_history_get (int idx, int type);
+int DISK_examine_image (struct uae_prefs *p, int num, uae_u32 *crc32);
+extern char *DISK_get_saveimagepath (const char *name);
+extern void DISK_reinsert (int num);
+extern int disk_prevnext (int drive, int dir);
+extern int disk_prevnext_name (char *img, int dir);
+>>>>>>> p-uae/v2.1.0
 
 extern void DSKLEN (uae_u16 v, unsigned int hpos);
 extern uae_u16 DSKBYTR (unsigned int hpos);

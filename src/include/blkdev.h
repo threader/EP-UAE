@@ -1,6 +1,10 @@
 
 #define MAX_TOTAL_DEVICES 8
+<<<<<<< HEAD
 #define DEVICE_SCSI_BUFSIZE 4096
+=======
+#define DEVICE_SCSI_BUFSIZE (65536 - 1024)
+>>>>>>> p-uae/v2.1.0
 
 //#define device_debug write_log
 #define device_debug
@@ -32,6 +36,10 @@
 struct device_info {
     int type;
     int media_inserted;
+<<<<<<< HEAD
+=======
+    int removable;
+>>>>>>> p-uae/v2.1.0
     int write_protected;
     int cylinders;
     int trackspercylinder;
@@ -39,7 +47,32 @@ struct device_info {
     int bytespersector;
     int bus, target, lun;
     int id;
+<<<<<<< HEAD
     char label[60];
+=======
+    char label[MAX_DPATH];
+	char mediapath[MAX_DPATH];
+};
+
+struct device_scsi_info {
+    uae_u8 *buffer;
+    int bufsize;
+};
+
+struct amigascsi
+{
+    uae_u8 *data;
+    uae_s32 len;
+    uae_u8 cmd[16];
+    uae_s32 cmd_len;
+    uae_u8 flags;
+    uae_u8 sensedata[256];
+    uae_u16 sense_len;
+    uae_u16 cmdactual;
+    uae_u8 status;
+    uae_u16 actual;
+    uae_u16 sactual;
+>>>>>>> p-uae/v2.1.0
 };
 
 typedef int                  (*open_bus_func)           (int flags);
@@ -47,18 +80,36 @@ typedef void                 (*close_bus_func)          (void);
 typedef int                  (*open_device_func)        (int);
 typedef void                 (*close_device_func)       (int);
 typedef struct device_info * (*info_device_func)        (int, struct device_info *);
+<<<<<<< HEAD
 typedef const uae_u8 *       (*execscsicmd_out_func)    (int, const uae_u8 *, int);
 typedef const uae_u8 *       (*execscsicmd_in_func)     (int, const uae_u8 *, int, int *);
 typedef int                  (*execscsicmd_direct_func) (int, uaecptr);
+=======
+typedef struct device_scsi_info* (*scsiinfo_func)(int, struct device_scsi_info*);
+typedef const uae_u8 *       (*execscsicmd_out_func)    (int, const uae_u8 *, int);
+typedef const uae_u8 *       (*execscsicmd_in_func)     (int, const uae_u8 *, int, int *);
+typedef int                  (*execscsicmd_direct_func) (int, struct amigascsi*);
+>>>>>>> p-uae/v2.1.0
 
 typedef int                  (*pause_func)              (int, int);
 typedef int                  (*stop_func)               (int);
 typedef int                  (*play_func)               (int, uae_u32, uae_u32, int);
+<<<<<<< HEAD
 typedef const uae_u8 *       (*qcode_func)              (int);
 typedef const uae_u8 *       (*toc_func)                (int);
 typedef const uae_u8 *       (*read_func)               (int, int);
 typedef int                  (*write_func)              (int, int, uae_u8 *);
 typedef int                  (*isatapi_func)            (int);
+=======
+typedef void				 (*volume_func)				(int, uae_u16);
+typedef const uae_u8 *       (*qcode_func)              (int);
+typedef const uae_u8 *       (*toc_func)                (int);
+typedef const uae_u8 *       (*read_func)               (int, int);
+typedef uae_u8 *			 (*rawread_func)			(int, int, int);
+typedef int                  (*write_func)              (int, int);
+typedef int                  (*isatapi_func)            (int);
+typedef int					 (*ismedia_func)			(int, int);
+>>>>>>> p-uae/v2.1.0
 
 struct device_functions {
     open_bus_func     openbus;
@@ -66,7 +117,10 @@ struct device_functions {
     open_device_func  opendev;
     close_device_func closedev;
     info_device_func  info;
+<<<<<<< HEAD
     
+=======
+>>>>>>> p-uae/v2.1.0
     execscsicmd_out_func    exec_out;
     execscsicmd_in_func     exec_in;
     execscsicmd_direct_func exec_direct;
@@ -74,13 +128,22 @@ struct device_functions {
     pause_func pause;
     stop_func  stop;
     play_func  play;
+<<<<<<< HEAD
     qcode_func qcode;
     toc_func   toc;
     read_func  read;
+=======
+	volume_func volume;
+    qcode_func qcode;
+    toc_func   toc;
+    read_func  read;
+    rawread_func rawread;
+>>>>>>> p-uae/v2.1.0
     write_func write;
 
     isatapi_func isatapi;
 
+<<<<<<< HEAD
     open_device_func  opendevthread;
     close_device_func closedevthread;
 };
@@ -99,9 +162,45 @@ extern int                  sys_command_write        (int mode, int unitnum, int
 extern int                  sys_command_scsi_direct  (int unitnum, uaecptr request);
 extern int                  sys_command_open_thread  (int mode, int unitnum);
 extern void                 sys_command_close_thread (int mode, int unitnum);
+=======
+    scsiinfo_func scsiinfo;
+
+    ismedia_func ismedia;
+
+};
+
+extern struct device_functions *device_func[2];
+
+extern int                  device_func_init         (int flags);
+extern void device_func_reset(void);
+extern int                  sys_command_open         (int mode, int unitnum);
+extern void                 sys_command_close        (int mode, int unitnum);
+extern struct device_info * sys_command_info         (int mode, int unitnum, struct device_info *di);
+extern struct device_scsi_info *sys_command_scsi_info (int mode, int unitnum, struct device_scsi_info *di);
+extern void                 sys_command_cd_pause        (int mode, int unitnum, int paused);
+extern void                 sys_command_cd_stop         (int mode, int unitnum);
+extern int                  sys_command_cd_play         (int mode, int unitnum, uae_u32 startmsf, uae_u32 endmsf, int);
+extern void					sys_command_cd_volume (int mode, int unitnum, uae_u16 volume);
+extern uae_u8 *       sys_command_cd_qcode        (int mode, int unitnum);
+extern uae_u8 *		sys_command_cd_toc          (int mode, int unitnum);
+extern uae_u8 *		sys_command_cd_read         (int mode, int unitnum, int offset);
+extern uae_u8 *				sys_command_cd_rawread (int mode, int unitnum, int offset, int size);
+extern uae_u8 *				sys_command_read (int mode, int unitnum, int offset);
+extern int                  sys_command_write        (int mode, int unitnum, int offset);
+extern int sys_command_scsi_direct_native(int unitnum, struct amigascsi *as);
+extern int                  sys_command_scsi_direct  (int unitnum, uaecptr request);
+extern int sys_command_ismedia (int mode, int unitnum, int quick);
+>>>>>>> p-uae/v2.1.0
 
 void scsi_atapi_fixup_pre  (uae_u8 *scsi_cmd, int *len, uae_u8 **data, unsigned int *datalen, int *parm);
 void scsi_atapi_fixup_post (uae_u8 *scsi_cmd, int len, uae_u8 *olddata, uae_u8 *data, unsigned int *datalen, int parm);
 
+<<<<<<< HEAD
 void scsi_log_before (const uae_u8 *cdb,  int cdblen,  const uae_u8 *data,  int datalen);
 void scsi_log_after  (const uae_u8 *data, int datalen, const uae_u8 *sense, int senselen);
+=======
+void scsi_log_before (uae_u8 *cdb, int cdblen, uae_u8 *data, int datalen);
+void scsi_log_after (uae_u8 *data, int datalen, uae_u8 *sense, int senselen);
+
+extern void cdimage_vsync (void);
+>>>>>>> p-uae/v2.1.0

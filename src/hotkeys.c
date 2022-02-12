@@ -46,7 +46,11 @@ int match_hotkey_sequence (int key, int state)
     int event = 0;
 
     if (!seq)
+<<<<<<< HEAD
     	return 0;
+=======
+	return 0;
+>>>>>>> p-uae/v2.1.0
 
     if (state) {
 	/* Key down */
@@ -56,6 +60,7 @@ int match_hotkey_sequence (int key, int state)
 	    if (key == seq->keyseq[0])
 		seq->key_pressed[0] = 1;
 	    for (i=1; i < HOTKEYSEQ_MAXKEYS; i++) {
+<<<<<<< HEAD
 	        if ((seq->key_pressed[i-1] == 1) && (key == seq->keyseq[i])) {
 		    seq->key_pressed[i] = 1;
 		    /* Was it the final key in this sequence ? */
@@ -63,6 +68,15 @@ int match_hotkey_sequence (int key, int state)
 		        /* Yes. Return the event */
 		        event = seq->event;
 		        seq->complete = 1;
+=======
+		if ((seq->key_pressed[i-1] == 1) && (key == seq->keyseq[i])) {
+		    seq->key_pressed[i] = 1;
+		    /* Was it the final key in this sequence ? */
+		    if ((i+1 == HOTKEYSEQ_MAXKEYS) || (seq->keyseq[i+1] == (uae_u16)-1)) {
+			/* Yes. Return the event */
+			event = seq->event;
+			seq->complete = 1;
+>>>>>>> p-uae/v2.1.0
 			break;
 		    }
 		}
@@ -74,6 +88,7 @@ int match_hotkey_sequence (int key, int state)
 	while (seq->event != 0) {
 	    int i, j;
 	    for (i = 0; i < HOTKEYSEQ_MAXKEYS; i++) {
+<<<<<<< HEAD
 	        if ((key == seq->keyseq[i]) && (seq->key_pressed[i] == 1)) {
 		    /* letting up a key - cancels any keys following it
 		     * in the sequence that are pressed */
@@ -84,6 +99,18 @@ int match_hotkey_sequence (int key, int state)
 		    if (seq->complete) {
 		        seq->complete = 0;
 		        event = seq->event;
+=======
+		if ((key == seq->keyseq[i]) && (seq->key_pressed[i] == 1)) {
+		    /* letting up a key - cancels any keys following it
+		     * in the sequence that are pressed */
+		    for (j=i; j < HOTKEYSEQ_MAXKEYS; j++)
+			seq->key_pressed[j] = 0;
+		    /* if it was previously complete generate return the event
+		     * (so that it can be used as a key-up event */
+		    if (seq->complete) {
+			seq->complete = 0;
+			event = seq->event;
+>>>>>>> p-uae/v2.1.0
 		    }
 		}
 	    }

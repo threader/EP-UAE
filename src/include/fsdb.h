@@ -29,10 +29,19 @@
 #define ERROR_DIRECTORY_NOT_EMPTY	216
 #define ERROR_DEVICE_NOT_MOUNTED	218
 #define ERROR_SEEK_ERROR		219
+<<<<<<< HEAD
+=======
+#define ERROR_COMMENT_TOO_BIG		220
+>>>>>>> p-uae/v2.1.0
 #define ERROR_DISK_IS_FULL		221
 #define ERROR_DELETE_PROTECTED		222
 #define ERROR_WRITE_PROTECTED		223
 #define ERROR_READ_PROTECTED		224
+<<<<<<< HEAD
+=======
+#define ERROR_NOT_A_DOS_DISK		225
+#define ERROR_NO_DISK			226
+>>>>>>> p-uae/v2.1.0
 #define ERROR_NO_MORE_ENTRIES		232
 #define ERROR_NOT_IMPLEMENTED		236
 
@@ -84,6 +93,13 @@ typedef struct a_inode_struct {
     /* If nonzero, this represents a deleted file; the corresponding
      * entry in the database must be cleared.  */
     unsigned int deleted:1;
+<<<<<<< HEAD
+=======
+    /* target volume flag */
+    unsigned int volflags;
+    /* not equaling unit.mountcount -> not in this volume */
+    unsigned int mountcount;
+>>>>>>> p-uae/v2.1.0
 #ifdef AINO_DEBUG
     uae_u32 checksum2;
 #endif
@@ -112,7 +128,20 @@ STATIC_INLINE int same_aname (const char *an1, const char *an2)
 extern int fsdb_name_invalid (const char *n);
 extern int fsdb_fill_file_attrs (a_inode *, a_inode *);
 extern int fsdb_set_file_attrs (a_inode *);
+<<<<<<< HEAD
 extern int fsdb_mode_representable_p (const a_inode *);
 extern char *fsdb_create_unique_nname (a_inode *base, const char *);
 
 extern int dos_errno (void);
+=======
+extern int fsdb_mode_representable_p (const a_inode *, int);
+extern int fsdb_mode_supported (const a_inode *);
+extern char *fsdb_create_unique_nname (a_inode *base, const char *);
+
+extern int dos_errno (void);
+
+#define MYVOLUMEINFO_READONLY 1
+#define MYVOLUMEINFO_STREAMS 2
+#define MYVOLUMEINFO_ARCHIVE 4
+#define MYVOLUMEINFO_REUSABLE 8
+>>>>>>> p-uae/v2.1.0

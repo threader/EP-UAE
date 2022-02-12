@@ -1,4 +1,11 @@
+<<<<<<< HEAD
  /*
+=======
+#ifndef UAE_SYSDEPS_H
+#define UAE_SYSDEPS_H
+
+/*
+>>>>>>> p-uae/v2.1.0
   * UAE - The Un*x Amiga Emulator
   *
   * Try to include the right system headers and get other system-specific
@@ -12,6 +19,17 @@
   * Copyright 1996, 1997 Bernd Schmidt
   */
 
+<<<<<<< HEAD
+=======
+#define ECS_DENISE
+
+#ifdef JIT
+#define NATMEM_OFFSET natmem_offset
+#else
+#undef NATMEM_OFFSET
+#endif
+
+>>>>>>> p-uae/v2.1.0
 #if defined __AMIGA__ || defined __amiga__
 #include <devices/timer.h>
 #endif
@@ -137,6 +155,13 @@ struct utimbuf
 #undef DONT_HAVE_STDIO
 #undef DONT_HAVE_MALLOC
 
+<<<<<<< HEAD
+=======
+#if defined(WARPUP)
+#define DONT_HAVE_POSIX
+#endif
+
+>>>>>>> p-uae/v2.1.0
 #if defined _WIN32
 
 #if defined __WATCOMC__
@@ -145,6 +170,7 @@ struct utimbuf
 #include <direct.h>
 #define dirent direct
 #define mkdir(a,b) mkdir(a)
+<<<<<<< HEAD
 
 #elif defined __MINGW32__
 
@@ -156,6 +182,12 @@ struct utimbuf
 #define FILEFLAG_SCRIPT  0x20
 #define FILEFLAG_PURE    0x40
 
+=======
+#define strcasecmp stricmp
+
+#elif defined __MINGW32__
+
+>>>>>>> p-uae/v2.1.0
 #define O_NDELAY 0
 #define mkdir(a,b) mkdir(a)
 
@@ -176,6 +208,15 @@ extern void gettimeofday( struct timeval *tv, void *blah );
 #define FILEFLAG_SCRIPT  0x20
 #define FILEFLAG_PURE    0x40
 
+<<<<<<< HEAD
+=======
+#ifdef REGPARAM2
+#undef REGPARAM2
+#endif
+#define REGPARAM2 __fastcall
+#define REGPARAM3 __fastcall
+#define REGPARAM
+>>>>>>> p-uae/v2.1.0
 
 #include <io.h>
 #define O_BINARY _O_BINARY
@@ -184,6 +225,11 @@ extern void gettimeofday( struct timeval *tv, void *blah );
 #define O_RDWR   _O_RDWR
 #define O_CREAT  _O_CREAT
 #define O_TRUNC  _O_TRUNC
+<<<<<<< HEAD
+=======
+#define strcasecmp _tcsicmp 
+#define strncasecmp _tcsncicmp 
+>>>>>>> p-uae/v2.1.0
 #define W_OK 0x2
 #define R_OK 0x4
 #define STAT struct stat
@@ -193,7 +239,11 @@ struct direct
     char d_name[1];
 };
 #include <sys/utime.h>
+<<<<<<< HEAD
 #define utimbuf _utimbuf
+=======
+#define utimbuf __utimbuf64
+>>>>>>> p-uae/v2.1.0
 #define USE_ZFILE
 
 #undef S_ISDIR
@@ -207,9 +257,14 @@ struct direct
 #define S_IXUSR FILEFLAG_EXECUTE
 
 /* These are prototypes for functions from the Win32 posixemu file */
+<<<<<<< HEAD
 extern void get_time(time_t t, long* days, long* mins, long* ticks);
 extern time_t put_time (long days, long mins, long ticks);
 extern DWORD getattr(const char *name, LPFILETIME lpft, size_t *size);
+=======
+extern void get_time (time_t t, long* days, long* mins, long* ticks);
+extern time_t put_time (long days, long mins, long ticks);
+>>>>>>> p-uae/v2.1.0
 
 /* #define DONT_HAVE_POSIX - don't need all of Mathias' posixemu_functions, just a subset (below) */
 #define chmod(a,b) posixemu_chmod ((a), (b))
@@ -327,9 +382,79 @@ extern int gui_message_multibutton (int flags, const char *format,...);
 #define O_BINARY 0
 #endif
 
+<<<<<<< HEAD
 #ifndef MAX_PATH
 # define MAX_PATH         512
 #endif
 #ifndef MAX_DPATH
 # define MAX_DPATH        512
+=======
+#ifndef STATIC_INLINE
+#if __GNUC__ - 1 > 1 && __GNUC_MINOR__ - 1 >= 0
+#define STATIC_INLINE static __inline__ __attribute__ ((always_inline))
+#define NOINLINE __attribute__ ((noinline))
+#define NORETURN __attribute__ ((noreturn))
+#elif _MSC_VER
+#define STATIC_INLINE static __forceinline
+#define NOINLINE __declspec(noinline)
+#define NORETURN __declspec(noreturn)
+#else
+#define STATIC_INLINE static __inline__
+#define NOINLINE
+#define NORETURN
+#endif
+#endif
+
+#ifndef MAX_PATH
+#define MAX_PATH	512
+#endif
+#ifndef MAX_DPATH
+#define MAX_DPATH	512
+#endif
+
+#ifndef __cplusplus
+
+#define xmalloc(T, N) malloc(sizeof (T) * (N))
+#define xcalloc(T, N) calloc(sizeof (T), N)
+#define xfree(T) free(T)
+#define xrealloc(T, TP, N) realloc(TP, sizeof (T) * (N))
+
+#if 0
+extern void *xmalloc (size_t);
+extern void *xcalloc (size_t, size_t);
+extern void xfree (const void*);
+#endif
+
+#else
+
+#define xmalloc(T, N) static_cast<T*>(malloc (sizeof (T) * (N)))
+#define xcalloc(T, N) static_cast<T*>(calloc (sizeof (T), N))
+#define xrealloc(T, TP, N) static_cast<T*>(realloc (TP, sizeof (T) * (N)))
+#define xfree(T) free(T)
+
+#endif
+
+#define TCHAR char
+#define REGPARAM3
+#define uae_char char
+#define _tcslen strlen
+#define _tcscpy strcpy
+#define _tcscmp strcmp
+#define _tcsncmp strncmp
+#define _tstol atol
+#define _totupper toupper
+#define _stprintf sprintf
+#define _tcscat strcat
+#define _tcsicmp strcasecmp
+#define _tcsstr strstr
+#define _tcsrchr strrchr
+#define _tcsncpy strncpy
+#define _tcschr strchr
+#define _tstof atof
+#define _istdigit isdigit
+#define _tstoi atoi
+#define _tcstol strtol
+#define _wunlink unlink
+#define _tcsftime strftime
+>>>>>>> p-uae/v2.1.0
 #endif

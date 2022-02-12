@@ -37,7 +37,11 @@ struct _ChipsetTypePanelClass
 guint		chipsettypepanel_get_type	  (void);
 GtkWidget*	chipsettypepanel_new		  (void);
 void            chipsettypepanel_set_chipset_mask (ChipsetTypePanel *panel, guint chipset_mask);
+<<<<<<< HEAD
 void            chipsettypepanel_set_ntscmode     (ChipsetTypePanel *panel, guint ntscmode);   
+=======
+void            chipsettypepanel_set_ntscmode     (ChipsetTypePanel *panel, guint ntscmode);
+>>>>>>> p-uae/v2.1.0
 
 #ifdef __cplusplus
 }

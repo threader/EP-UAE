@@ -13,11 +13,20 @@
 #define CSMASK_ECS_AGNUS 1
 #define CSMASK_ECS_DENISE 2
 #define CSMASK_AGA 4
+<<<<<<< HEAD
 
 uae_u32 get_copper_address(int copno);
 
 extern int custom_init (void);
 extern void customreset (void);
+=======
+#define CSMASK_MASK (CSMASK_ECS_AGNUS | CSMASK_ECS_DENISE | CSMASK_AGA)
+
+uae_u32 get_copper_address (int copno);
+
+extern int custom_init (void);
+extern void customreset (int hardreset);
+>>>>>>> p-uae/v2.1.0
 extern int intlev (void);
 extern void dumpcustom (void);
 
@@ -32,7 +41,11 @@ extern void init_custom (void);
 
 extern int picasso_requested_on;
 extern int picasso_on;
+<<<<<<< HEAD
 extern int turbo_emulation;
+=======
+extern void set_picasso_hack_rate (int hz);
+>>>>>>> p-uae/v2.1.0
 
 /* Set to 1 to leave out the current frame in average frame time calculation.
  * Useful if the debugger was active.  */
@@ -40,6 +53,7 @@ extern int bogusframe;
 extern unsigned long hsync_counter;
 
 extern uae_u16 dmacon;
+<<<<<<< HEAD
 extern uae_u16 intena,intreq;
 
 //extern int current_hpos (void);
@@ -49,6 +63,17 @@ extern int n_frames;
 
 int is_bitplane_dma (unsigned int hpos);
 
+=======
+extern uae_u16 intena, intreq, intreqr;
+
+//extern int current_hpos (void);
+extern int vpos;
+
+//extern int find_copper_record (uaecptr, int *, int *);
+
+extern int n_frames;
+
+>>>>>>> p-uae/v2.1.0
 STATIC_INLINE int dmaen (unsigned int dmamask)
 {
     return (dmamask & dmacon) && (dmacon & 0x200);
@@ -67,7 +92,13 @@ STATIC_INLINE int dmaen (unsigned int dmamask)
 #define SPCFLAG_ACTION_REPLAY 2048
 #define SPCFLAG_TRAP 4096 /* enforcer-hack */
 #define SPCFLAG_MODE_CHANGE 8192
+<<<<<<< HEAD
 #define SPCFLAG_END_COMPILE 16384
+=======
+#ifdef JIT
+#define SPCFLAG_END_COMPILE 16384
+#endif
+>>>>>>> p-uae/v2.1.0
 
 extern uae_u16 adkcon;
 
@@ -76,12 +107,28 @@ extern int joy0button, joy1button;
 
 extern void INTREQ (uae_u16);
 extern void INTREQ_0 (uae_u16);
+<<<<<<< HEAD
 extern uae_u16 INTREQR (void);
 
 /* maximums for statically allocated tables */
 
 #define MAXHPOS 256
 #define MAXVPOS 576
+=======
+extern void INTREQ_f (uae_u16);
+extern void send_interrupt (int num, int delay);
+extern uae_u16 INTREQR (void);
+
+/* maximums for statically allocated tables */
+#ifdef UAE_MINI
+/* absolute minimums for basic A500/A1200-emulation */
+#define MAXHPOS 227
+#define MAXVPOS 312
+#else
+#define MAXHPOS 256
+#define MAXVPOS 592
+#endif
+>>>>>>> p-uae/v2.1.0
 
 /* PAL/NTSC values */
 
@@ -89,12 +136,18 @@ extern uae_u16 INTREQR (void);
 #define MAXHPOS_NTSC 227
 #define MAXVPOS_PAL 312
 #define MAXVPOS_NTSC 262
+<<<<<<< HEAD
 #define VBLANK_ENDLINE_PAL 27
 #define VBLANK_ENDLINE_NTSC 28
+=======
+#define VBLANK_ENDLINE_PAL 26
+#define VBLANK_ENDLINE_NTSC 21
+>>>>>>> p-uae/v2.1.0
 #define VBLANK_SPRITE_PAL 25
 #define VBLANK_SPRITE_NTSC 20
 #define VBLANK_HZ_PAL 50
 #define VBLANK_HZ_NTSC 60
+<<<<<<< HEAD
 
 extern unsigned int maxhpos;
 extern unsigned int maxvpos;
@@ -102,6 +155,17 @@ extern unsigned int minfirstline;
 extern int vblank_hz, fake_vblank_hz, vblank_skip;
 extern frame_time_t syncbase;
 #define NUMSCRLINES (maxvpos+1-minfirstline+1)
+=======
+#define EQU_ENDLINE_PAL 9
+#define EQU_ENDLINE_NTSC 10
+
+extern int maxhpos, maxhpos_short;
+extern int maxvpos, maxvpos_nom;
+extern int minfirstline, vblank_endline, numscrlines;
+extern int vblank_hz, fake_vblank_hz, vblank_skip, doublescan;
+extern frame_time_t syncbase;
+#define NUMSCRLINES (maxvpos + 1 - minfirstline + 1)
+>>>>>>> p-uae/v2.1.0
 
 #define DMA_AUD0      0x0001
 #define DMA_AUD1      0x0002
@@ -116,6 +180,7 @@ extern frame_time_t syncbase;
 #define DMA_BLITPRI   0x0400
 
 #define CYCLE_REFRESH	0x01
+<<<<<<< HEAD
 #define CYCLE_MISC	0x02
 #define CYCLE_SPRITE	0x04
 #define CYCLE_BITPLANE	0x08
@@ -130,6 +195,19 @@ extern unsigned int plfstrt;
 extern unsigned int plfstop;
 extern unsigned int plffirstline, plflastline;
 extern uae_u16 htotal, vtotal;
+=======
+#define CYCLE_STROBE	0x02
+#define CYCLE_MISC		0x04
+#define CYCLE_SPRITE	0x08
+#define CYCLE_COPPER	0x10
+#define CYCLE_BLITTER	0x20
+#define CYCLE_CPU		0x40
+#define CYCLE_CPUNASTY	0x80
+
+extern unsigned long frametime, timeframes;
+extern int plfstrt, plfstop, plffirstline, plflastline;
+extern uae_u16 htotal, vtotal, beamcon0;
+>>>>>>> p-uae/v2.1.0
 
 /* 100 words give you 1600 horizontal pixels. Should be more than enough for
  * superhires. Don't forget to update the definition in genp2c.c as well.
@@ -140,33 +218,80 @@ extern uae_u16 htotal, vtotal;
 #define MAX_WORDS_PER_LINE 100
 #endif
 
+<<<<<<< HEAD
+=======
+extern uae_u32 hirestab_h[256][2];
+extern uae_u32 lorestab_h[256][4];
+
+extern uae_u32 hirestab_l[256][1];
+extern uae_u32 lorestab_l[256][2];
+
+>>>>>>> p-uae/v2.1.0
 #ifdef AGA
 /* AGA mode color lookup tables */
 extern unsigned int xredcolors[256], xgreencolors[256], xbluecolors[256];
 #endif
+<<<<<<< HEAD
 
 extern int bpl_off[8];
+=======
+extern int xredcolor_s, xredcolor_b, xredcolor_m;
+extern int xgreencolor_s, xgreencolor_b, xgreencolor_m;
+extern int xbluecolor_s, xbluecolor_b, xbluecolor_m;
+>>>>>>> p-uae/v2.1.0
 
 #define RES_LORES 0
 #define RES_HIRES 1
 #define RES_SUPERHIRES 2
+<<<<<<< HEAD
+=======
+#define RES_MAX 2
+>>>>>>> p-uae/v2.1.0
 
 /* calculate shift depending on resolution (replaced "decided_hires ? 4 : 8") */
 #define RES_SHIFT(res) ((res) == RES_LORES ? 8 : (res) == RES_HIRES ? 4 : 2)
 
 /* get resolution from bplcon0 */
+<<<<<<< HEAD
 STATIC_INLINE int GET_RES (uae_u16 con0)
 {
     int res = ((con0) & 0x8000) ? RES_HIRES : ((con0) & 0x40) ? RES_SUPERHIRES : RES_LORES;
     return res;
+=======
+STATIC_INLINE int GET_RES_DENISE (uae_u16 con0)
+{
+    if (!(currprefs.chipset_mask & CSMASK_ECS_DENISE))
+		con0 &= ~0x40;
+    return ((con0) & 0x8000) ? RES_HIRES : ((con0) & 0x40) ? RES_SUPERHIRES : RES_LORES;
+}
+STATIC_INLINE int GET_RES_AGNUS (uae_u16 con0)
+{
+    if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
+		con0 &= ~0x40;
+    return ((con0) & 0x8000) ? RES_HIRES : ((con0) & 0x40) ? RES_SUPERHIRES : RES_LORES;
+>>>>>>> p-uae/v2.1.0
 }
 /* get sprite width from FMODE */
 #define GET_SPRITEWIDTH(FMODE) ((((FMODE) >> 2) & 3) == 3 ? 64 : (((FMODE) >> 2) & 3) == 0 ? 16 : 32)
 /* Compute the number of bitplanes from a value written to BPLCON0  */
+<<<<<<< HEAD
 #define GET_PLANES(x) ((((x) >> 12) & 7) | (((x) & 0x10) >> 1))
 
 extern void fpscounter_reset (void);
 extern frame_time_t idletime;
+=======
+STATIC_INLINE int GET_PLANES(uae_u16 bplcon0)
+{
+    if ((bplcon0 & 0x0010) && (bplcon0 & 0x7000))
+		return 0;
+    if (bplcon0 & 0x0010)
+		return 8;
+    return (bplcon0 >> 12) & 7;
+}
+
+extern void fpscounter_reset (void);
+extern unsigned long idletime;
+>>>>>>> p-uae/v2.1.0
 extern int lightpen_x, lightpen_y, lightpen_cx, lightpen_cy;
 
 struct customhack {
@@ -175,9 +300,16 @@ struct customhack {
 };
 void customhack_put (struct customhack *ch, uae_u16 v, int hpos);
 uae_u16 customhack_get (struct customhack *ch, int hpos);
+<<<<<<< HEAD
 
 extern void misc_hsync_stuff (void);
 
 extern void hsync_handler (void);
 extern void copper_handler (void);
 #define HSYNCTIME (maxhpos * CYCLE_UNIT)
+=======
+extern void alloc_cycle_ext (int, int);
+extern int ispal (void);
+
+#define HSYNCTIME (maxhpos * CYCLE_UNIT);
+>>>>>>> p-uae/v2.1.0

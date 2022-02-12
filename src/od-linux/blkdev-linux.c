@@ -97,7 +97,11 @@ static int open_scsi_device_ioctl (int unitnum)
 		sdd->isatapi = is_atapi_drive (unitnum);
 		result = 1;
 	    } else {
+<<<<<<< HEAD
 		DEBUG_LOG ("SCSIDEV: Failed to open drive %s\n", sdd->name);
+=======
+		write_log ("SCSIDEV: Failed to open drive %s\n", sdd->name);
+>>>>>>> p-uae/v2.1.0
 	    }
 	} else {
 	    /* already open */
@@ -129,9 +133,15 @@ static void close_scsi_device_ioctl (int unitnum)
 static int media_check (struct scsidevdata *sdd)
 {
     if (ioctl (sdd->fd, CDROM_DRIVE_STATUS, CDSL_CURRENT) == CDS_DISC_OK)
+<<<<<<< HEAD
         return 1;
     else
         return 0;
+=======
+	return 1;
+    else
+	return 0;
+>>>>>>> p-uae/v2.1.0
 }
 
 static const uae_u8 *execscsicmd_out_ioctl (int unitnum, const uae_u8 *cmd_data, int cmd_len)
@@ -159,7 +169,11 @@ static const uae_u8 *execscsicmd_out_ioctl (int unitnum, const uae_u8 *cmd_data,
     cmd.quiet = 0;
     cmd.timeout = 80*60;
 
+<<<<<<< HEAD
     gui_cd_led (1);
+=======
+	gui_flicker_led (LED_CD, 0, 1);
+>>>>>>> p-uae/v2.1.0
 
     io_error = ioctl (sdd->fd, CDROM_SEND_PACKET, &cmd);
     DEBUG_LOG ("SCSIDEV: error: %d, stat: %d\n", io_error, cmd.stat);
@@ -195,7 +209,11 @@ static const uae_u8 *execscsicmd_in_ioctl (int unitnum, const uae_u8 *cmd_data, 
     cmd.quiet = 0;
     cmd.timeout = 80*60;
 
+<<<<<<< HEAD
     gui_cd_led (1);
+=======
+        gui_flicker_led (LED_CD, 0, 1);
+>>>>>>> p-uae/v2.1.0
 
     io_error = ioctl (sdd->fd, CDROM_SEND_PACKET, &cmd);
     DEBUG_LOG ("SCSIDEV: error: %d, stat: %d\n", io_error, cmd.stat);
@@ -247,7 +265,11 @@ static int execscsicmd_direct_ioctl (int unitnum, uaecptr acmd)
 
     /* do transfer directly to and from Amiga memory */
     if (!bank_data || !bank_data->check (scsi_data, scsi_len)) {
+<<<<<<< HEAD
         DEBUG_LOG ("SCSIDEV: illegal Amiga memory buffer\n");
+=======
+	DEBUG_LOG ("SCSIDEV: illegal Amiga memory buffer\n");
+>>>>>>> p-uae/v2.1.0
 	return -5; /* IOERR_BADADDRESS */
     }
 
@@ -274,14 +296,22 @@ static int execscsicmd_direct_ioctl (int unitnum, uaecptr acmd)
     cmd.quiet = 0;
     cmd.timeout = 80*60;
 
+<<<<<<< HEAD
     gui_cd_led (1);
+=======
+        gui_flicker_led (LED_CD, 0, 1);
+>>>>>>> p-uae/v2.1.0
 
     io_error = ioctl (sdd->fd, CDROM_SEND_PACKET, &cmd);
 
     DEBUG_LOG ("SCSIDEV: error: %d, stat: %d\n", io_error, cmd.stat);
 
     if (cmd.stat != 0) {
+<<<<<<< HEAD
         int n;
+=======
+	unsigned int n;
+>>>>>>> p-uae/v2.1.0
 
 	io_error = 45;  /* HFERR_BadStatus */
 	put_byte (acmd + 8, 0);
@@ -291,7 +321,11 @@ static int execscsicmd_direct_ioctl (int unitnum, uaecptr acmd)
 	n = cmd.sense ? cmd.sense->add_sense_len + 7 : 0;
 	if (senselen > n) {
 	    if (scsi_sense)
+<<<<<<< HEAD
         	memset (bank_sense->xlateaddr (scsi_sense), 0, senselen);
+=======
+		memset (bank_sense->xlateaddr (scsi_sense), 0, senselen);
+>>>>>>> p-uae/v2.1.0
 	    senselen = n;
 	}
 	DEBUG_LOG ("SCSIDEV: senselen = %d\n", senselen);
@@ -300,7 +334,11 @@ static int execscsicmd_direct_ioctl (int unitnum, uaecptr acmd)
 	}
 	put_byte (acmd + 28, senselen);
     } else {
+<<<<<<< HEAD
     	put_byte (acmd + 28, 0);
+=======
+	put_byte (acmd + 28, 0);
+>>>>>>> p-uae/v2.1.0
 	if (scsi_sense && senselen > 0) {
 	    memset (bank_sense->xlateaddr (scsi_sense), 0, senselen);
 	}

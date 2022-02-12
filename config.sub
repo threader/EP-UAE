@@ -503,6 +503,13 @@ case $basic_machine in
 		basic_machine=i386-pc
 		os=-go32
 		;;
+<<<<<<< HEAD
+=======
+	gp2x)
+		basic_machine=arm-gp2x
+		os=-linux-gnu
+		;;
+>>>>>>> p-uae/v2.1.0
 	h3050r* | hiux*)
 		basic_machine=hppa1.1-hitachi
 		os=-hiuxwe2
@@ -820,6 +827,13 @@ case $basic_machine in
 	ps2)
 		basic_machine=i386-ibm
 		;;
+<<<<<<< HEAD
+=======
+	psp)
+		basic_machine=mipsallegrexel-psp
+		os=-elf
+		;;
+>>>>>>> p-uae/v2.1.0
 	pw32)
 		basic_machine=i586-unknown
 		os=-pw32

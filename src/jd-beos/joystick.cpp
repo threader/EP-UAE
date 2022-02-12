@@ -289,7 +289,11 @@ struct inputdevice_functions inputdevicefunc_joystick = {
 /*
  * Set default inputdevice config for joysticks
  */
+<<<<<<< HEAD
 void input_get_default_joystick (struct uae_input_device *uid)
+=======
+int input_get_default_joystick (struct uae_input_device *uid, int num, int port, int cd32)
+>>>>>>> p-uae/v2.1.0
 {
     unsigned int i, port;
 
@@ -302,4 +306,10 @@ void input_get_default_joystick (struct uae_input_device *uid)
 	uid[i].eventid[ID_BUTTON_OFFSET + 2][0] = port ? INPUTEVENT_JOY2_3RD_BUTTON  : INPUTEVENT_JOY1_3RD_BUTTON;
     }
     uid[0].enabled = 1;
+<<<<<<< HEAD
+=======
+        if (i == 0)
+                return 1;
+        return 0;
+>>>>>>> p-uae/v2.1.0
 }

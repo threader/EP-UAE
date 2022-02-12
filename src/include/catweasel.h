@@ -5,10 +5,20 @@ extern struct catweasel_contr cwc;
 extern int catweasel_read_keyboard (uae_u8 *keycode);
 extern int catweasel_init (void);
 extern void catweasel_free (void);
+<<<<<<< HEAD
+=======
+extern int catweasel_detect (void);
+>>>>>>> p-uae/v2.1.0
 extern uae_u32 catweasel_do_bget (uaecptr addr);
 extern void catweasel_do_bput (uaecptr addr, uae_u32 b);
 extern int catweasel_read_joystick (uae_u8 *dir, uae_u8 *buttons);
 extern void catweasel_hsync (void);
+<<<<<<< HEAD
+=======
+extern int catweasel_isjoystick(void);
+extern int catweasel_ismouse(void);
+extern int catweasel_read_mouse(int port, int *dx, int *dy, int *buttons);
+>>>>>>> p-uae/v2.1.0
 
 typedef struct catweasel_drive {
     struct catweasel_contr *contr; /* The controller this drive belongs to */
@@ -23,6 +33,11 @@ typedef struct catweasel_drive {
 
 typedef struct catweasel_contr {
     int type;                      /* see CATWEASEL_TYPE_* defines below */
+<<<<<<< HEAD
+=======
+    int direct_access;
+    int direct_type;
+>>>>>>> p-uae/v2.1.0
     int iobase;                    /* 0 = not present (factory default is 0x320) */
     void (*msdelay)(int ms);       /* microseconds delay routine, provided by host program */
     catweasel_drive drives[2];     /* at most two drives on each controller */
@@ -39,11 +54,20 @@ typedef struct catweasel_contr {
     unsigned char srm_dskready;
     int io_sr;                     /* IO port of control / status register */
     int io_mem;                    /* IO port of memory register */
+<<<<<<< HEAD
+=======
+    int sid[2];
+    int can_sid, can_mouse, can_joy, can_kb;
+>>>>>>> p-uae/v2.1.0
 } catweasel_contr;
 
 #define CATWEASEL_TYPE_NONE  -1
 #define CATWEASEL_TYPE_MK1    1
 #define CATWEASEL_TYPE_MK3    3
+<<<<<<< HEAD
+=======
+#define CATWEASEL_TYPE_MK4    4
+>>>>>>> p-uae/v2.1.0
 
 /* Initialize a Catweasel controller; c->iobase and c->msdelay must have
    been initialized -- msdelay might be used */
@@ -82,4 +106,8 @@ int catweasel_fillmfm (catweasel_drive *d, uae_u16 *mfm, int side, int clock, in
 int catweasel_diskready(catweasel_drive *d);
 int catweasel_track0(catweasel_drive *d);
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> p-uae/v2.1.0
 #endif

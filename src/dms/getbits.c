@@ -3,14 +3,22 @@
  *     xDMS  v1.3  -  Portable DMS archive unpacker  -  Public Domain
  *     Written by     Andre Rodrigues de la Rocha  <adlroc@usa.net>
  *     Functions/macros to get a variable number of bits
+<<<<<<< HEAD
  * 
+=======
+ *
+>>>>>>> p-uae/v2.1.0
  */
 
 #include "cdata.h"
 #include "getbits.h"
 
 
+<<<<<<< HEAD
 ULONG mask_bits[]={
+=======
+ULONG dms_mask_bits[]={
+>>>>>>> p-uae/v2.1.0
 	0x000000L,0x000001L,0x000003L,0x000007L,0x00000fL,0x00001fL,
 	0x00003fL,0x00007fL,0x0000ffL,0x0001ffL,0x0003ffL,0x0007ffL,
 	0x000fffL,0x001fffL,0x003fffL,0x007fffL,0x00ffffL,0x01ffffL,
@@ -19,16 +27,29 @@ ULONG mask_bits[]={
 };
 
 
+<<<<<<< HEAD
 UCHAR *indata, bitcount;
 ULONG bitbuf;
+=======
+UCHAR *dms_indata, dms_bitcount;
+ULONG dms_bitbuf;
+>>>>>>> p-uae/v2.1.0
 
 
 
 void initbitbuf(UCHAR *in){
+<<<<<<< HEAD
 	bitbuf = 0;
 	bitcount = 0;
 	indata = in;
 	DROPBITS(0);
 }	
+=======
+	dms_bitbuf = 0;
+	dms_bitcount = 0;
+	dms_indata = in;
+	DROPBITS(0);
+}
+>>>>>>> p-uae/v2.1.0
 
 

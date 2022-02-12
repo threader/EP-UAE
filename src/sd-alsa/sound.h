@@ -1,18 +1,36 @@
+<<<<<<< HEAD
  /* 
   * UAE - The Un*x Amiga Emulator
   * 
   * Support for Linux/ALSA sound
   * 
+=======
+ /*
+  * UAE - The Un*x Amiga Emulator
+  *
+  * Support for Linux/ALSA sound
+  *
+>>>>>>> p-uae/v2.1.0
   * Copyright 1997 Bernd Schmidt
   * Copyright 2004 Heikki Orsila
   */
 
 #include <alsa/asoundlib.h>
 
+<<<<<<< HEAD
 extern int sound_fd;
 extern uae_u16 sndbuffer[];
 extern uae_u16 *sndbufpt;
 extern int sndbufsize;
+=======
+#define SOUNDSTUFF 1
+#define AUDIO_NAME "alsa"
+
+extern int sound_fd;
+extern uae_u16 paula_sndbuffer[];
+extern uae_u16 *paula_sndbufpt;
+extern int paula_sndbufsize;
+>>>>>>> p-uae/v2.1.0
 extern snd_pcm_t *alsa_playback_handle;
 extern int bytes_per_frame;
 
@@ -46,9 +64,15 @@ static int alsa_xrun_recovery(snd_pcm_t *handle, int err)
 
 static void check_sound_buffers (void)
 {
+<<<<<<< HEAD
   if ((char *)sndbufpt - (char *)sndbuffer >= sndbufsize) {
     int frames = sndbufsize / bytes_per_frame;
     char *buf = (char *) sndbuffer;
+=======
+  if ((char *)paula_sndbufpt - (char *)paula_sndbuffer >= paula_sndbufsize) {
+    int frames = paula_sndbufsize / bytes_per_frame;
+    char *buf = (char *) paula_sndbuffer;
+>>>>>>> p-uae/v2.1.0
     int ret;
     while (frames > 0) {
       ret = snd_pcm_writei(alsa_playback_handle, buf, frames);
@@ -64,6 +88,7 @@ static void check_sound_buffers (void)
       frames -= ret;
       buf += ret * bytes_per_frame;
     }
+<<<<<<< HEAD
     sndbufpt = sndbuffer;
   }
 }
@@ -76,12 +101,49 @@ static void check_sound_buffers (void)
 #define PUT_SOUND_WORD_LEFT(b) PUT_SOUND_WORD(b)
 #define PUT_SOUND_BYTE_RIGHT(b) PUT_SOUND_BYTE(b)
 #define PUT_SOUND_WORD_RIGHT(b) PUT_SOUND_WORD(b)
+=======
+    paula_sndbufpt = paula_sndbuffer;
+  }
+}
+
+STATIC_INLINE void clear_sound_buffers (void)
+{
+    memset (paula_sndbuffer, 0, paula_sndbufsize);
+    paula_sndbufpt = paula_sndbuffer;
+}
+
+STATIC_INLINE void set_sound_buffers (void)
+{ 
+}
+
+#define PUT_SOUND_WORD(b) do { *(uae_u16 *)paula_sndbufpt = b; paula_sndbufpt = (uae_u16 *)(((uae_u8 *)paula_sndbufpt) + 2); } while (0)
+#define PUT_SOUND_WORD_LEFT(b) do { if (currprefs.sound_filter) b = filter (b, &sound_filter_state[0]); PUT_SOUND_WORD(b); } while (0)
+#define PUT_SOUND_WORD_RIGHT(b) do { if (currprefs.sound_filter) b = filter (b, &sound_filter_state[1]); PUT_SOUND_WORD(b); } while (0)
+#define PUT_SOUND_WORD_LEFT2(b) do { if (currprefs.sound_filter) b = filter (b, &sound_filter_state[2]); PUT_SOUND_WORD(b); } while (0)
+#define PUT_SOUND_WORD_RIGHT2(b) do { if (currprefs.sound_filter) b = filter (b, &sound_filter_state[3]); PUT_SOUND_WORD(b); } while (0)
+
+>>>>>>> p-uae/v2.1.0
 #define PUT_SOUND_WORD_MONO(b) PUT_SOUND_WORD_LEFT(b)
 #define SOUND16_BASE_VAL 0
 #define SOUND8_BASE_VAL 128
 
+<<<<<<< HEAD
 #define DEFAULT_SOUND_BITS 16
 #define DEFAULT_SOUND_FREQ 44100
 #define DEFAULT_SOUND_LATENCY 100
 #define HAVE_STEREO_SUPPORT
 #define HAVE_8BIT_AUDIO_SUPPORT
+=======
+#define DEFAULT_SOUND_MAXB 16384
+#define DEFAULT_SOUND_MINB 16384
+#define DEFAULT_SOUND_BITS 16
+#define DEFAULT_SOUND_FREQ 44100
+#define HAVE_STEREO_SUPPORT
+
+#define FILTER_SOUND_OFF 0
+#define FILTER_SOUND_EMUL 1
+#define FILTER_SOUND_ON 2
+
+#define FILTER_SOUND_TYPE_A500 0
+#define FILTER_SOUND_TYPE_A1200 1
+>>>>>>> p-uae/v2.1.0

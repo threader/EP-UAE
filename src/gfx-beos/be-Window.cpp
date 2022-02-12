@@ -412,7 +412,11 @@ void BitmapView::MouseMoved (BPoint point, uint32 transit, const BMessage *messa
 void BitmapView::WindowActivated (bool active)
 {
     if (active)
+<<<<<<< HEAD
 	inputdevice_acquire ();
+=======
+	inputdevice_acquire (1);
+>>>>>>> p-uae/v2.1.0
     else
 	inputdevice_unacquire ();
 }
@@ -539,7 +543,11 @@ int gfx_parse_option (struct uae_prefs *p, const char *option, const char *value
 /*
  * Misc functions
  */
+<<<<<<< HEAD
 void screenshot (int mode)
+=======
+void screenshot (int mode, int doprepare)
+>>>>>>> p-uae/v2.1.0
 {
     write_log ("Screenshot not supported yet\n");
 }

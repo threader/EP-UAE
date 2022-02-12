@@ -29,6 +29,7 @@
 int nr_cpuop_funcs;
 
 struct mnemolookup lookuptab[] = {
+<<<<<<< HEAD
     { i_ILLG, "ILLEGAL" },
     { i_OR, "OR" },
     { i_CHK, "CHK" },
@@ -153,6 +154,143 @@ struct mnemolookup lookuptab[] = {
 
     { i_MMUOP, "MMUOP" },
     { i_ILLG, "" },
+=======
+    { i_ILLG,	"ILLEGAL",	"ILLEGAL" },
+    { i_OR,		"OR",		"OR" },
+    { i_CHK,	"CHK",		"CHK" },
+    { i_CHK2,	"CHK2",		"CHK2" },
+    { i_AND,	"AND", 		"AND" },
+    { i_EOR,	"EOR",		"EOR" },
+    { i_ORSR,	"ORSR",		"ORSR" },
+    { i_ANDSR,	"ANDSR",	"ANDSR" },
+    { i_EORSR,	"EORSR","EORSR" },
+    { i_SUB,	"SUB","SUB" },
+    { i_SUBA,	"SUBA","SUBA" },
+    { i_SUBX,	"SUBX","SUBX" },
+    { i_SBCD,	"SBCD","SBCD" },
+    { i_ADD,	"ADD","ADD" },
+    { i_ADDA,	"ADDA","ADDA" },
+    { i_ADDX,	"ADDX","ADDX" },
+    { i_ABCD,	"ABCD","ABCD" },
+    { i_NEG,	"NEG","NEG" },
+    { i_NEGX,	"NEGX","NEGX" },
+    { i_NBCD,	"NBCD","NBCD" },
+    { i_CLR,	"CLR","CLR" },
+    { i_NOT,	"NOT","NOT" },
+    { i_TST,	"TST","TST" },
+    { i_BTST,	"BTST","BTST" },
+    { i_BCHG,	"BCHG","BCHG" },
+    { i_BCLR,	"BCLR","BCLR" },
+    { i_BSET,	"BSET","BSET" },
+    { i_CMP,	"CMP","CMP" },
+    { i_CMPM,	"CMPM","CMPM" },
+    { i_CMPA,	"CMPA","CMPA" },
+    { i_MVPRM,	"MVPRM","MVPRM" },
+    { i_MVPMR,	"MVPMR","MVPMR" },
+    { i_MOVE,	"MOVE","MOVE" },
+    { i_MOVEA,	"MOVEA","MOVEA" },
+    { i_MVSR2,	"MVSR2","MVSR2" },
+    { i_MV2SR,	"MV2SR","MV2SR" },
+    { i_SWAP,	"SWAP","SWAP" },
+    { i_EXG,	"EXG","EXG" },
+    { i_EXT,	"EXT","EXT" },
+    { i_MVMEL,	"MVMEL", "MOVEM" },
+    { i_MVMLE,	"MVMLE", "MOVEM" },
+    { i_TRAP,	"TRAP","TRAP" },
+    { i_MVR2USP,	"MVR2USP","MVR2USP" },
+    { i_MVUSP2R,	"MVUSP2R","MVUSP2R" },
+    { i_NOP,	"NOP","NOP" },
+    { i_RESET,	"RESET","RESET" },
+    { i_RTE,	"RTE","RTE" },
+    { i_RTD,	"RTD","RTD" },
+    { i_LINK,	"LINK","LINK" },
+    { i_UNLK,	"UNLK","UNLK" },
+    { i_RTS,	"RTS","RTS" },
+    { i_STOP,	"STOP","STOP" },
+    { i_TRAPV,	"TRAPV","TRAPV" },
+    { i_RTR,	"RTR","RTR" },
+    { i_JSR,	"JSR","JSR" },
+    { i_JMP,	"JMP","JMP" },
+    { i_BSR,	"BSR","BSR" },
+    { i_Bcc,	"Bcc","Bcc" },
+    { i_LEA,	"LEA","LEA" },
+    { i_PEA,	"PEA","PEA" },
+    { i_DBcc,	"DBcc","DBcc" },
+    { i_Scc,	"Scc","Scc" },
+    { i_DIVU,	"DIVU","DIVU" },
+    { i_DIVS,	"DIVS","DIVS" },
+    { i_MULU,	"MULU","MULU" },
+    { i_MULS,	"MULS","MULS" },
+    { i_ASR,	"ASR","ASR" },
+    { i_ASL,	"ASL","ASL" },
+    { i_LSR,	"LSR","LSR" },
+    { i_LSL,	"LSL","LSL" },
+    { i_ROL,	"ROL","ROL" },
+    { i_ROR,	"ROR","ROR" },
+    { i_ROXL,	"ROXL","ROXL" },
+    { i_ROXR,	"ROXR","ROXR" },
+    { i_ASRW,	"ASRW","ASRW" },
+    { i_ASLW,	"ASLW","ASLW" },
+    { i_LSRW,	"LSRW","LSRW" },
+    { i_LSLW,	"LSLW","LSLW" },
+    { i_ROLW,	"ROLW","ROLW" },
+    { i_RORW,	"RORW","RORW" },
+    { i_ROXLW,	"ROXLW","ROXLW" },
+    { i_ROXRW,	"ROXRW","ROXRW" },
+
+    { i_MOVE2C,	"MOVE2C", "MOVE" },
+    { i_MOVEC2,	"MOVEC2", "MOVE" },
+    { i_CAS,	"CAS","CAS" },
+    { i_CAS2,	"CAS2","CAS2" },
+    { i_MULL,	"MULL","MULL" },
+    { i_DIVL,	"DIVL","DIVL" },
+    { i_BFTST,	"BFTST","BFTST" },
+    { i_BFEXTU,	"BFEXTU","BFEXTU" },
+    { i_BFCHG,	"BFCHG","BFCHG" },
+    { i_BFEXTS,	"BFEXTS","BFEXTS" },
+    { i_BFCLR,	"BFCLR","BFCLR" },
+    { i_BFFFO,	"BFFFO","BFFFO" },
+    { i_BFSET,	"BFSET","BFSET" },
+    { i_BFINS,	"BFINS","BFINS" },
+    { i_PACK,	"PACK","PACK" },
+    { i_UNPK,	"UNPK","UNPK" },
+    { i_TAS,	"TAS","TAS" },
+    { i_BKPT,	"BKPT","BKPT" },
+    { i_CALLM,	"CALLM","CALLM" },
+    { i_RTM,	"RTM","RTM" },
+    { i_TRAPcc,	"TRAPcc","TRAPcc" },
+    { i_MOVES,	"MOVES","MOVES" },
+    { i_FPP,	"FPP","FPP" },
+    { i_FDBcc,	"FDBcc","FDBcc" },
+    { i_FScc,	"FScc","FScc" },
+    { i_FTRAPcc,	"FTRAPcc","FTRAPcc" },
+    { i_FBcc,	"FBcc","FBcc" },
+    { i_FBcc,	"FBcc","FBcc" },
+    { i_FSAVE,	"FSAVE","FSAVE" },
+    { i_FRESTORE,	"FRESTORE","FRESTORE" },
+
+    { i_CINVL,	"CINVL","CINVL" },
+    { i_CINVP,	"CINVP","CINVP" },
+    { i_CINVA,	"CINVA","CINVA" },
+    { i_CPUSHL,	"CPUSHL","CPUSHL" },
+    { i_CPUSHP,	"CPUSHP","CPUSHP" },
+    { i_CPUSHA,	"CPUSHA","CPUSHA" },
+    { i_MOVE16,	"MOVE16","MOVE16" },
+
+	{ i_MMUOP030,	"MMUOP030","MMUOP030" },
+	{ i_PFLUSHN,	"PFLUSHN","PFLUSHN" },
+	{ i_PFLUSH,		"PFLUSH","PFLUSH" },
+	{ i_PFLUSHAN,	"PFLUSHAN","PFLUSHAN" },
+	{ i_PFLUSHA,	"PFLUSHA","PFLUSHA" },
+
+	{ i_PLPAR,	"PLPAR","PLPAR" },
+	{ i_PLPAW,	"PLPAW","PLPAW" },
+	{ i_PTESTR,	"PTESTR","PTESTR" },
+	{ i_PTESTW,	"PTESTW","PTESTW" },
+
+	{ i_LPSTOP,	"LPSTOP","LPSTOP" },
+    { i_ILLG,	"", "" },
+>>>>>>> p-uae/v2.1.0
 };
 
 struct instr *table68k;
@@ -163,6 +301,7 @@ static int specialcase (uae_u16 opcode, int cpu_lev)
     int reg = opcode & 7;
 
     if (cpu_lev >= 2)
+<<<<<<< HEAD
 	return cpu_lev;
     /* TST.W A0, TST.L A0, TST.x (d16,PC) and TST.x (d8,PC,Xn) are 68020+ only */
     if ((opcode & 0xff00) == 0x4a00) {
@@ -175,6 +314,20 @@ static int specialcase (uae_u16 opcode, int cpu_lev)
     if ((opcode & 0xff00) == 0x0c00) {
 	if (mode == 7 && (reg == 2 || reg == 3))
 	    return 2;
+=======
+		return cpu_lev;
+    /* TST.W A0, TST.L A0, TST.x (d16,PC) and TST.x (d8,PC,Xn) are 68020+ only */
+    if ((opcode & 0xff00) == 0x4a00) {
+		if (mode == 7 && (reg == 4 || reg == 2 || reg == 3))
+		    return 2;
+		if (mode == 1) /* Ax */
+		    return 2;
+    }
+    /* CMPI.W #x,(d16,PC) and CMPI.W #x,(d8,PC,Xn) are 68020+ only */
+    if ((opcode & 0xff00) == 0x0c00) {
+		if (mode == 7 && (reg == 2 || reg == 3))
+		    return 2;
+>>>>>>> p-uae/v2.1.0
     }
     return cpu_lev;
 }
@@ -208,6 +361,7 @@ STATIC_INLINE amodes mode_from_mr (int mode, int reg)
      case 5: return Ad16;
      case 6: return Ad8r;
      case 7:
+<<<<<<< HEAD
 	switch (reg) {
 	 case 0: return absw;
 	 case 1: return absl;
@@ -218,6 +372,18 @@ STATIC_INLINE amodes mode_from_mr (int mode, int reg)
 	 case 6:
 	 case 7: return am_illg;
 	}
+=======
+		switch (reg) {
+		case 0: return absw;
+		case 1: return absl;
+		case 2: return PC16;
+		case 3: return PC8r;
+		case 4: return imm;
+		case 5:
+		case 6:
+		case 7: return am_illg;
+		}
+>>>>>>> p-uae/v2.1.0
     }
     abort ();
     return 0;
@@ -242,6 +408,7 @@ static void build_insn (int insn)
        can't trap. Usually, this will be overwritten with the gencomp
        based information, anyway. */
 
+<<<<<<< HEAD
     for (i = 0; i < 5; i++) {
 	switch (id.flaginfo[i].flagset){
 	case fa_unset: break;
@@ -436,6 +603,203 @@ static void build_insn (int insn)
 		    srcpos = bitpos[bitK];
 		}
 		break;
+=======
+	for (i = 0; i < 5; i++) {
+		switch (id.flaginfo[i].flagset){
+		case fa_unset: break;
+		case fa_isjmp: isjmp = 1; break;
+		case fa_isbranch: isjmp = 1; break;
+		case fa_zero: flagdead |= 1 << i; break;
+		case fa_one: flagdead |= 1 << i; break;
+		case fa_dontcare: flagdead |= 1 << i; break;
+		case fa_unknown: isjmp = 1; flagdead = -1; goto out1;
+		case fa_set: flagdead |= 1 << i; break;
+		}
+	}
+
+out1:
+	for (i = 0; i < 5; i++) {
+		switch (id.flaginfo[i].flaguse) {
+		case fu_unused: break;
+		case fu_isjmp: isjmp = 1; flaglive |= 1 << i; break;
+		case fu_maybecc: isjmp = 1; flaglive |= 1 << i; break;
+		case fu_unknown: isjmp = 1; flaglive |= 1 << i; break;
+		case fu_used: flaglive |= 1 << i; break;
+		}
+	}
+
+	opcstr = id.opcstr;
+	for (variants = 0; variants < (1 << id.n_variable); variants++) {
+		int bitcnt[lastbit];
+		int bitval[lastbit];
+		int bitpos[lastbit];
+		int i;
+		uae_u16 opc = id.bits;
+		uae_u16 msk, vmsk;
+		int pos = 0;
+		int mnp = 0;
+		int bitno = 0;
+		char mnemonic[10];
+
+		wordsizes sz = sz_long;
+		int srcgather = 0, dstgather = 0;
+		int usesrc = 0, usedst = 0;
+		int srctype = 0;
+		int srcpos = -1, dstpos = -1;
+
+		amodes srcmode = am_unknown, destmode = am_unknown;
+		int srcreg = -1, destreg = -1;
+
+		for (i = 0; i < lastbit; i++)
+		    bitcnt[i] = bitval[i] = 0;
+
+		vmsk = 1 << id.n_variable;
+
+		for (i = 0, msk = 0x8000; i < 16; i++, msk >>= 1) {
+		    if (!(msk & id.mask)) {
+				int currbit = id.bitpos[bitno++];
+				int bit_set;
+				vmsk >>= 1;
+				bit_set = variants & vmsk ? 1 : 0;
+				if (bit_set)
+				    opc |= msk;
+				bitpos[currbit] = 15 - i;
+				bitcnt[currbit]++;
+				bitval[currbit] <<= 1;
+				bitval[currbit] |= bit_set;
+		    }
+		}
+
+		if (bitval[bitj] == 0) bitval[bitj] = 8;
+		/* first check whether this one does not match after all */
+		if (bitval[bitz] == 3 || bitval[bitC] == 1)
+		    continue;
+		if (bitcnt[bitI] && (bitval[bitI] == 0x00 || bitval[bitI] == 0xff))
+		    continue;
+
+		/* bitI and bitC get copied to biti and bitc */
+		if (bitcnt[bitI]) {
+		    bitval[biti] = bitval[bitI]; bitpos[biti] = bitpos[bitI];
+		}
+		if (bitcnt[bitC])
+		    bitval[bitc] = bitval[bitC];
+
+		pos = 0;
+		while (opcstr[pos] && !isspace(opcstr[pos])) {
+		    if (opcstr[pos] == '.') {
+				pos++;
+				switch (opcstr[pos]) {
+
+				case 'B': sz = sz_byte; break;
+				case 'W': sz = sz_word; break;
+				case 'L': sz = sz_long; break;
+				case 'z':
+					switch (bitval[bitz]) {
+					case 0: sz = sz_byte; break;
+					case 1: sz = sz_word; break;
+					case 2: sz = sz_long; break;
+					default: abort();
+					}
+					break;
+				default: abort();
+				}
+			} else {
+				mnemonic[mnp] = opcstr[pos];
+				if (mnemonic[mnp] == 'f') {
+					find = -1;
+					switch (bitval[bitf]) {
+					case 0: mnemonic[mnp] = 'R'; break;
+					case 1: mnemonic[mnp] = 'L'; break;
+					default: abort();
+					}
+				}
+				mnp++;
+			}
+			pos++;
+		}
+		mnemonic[mnp] = 0;
+
+		/* now, we have read the mnemonic and the size */
+		while (opcstr[pos] && isspace(opcstr[pos]))
+	    	pos++;
+
+		/* A goto a day keeps the D******a away. */
+		if (opcstr[pos] == 0)
+		    goto endofline;
+
+		/* parse the source address */
+		usesrc = 1;
+		switch (opcstr[pos++]) {
+		case 'D':
+		    srcmode = Dreg;
+		    switch (opcstr[pos++]) {
+		    case 'r': srcreg = bitval[bitr]; srcgather = 1; srcpos = bitpos[bitr]; break;
+		    case 'R': srcreg = bitval[bitR]; srcgather = 1; srcpos = bitpos[bitR]; break;
+		    default: abort();
+		    }
+		    break;
+		case 'A':
+		    srcmode = Areg;
+		    switch (opcstr[pos++]) {
+		    case 'r': srcreg = bitval[bitr]; srcgather = 1; srcpos = bitpos[bitr]; break;
+		    case 'R': srcreg = bitval[bitR]; srcgather = 1; srcpos = bitpos[bitR]; break;
+		    default: abort();
+		    }
+		    switch (opcstr[pos]) {
+		    case 'p': srcmode = Apdi; pos++; break;
+		    case 'P': srcmode = Aipi; pos++; break;
+			case 'a': srcmode = Aind; pos++; break;
+		    }
+		    break;
+		case 'L':
+		    srcmode = absl;
+		    break;
+		case '#':
+		    switch (opcstr[pos++]) {
+		    case 'z': srcmode = imm; break;
+		    case '0': srcmode = imm0; break;
+		    case '1': srcmode = imm1; break;
+		    case '2': srcmode = imm2; break;
+		    case 'i': srcmode = immi; srcreg = (uae_s32)(uae_s8)bitval[biti];
+				if (CPU_EMU_SIZE < 4) {
+				    /* Used for branch instructions */
+				    srctype = 1;
+				    srcgather = 1;
+				    srcpos = bitpos[biti];
+				}
+				break;
+		    case 'j': srcmode = immi; srcreg = bitval[bitj];
+				if (CPU_EMU_SIZE < 3) {
+				    /* 1..8 for ADDQ/SUBQ and rotshi insns */
+				    srcgather = 1;
+				    srctype = 3;
+				    srcpos = bitpos[bitj];
+				}
+				break;
+		    case 'J': srcmode = immi; srcreg = bitval[bitJ];
+				if (CPU_EMU_SIZE < 5) {
+				    /* 0..15 */
+				    srcgather = 1;
+				    srctype = 2;
+				    srcpos = bitpos[bitJ];
+				}
+				break;
+		    case 'k': srcmode = immi; srcreg = bitval[bitk];
+				if (CPU_EMU_SIZE < 3) {
+				    srcgather = 1;
+				    srctype = 4;
+				    srcpos = bitpos[bitk];
+				}
+				break;
+		    case 'K': srcmode = immi; srcreg = bitval[bitK];
+				if (CPU_EMU_SIZE < 5) {
+				    /* 0..15 */
+				    srcgather = 1;
+				    srctype = 5;
+				    srcpos = bitpos[bitK];
+				}
+				break;
+>>>>>>> p-uae/v2.1.0
 	    case 'p': srcmode = immi; srcreg = bitval[bitK];
 		if (CPU_EMU_SIZE < 5) {
 		    /* 0..3 */
@@ -568,7 +932,11 @@ static void build_insn (int insn)
 	    case 'R': destreg = bitval[bitR]; dstgather = 1; dstpos = bitpos[bitR]; break;
 	    default: abort();
 	    }
+<<<<<<< HEAD
             if (dstpos < 0 || dstpos >= 32)
+=======
+	    if (dstpos < 0 || dstpos >= 32)
+>>>>>>> p-uae/v2.1.0
 		abort ();
 	    break;
 	case 'A':
@@ -579,7 +947,11 @@ static void build_insn (int insn)
 	    case 'x': destreg = 0; dstgather = 0; dstpos = 0; break;
 	    default: abort();
 	    }
+<<<<<<< HEAD
             if (dstpos < 0 || dstpos >= 32)
+=======
+	    if (dstpos < 0 || dstpos >= 32)
+>>>>>>> p-uae/v2.1.0
 		abort ();
 	    switch (opcstr[pos]) {
 	    case 'p': destmode = Apdi; pos++; break;
@@ -720,7 +1092,11 @@ static void build_insn (int insn)
       endofline:
 	/* now, we have a match */
 	if (table68k[opc].mnemo != i_ILLG)
+<<<<<<< HEAD
 	    write_log ("Double match: %x: %s\n", opc, opcstr);
+=======
+	    ;//write_log ("Double match: %x: %s\n", opc, opcstr);
+>>>>>>> p-uae/v2.1.0
 	if (find == -1) {
 	    for (find = 0;; find++) {
 		if (strcmp(mnemonic, lookuptab[find].name) == 0) {
@@ -776,11 +1152,19 @@ void read_table68k (void)
     free (table68k);
     table68k = (struct instr *)xmalloc (65536 * sizeof (struct instr));
     for (i = 0; i < 65536; i++) {
+<<<<<<< HEAD
 	table68k[i].mnemo = i_ILLG;
 	table68k[i].handler = -1;
     }
     for (i = 0; i < n_defs68k; i++) {
 	build_insn (i);
+=======
+		table68k[i].mnemo = i_ILLG;
+		table68k[i].handler = -1;
+    }
+    for (i = 0; i < n_defs68k; i++) {
+		build_insn (i);
+>>>>>>> p-uae/v2.1.0
     }
 }
 

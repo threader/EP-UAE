@@ -23,8 +23,13 @@ INLINE void update(USHORT c);
 static void reconst(void);
 
 
+<<<<<<< HEAD
 USHORT deep_text_loc;
 int init_deep_tabs=1;
+=======
+USHORT dms_deep_text_loc;
+int dms_init_deep_tabs=1;
+>>>>>>> p-uae/v2.1.0
 
 
 
@@ -38,6 +43,7 @@ int init_deep_tabs=1;
 #define MAX_FREQ    0x8000      /* updates tree when the */
 
 
+<<<<<<< HEAD
 USHORT freq[T + 1]; /* frequency table */
 
 USHORT prnt[T + N_CHAR]; /* pointers to parent nodes, except for the */
@@ -45,6 +51,15 @@ USHORT prnt[T + N_CHAR]; /* pointers to parent nodes, except for the */
 				/* the positions of leaves corresponding to the codes. */
 
 USHORT son[T];   /* pointers to child nodes (son[], son[] + 1) */
+=======
+static USHORT freq[T + 1]; /* frequency table */
+
+static USHORT prnt[T + N_CHAR]; /* pointers to parent nodes, except for the */
+				/* elements [T..T + N_CHAR - 1] which are used to get */
+				/* the positions of leaves corresponding to the codes. */
+
+static USHORT son[T];   /* pointers to child nodes (son[], son[] + 1) */
+>>>>>>> p-uae/v2.1.0
 
 
 
@@ -66,7 +81,11 @@ void Init_DEEP_Tabs(void){
 	freq[T] = 0xffff;
 	prnt[R] = 0;
 
+<<<<<<< HEAD
 	init_deep_tabs = 0;
+=======
+	dms_init_deep_tabs = 0;
+>>>>>>> p-uae/v2.1.0
 }
 
 
@@ -77,12 +96,17 @@ USHORT Unpack_DEEP(UCHAR *in, UCHAR *out, USHORT origsize){
 
 	initbitbuf(in);
 
+<<<<<<< HEAD
 	if (init_deep_tabs) Init_DEEP_Tabs();
+=======
+	if (dms_init_deep_tabs) Init_DEEP_Tabs();
+>>>>>>> p-uae/v2.1.0
 
 	outend = out+origsize;
 	while (out < outend) {
 		c = DecodeChar();
 		if (c < 256) {
+<<<<<<< HEAD
 			*out++ = text[deep_text_loc++ & DBITMASK] = (UCHAR)c;
 		} else {
 			j = (USHORT) (c - 255 + THRESHOLD);
@@ -92,6 +116,17 @@ USHORT Unpack_DEEP(UCHAR *in, UCHAR *out, USHORT origsize){
 	}
 
 	deep_text_loc = (USHORT)((deep_text_loc+60) & DBITMASK);
+=======
+			*out++ = dms_text[dms_deep_text_loc++ & DBITMASK] = (UCHAR)c;
+		} else {
+			j = (USHORT) (c - 255 + THRESHOLD);
+			i = (USHORT) (dms_deep_text_loc - DecodePosition() - 1);
+			while (j--) *out++ = dms_text[dms_deep_text_loc++ & DBITMASK] = dms_text[i++ & DBITMASK];
+		}
+	}
+
+	dms_deep_text_loc = (USHORT)((dms_deep_text_loc+60) & DBITMASK);
+>>>>>>> p-uae/v2.1.0
 
 	return 0;
 }

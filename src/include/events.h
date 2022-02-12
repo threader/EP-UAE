@@ -39,6 +39,7 @@ extern int rpt_available;
 extern frame_time_t syncbase;
 
 extern void compute_vsynctime (void);
+<<<<<<< HEAD
 extern void do_cycles_ce (long cycles);
 
 
@@ -48,10 +49,25 @@ extern unsigned int is_lastline;
 extern unsigned long nextevent;
 
 typedef void (*evfunc)(void);
+=======
+extern void init_eventtab (void);
+extern void do_cycles_ce (long cycles);
+extern void do_cycles_ce020 (int clocks);
+extern void do_cycles_ce020_mem (int clocks);
+extern void do_cycles_ce000 (int clocks);
+extern int is_cycle_ce (void);
+
+extern unsigned long currcycle, nextevent, is_lastline;
+typedef void (*evfunc)(void);
+typedef void (*evfunc2)(uae_u32);
+
+typedef unsigned long int evt;
+>>>>>>> p-uae/v2.1.0
 
 struct ev
 {
     int active;
+<<<<<<< HEAD
     unsigned long int evtime, oldcycles;
     evfunc handler;
 };
@@ -142,4 +158,50 @@ STATIC_INLINE void do_extra_cycles (unsigned long cycles_to_add)
 
 #define countdown pissoff
 
+=======
+    evt evtime, oldcycles;
+    evfunc handler;
+};
+
+struct ev2
+{
+    int active;
+    evt evtime;
+    uae_u32 data;
+    evfunc2 handler;
+};
+
+enum {
+    ev_hsync, ev_audio, ev_cia, ev_misc,
+    ev_max
+};
+
+enum {
+    ev2_blitter, ev2_disk, ev2_misc,
+    ev2_max = 12
+};
+
+extern struct ev eventtab[ev_max];
+extern struct ev2 eventtab2[ev2_max];
+
+extern void event2_newevent(int, evt);
+extern void event2_newevent2(evt, uae_u32, evfunc2);
+extern void event2_remevent(int);
+
+#if 0
+#ifdef JIT
+#include "events_jit.h"
+#else
+#include "events_normal.h"
+#endif
+#else
+#include "events_jit.h"
+#endif
+
+STATIC_INLINE int current_hpos (void)
+{
+    return (get_cycles () - eventtab[ev_hsync].oldcycles) / CYCLE_UNIT;
+}
+
+>>>>>>> p-uae/v2.1.0
 #endif

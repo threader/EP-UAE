@@ -172,7 +172,11 @@ static int unit_ready (SCSI *scgp)
 	    return 0;
 	return 1;
     }
+<<<<<<< HEAD
                                                 /* FALSE wenn NOT_READY */
+=======
+						/* FALSE wenn NOT_READY */
+>>>>>>> p-uae/v2.1.0
     return (scg_sense_key (scgp) != SC_NOT_READY);
 }
 
@@ -322,7 +326,11 @@ static int execscsicmd_direct (int unitnum, uaecptr acmd)
      * _very_ long (specified in seconds) */
     scmd->timeout   = 80 * 60;
     scsi_datap      = scsi_datap_org = scsi_len
+<<<<<<< HEAD
                       ? bank_data->xlateaddr (scsi_data) : 0;
+=======
+		      ? bank_data->xlateaddr (scsi_data) : 0;
+>>>>>>> p-uae/v2.1.0
     scmd->size      = scsi_len;
     scmd->flags     = (scsi_flags & 1) ? SCG_RECV_DATA : SCG_DISRE_ENA;
     memcpy (&scmd->cdb, bank_cmd->xlateaddr (scsi_cmd), scsi_cmd_len);
@@ -378,14 +386,22 @@ static int execscsicmd_direct (int unitnum, uaecptr acmd)
 		io_error = 20; /* io_Error, but not specified */
 		put_long (acmd + 8, 0); /* scsi_Actual */
 	    }
+<<<<<<< HEAD
         } else {
+=======
+	} else {
+>>>>>>> p-uae/v2.1.0
 	    scsi_len = scmd->size;
 	    if (sdd->isatapi)
 		scsi_atapi_fixup_post (scmd->cdb.cmd_cdb, scsi_cmd_len,
 				       scsi_datap_org, scsi_datap,
 				       &scsi_len, parm);
 	    io_error = 0;
+<<<<<<< HEAD
             put_long (acmd + 8, scsi_len); /* scsi_Actual */
+=======
+	    put_long (acmd + 8, scsi_len); /* scsi_Actual */
+>>>>>>> p-uae/v2.1.0
 	}
     }
     put_word (acmd + 28, sactual);
@@ -471,15 +487,25 @@ static int scanscsi (SCSI *scgp)
 	    }
 	    if (!have_tgt) {
 		/* Hack: fd -> -2 means no access */
+<<<<<<< HEAD
 		write_log( "%c\n", scgp->fd == -2 ? '?':'*');
+=======
+		write_log ( "%c\n", scgp->fd == -2 ? '?':'*');
+>>>>>>> p-uae/v2.1.0
 		continue;
 	    }
 
 	    if ((scgp->scmd->error < SCG_FATAL)
 		|| (scgp->scmd->scb.chk && scgp->scmd->sense_count > 0)) {
+<<<<<<< HEAD
         	struct scsi_inquiry *inq = scgp->inq;
 
         	inquiry (scgp, inq, sizeof (*inq));
+=======
+		struct scsi_inquiry *inq = scgp->inq;
+
+		inquiry (scgp, inq, sizeof (*inq));
+>>>>>>> p-uae/v2.1.0
 		print_product (inq);
 
 		/* Just CD/DVD drives for now */
@@ -487,7 +513,11 @@ static int scanscsi (SCSI *scgp)
 		    add_drive (scgp);
 	    }
 
+<<<<<<< HEAD
             write_log ("\n");
+=======
+	    write_log ("\n");
+>>>>>>> p-uae/v2.1.0
 	}
     }
     scgp->silent--;
@@ -554,7 +584,11 @@ static int open_scsi_device (int unitnum)
 
 	if (!sdd->scgp) {
 	    if ((sdd->scgp = openscsi (sdd->bus, sdd->target, sdd->lun)) != 0)
+<<<<<<< HEAD
 	        result = 1;
+=======
+		result = 1;
+>>>>>>> p-uae/v2.1.0
 	} else
 	    /* already open */
 	    result = 1;

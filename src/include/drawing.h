@@ -17,6 +17,7 @@
 #define MAX_PLANES 6
 #endif
 
+<<<<<<< HEAD
 /* According to the HRM, pixel data spends a couple of cycles somewhere in the chips
    before it appears on-screen.  */
 #define DIW_DDF_OFFSET 9
@@ -26,11 +27,36 @@
 /* We ignore that many lores pixels at the start of the display. These are
  * invisible anyway due to hardware DDF limits. */
 #define DISPLAY_LEFT_SHIFT 0x40
+=======
+//#define NEWHSYNC
+
+#ifdef NEWHSYNC
+#define DIW_DDF_OFFSET 9
+/* this many cycles starting from hpos=0 are visible on right border */
+#define HBLANK_OFFSET 13
+#define DISPLAY_LEFT_SHIFT 0x40
+#else
+/* According to the HRM, pixel data spends a couple of cycles somewhere in the chips
+   before it appears on-screen. (TW: display emulation now does this automatically)  */
+#define DIW_DDF_OFFSET 1
+/* this many cycles starting from hpos=0 are visible on right border */
+#define HBLANK_OFFSET 9
+/* We ignore that many lores pixels at the start of the display. These are
+ * invisible anyway due to hardware DDF limits. */
+#define DISPLAY_LEFT_SHIFT 0x40
+#endif
+
+>>>>>>> p-uae/v2.1.0
 #define PIXEL_XPOS(HPOS) (((HPOS)*2 - DISPLAY_LEFT_SHIFT + DIW_DDF_OFFSET - 1) << lores_shift)
 
 #define max_diwlastword (PIXEL_XPOS(0x1d4 >> 1))
 
+<<<<<<< HEAD
 extern int lores_factor, lores_shift, interlace_seen;
+=======
+extern int lores_factor, lores_shift, sprite_width, interlace_seen;
+extern int aga_mode, direct_rgb;
+>>>>>>> p-uae/v2.1.0
 
 STATIC_INLINE int coord_hw_to_window_x (int x)
 {
@@ -90,45 +116,78 @@ struct color_entry {
 STATIC_INLINE xcolnr getxcolor (int c)
 {
 #ifdef AGA
+<<<<<<< HEAD
     if (currprefs.chipset_mask & CSMASK_AGA)
 	return CONVERT_RGB(c);
     else
 #endif
 	return xcolors[c];
+=======
+    if (direct_rgb)
+		return CONVERT_RGB(c);
+    else
+#endif
+		return xcolors[c];
+>>>>>>> p-uae/v2.1.0
 }
 
 /* functions for reading, writing, copying and comparing struct color_entry */
 STATIC_INLINE int color_reg_get (struct color_entry *ce, int c)
 {
 #ifdef AGA
+<<<<<<< HEAD
     if (currprefs.chipset_mask & CSMASK_AGA)
 	return ce->color_regs_aga[c];
     else
 #endif
 	return ce->color_regs_ecs[c];
+=======
+    if (aga_mode)
+		return ce->color_regs_aga[c];
+    else
+#endif
+		return ce->color_regs_ecs[c];
+>>>>>>> p-uae/v2.1.0
 }
 STATIC_INLINE void color_reg_set (struct color_entry *ce, int c, int v)
 {
 #ifdef AGA
+<<<<<<< HEAD
     if (currprefs.chipset_mask & CSMASK_AGA)
 	ce->color_regs_aga[c] = v;
     else
 #endif
 	ce->color_regs_ecs[c] = v;
+=======
+    if (aga_mode)
+		ce->color_regs_aga[c] = v;
+    else
+#endif
+		ce->color_regs_ecs[c] = v;
+>>>>>>> p-uae/v2.1.0
 }
 STATIC_INLINE int color_reg_cmp (struct color_entry *ce1, struct color_entry *ce2)
 {
 #ifdef AGA
+<<<<<<< HEAD
     if (currprefs.chipset_mask & CSMASK_AGA)
 	return memcmp (ce1->color_regs_aga, ce2->color_regs_aga, sizeof (uae_u32) * 256);
     else
 #endif
 	return memcmp (ce1->color_regs_ecs, ce2->color_regs_ecs, sizeof (uae_u16) * 32);
+=======
+    if (aga_mode)
+		return memcmp (ce1->color_regs_aga, ce2->color_regs_aga, sizeof (uae_u32) * 256);
+    else
+#endif
+		return memcmp (ce1->color_regs_ecs, ce2->color_regs_ecs, sizeof (uae_u16) * 32);
+>>>>>>> p-uae/v2.1.0
 }
 /* ugly copy hack, is there better solution? */
 STATIC_INLINE void color_reg_cpy (struct color_entry *dst, struct color_entry *src)
 {
 #ifdef AGA
+<<<<<<< HEAD
     if (currprefs.chipset_mask & CSMASK_AGA)
 	/* copy acolors and color_regs_aga */
 	memcpy (dst->acolors, src->acolors, sizeof(struct color_entry) - sizeof(uae_u16) * 32);
@@ -137,6 +196,15 @@ STATIC_INLINE void color_reg_cpy (struct color_entry *dst, struct color_entry *s
 	/* copy first 32 acolors and color_regs_ecs */
 	memcpy (dst->color_regs_ecs, src->color_regs_ecs,
 		sizeof(struct color_entry));
+=======
+    if (aga_mode)
+		/* copy acolors and color_regs_aga */
+		memcpy (dst->acolors, src->acolors, sizeof(struct color_entry) - sizeof(uae_u16) * 32);
+    else
+#endif
+		/* copy first 32 acolors and color_regs_ecs */
+		memcpy (dst->color_regs_ecs, src->color_regs_ecs, sizeof(struct color_entry));
+>>>>>>> p-uae/v2.1.0
 }
 
 /*
@@ -155,7 +223,11 @@ struct color_change {
 };
 
 /* 440 rather than 880, since sprites are always lores.  */
+<<<<<<< HEAD
 #ifdef CUSTOM_SIMPLE
+=======
+#ifdef UAE_MINI
+>>>>>>> p-uae/v2.1.0
 #define MAX_PIXELS_PER_LINE 880
 #define MAX_VIDHEIGHT 800
 #else
@@ -165,7 +237,11 @@ struct color_change {
 
 /* No divisors for MAX_PIXELS_PER_LINE; we support AGA and may one day
    want to use SHRES sprites.  */
+<<<<<<< HEAD
 #define MAX_SPR_PIXELS (((MAXVPOS + 1)*2 + 1) * MAX_PIXELS_PER_LINE)
+=======
+#define MAX_SPR_PIXELS (((MAXVPOS + 1) * 2 + 1) * MAX_PIXELS_PER_LINE)
+>>>>>>> p-uae/v2.1.0
 
 struct sprite_entry
 {
@@ -196,7 +272,11 @@ extern struct color_change *color_changes[2];
 extern struct color_change color_changes[2][MAX_REG_CHANGE];
 #endif
 
+<<<<<<< HEAD
 extern struct color_entry color_tables[2][(MAXVPOS+1) * 2];
+=======
+extern struct color_entry color_tables[2][(MAXVPOS + 1) * 2];
+>>>>>>> p-uae/v2.1.0
 extern struct color_entry *curr_color_tables, *prev_color_tables;
 
 extern struct sprite_entry *curr_sprite_entries, *prev_sprite_entries;
@@ -218,10 +298,16 @@ struct decision {
 #endif
     uae_u8 nr_planes;
     uae_u8 bplres;
+<<<<<<< HEAD
     unsigned int any_hires_sprites:1;
     unsigned int ham_seen:1;
     unsigned int ham_at_start:1;
     unsigned int valid:1;
+=======
+    unsigned int ehb_seen;
+    unsigned int ham_seen;
+    unsigned int ham_at_start;
+>>>>>>> p-uae/v2.1.0
 };
 
 /* Anything related to changes in hw registers during the DDF for one
@@ -232,18 +318,31 @@ struct draw_info {
     int nr_color_changes, nr_sprites;
 };
 
+<<<<<<< HEAD
 extern struct decision line_decisions[2 * (MAXVPOS+1) + 1];
 extern struct draw_info line_drawinfo[2][2 * (MAXVPOS+1) + 1];
 
 extern uae_u8 line_data[(MAXVPOS+1) * 2][MAX_PLANES * MAX_WORDS_PER_LINE * 2];
 
 extern uae_u8 *real_bplpt[8];
+=======
+extern int next_sprite_entry;
+
+extern struct decision line_decisions[2 * (MAXVPOS + 1) + 1];
+extern struct draw_info line_drawinfo[2][2 * (MAXVPOS + 1) + 1];
+
+extern uae_u8 line_data[(MAXVPOS + 1) * 2][MAX_PLANES * MAX_WORDS_PER_LINE * 2];
+>>>>>>> p-uae/v2.1.0
 
 /* Functions in drawing.c.  */
 extern int coord_native_to_amiga_y (int);
 extern int coord_native_to_amiga_x (int);
 
+<<<<<<< HEAD
 extern void record_diw_line (int first, int last);
+=======
+extern void record_diw_line (int plfstrt, int first, int last);
+>>>>>>> p-uae/v2.1.0
 extern void hardware_line_completed (int lineno);
 
 /* Determine how to draw a scan line.  */
@@ -263,17 +362,28 @@ enum nln_how {
 extern void hsync_record_line_state (int lineno, enum nln_how, int changed);
 extern void vsync_handle_redraw (int long_frame, int lof_changed);
 extern void init_hardware_for_drawing_frame (void);
+<<<<<<< HEAD
 extern void finish_drawing_frame (void);
+=======
+>>>>>>> p-uae/v2.1.0
 extern void reset_drawing (void);
 extern void drawing_init (void);
 extern void notice_interlace_seen (void);
 extern void frame_drawn (void);
 extern void redraw_frame (void);
+<<<<<<< HEAD
+=======
+extern int get_custom_limits (int *pw, int *ph, int *pdx, int *pdy);
+>>>>>>> p-uae/v2.1.0
 
 /* Finally, stuff that shouldn't really be shared.  */
 
 extern int thisframe_first_drawn_line, thisframe_last_drawn_line;
+<<<<<<< HEAD
 extern int diwfirstword,diwlastword;
+=======
+extern int diwfirstword, diwlastword;
+>>>>>>> p-uae/v2.1.0
 
 #define IHF_SCROLLLOCK 0
 #define IHF_QUIT_PROGRAM 1
@@ -294,3 +404,9 @@ STATIC_INLINE void toggle_inhibit_frame (int bit)
 {
     inhibit_frame ^= 1 << bit;
 }
+<<<<<<< HEAD
+=======
+
+int bottom_crop_global; //koko
+int right_crop_global; //koko
+>>>>>>> p-uae/v2.1.0

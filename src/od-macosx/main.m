@@ -44,9 +44,19 @@ extern OSErr CPSSetFrontProcess (CPSProcessSerNum *psn);
 
 #endif /* SDL_USE_CPS */
 
+<<<<<<< HEAD
 static int     gArgc;
 static char  **gArgv;
 BOOL           gFinderLaunch;
+=======
+// Function found in gui-cocoa/cocoaui.m
+extern void cocoa_gui_early_setup (void);
+
+static int     gArgc;
+static char  **gArgv;
+BOOL           gFinderLaunch = NO;
+BOOL           gFinishedLaunching = NO;
+>>>>>>> p-uae/v2.1.0
 
 NSString *getApplicationName (void)
 {
@@ -150,9 +160,15 @@ static void setApplicationMenu (void)
     [appleMenu addItem:[NSMenuItem separatorItem]];
 
     title = [@"Quit " stringByAppendingString:appName];
+<<<<<<< HEAD
     /* E-UAE: Removed @"q" key equivalent so it doesn't interfere with using the command key as an emulated amiga key */
     [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@""];
 
+=======
+    menuItem = [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@"q"];
+	/* PUAE: Made the key equivalent Option-Cmd-q so it doesn't interfere with using the command key as an emulated amiga key */
+	[menuItem setKeyEquivalentModifierMask:NSCommandKeyMask|NSAlternateKeyMask];
+>>>>>>> p-uae/v2.1.0
 
     /* Put menu into the menubar */
     menuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
@@ -220,6 +236,12 @@ static void CustomApplicationMain (int argc, char **argv)
     setApplicationMenu ();
     setupWindowMenu ();
 
+<<<<<<< HEAD
+=======
+	/* Set up the UAE menus */
+	cocoa_gui_early_setup();
+
+>>>>>>> p-uae/v2.1.0
     /* Create SDLMain and make it the app delegate */
     euae_main = [[EUAE_Main alloc] init];
     [NSApp setDelegate:euae_main];
@@ -236,16 +258,34 @@ static void CustomApplicationMain (int argc, char **argv)
     return NO;
 }
 
+<<<<<<< HEAD
 extern NSString *finderLaunchFilename;
 - (BOOL) application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
+=======
+NSString *finderLaunchFilename = nil;
+- (BOOL) application:(NSApplication *)theApplication openFile:(NSString *)filename
+{
+	/* At the moment we are only supporting *launching* UAE by double-clicking
+	 * a config or disk-image file in the Finder. So if the user attempts to
+	 * dbl-click a file after the App is already running we return NO (failed)
+	 * TODO: Make this work.
+	 */
+	if (gFinishedLaunching)
+		return NO;
+		
+>>>>>>> p-uae/v2.1.0
     if (filename != nil) {
 	if (finderLaunchFilename != nil)
 	    [finderLaunchFilename release];
 	finderLaunchFilename = [[NSString alloc] initWithString:filename];
 	return YES;
     }
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> p-uae/v2.1.0
     return NO;
 }
 
@@ -255,16 +295,93 @@ extern NSString *finderLaunchFilename;
     /* Set the working directory to the .app's parent directory */
     [self setupWorkingDirectory:gFinderLaunch];
 
+<<<<<<< HEAD
+=======
+	gFinishedLaunching = YES;
+	
+>>>>>>> p-uae/v2.1.0
 #ifdef USE_SDL
     setenv ("SDL_ENABLEAPPEVENTS", "1", 1);
 
 
+<<<<<<< HEAD
     if (init_sdl ()) 
 #endif
     {
       
 	/* Hand off to main application code */
 	real_main (gArgc, gArgv);
+=======
+    /* if (init_sdl ()) */
+#endif
+    {
+	/* Hand off to main application code */
+		
+		/* If the application was launched by double-clicking a file in the
+		 * Finder, then create a fake argc and argv to pass to real_main that
+		 * contains the appropriate arguments for UAE to load that file.
+		 */
+		if (gFinderLaunch) {
+			char *myArgv[3];
+			char arg1[3] = { '-', 'f', '\0' };
+			char arg2[MAX_PATH]; 
+			
+			myArgv[0] = gArgv[0];
+			myArgv[1] = &arg1[0];
+			myArgv[2] = &arg2[0];
+				
+			/* If we were launched from the Finder, but without a config file
+			 * being selected, we need to ask for one now.
+			 */
+			if (finderLaunchFilename == nil) {
+				// Try to use the same directory the user used last time they loaded a config file
+				NSString *configPath = [[NSUserDefaults standardUserDefaults] stringForKey:@"LastUsedConfigFilePath"];
+				
+				NSOpenPanel *oPanel = [NSOpenPanel openPanel];
+				[oPanel setTitle:[NSString stringWithFormat:@"%@: Open Configuration File",getApplicationName()]];
+				
+				if ([oPanel respondsToSelector:@selector(setMessage:)])
+					[oPanel setMessage:@"Select a Configuration File:"];
+				[oPanel setPrompt:@"Choose"];
+				
+				int result = [oPanel runModalForDirectory:configPath file:nil types:[NSArray arrayWithObjects:@"uaerc", nil]];
+				
+				if (result == NSOKButton) {
+					finderLaunchFilename = [[oPanel filenames] objectAtIndex:0];
+					[[NSUserDefaults standardUserDefaults] setObject:[finderLaunchFilename stringByDeletingLastPathComponent] 
+						forKey:@"LastUsedConfigFilePath"];
+				}
+				else {
+					/* The user clicked the "Cancel" button so quit */
+					exit(EXIT_SUCCESS);
+				}
+			}
+			
+			/* Check the extension of the file that was double-clicked.
+			 * If it's ".uaerc" then we keep the switch argument set to "-f",
+			 * otherwise it must be a disk image, so we change it to "-0"
+			 */
+			NSString *ext = [[finderLaunchFilename pathExtension] lowercaseString];
+			if ([ext compare:@"uaerc"] != NSOrderedSame) 
+				myArgv[1][1] = '0';
+				
+			/* Copy in the filename */
+			NSData *data = [finderLaunchFilename dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+			[data getBytes:myArgv[2] length:MAX_PATH];
+			NSUInteger len = [data length];
+			myArgv[2][(len >= MAX_PATH) ? (MAX_PATH - 1) : len] = '\0';
+			
+			real_main(3, myArgv);
+		} 
+		else {
+			real_main (gArgc, gArgv);
+		}
+    }
+
+    if (finderLaunchFilename != nil) {
+	[finderLaunchFilename release];
+	finderLaunchFilename = nil;
+>>>>>>> p-uae/v2.1.0
     }
 
     /* We're done, thank you for playing */
@@ -281,13 +398,20 @@ extern NSString *finderLaunchFilename;
 /* Main entry point to executable - should *not* be SDL_main! */
 int main (int argc, char **argv)
 {
+<<<<<<< HEAD
     char logfile_path[MAX_PATH] = "~/Library/Logs/E-UAE.log";
+=======
+    char logfile_path[MAX_PATH] = "~/Library/Logs/PUAE.log";
+>>>>>>> p-uae/v2.1.0
 
     /* Copy the arguments into a global variable */
     /* This is passed if we are launched by double-clicking */
     if (argc >= 2 && strncmp (argv[1], "-psn", 4) == 0 ) {
 	gArgc = 1;
+<<<<<<< HEAD
 	gFinderLaunch = YES;
+=======
+>>>>>>> p-uae/v2.1.0
         gFinderLaunch = YES;
         cfgfile_subst_home (logfile_path, MAX_PATH);
         set_logfile (logfile_path);
@@ -323,4 +447,8 @@ int target_parse_option (struct uae_prefs *p, const char *option, const char *va
 
 void target_default_options (struct uae_prefs *p)
 {
+<<<<<<< HEAD
+=======
+	p->use_gl = 1;
+>>>>>>> p-uae/v2.1.0
 }

@@ -11,12 +11,15 @@
 
 #ifdef JIT
 
+<<<<<<< HEAD
 #ifdef __MORPHOS__
 //We need the memory handling functions for MorphOS
 #include <proto/exec.h>
 #include <exec/system.h>
 #endif
 
+=======
+>>>>>>> p-uae/v2.1.0
 /*
  * Allocate executable memory for JIT cache
  */

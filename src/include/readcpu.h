@@ -28,6 +28,7 @@ ENUMDECL {
     i_PACK, i_UNPK, i_TAS, i_BKPT, i_CALLM, i_RTM, i_TRAPcc, i_MOVES,
     i_FPP, i_FDBcc, i_FScc, i_FTRAPcc, i_FBcc, i_FSAVE, i_FRESTORE,
     i_CINVL, i_CINVP, i_CINVA, i_CPUSHL, i_CPUSHP, i_CPUSHA, i_MOVE16,
+<<<<<<< HEAD
     i_MMUOP
 } ENUMNAME (instrmnem);
 
@@ -35,6 +36,20 @@ extern struct mnemolookup {
     instrmnem mnemo;
     const char *name;
 } lookuptab[];
+=======
+    i_MMUOP030, i_PFLUSHN, i_PFLUSH, i_PFLUSHAN, i_PFLUSHA,
+    i_PLPAR, i_PLPAW, i_PTESTR, i_PTESTW,
+    i_LPSTOP
+} ENUMNAME (instrmnem);
+
+struct mnemolookup {
+    instrmnem mnemo;
+    const char *name;
+    const char *friendlyname;
+};
+
+extern struct mnemolookup lookuptab[];
+>>>>>>> p-uae/v2.1.0
 
 ENUMDECL {
     sz_byte, sz_word, sz_long
@@ -57,7 +72,11 @@ ENUMDECL {
 struct instr_def {
     unsigned int bits;
     int n_variable;
+<<<<<<< HEAD
     char bitpos[16];
+=======
+    uae_u8 bitpos[16];
+>>>>>>> p-uae/v2.1.0
     unsigned int mask;
     int cpulevel;
     int plevel;
@@ -65,7 +84,11 @@ struct instr_def {
 	unsigned int flaguse:3;
 	unsigned int flagset:3;
     } flaginfo[5];
+<<<<<<< HEAD
     unsigned char sduse;
+=======
+    uae_u8 sduse;
+>>>>>>> p-uae/v2.1.0
     const char *opcstr;
 };
 

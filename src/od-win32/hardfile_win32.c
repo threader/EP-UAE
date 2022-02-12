@@ -335,7 +335,11 @@ void hfd_flush_cache (struct hardfiledata *hfd, int now)
 	hdf_seek (hfd, hfd->cache_offset);
 	poscheck (hfd, CACHE_SIZE);
 	WriteFile (hfd->handle, hfd->cache, CACHE_SIZE, &outlen, NULL);
+<<<<<<< HEAD
         hfd->cache_needs_flush = 0;
+=======
+	hfd->cache_needs_flush = 0;
+>>>>>>> p-uae/v2.1.0
     }
 }
 #endif
@@ -431,12 +435,21 @@ Return Value:
     PUCHAR                              p;
     UCHAR                               outBuf[20000];
     ULONG                               length = 0,
+<<<<<<< HEAD
                                         returned = 0,
                                         returnedLength;
     DWORD                               interfaceDetailDataSize = 0,
                                         reqSize,
                                         errorCode,
                                         i, j;
+=======
+					returned = 0,
+					returnedLength;
+    DWORD                               interfaceDetailDataSize = 0,
+					reqSize,
+					errorCode,
+					i, j;
+>>>>>>> p-uae/v2.1.0
     DRIVE_LAYOUT_INFORMATION		*dli;
     DISK_GEOMETRY			dg;
     int ret = -1;
@@ -446,6 +459,7 @@ Return Value:
     interfaceData.cbSize = sizeof (SP_INTERFACE_DEVICE_DATA);
 
     status = SetupDiEnumDeviceInterfaces (
+<<<<<<< HEAD
                 IntDevInfo,             // Interface Device Info handle
                 0,                      // Device Info data
                 (LPGUID)&DiskClassGuid, // Interface registered by driver
@@ -458,6 +472,20 @@ Return Value:
         if ( errorCode != ERROR_NO_MORE_ITEMS ) {
             write_log ("SetupDiEnumDeviceInterfaces failed with error: %d\n", errorCode);
         }
+=======
+		IntDevInfo,             // Interface Device Info handle
+		0,                      // Device Info data
+		(LPGUID)&DiskClassGuid, // Interface registered by driver
+		Index,                  // Member
+		&interfaceData          // Device Interface Data
+		);
+
+    if ( status == FALSE ) {
+	errorCode = GetLastError();
+	if ( errorCode != ERROR_NO_MORE_ITEMS ) {
+	    write_log ("SetupDiEnumDeviceInterfaces failed with error: %d\n", errorCode);
+	}
+>>>>>>> p-uae/v2.1.0
 	ret = 0;
 	goto end;
     }
@@ -467,6 +495,7 @@ Return Value:
     //
 
     status = SetupDiGetDeviceInterfaceDetail (
+<<<<<<< HEAD
                 IntDevInfo,         // Interface Device info handle
                 &interfaceData,     // Interface data for the event class
                 NULL,               // Checking for buffer size
@@ -474,6 +503,15 @@ Return Value:
                 &reqSize,           // Buffer size required to get the detail data
                 NULL                // Checking for buffer size
                 );
+=======
+		IntDevInfo,         // Interface Device info handle
+		&interfaceData,     // Interface data for the event class
+		NULL,               // Checking for buffer size
+		0,                  // Checking for buffer size
+		&reqSize,           // Buffer size required to get the detail data
+		NULL                // Checking for buffer size
+		);
+>>>>>>> p-uae/v2.1.0
 
     //
     // This call returns ERROR_INSUFFICIENT_BUFFER with reqSize
@@ -482,12 +520,21 @@ Return Value:
     //
 
     if ( status == FALSE ) {
+<<<<<<< HEAD
         errorCode = GetLastError();
         if ( errorCode != ERROR_INSUFFICIENT_BUFFER ) {
             write_log ("SetupDiGetDeviceInterfaceDetail failed with error: %d\n", errorCode);
 	    ret = 0;
 	    goto end;
         }
+=======
+	errorCode = GetLastError();
+	if ( errorCode != ERROR_INSUFFICIENT_BUFFER ) {
+	    write_log ("SetupDiGetDeviceInterfaceDetail failed with error: %d\n", errorCode);
+	    ret = 0;
+	    goto end;
+	}
+>>>>>>> p-uae/v2.1.0
     }
 
     //
@@ -498,13 +545,18 @@ Return Value:
     interfaceDetailDataSize = reqSize;
     interfaceDetailData = malloc (interfaceDetailDataSize);
     if ( interfaceDetailData == NULL ) {
+<<<<<<< HEAD
         write_log ("Unable to allocate memory to get the interface detail data.\n");
+=======
+	write_log ("Unable to allocate memory to get the interface detail data.\n");
+>>>>>>> p-uae/v2.1.0
 	ret = 0;
 	goto end;
     }
     interfaceDetailData->cbSize = sizeof (SP_INTERFACE_DEVICE_DETAIL_DATA);
 
     status = SetupDiGetDeviceInterfaceDetail (
+<<<<<<< HEAD
                   IntDevInfo,               // Interface Device info handle
                   &interfaceData,           // Interface data for the event class
                   interfaceDetailData,      // Interface detail data
@@ -514,6 +566,17 @@ Return Value:
 
     if ( status == FALSE ) {
         write_log ("Error in SetupDiGetDeviceInterfaceDetail failed with error: %d\n", GetLastError());
+=======
+		  IntDevInfo,               // Interface Device info handle
+		  &interfaceData,           // Interface data for the event class
+		  interfaceDetailData,      // Interface detail data
+		  interfaceDetailDataSize,  // Interface detail data size
+		  &reqSize,                 // Buffer size required to get the detail data
+		  NULL);                    // Interface device info
+
+    if ( status == FALSE ) {
+	write_log ("Error in SetupDiGetDeviceInterfaceDetail failed with error: %d\n", GetLastError());
+>>>>>>> p-uae/v2.1.0
 	ret = 0;
 	goto end;
     }
@@ -526,6 +589,7 @@ Return Value:
     strcpy (udi->device_path, interfaceDetailData->DevicePath);
     write_log ("opening device '%s'\n", udi->device_path);
     hDevice = CreateFile(
+<<<<<<< HEAD
                 interfaceDetailData->DevicePath,    // device interface name
                 GENERIC_READ | GENERIC_WRITE,       // dwDesiredAccess
                 FILE_SHARE_READ | FILE_SHARE_WRITE, // dwShareMode
@@ -534,6 +598,16 @@ Return Value:
                 0,                                  // dwFlagsAndAttributes
                 NULL                                // hTemplateFile
                 );
+=======
+		interfaceDetailData->DevicePath,    // device interface name
+		GENERIC_READ | GENERIC_WRITE,       // dwDesiredAccess
+		FILE_SHARE_READ | FILE_SHARE_WRITE, // dwShareMode
+		NULL,                               // lpSecurityAttributes
+		OPEN_EXISTING,                      // dwCreationDistribution
+		0,                                  // dwFlagsAndAttributes
+		NULL                                // hTemplateFile
+		);
+>>>>>>> p-uae/v2.1.0
 
     //
     // We have the handle to talk to the device.
@@ -544,7 +618,11 @@ Return Value:
     interfaceDetailData = NULL;
 
     if (hDevice == INVALID_HANDLE_VALUE) {
+<<<<<<< HEAD
         write_log ("CreateFile failed with error: %d\n", GetLastError());
+=======
+	write_log ("CreateFile failed with error: %d\n", GetLastError());
+>>>>>>> p-uae/v2.1.0
 	ret = 1;
 	goto end;
     }
@@ -553,6 +631,7 @@ Return Value:
     query.QueryType = PropertyStandardQuery;
 
     status = DeviceIoControl(
+<<<<<<< HEAD
                         hDevice,
                         IOCTL_STORAGE_QUERY_PROPERTY,
                         &query,
@@ -564,6 +643,19 @@ Return Value:
                         );
     if ( !status ) {
         write_log ("IOCTL_STORAGE_QUERY_PROPERTY failed with error code%d.\n", GetLastError());
+=======
+			hDevice,
+			IOCTL_STORAGE_QUERY_PROPERTY,
+			&query,
+			sizeof( STORAGE_PROPERTY_QUERY ),
+			&outBuf,
+			sizeof (outBuf),
+			&returnedLength,
+			NULL
+			);
+    if ( !status ) {
+	write_log ("IOCTL_STORAGE_QUERY_PROPERTY failed with error code%d.\n", GetLastError());
+>>>>>>> p-uae/v2.1.0
 	ret = 1;
 	goto end;
     }
@@ -573,6 +665,7 @@ Return Value:
     query.QueryType = PropertyStandardQuery;
     status = DeviceIoControl(
 			hDevice,
+<<<<<<< HEAD
                         IOCTL_STORAGE_QUERY_PROPERTY,
                         &query,
                         sizeof( STORAGE_PROPERTY_QUERY ),
@@ -588,10 +681,28 @@ Return Value:
         devDesc = (PSTORAGE_DEVICE_DESCRIPTOR) outBuf;
         p = (PUCHAR) outBuf;
         if (devDesc->DeviceType != INQ_DASD && devDesc->DeviceType != INQ_ROMD && devDesc->DeviceType != INQ_OPTD) {
+=======
+			IOCTL_STORAGE_QUERY_PROPERTY,
+			&query,
+			sizeof( STORAGE_PROPERTY_QUERY ),
+			&outBuf,
+			sizeof (outBuf),
+			&returnedLength,
+			NULL);
+	if ( !status ) {
+	    write_log ("IOCTL_STORAGE_QUERY_PROPERTY failed with error code %d.\n", GetLastError());
+	    ret = 1;
+	    goto end;
+	}
+	devDesc = (PSTORAGE_DEVICE_DESCRIPTOR) outBuf;
+	p = (PUCHAR) outBuf;
+	if (devDesc->DeviceType != INQ_DASD && devDesc->DeviceType != INQ_ROMD && devDesc->DeviceType != INQ_OPTD) {
+>>>>>>> p-uae/v2.1.0
 	    ret = 1;
 	    write_log ("not a direct access device, ignored (type=%d)\n", devDesc->DeviceType);
 	    goto end;
 	}
+<<<<<<< HEAD
         if ( devDesc->VendorIdOffset && p[devDesc->VendorIdOffset] ) {
             j = 0;
             for ( i = devDesc->VendorIdOffset; p[i] != (UCHAR) NULL && i < returnedLength; i++ )
@@ -612,6 +723,28 @@ Return Value:
 	    for ( i = devDesc->SerialNumberOffset; p[i] != (UCHAR) NULL && i < returnedLength; i++ )
 	        udi->product_serial[j++] = p[i];
         }
+=======
+	if ( devDesc->VendorIdOffset && p[devDesc->VendorIdOffset] ) {
+	    j = 0;
+	    for ( i = devDesc->VendorIdOffset; p[i] != (UCHAR) NULL && i < returnedLength; i++ )
+		udi->vendor_id[j++] = p[i];
+	}
+	if ( devDesc->ProductIdOffset && p[devDesc->ProductIdOffset] ) {
+	    j = 0;
+	    for ( i = devDesc->ProductIdOffset; p[i] != (UCHAR) NULL && i < returnedLength; i++ )
+		udi->product_id[j++] = p[i];
+	}
+	if ( devDesc->ProductRevisionOffset && p[devDesc->ProductRevisionOffset] ) {
+	    j = 0;
+	    for ( i = devDesc->ProductRevisionOffset; p[i] != (UCHAR) NULL && i < returnedLength; i++ )
+		udi->product_rev[j++] = p[i];
+	}
+	if ( devDesc->SerialNumberOffset && p[devDesc->SerialNumberOffset] ) {
+	    j = 0;
+	    for ( i = devDesc->SerialNumberOffset; p[i] != (UCHAR) NULL && i < returnedLength; i++ )
+		udi->product_serial[j++] = p[i];
+	}
+>>>>>>> p-uae/v2.1.0
 	if (udi->vendor_id[0])
 	    strcat (udi->device_name, udi->vendor_id);
 	if (udi->product_id[0]) {
@@ -632,9 +765,15 @@ Return Value:
 
 	write_log ("device id string: '%s'\n", udi->device_name);
     if (!DeviceIoControl (hDevice, IOCTL_DISK_GET_DRIVE_GEOMETRY, NULL, 0, (void*)&dg, sizeof (dg), &returnedLength, NULL)) {
+<<<<<<< HEAD
         write_log ("IOCTL_DISK_GET_DRIVE_GEOMETRY failed with error code %d.\n", GetLastError());
         ret = 1;
         goto end;
+=======
+	write_log ("IOCTL_DISK_GET_DRIVE_GEOMETRY failed with error code %d.\n", GetLastError());
+	ret = 1;
+	goto end;
+>>>>>>> p-uae/v2.1.0
     }
     udi->bytespersector = dg.BytesPerSector;
     if (dg.BytesPerSector < 512) {
@@ -653,7 +792,11 @@ Return Value:
 
     memset (outBuf, 0, sizeof (outBuf));
     status = DeviceIoControl(hDevice, IOCTL_DISK_GET_DRIVE_LAYOUT, NULL, 0,
+<<<<<<< HEAD
         &outBuf, sizeof (outBuf), &returnedLength, NULL);
+=======
+	&outBuf, sizeof (outBuf), &returnedLength, NULL);
+>>>>>>> p-uae/v2.1.0
     if (!status) {
 	write_log ("IOCTL_DISK_GET_DRIVE_LAYOUT failed with error code%d.\n", GetLastError());
 	ret = 1;
@@ -663,9 +806,15 @@ Return Value:
     trim (orgname);
     dli = (DRIVE_LAYOUT_INFORMATION*)outBuf;
     if (dli->PartitionCount) {
+<<<<<<< HEAD
         struct uae_driveinfo *udi2 = udi;
         int nonzeropart = 0;
         int gotpart = 0;
+=======
+	struct uae_driveinfo *udi2 = udi;
+	int nonzeropart = 0;
+	int gotpart = 0;
+>>>>>>> p-uae/v2.1.0
 	write_log ("%d MBR partitions found\n", dli->PartitionCount);
 	for (i = 0; i < dli->PartitionCount && (*index2) < MAX_FILESYSTEM_UNITS; i++) {
 	    PARTITION_INFORMATION *pi = &dli->PartitionEntry[i];
@@ -749,7 +898,11 @@ int hdf_init (void)
 	if (hIntDevInfo != INVALID_HANDLE_VALUE) {
 	    while (index < MAX_FILESYSTEM_UNITS) {
 		memset (uae_drives + index2, 0, sizeof (struct uae_driveinfo));
+<<<<<<< HEAD
 	        if (!GetDeviceProperty (hIntDevInfo, index, &index2, buffer))
+=======
+		if (!GetDeviceProperty (hIntDevInfo, index, &index2, buffer))
+>>>>>>> p-uae/v2.1.0
 		    break;
 		index++;
 		num_drives = index2;
@@ -777,10 +930,17 @@ char *hdf_getnameharddrive (int index, int flags)
 
     if (flags & 1) {
 	    if (size >= 1024 * 1024 * 1024)
+<<<<<<< HEAD
 	        sprintf (tmp, "%.1fG", ((double)(uae_u32)(size / (1024 * 1024))) / 1024.0);
 	    else
 	        sprintf (tmp, "%.1fM", ((double)(uae_u32)(size / (1024))) / 1024.0);
  	sprintf (name, "%s (%s)", uae_drives[index].device_name, tmp);
+=======
+		sprintf (tmp, "%.1fG", ((double)(uae_u32)(size / (1024 * 1024))) / 1024.0);
+	    else
+		sprintf (tmp, "%.1fM", ((double)(uae_u32)(size / (1024))) / 1024.0);
+	sprintf (name, "%s (%s)", uae_drives[index].device_name, tmp);
+>>>>>>> p-uae/v2.1.0
 	return name;
     }
     return uae_drives[index].device_name;

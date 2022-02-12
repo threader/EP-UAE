@@ -12,8 +12,12 @@
 #include "options.h"
 #include "gui.h"
 
+<<<<<<< HEAD
 
 void gui_init (int argc, char **argv)
+=======
+int gui_init (void)
+>>>>>>> p-uae/v2.1.0
 {
 }
 
@@ -26,6 +30,7 @@ void gui_notify_state (int state)
 {
 }
 
+<<<<<<< HEAD
 int gui_update (void)
 {
     return 0;
@@ -35,16 +40,26 @@ void gui_exit (void)
 {
 }
 
+=======
+>>>>>>> p-uae/v2.1.0
 void gui_fps (int fps, int idle)
 {
     gui_data.fps  = fps;
     gui_data.idle = idle;
 }
 
+<<<<<<< HEAD
+=======
+void gui_flicker_led (int led, int unitnum, int status)
+{
+}
+
+>>>>>>> p-uae/v2.1.0
 void gui_led (int led, int on)
 {
 }
 
+<<<<<<< HEAD
 void gui_hd_led (int led)
 {
     static int resetcounter;
@@ -78,6 +93,14 @@ void gui_cd_led (int led)
     resetcounter = 6;
     if (old != gui_data.cd)
 	gui_led (6, gui_data.cd);
+=======
+void gui_hd_led (int unitnum, int led)
+{
+}
+
+void gui_cd_led (int unitnum, int led)
+{
+>>>>>>> p-uae/v2.1.0
 }
 
 void gui_filename (int num, const char *name)
@@ -88,12 +111,28 @@ void gui_handle_events (void)
 {
 }
 
+<<<<<<< HEAD
+=======
+int gui_update (void)
+{
+	return 0;
+}
+
+void gui_exit (void)
+{
+}
+
+>>>>>>> p-uae/v2.1.0
 void gui_display(int shortcut)
 {
 }
 
 void gui_message (const char *format,...)
+<<<<<<< HEAD
 {   
+=======
+{
+>>>>>>> p-uae/v2.1.0
        char msg[2048];
        va_list parms;
 
@@ -103,3 +142,11 @@ void gui_message (const char *format,...)
 
        write_log (msg);
 }
+<<<<<<< HEAD
+=======
+
+void gui_disk_image_change (int unitnum, const TCHAR *name) {}
+void gui_lock (void) {}
+void gui_unlock (void) {}
+
+>>>>>>> p-uae/v2.1.0

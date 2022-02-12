@@ -1,3 +1,45 @@
+<<<<<<< HEAD
+=======
+
+#include "flags_x86.h"
+
+#ifdef CPU_64_BIT
+typedef uae_u64 uintptr;
+#else
+typedef uae_u32 uintptr;
+#endif
+
+/* Flags for Bernie during development/debugging. Should go away eventually */
+#define DISTRUST_CONSISTENT_MEM 0
+#define TAGMASK 0x000fffff
+#define TAGSIZE (TAGMASK+1)
+#define MAXRUN 1024
+
+extern uae_u8* start_pc_p;
+extern uae_u32 start_pc;
+
+#define cacheline(x) (((uae_u32)x)&TAGMASK)
+
+typedef struct {
+  uae_u16* location;
+  uae_u8  cycles;
+  uae_u8  specmem;
+  uae_u8  dummy2;
+  uae_u8  dummy3;
+} cpu_history;
+
+struct blockinfo_t;
+
+typedef union {
+    cpuop_func* handler;
+    struct blockinfo_t* bi;
+} cacheline;
+
+extern signed long pissoff;
+
+#define USE_OPTIMIZER 0
+#define USE_LOW_OPTIMIZER 0
+>>>>>>> p-uae/v2.1.0
 #define USE_ALIAS 1
 #define USE_F_ALIAS 1
 #define USE_SOFT_FLUSH 1
@@ -53,11 +95,21 @@ extern void set_target(uae_u8* t);
 extern void freescratch(void);
 extern void build_comp(void);
 extern void set_cache_state(int enabled);
+<<<<<<< HEAD
 
 #ifdef JIT
 extern void flush_icache(int n);
 #endif
 extern void compile_block (const cpu_history *pc_hist, int blocklen, int totcyles);
+=======
+extern int get_cache_state(void);
+extern uae_u32 get_jitted_size(void);
+#ifdef JIT
+extern void flush_icache(uaecptr ptr, int n);
+#endif
+extern void alloc_cache(void);
+extern void compile_block (cpu_history *pc_hist, int blocklen, int totcyles);
+>>>>>>> p-uae/v2.1.0
 extern int check_for_cache_miss(void);
 
 
@@ -193,8 +245,15 @@ typedef struct {
 } smallstate;
 
 extern bigstate live;
+<<<<<<< HEAD
 
 
+=======
+extern int touchcnt;
+
+
+#define IMMS uae_s32
+>>>>>>> p-uae/v2.1.0
 #define IMM uae_u32
 #define R1  uae_u32
 #define R2  uae_u32
@@ -220,7 +279,20 @@ extern bigstate live;
 #define LOWFUNC(flags,mem,nargs,func,args) STATIC_INLINE void func args
 #define LENDFUNC(flags,mem,nargs,func,args)
 
+<<<<<<< HEAD
 #define DECLARE(func) extern void func
+=======
+#if USE_OPTIMIZER
+#define REGALLOC_O 2
+#define PEEPHOLE_O 3 /* Has to be >= REGALLOC */
+#define DECLARE(func) extern void func; extern void do_##func
+#else
+#define REGALLOC_O 2000000
+#define PEEPHOLE_O 2000000
+#define DECLARE(func) extern void func
+#endif
+
+>>>>>>> p-uae/v2.1.0
 
 /* What we expose to the outside */
 DECLARE(bt_l_ri(R4 r, IMM i));
@@ -269,6 +341,11 @@ DECLARE(shra_w_ri(RW2 r, IMM i));
 DECLARE(shra_b_ri(RW1 r, IMM i));
 DECLARE(setcc(W1 d, IMM cc));
 DECLARE(setcc_m(IMM d, IMM cc));
+<<<<<<< HEAD
+=======
+DECLARE(cmov_b_rr(RW1 d, R1 s, IMM cc));
+DECLARE(cmov_w_rr(RW2 d, R2 s, IMM cc));
+>>>>>>> p-uae/v2.1.0
 DECLARE(cmov_l_rr(RW4 d, R4 s, IMM cc));
 DECLARE(cmov_l_rm(RW4 d, IMM s, IMM cc));
 DECLARE(bsf_l_rr(W4 d, R4 s));
@@ -286,6 +363,7 @@ DECLARE(zero_extend_8_rr(W4 d, R1 s));
 DECLARE(imul_64_32(RW4 d, RW4 s));
 DECLARE(mul_64_32(RW4 d, RW4 s));
 DECLARE(imul_32_32(RW4 d, R4 s));
+<<<<<<< HEAD
 DECLARE(mul_32_32(RW4 d, R4 s));
 DECLARE(mov_b_rr(W1 d, R1 s));
 DECLARE(mov_w_rr(W2 d, R2 s));
@@ -302,6 +380,17 @@ DECLARE(mov_l_brrm_indexed(W4 d, IMM base, R4 baser, R4 index, IMM factor));
 DECLARE(mov_w_brrm_indexed(W2 d, IMM base, R4 baser, R4 index, IMM factor));
 DECLARE(mov_b_brrm_indexed(W1 d, IMM base, R4 baser, R4 index, IMM factor));
 DECLARE(mov_l_rm_indexed(W4 d, IMM base, R4 index, IMM factor));
+=======
+DECLARE(mov_b_rr(W1 d, R1 s));
+DECLARE(mov_w_rr(W2 d, R2 s));
+DECLARE(mov_l_rrm_indexed(W4 d, R4 baser, R4 index));
+DECLARE(mov_w_rrm_indexed(W2 d, R4 baser, R4 index));
+DECLARE(mov_b_rrm_indexed(W1 d, R4 baser, R4 index));
+DECLARE(mov_l_mrr_indexed(R4 baser, R4 index, R4 s));
+DECLARE(mov_w_mrr_indexed(R4 baser, R4 index, R2 s));
+DECLARE(mov_b_mrr_indexed(R4 baser, R4 index, R1 s));
+DECLARE(mov_l_rm_indexed(W4 d, IMM base, R4 index));
+>>>>>>> p-uae/v2.1.0
 DECLARE(mov_l_rR(W4 d, R4 s, IMM offset));
 DECLARE(mov_w_rR(W2 d, R4 s, IMM offset));
 DECLARE(mov_b_rR(W1 d, R4 s, IMM offset));
@@ -316,7 +405,10 @@ DECLARE(mov_w_Rr(R4 d, R2 s, IMM offset));
 DECLARE(mov_b_Rr(R4 d, R1 s, IMM offset));
 DECLARE(lea_l_brr(W4 d, R4 s, IMM offset));
 DECLARE(lea_l_brr_indexed(W4 d, R4 s, R4 index, IMM factor, IMM offset));
+<<<<<<< HEAD
 DECLARE(lea_l_rr_indexed(W4 d, R4 s, R4 index, IMM factor));
+=======
+>>>>>>> p-uae/v2.1.0
 DECLARE(mov_l_bRr(R4 d, R4 s, IMM offset));
 DECLARE(mov_w_bRr(R4 d, R2 s, IMM offset));
 DECLARE(mov_b_bRr(R4 d, R1 s, IMM offset));
@@ -393,11 +485,25 @@ DECLARE(fmov_loge_2(FW r));
 DECLARE(fmov_1(FW r));
 DECLARE(fmov_0(FW r));
 DECLARE(fmov_rm(FW r, MEMR m));
+<<<<<<< HEAD
 DECLARE(fmovi_rm(FW r, MEMR m));
 DECLARE(fmovi_mr(MEMW m, FR r));
 DECLARE(fmovs_rm(FW r, MEMR m));
 DECLARE(fmovs_mr(MEMW m, FR r));
 DECLARE(fmov_mr(MEMW m, FR r));
+=======
+DECLARE(fmov_mr(MEMW m, FR r));
+DECLARE(fmovi_rm(FW r, MEMR m));
+DECLARE(fmovi_mrb(MEMW m, FR r, double *bounds));
+DECLARE(fmovs_rm(FW r, MEMR m));
+DECLARE(fmovs_mr(MEMW m, FR r));
+DECLARE(fcuts_r(FRW r));
+DECLARE(fcut_r(FRW r));
+DECLARE(fmovl_ri(FW r, IMMS i));
+DECLARE(fmovs_ri(FW r, IMM i));
+DECLARE(fmov_ri(FW r, IMM i1, IMM i2));
+DECLARE(fmov_ext_ri(FW r, IMM i1, IMM i2, IMM i3));
+>>>>>>> p-uae/v2.1.0
 DECLARE(fmov_ext_mr(MEMW m, FR r));
 DECLARE(fmov_ext_rm(FW r, MEMR m));
 DECLARE(fmov_rr(FW d, FR s));
@@ -407,11 +513,36 @@ DECLARE(dont_care_fflags(void));
 DECLARE(fsqrt_rr(FW d, FR s));
 DECLARE(fabs_rr(FW d, FR s));
 DECLARE(frndint_rr(FW d, FR s));
+<<<<<<< HEAD
 DECLARE(fsin_rr(FW d, FR s));
 DECLARE(fcos_rr(FW d, FR s));
 DECLARE(ftwotox_rr(FW d, FR s));
 DECLARE(fetox_rr(FW d, FR s));
 DECLARE(flog2_rr(FW d, FR s));
+=======
+DECLARE(fgetexp_rr(FW d, FR s));
+DECLARE(fgetman_rr(FW d, FR s));
+DECLARE(fsin_rr(FW d, FR s));
+DECLARE(fcos_rr(FW d, FR s));
+DECLARE(ftan_rr(FW d, FR s));
+DECLARE(fsincos_rr(FW d, FW c, FR s));
+DECLARE(fscale_rr(FRW d, FR s));
+DECLARE(ftwotox_rr(FW d, FR s));
+DECLARE(fetox_rr(FW d, FR s));
+DECLARE(fetoxM1_rr(FW d, FR s));
+DECLARE(ftentox_rr(FW d, FR s));
+DECLARE(flog2_rr(FW d, FR s));
+DECLARE(flogN_rr(FW d, FR s));
+DECLARE(flogNP1_rr(FW d, FR s));
+DECLARE(flog10_rr(FW d, FR s));
+DECLARE(fasin_rr(FW d, FR s));
+DECLARE(facos_rr(FW d, FR s));
+DECLARE(fatan_rr(FW d, FR s));
+DECLARE(fatanh_rr(FW d, FR s));
+DECLARE(fsinh_rr(FW d, FR s));
+DECLARE(fcosh_rr(FW d, FR s));
+DECLARE(ftanh_rr(FW d, FR s));
+>>>>>>> p-uae/v2.1.0
 DECLARE(fneg_rr(FW d, FR s));
 DECLARE(fadd_rr(FRW d, FR s));
 DECLARE(fsub_rr(FRW d, FR s));
@@ -427,6 +558,7 @@ extern int failure;
 
 /* Convenience functions exposed to gencomp */
 extern uae_u32 m68k_pc_offset;
+<<<<<<< HEAD
 
 extern void readbyte(int address, int dest, int tmp);
 extern void readword(int address, int dest, int tmp);
@@ -441,6 +573,16 @@ extern void writelong_general (int address, int source, int tmp, int clobber);
 #define writeword_clobber(address, source, tmp) writeword_general (address, source, tmp, 1)
 #define writelong_clobber(address, source, tmp) writelong_general (address, source, tmp, 1)
 
+=======
+extern void readbyte(int address, int dest, int tmp);
+extern void readword(int address, int dest, int tmp);
+extern void readlong(int address, int dest, int tmp);
+extern void writebyte         (int address, int source, int tmp);
+extern void writeword(int address, int source, int tmp);
+extern void writelong(int address, int source, int tmp);
+extern void writeword_clobber(int address, int source, int tmp);
+extern void writelong_clobber(int address, int source, int tmp);
+>>>>>>> p-uae/v2.1.0
 extern void get_n_addr(int address, int dest, int tmp);
 extern void get_n_addr_jmp(int address, int dest, int tmp);
 extern void calc_disp_ea_020(int base, uae_u32 dp, int target, int tmp);
@@ -456,7 +598,11 @@ extern void empty_optimizer(void);
 #define comp_get_ilong(o) do_get_mem_long((uae_u32 *)(comp_pc_p + (o)))
 
 /* Preferences handling */
+<<<<<<< HEAD
 void check_prefs_changed_comp (void);
+=======
+int check_prefs_changed_comp (void);
+>>>>>>> p-uae/v2.1.0
 
 struct blockinfo_t;
 
@@ -515,7 +661,10 @@ typedef struct {
 void execute_normal(void);
 void exec_nostats(void);
 void do_nothing(void);
+<<<<<<< HEAD
 MIDFUNC(1,setzflg_l,(RW4 r));
+=======
+>>>>>>> p-uae/v2.1.0
 
 void comp_fdbcc_opp (uae_u32 opcode, uae_u16 extra);
 void comp_fscc_opp (uae_u32 opcode, uae_u16 extra);

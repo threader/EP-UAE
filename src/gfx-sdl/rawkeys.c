@@ -28,10 +28,17 @@
  */
 struct sdl_raw_keymap
 {
+<<<<<<< HEAD
     int                          sdl_gfx_driver;
     const char                  *name;
     const struct uaekey_hostmap *keymap;
           struct uae_hotkeyseq  *hotkeys;
+=======
+	int                          sdl_gfx_driver;
+    const char                  *name;
+    const struct uaekey_hostmap *keymap;
+	struct uae_hotkeyseq		*hotkeys;
+>>>>>>> p-uae/v2.1.0
     const int                   *modtable;
 };
 
@@ -67,17 +74,28 @@ struct uae_input_device_kbr_default *get_default_raw_keymap (int type)
     const struct sdl_raw_keymap *k = &keymaps[0];
 
     if (!keyboard) {
+<<<<<<< HEAD
         free (keyboard);
         keyboard = 0;
+=======
+		free (keyboard);
+		keyboard = 0;
+>>>>>>> p-uae/v2.1.0
     }
 
     while (k->sdl_gfx_driver != type && k->sdl_gfx_driver != 0)
 	k++;
 
     if (k->keymap) {
+<<<<<<< HEAD
 	write_log ("Found %s raw keyboard mapping\n", k->name);
 	modkeytable = k->modtable;
         keyboard = uaekey_make_default_kbr (k->keymap);
+=======
+		write_log ("Found %s raw keyboard mapping\n", k->name);
+		modkeytable = k->modtable;
+		keyboard = uaekey_make_default_kbr (k->keymap);
+>>>>>>> p-uae/v2.1.0
     }
 
     return keyboard;
@@ -109,6 +127,7 @@ int modifier_hack (int *scancode, int *pressed)
     int modifiers = SDL_GetModState ();
 
     if (modkeytable && modifiers != old_modifiers) {
+<<<<<<< HEAD
 	if ((modifiers & KMOD_LSHIFT) != (old_modifiers & KMOD_LSHIFT)) {
 	     *scancode = modkeytable[UAEMODKEY_LSHIFT];
 	     *pressed  = modifiers & KMOD_LSHIFT;
@@ -141,6 +160,40 @@ int modifier_hack (int *scancode, int *pressed)
         old_modifiers = modifiers;
     } else
 	result = 0;
+=======
+		if ((modifiers & KMOD_LSHIFT) != (old_modifiers & KMOD_LSHIFT)) {
+		     *scancode = modkeytable[UAEMODKEY_LSHIFT];
+		     *pressed  = modifiers & KMOD_LSHIFT;
+		} else if ((modifiers & KMOD_RSHIFT) != (old_modifiers & KMOD_RSHIFT)) {
+		     *scancode = modkeytable[UAEMODKEY_RSHIFT];
+		     *pressed  = modifiers & KMOD_RSHIFT;
+		} else if ((modifiers & KMOD_LCTRL) != (old_modifiers & KMOD_LCTRL)) {
+		     *scancode = modkeytable[UAEMODKEY_LCTRL];
+		     *pressed  = modifiers & KMOD_LCTRL;
+		} else if ((modifiers & KMOD_RCTRL) != (old_modifiers & KMOD_RCTRL)) {
+		     *scancode = modkeytable[UAEMODKEY_RCTRL];
+		     *pressed  = modifiers & KMOD_RCTRL;
+		} else if ((modifiers & KMOD_LALT) != (old_modifiers & KMOD_LALT)) {
+		     *scancode = modkeytable[UAEMODKEY_LALT];
+		     *pressed  = modifiers & KMOD_LALT;
+		} else if ((modifiers & KMOD_RALT) != (old_modifiers & KMOD_RALT)) {
+		     *scancode = modkeytable[UAEMODKEY_RALT];
+		     *pressed  = modifiers & KMOD_RALT;
+		} else if ((modifiers & KMOD_LMETA) != (old_modifiers & KMOD_LMETA)) {
+		     *scancode = modkeytable[UAEMODKEY_LSUPER];
+		     *pressed  = modifiers & KMOD_LMETA;
+		} else if ((modifiers & KMOD_RMETA) != (old_modifiers & KMOD_RMETA)) {
+		     *scancode = modkeytable[UAEMODKEY_RSUPER];
+		     *pressed  = modifiers & KMOD_RMETA;
+		} else if ((modifiers & KMOD_CAPS) != (old_modifiers & KMOD_CAPS)) {
+		     *scancode = modkeytable[UAEMODKEY_CAPSLOCK];
+		     *pressed  = modifiers & KMOD_CAPS;
+		} else
+		     result = 0;
+		old_modifiers = modifiers;
+    } else
+		result = 0;
+>>>>>>> p-uae/v2.1.0
 
     return result;
 }

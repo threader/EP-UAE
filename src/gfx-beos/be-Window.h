@@ -81,8 +81,13 @@ class UAEWindow : public BDirectWindow
 		clipping_rect fWindowBounds;
 		clipping_rect fClipList[MAX_CLIP_LIST_COUNT];
 		uint32	fClipListCount;
+<<<<<<< HEAD
 		
 		BPoint fScreenCentre; 
+=======
+
+		BPoint fScreenCentre;
+>>>>>>> p-uae/v2.1.0
 };
 
 /*

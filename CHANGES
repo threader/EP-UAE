@@ -282,7 +282,11 @@
   don't want to add much to the GUI just now because it's in the process of
   being rewritten - but this was cheap to do and it doesn't make sense to
   build in cycle-exact mode if it cannot be easily used.
+<<<<<<< HEAD
 - Tweaks to allow building without cycle-exact CPU (CPUEMU_6 undefined).
+=======
+- Tweaks to allow building without cycle-exact CPU (CPUEMU_12 undefined).
+>>>>>>> p-uae/v2.1.0
   There's no config file support for this as yet, but if you want to save
   buckets of time when compiling, load up src/Makefile and remove that
   define in CFLAGS and cpuemu_*_6.o/compemu_*_6.o from OBJS.

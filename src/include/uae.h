@@ -7,11 +7,19 @@
   * Copyright 2006-2007 Richard Drummond
   */
 
+<<<<<<< HEAD
+=======
+extern void do_start_program (void);
+extern void do_leave_program (void);
+extern void start_program (void);
+extern void leave_program (void);
+>>>>>>> p-uae/v2.1.0
 extern void real_main (int, char **);
 extern void usage (void);
 
 extern void sleep_millis (int ms);
 extern void sleep_millis_busy (int ms);
+<<<<<<< HEAD
 
 extern void uae_start (void);
 extern void uae_pause (void);
@@ -32,6 +40,28 @@ void logging_init (void);
 void filesys_init (void);
 #endif
 
+=======
+extern int sleep_resolution;
+
+extern void uae_reset (int);
+extern void uae_quit (void);
+extern void uae_restart (int, char*);
+extern void reset_all_systems (void);
+extern void target_reset (void);
+extern void target_addtorecent (const char*, int);
+extern void target_run (void);
+extern void target_quit (void);
+
+extern int quit_program;
+extern int console_emulation;
+
+extern char warning_buffer[256];
+extern char start_path_data[];
+extern char start_path_data_exe[];
+
+extern void setup_brkhandler (void);
+
+>>>>>>> p-uae/v2.1.0
 #ifdef USE_SDL
 int init_sdl (void);
 #endif

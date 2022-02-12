@@ -188,7 +188,11 @@ void logging_init (void)
     if (first == 1) {
 	if (debugfile)
 	    fclose (debugfile);
+<<<<<<< HEAD
         debugfile = 0;
+=======
+	debugfile = 0;
+>>>>>>> p-uae/v2.1.0
     }
 #ifndef SINGLEFILE
     if (currprefs.win32_logfile) {

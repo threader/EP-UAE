@@ -6,10 +6,21 @@
   * Copyright 1997 Bernd Schmidt
   */
 
+<<<<<<< HEAD
 STATIC_INLINE void check_sound_buffers (void)
 {
 }
 
+=======
+#define SOUNDSTUFF 1
+
+STATIC_INLINE void check_sound_buffers (void)
+{
+}
+STATIC_INLINE void set_sound_buffers (void)
+{
+}
+>>>>>>> p-uae/v2.1.0
 #define AUDIO_NAME "dummyaudio"
 
 #define PUT_SOUND_BYTE(b) do { ; } while (0)

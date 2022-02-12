@@ -3,7 +3,11 @@
  *
  * Support for IPF/CAPS disk images
  *
+<<<<<<< HEAD
  * Copyright 2004-2006 Richard Drummond
+=======
+ * Copyright 2004-2007 Richard Drummond
+>>>>>>> p-uae/v2.1.0
  *
  * Based on Win32 CAPS code by Toni Wilen
  */
@@ -13,9 +17,15 @@
 
 #ifdef CAPS
 
+<<<<<<< HEAD
 #include <caps/capsimage.h>
 #include "zfile.h"
 #include "caps.h"
+=======
+#include "caps.h"
+#include "zfile.h"
+#include "caps/capsimage.h"
+>>>>>>> p-uae/v2.1.0
 
 static CapsLong caps_cont[4]= {-1, -1, -1, -1};
 static int caps_locked[4];
@@ -23,7 +33,15 @@ static int caps_flags = DI_LOCK_DENVAR|DI_LOCK_DENNOISE|DI_LOCK_NOISE|DI_LOCK_UP
 #define LIB_TYPE 1
 
 
+<<<<<<< HEAD
 #ifndef TARGET_AMIGAOS
+=======
+#if defined HAVE_DLOPEN && !defined HAVE_FRAMEWORK_CAPSIMAGE
+
+#include <dlfcn.h>
+
+#define CAPSLIB_NAME    "libcapsimage.so.2"
+>>>>>>> p-uae/v2.1.0
 
 /*
  * Repository for function pointers to the CAPSLib routines
@@ -50,12 +68,15 @@ struct {
   CapsLong (*CAPSGetVersionInfo)(struct CapsVersionInfo *pi, CapsULong flag);
 } capslib;
 
+<<<<<<< HEAD
 #ifdef HAVE_DLOPEN
 
 #include <dlfcn.h>
 
 #define CAPSLIB_NAME    "libcapsimage.so.2"
 
+=======
+>>>>>>> p-uae/v2.1.0
 /*
  * The Unix/dlopen method for loading and linking the CAPSLib plug-in
  */
@@ -83,10 +104,57 @@ static int load_capslib (void)
     write_log ("Unable to open " CAPSLIB_NAME "\n.");
     return 0;
 }
+<<<<<<< HEAD
 #endif // HAVE_DLOPEN
 
 #else
 
+=======
+
+/*
+ * Some defines so that we don't care that CAPSLib
+ * isn't statically linked
+ */
+#define CAPSInit            capslib.CAPSInit
+#define CAPSExit            capslib.CAPSExit
+#define CAPSAddImage        capslib.CAPSAddImage
+#define CAPSRemImage        capslib.CAPSRemImage
+#define CAPSLockImage       capslib.CAPSLockImage
+#define CAPSLockImageMemory capslib.CAPSLockImageMemory
+#define CAPSUnlockImage     capslib.CAPSUnlockImage
+#define CAPSLoadImage       capslib.CAPSLoadImage
+#define CAPSGetImageInfo    capslib.CAPSGetImageInfo
+#define CAPSLockTrack       capslib.CAPSLockTrack
+#define CAPSUnlockTrack     capslib.CAPSUnlockTrack
+#define CAPSUnlockAllTracks capslib.CAPSUnlockAllTracks
+#define CAPSGetPlatformName capslib.CAPSGetPlatformName
+#define CAPSGetVersionInfo  capslib.CAPSGetVersionInfo
+
+#else
+#ifdef HAVE_FRAMEWORK_CAPSIMAGE
+
+/*
+ * On OS X we link weakly to the CAPSImage framework. Thus we can
+ * let the dynamic linker take care of everything.
+ */
+
+/* We check for the existence of this symbol to tell whether the
+ * the framework could be linked or not.
+ */
+extern CapsLong CAPSInit(void) __attribute__((weak));
+
+static int load_capslib (void)
+{
+    if (CAPSInit != NULL)
+	return 1;
+    else
+	return 0;
+}
+
+#else
+
+#ifdef TARGET_AMIGAOS
+>>>>>>> p-uae/v2.1.0
 #ifdef __amigaos4__
 #define __USE_BASETYPE__
 #include <exec/emulation.h>
@@ -323,10 +391,14 @@ LONG CAPSGetVersionInfo (struct CapsVersionInfo *pi, CapsULong flag)
     return retval;
 }
 
+<<<<<<< HEAD
 #endif
 
 
 #ifdef TARGET_AMIGAOS
+=======
+#else
+>>>>>>> p-uae/v2.1.0
 
 #if 0
 /* proto file is broken in current CAPS API */
@@ -337,6 +409,10 @@ LONG CAPSGetVersionInfo (struct CapsVersionInfo *pi, CapsULong flag)
 static struct Device *CapsImageBase;
 #endif
 #endif
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> p-uae/v2.1.0
 
 #include <proto/exec.h>
 
@@ -386,6 +462,7 @@ static int load_capslib (void)
 
 #endif
 #endif
+<<<<<<< HEAD
 
 
 #ifndef TARGET_AMIGAOS
@@ -412,6 +489,10 @@ static int load_capslib (void)
 #endif
 
 
+=======
+#endif
+
+>>>>>>> p-uae/v2.1.0
 /*
  * CAPS support proper starts here
  *
@@ -424,6 +505,7 @@ int caps_init (void)
     struct CapsVersionInfo cvi;
 
     if (init)
+<<<<<<< HEAD
 	return 1;
 
     if (!load_capslib ()) {
@@ -442,6 +524,26 @@ int caps_init (void)
     write_log ("CAPS: library version %d.%d\n", cvi.release, cvi.revision);
     for (i = 0; i < 4; i++)
 	caps_cont[i] = CAPSAddImage ();
+=======
+		return 1;
+
+	if (!load_capslib ()) {
+		write_log ("Failed to load CAPS plug-in.\n");
+		if (noticed)
+		    return 0;
+		gui_message ("This disk image needs the C.A.P.S. plugin\n"
+			     "which is available from\n"
+			     "http//www.caps-project.org/download.shtml\n");
+		noticed = 1;
+		return 0;
+    }
+    init = 1;
+    cvi.type = LIB_TYPE;
+	CAPSGetVersionInfo (&cvi, 0);
+    write_log ("CAPS: library version %d.%d\n", cvi.release, cvi.revision);
+    for (i = 0; i < 4; i++)
+		caps_cont[i] = CAPSAddImage ();
+>>>>>>> p-uae/v2.1.0
 
     return 1;
 }
@@ -469,17 +571,27 @@ int caps_loadimage (struct zfile *zf, unsigned int drv, unsigned int *num_tracks
     zfile_fseek (zf, 0, SEEK_END);
     len = zfile_ftell (zf);
     zfile_fseek (zf, 0, SEEK_SET);
+<<<<<<< HEAD
     buf = xmalloc (len);
+=======
+    buf = xmalloc (uae_u8, len);
+>>>>>>> p-uae/v2.1.0
     if (!buf)
 	return 0;
     if (zfile_fread (buf, len, 1, zf) == 0)
 	return 0;
     ret = CAPSLockImageMemory (caps_cont[drv], buf, len, 0);
+<<<<<<< HEAD
     free (buf);
     if (ret != imgeOk) {
 	free (buf);
 	return 0;
     }
+=======
+    xfree (buf);
+    if (ret != imgeOk)
+	return 0;
+>>>>>>> p-uae/v2.1.0
     caps_locked[drv] = 1;
     CAPSGetImageInfo (&ci, caps_cont[drv]);
     *num_tracks = (ci.maxcylinder - ci.mincylinder + 1) * (ci.maxhead - ci.minhead + 1);
@@ -500,7 +612,10 @@ int caps_loadrevolution (uae_u16 *mfmbuf, unsigned int drv, unsigned int track, 
     ci.type = LIB_TYPE;
     CAPSLockTrack ((struct CapsTrackInfo *)&ci, caps_cont[drv], track / 2, track & 1, caps_flags);
     len = ci.tracklen;
+<<<<<<< HEAD
 
+=======
+>>>>>>> p-uae/v2.1.0
     *tracklength = len * 8;
     mfm = mfmbuf;
     for (i = 0; i < (len + 1) / 2; i++) {
@@ -517,13 +632,19 @@ int caps_loadtrack (uae_u16 *mfmbuf, uae_u16 *tracktiming, unsigned int drv, uns
     struct CapsTrackInfoT1 ci;
 
     ci.type = LIB_TYPE;
+<<<<<<< HEAD
     *tracktiming = 0;
+=======
+	if (tracktiming)
+	    *tracktiming = 0;
+>>>>>>> p-uae/v2.1.0
     CAPSLockTrack ((struct CapsTrackInfo *)&ci, caps_cont[drv], track / 2, track & 1, caps_flags);
     mfm = mfmbuf;
     *multirev = (ci.type & CTIT_FLAG_FLAKEY) ? 1 : 0;
     type = ci.type & CTIT_MASK_TYPE;
     len = ci.tracklen;
     *tracklength = len * 8;
+<<<<<<< HEAD
     *gapoffset = ci.overlap * 8;
     for (i = 0; i < (len + 1) / 2; i++) {
 	uae_u8 *data = ci.trackbuf + i * 2;
@@ -532,6 +653,16 @@ int caps_loadtrack (uae_u16 *mfmbuf, uae_u16 *tracktiming, unsigned int drv, uns
     if (ci.timelen > 0) {
 	for (i = 0; i < ci.timelen; i++)
 	    tracktiming[i] = (uae_u16)ci.timebuf[i];
+=======
+	*gapoffset = ci.overlap >= 0 ? ci.overlap * 8 : -1;
+    for (i = 0; i < (len + 1) / 2; i++) {
+		uae_u8 *data = ci.trackbuf + i * 2;
+		*mfm++ = 256 * *data + *(data + 1);
+    }
+	if (ci.timelen > 0 && tracktiming) {
+		for (i = 0; i < ci.timelen; i++)
+		    tracktiming[i] = (uae_u16)ci.timebuf[i];
+>>>>>>> p-uae/v2.1.0
     }
     return 1;
 }

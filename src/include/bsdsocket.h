@@ -27,6 +27,15 @@ extern void deinit_socket_layer (void);
 
 #define MAXADDRLEN 256
 
+<<<<<<< HEAD
+=======
+#ifdef _WIN32
+#define SOCKET_TYPE SOCKET
+#else
+#define SOCKET_TYPE int
+#endif
+
+>>>>>>> p-uae/v2.1.0
 /* allocated and maintained on a per-task basis */
 struct socketbase {
     struct socketbase *next;
@@ -195,6 +204,10 @@ extern uae_u32 host_vsyslog (void);
 extern uae_u32 host_Dup2Socket (void);
 extern uae_u32 host_gethostname (uae_u32, uae_u32);
 
+<<<<<<< HEAD
 
+=======
+extern uaecptr bsdlib_startup (uaecptr);
+>>>>>>> p-uae/v2.1.0
 extern void bsdlib_install (void);
 extern void bsdlib_reset (void);

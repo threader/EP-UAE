@@ -488,7 +488,11 @@ int graphics_init (void)
 	break;
     }
     if(!gfxvidinfo.bufmem) {
+<<<<<<< HEAD
 	write_log("Not enough memory.\n");
+=======
+	write_log ("Not enough memory.\n");
+>>>>>>> p-uae/v2.1.0
 	return 0;
     }
 
@@ -576,9 +580,15 @@ void handle_events (void)
 	    MEVENT ev;
 	    if(getmouse(&ev) == OK) {
 		int mousex = (ev.x * gfxvidinfo.width) / COLS;
+<<<<<<< HEAD
 	        int mousey = (ev.y * gfxvidinfo.height) / LINES;
                 setmousestate (0, 0, mousex, 1);
 	        setmousestate (0, 1 ,mousey, 1);
+=======
+		int mousey = (ev.y * gfxvidinfo.height) / LINES;
+		setmousestate (0, 0, mousex, 1);
+		setmousestate (0, 1 ,mousey, 1);
+>>>>>>> p-uae/v2.1.0
 #if 0
 		if(ev.bstate & BUTTON1_PRESSED)  buttonstate[0] = keydelay;
 		if(ev.bstate & BUTTON1_RELEASED) buttonstate[0] = 0;
@@ -599,7 +609,11 @@ void handle_events (void)
 	if (ch == 25) {buttonstate[2] = keydelay;ch = 0;} /* ^Y */
 #endif
 	if (ch == 15) uae_reset (0); /* ^O */
+<<<<<<< HEAD
         if (ch == 23) uae_stop ();   /* ^W (Note: ^Q won't work) */
+=======
+	//if (ch == 23) uae_stop ();   /* ^W (Note: ^Q won't work) */
+>>>>>>> p-uae/v2.1.0
 #if 0
 	if (ch == KEY_F(1)) {
 	  curses_insert_disk();
@@ -671,7 +685,11 @@ void toggle_mousegrab (void)
 {
 }
 
+<<<<<<< HEAD
 void screenshot (int mode)
+=======
+void screenshot (int mode, int doprepare)
+>>>>>>> p-uae/v2.1.0
 {
    write_log ("Screenshot not supported yet\n");
 }
