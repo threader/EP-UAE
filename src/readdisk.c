@@ -43,11 +43,7 @@ static uae_u32 readlong (unsigned char *buffer, int pos)
 
 static afile *read_file (unsigned char *filebuf)
 {
-<<<<<<< HEAD
-    afile *a = (afile *) xmalloc (sizeof (afile));
-=======
     afile *a = (afile *) xmalloc (char, sizeof (afile));
->>>>>>> p-uae/v2.1.0
     int sizeleft;
     unsigned char *datapos;
     uae_u32 numblocks, blockpos;
@@ -56,11 +52,7 @@ static afile *read_file (unsigned char *filebuf)
     memset (a->name, 0, 32);
     strncpy (a->name, (const char *) filebuf + 0x1B1, *(filebuf + 0x1B0));
     sizeleft = a->size = readlong (filebuf, 0x144);
-<<<<<<< HEAD
-    a->data = (unsigned char *) xmalloc (a->size);
-=======
     a->data = (unsigned char *) xmalloc (char, a->size);
->>>>>>> p-uae/v2.1.0
 
     numblocks = readlong (filebuf, 0x8);
     blockpos = 0x134;
@@ -92,11 +84,7 @@ static afile *read_file (unsigned char *filebuf)
 
 static directory *read_dir (unsigned char *dirbuf)
 {
-<<<<<<< HEAD
-    directory *d = (directory *) xmalloc (sizeof (directory));
-=======
     directory *d = (directory *) xmalloc (char, sizeof (directory));
->>>>>>> p-uae/v2.1.0
     uae_u32 hashsize;
     uae_u32 i;
 
@@ -107,35 +95,6 @@ static directory *read_dir (unsigned char *dirbuf)
     d->files = 0;
     hashsize = readlong (dirbuf, 0xc);
     if (!hashsize)
-<<<<<<< HEAD
-	hashsize = 72;
-    if (hashsize != 72)
-	write_log ("Warning: Hash table with != 72 entries.\n");
-    for (i = 0; i < hashsize; i++) {
-	uae_u32 subblock = readlong (dirbuf, 0x18 + 4 * i);
-
-	while (subblock) {
-	    directory *subdir;
-	    afile *subfile;
-	    unsigned char *subbuf = filemem + 512 * subblock;
-	    long dirtype;
-
-	    dirtype = (uae_s32) readlong (subbuf, 0x1FC);
-	    if (dirtype > 0) {
-		subdir = read_dir (subbuf);
-		subdir->sibling = d->subdirs;
-		d->subdirs = subdir;
-	    } else if (dirtype < 0) {
-		subfile = read_file (subbuf);
-		subfile->sibling = d->files;
-		d->files = subfile;
-	    } else {
-		write_log ("Disk structure corrupted. Use DISKDOCTOR to correct it.\n");
-		abort ();
-	    }
-	    subblock = readlong (subbuf, 0x1F0);
-	}
-=======
 		hashsize = 72;
     if (hashsize != 72)
 		write_log ("Warning: Hash table with != 72 entries.\n");
@@ -163,7 +122,6 @@ static directory *read_dir (unsigned char *dirbuf)
 		    }
 		    subblock = readlong (subbuf, 0x1F0);
 		}
->>>>>>> p-uae/v2.1.0
     }
     return d;
 }
@@ -172,29 +130,6 @@ static void writedir (directory * dir)
 {
     directory *subdir;
     afile *f;
-<<<<<<< HEAD
-
-    if (mkdir (dir->name, 0777) < 0 && errno != EEXIST) {
-	write_log ("Could not create directory \"%s\". Giving up.\n", dir->name);
-	exit (20);
-    }
-    if (chdir (dir->name) < 0) {
-	write_log ("Could not enter directory \"%s\". Giving up.\n", dir->name);
-	exit (20);
-    }
-    for (subdir = dir->subdirs; subdir; subdir = subdir->sibling)
-	writedir (subdir);
-    for (f = dir->files; f; f = f->sibling) {
-	int fd = creat (f->name, 0666);
-	if (fd < 0) {
-	    write_log ("Could not create file. Giving up.\n");
-	    exit (20);
-	}
-	write (fd, f->data, f->size);
-	close (fd);
-    }
-    chdir ("..");
-=======
 	int ret;
 
     if (mkdir (dir->name, 0777) < 0 && errno != EEXIST) {
@@ -221,38 +156,12 @@ static void writedir (directory * dir)
 	ret = chdir ("..");
 	if (ret == -1)
 		write_log ("Couldn't change directory, no permission?\n");
->>>>>>> p-uae/v2.1.0
 }
 
 int main (int argc, char **argv)
 {
     directory *root;
     FILE *inf;
-<<<<<<< HEAD
-
-    if (argc < 2 || argc > 3) {
-	write_log ("Usage: readdisk <file> [<destdir>]\n");
-	exit (20);
-    }
-    inf = fopen (argv[1], "rb");
-    if (inf == NULL) {
-	write_log ("can't open file\n");
-	exit (20);
-    }
-    fread (filemem, 1, 901120, inf);
-
-    if (strncmp ((const char *) filemem, "DOS\0", 4) == 0
-	|| strncmp ((const char *) filemem, "DOS\2", 4) == 0) {
-	secdatasize = 488;
-	secdataoffset = 24;
-    } else if (strncmp ((const char *) filemem, "DOS\1", 4) == 0
-	       || strncmp ((const char *) filemem, "DOS\3", 4) == 0) {
-	secdatasize = 512;
-	secdataoffset = 0;
-    } else {
-	write_log ("Not a DOS disk.\n");
-	exit (20);
-=======
 	int ret;
 
     if (argc < 2 || argc > 3) {
@@ -279,7 +188,6 @@ int main (int argc, char **argv)
     } else {
 		write_log ("Not a DOS disk.\n");
 		exit (20);
->>>>>>> p-uae/v2.1.0
     }
     root = read_dir (filemem + 880 * 512);
 
