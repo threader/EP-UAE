@@ -7,18 +7,12 @@
   * Copyright 2006 Richard Drummond
   */
 #include "sysconfig.h"
-<<<<<<< HEAD
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-=======
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stddef.h>
 
->>>>>>> p-uae/v2.1.0
 #include "uae_string.h"
 #include "uae_types.h"
 #include "writelog.h"
@@ -40,19 +34,11 @@ void set_logfile (const char *logfile_name)
 	if (newfile)
 	    logfile = newfile;
     } else {
-<<<<<<< HEAD
-	if (logfile) {
-	    fclose (logfile);
-
-	    logfile = 0;
-	}
-=======
 		if (logfile) {
 		    fclose (logfile);
 
 		    logfile = 0;
 		}
->>>>>>> p-uae/v2.1.0
     }
 }
 
@@ -79,8 +65,6 @@ void write_log (const char *fmt, ...)
 #endif
 }
 
-<<<<<<< HEAD
-=======
 #ifdef JIT
 void jit_abort (const char *fmt, ...)
 {
@@ -107,7 +91,6 @@ void jit_abort (const char *fmt, ...)
 }
 #endif
 
->>>>>>> p-uae/v2.1.0
 void flush_log (void)
 {
     fflush (logfile ? logfile : stderr);
