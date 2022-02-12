@@ -30,13 +30,8 @@ void *xmalloc (size_t n)
 {
     void *a = malloc (n);
     if (a == NULL) {
-<<<<<<< HEAD
-	write_log ("xmalloc(%d): virtual memory exhausted\n", n);
-	abort ();
-=======
 		write_log ("xmalloc(%d): virtual memory exhausted\n", n);
 		abort ();
->>>>>>> p-uae/v2.1.0
     }
     return a;
 }
@@ -45,13 +40,8 @@ void *xcalloc (size_t n, size_t size)
 {
     void *a = calloc (n, size);
     if (a == NULL) {
-<<<<<<< HEAD
-	write_log ("xcalloc(%d): virtual memory exhausted\n", n * size);
-	abort ();
-=======
 		write_log ("xcalloc(%d): virtual memory exhausted\n", n * size);
 		abort ();
->>>>>>> p-uae/v2.1.0
     }
     return a;
 }
