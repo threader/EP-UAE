@@ -16,11 +16,7 @@ typedef SDL_sem *uae_sem_t;
 STATIC_INLINE int uae_sem_init(uae_sem_t *PSEM, int DUMMY, int INIT)
 {
    *PSEM = SDL_CreateSemaphore (INIT);
-<<<<<<< HEAD
-   
-=======
 
->>>>>>> p-uae/v2.1.0
    return (*PSEM == 0);
 }
 #define uae_sem_destroy(PSEM)  SDL_DestroySemaphore (*PSEM)
@@ -37,12 +33,6 @@ typedef SDL_Thread *uae_thread_id;
 
 #define uae_set_thread_priority(pri)
 
-<<<<<<< HEAD
-STATIC_INLINE int uae_start_thread (void *(*f) (void *), void *arg, uae_thread_id *thread)
-{
-    *thread = SDL_CreateThread ((int (*)(void *))f, arg);
-    return *thread == 0;
-=======
 STATIC_INLINE int uae_start_thread (char *name, void *(*f) (void *), void *arg, uae_thread_id *tid)
 {
 	int result = 1;
@@ -56,7 +46,6 @@ STATIC_INLINE int uae_start_thread (char *name, void *(*f) (void *), void *arg, 
 	}
 
 	return result;
->>>>>>> p-uae/v2.1.0
 }
 
 STATIC_INLINE int uae_wait_thread (uae_thread_id thread)

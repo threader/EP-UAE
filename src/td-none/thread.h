@@ -1,14 +1,8 @@
  /*
   * UAE - The Un*x Amiga Emulator
-<<<<<<< HEAD
-  * 
-  * Generic thread support doesn't exist.
-  * 
-=======
   *
   * Generic thread support doesn't exist.
   *
->>>>>>> p-uae/v2.1.0
   * Copyright 1997 Bernd Schmidt
   */
 

@@ -35,11 +35,7 @@ typedef thread_id uae_thread_id;
 #define BAD_THREAD -1
 
 
-<<<<<<< HEAD
-STATIC_INLINE int uae_start_thread (void *(*f) (void *), void *arg, uae_thread_id *thread)
-=======
 STATIC_INLINE int uae_start_thread (char *name, void *(*f) (void *), void *arg, uae_thread_id *thread)
->>>>>>> p-uae/v2.1.0
 {
     *thread = spawn_thread ((thread_func)f, "uae thread",
 			    B_NORMAL_PRIORITY, arg);
