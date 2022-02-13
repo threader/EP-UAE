@@ -387,20 +387,6 @@ out1:
 		    default: abort();
 		    }
 		    break;
-		default: abort();
-		}
-	    } else {
-		mnemonic[mnp] = opcstr[pos];
-		if (mnemonic[mnp] == 'f') {
-		    find = -1;
-		    switch (bitval[bitf]) {
-		    case 0: mnemonic[mnp] = 'R'; break;
-		    case 1: mnemonic[mnp] = 'L'; break;
-		    default: abort();
-		    }
-		}
-		mnp++;
-	    }
 		case 'A':
 		    srcmode = Areg;
 		    switch (opcstr[pos++]) {
