@@ -4,11 +4,7 @@
  * Interface to the Cocoa Mac OS X GUI
  *
  * Copyright 1996 Bernd Schmidt
-<<<<<<< HEAD
- * Copyright 2004 Steven J. Saunders
-=======
  * Copyright 2004,2010 Steven J. Saunders
->>>>>>> p-uae/v2.1.0
  */
 #include <stdlib.h>
 #include <stdarg.h>
@@ -16,22 +12,16 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 
-<<<<<<< HEAD
-=======
 #include "uae.h"
->>>>>>> p-uae/v2.1.0
 #include "options.h"
 #include "gui.h"
 #include "inputdevice.h"
 #include "disk.h"
-<<<<<<< HEAD
-=======
 #include "ar.h"
 
 #include "custom.h"
 #include "xwin.h"
 #include "drawing.h"
->>>>>>> p-uae/v2.1.0
 
 #ifdef USE_SDL
 #include "SDL.h"
@@ -39,14 +29,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-<<<<<<< HEAD
-=======
 /* The GTK GUI code seems to use 255 as max path length. Not sure why it 
  * doesn't use MAX_DPATH... but we will follow its example.
  */
 #define COCOA_GUI_MAX_PATH 255
 
->>>>>>> p-uae/v2.1.0
 /* These prototypes aren't declared in the sdlgfx header for some reason */
 extern void toggle_fullscreen (void);
 extern int is_fullscreen (void);
@@ -57,7 +44,6 @@ extern NSString *getApplicationName(void);
 /* Prototypes */
 int ensureNotFullscreen (void);
 void restoreFullscreen (void);
-<<<<<<< HEAD
 
 /* Globals */
 static NSString *currentFloppyPath = nil;
@@ -71,7 +57,7 @@ extern BOOL gFinderLaunch; /* Set to YES by SDLMain.m if app launched from the f
 
 /* Objective-C class for an object to respond to events */
 @interface EuaeGui : NSObject
-=======
+
 void lossyASCIICopy (char *buffer, NSString *source, size_t maxLength);
 
 /* Globals */
@@ -79,27 +65,12 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 
 /* Objective-C class for an object to respond to events */
 @interface PuaeGui : NSObject
->>>>>>> p-uae/v2.1.0
 {
     NSString *applicationName;
     NSArray *diskImageTypes;
 }
 + (id) sharedInstance;
 - (void)createMenus;
-<<<<<<< HEAD
-- (void)createMenuItemInMenu:(NSMenu *)menu withTitle:(NSString *)title action:(SEL)anAction
-    keyEquivalent:(NSString *)keyEquiv tag:(int)tag;
-- (BOOL)validateMenuItem:(id <NSMenuItem>)menuItem;
-- (void)insertDisk:(id)sender;
-- (void)ejectDisk:(id)sender;
-- (void)changePort0:(id)sender;
-- (void)changePort1:(id)sender;
-- (void)displayOpenPanelForInsertIntoDriveNumber:(int)driveNumber;
-- (void)openPanelDidEnd:(NSOpenPanel *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
-@end
-
-@implementation EuaeGui
-=======
 - (void)createMenuItemInMenu:(NSMenu *)menu withTitle:(NSString *)title action:(SEL)anAction tag:(int)tag;
 - (void)createMenuItemInMenu:(NSMenu *)menu withTitle:(NSString *)title action:(SEL)anAction tag:(int)tag
     keyEquivalent:(NSString *)keyEquiv keyEquivalentMask:(NSUInteger)mask;
@@ -123,7 +94,6 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 @end
 
 @implementation PuaeGui
->>>>>>> p-uae/v2.1.0
 
 + (id) sharedInstance
 {
@@ -134,26 +104,19 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
     return sharedInstance;
 }
 
-<<<<<<< HEAD
--(EuaeGui *) init
-=======
 -(PuaeGui *) init
->>>>>>> p-uae/v2.1.0
 {
     self = [super init];
 
     if (self) {
         applicationName = [[NSString alloc] initWithString:getApplicationName()];
         diskImageTypes =[[NSArray alloc] initWithObjects:@"adf", @"adz",
-<<<<<<< HEAD
             @"zip", @"dms", @"fdi", nil]; // Note: Use lowercase for these
-=======
-            @"zip", @"dms", @"fdi", 
+
 #ifdef CAPS        
             @"ipf",
 #endif
             nil]; // Note: Use lowercase for these
->>>>>>> p-uae/v2.1.0
     }
 
     return self;
@@ -182,7 +145,6 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
     NSMenuItem *menuItem;
     NSString *menuTitle;
 
-<<<<<<< HEAD
     // Create a menu for disk operations
     NSMenu *diskMenu = [[NSMenu alloc] initWithTitle:@"Disk"];
 
@@ -264,7 +226,7 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
     keyEquivalent:(NSString *)keyEquiv tag:(int)tag;
 {
     NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title action:anAction keyEquivalent:keyEquiv];
-=======
+
 	// Create a menu for manipulating the emulated amiga
 	NSMenu *vAmigaMenu = [[NSMenu alloc] initWithTitle:@"Virtual Amiga"];
 	
@@ -407,29 +369,24 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 {
     NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title action:anAction keyEquivalent:keyEquiv];
 	[menuItem setKeyEquivalentModifierMask:mask];
->>>>>>> p-uae/v2.1.0
     [menuItem setTag:tag];
     [menuItem setTarget:self];
     [menu addItem:menuItem];
     [menuItem release];
 }
 
-<<<<<<< HEAD
 - (BOOL)validateMenuItem:(id <NSMenuItem>)menuItem
 {
-=======
 - (BOOL)validateMenuItem:(id <NSMenuItem>)item
 {
 	NSMenuItem *menuItem = (NSMenuItem *)item;
 	
 	BOOL canSetHidden = [menuItem respondsToSelector:@selector(setHidden:)];
 	
->>>>>>> p-uae/v2.1.0
     SEL menuAction = [menuItem action];
     int tag = [menuItem tag];
 
     // Disabled drives can't have disks inserted or ejected
-<<<<<<< HEAD
     if (((menuAction == @selector(insertDisk:)) || (menuAction == @selector(ejectDisk:))) &&
         (gui_data.drive_disabled[tag]))
         return NO;
@@ -451,7 +408,6 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 
         // and we should not allow both ports to be set to the same setting
         if ((tag != JSEM_NONE) && (currprefs.jport1 == tag))
-=======
     if ((menuAction == @selector(insertDisk:)) || (menuAction == @selector(ejectDisk:))) {
 		if (gui_data.drive_disabled[tag]) {
 			//if (canSetHidden) [menuItem setHidden:YES];
@@ -488,12 +444,10 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 
         // and we should not allow both ports to be set to the same setting
         if ((tag != JSEM_END) && (currprefs.jports[1].id == tag))
->>>>>>> p-uae/v2.1.0
             return NO;
 
         return YES;
     }
-<<<<<<< HEAD
     if (menuAction == @selector(changePort1:)) {
         if (currprefs.jport1 == tag) [menuItem setState:NSOnState];
         else [menuItem setState:NSOffState];
@@ -506,7 +460,6 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 
         // and we should not allow both ports to be set to the same setting
         if ((tag != JSEM_NONE) && (currprefs.jport0 == tag))
-=======
 
 	// Repeat the above for Port 1
     if (menuAction == @selector(changePort1:)) {
@@ -519,14 +472,11 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 		}
 
         if ((tag != JSEM_END) && (currprefs.jports[0].id == tag))
->>>>>>> p-uae/v2.1.0
             return NO;
 
         return YES;
     }
 
-<<<<<<< HEAD
-=======
 	if (menuAction == @selector(pauseAmiga:)) {
 		if (pause_emulation)
 			[menuItem setTitle:@"Resume"];
@@ -544,7 +494,6 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 	if (menuAction == @selector(actionReplayFreeze:)) 
 		return ( (hrtmon_flag == ACTION_REPLAY_IDLE) || (action_replay_flag == ACTION_REPLAY_IDLE) );
 	
->>>>>>> p-uae/v2.1.0
     return YES;
 }
 
@@ -560,14 +509,12 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
     disk_eject([((NSMenuItem*)sender) tag]);
 }
 
-<<<<<<< HEAD
 // Invoked when the user selects an option from the 'Port 0' menu
 - (void)changePort0:(id)sender
 {
     changed_prefs.jport0 = [((NSMenuItem*)sender) tag];
 
     if( changed_prefs.jport0 != currprefs.jport0 )
-=======
 // Invoked when the user selects "Eject All Disks"
 - (void)ejectAllDisks:(id)sender
 {
@@ -583,21 +530,18 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
     changed_prefs.jports[0].id = [((NSMenuItem*)sender) tag];
 
     if( changed_prefs.jports[0].id != currprefs.jports[0].id )
->>>>>>> p-uae/v2.1.0
         inputdevice_config_change();
 }
 
 // Invoked when the user selects an option from the 'Port 1' menu
 - (void)changePort1:(id)sender
 {
-<<<<<<< HEAD
     changed_prefs.jport1 = [((NSMenuItem*)sender) tag];
 
     if( changed_prefs.jport1 != currprefs.jport1 )
         inputdevice_config_change();
 }
 
-=======
     changed_prefs.jports[1].id = [((NSMenuItem*)sender) tag];
 
     if( changed_prefs.jports[1].id != currprefs.jports[1].id )
@@ -611,7 +555,6 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 	inputdevice_config_change();
 }
 
->>>>>>> p-uae/v2.1.0
 - (void)displayOpenPanelForInsertIntoDriveNumber:(int)driveNumber
 {
     ensureNotFullscreen();
@@ -626,9 +569,7 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
     [oPanel setPrompt:@"Choose"];
     NSString *contextInfo = [[NSString alloc] initWithFormat:@"%d",driveNumber];
 
-<<<<<<< HEAD
     [oPanel beginSheetForDirectory:currentFloppyPath file:nil
-=======
 	// Recall the path of the disk image that was loaded last time 
 	NSString *nsfloppypath = [[NSUserDefaults standardUserDefaults] stringForKey:@"LastUsedDiskImagePath"];
 	
@@ -654,7 +595,6 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 	}
 
     [oPanel beginSheetForDirectory:nsfloppypath file:nil
->>>>>>> p-uae/v2.1.0
                              types:diskImageTypes
                     modalForWindow:[NSApp mainWindow]
                      modalDelegate:self
@@ -677,7 +617,6 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
     if ((drive >= 0) && (drive < 4)) {
 	    NSArray *files = [sheet filenames];
 	    NSString *file = [files objectAtIndex:0];
-<<<<<<< HEAD
 
 	    strncpy (changed_prefs.df[drive], [file lossyCString], 255);
 	    changed_prefs.df[drive][255] = '\0';
@@ -689,7 +628,6 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 	}
 }
 
-=======
 		
 		lossyASCIICopy (changed_prefs.df[drive], file, COCOA_GUI_MAX_PATH);
 		
@@ -730,7 +668,6 @@ static BOOL wasFullscreen = NO; // used by ensureNotFullscreen() and restoreFull
 	toggle_inhibit_frame (IHF_SCROLLLOCK);
 }
 
->>>>>>> p-uae/v2.1.0
 @end
 
 /*
@@ -772,9 +709,7 @@ void restoreFullscreen (void)
     wasFullscreen = NO;
 }
 
-<<<<<<< HEAD
 void gui_init (int argc, char **argv)
-=======
 /* Make a null-terminated copy of the source NSString into buffer using lossy
  * ASCII conversion. (Apple deprecated the 'lossyCString' method in NSString)
  */
@@ -808,13 +743,11 @@ void cocoa_gui_early_setup (void)
 }
 
 int gui_init (void)
->>>>>>> p-uae/v2.1.0
 {
 }
 
 int gui_open (void)
 {
-<<<<<<< HEAD
     int result;
     NSString *nsHome;
     char *envhome = getenv("HOME");
@@ -880,8 +813,6 @@ int gui_open (void)
         }
     }
 
-=======
->>>>>>> p-uae/v2.1.0
     return -1;
 }
 
@@ -892,7 +823,6 @@ int gui_update (void)
 
 void gui_exit (void)
 {
-<<<<<<< HEAD
     if (currentFloppyPath != nil) {
         [currentFloppyPath release];
         currentFloppyPath = nil;
@@ -901,8 +831,6 @@ void gui_exit (void)
         [finderLaunchFilename release];
         finderLaunchFilename = nil;
     }
-=======
->>>>>>> p-uae/v2.1.0
 }
 
 void gui_fps (int fps, int idle)
@@ -911,22 +839,15 @@ void gui_fps (int fps, int idle)
     gui_data.idle = idle;
 }
 
-<<<<<<< HEAD
-=======
 void gui_flicker_led (int led, int unitnum, int status)
 {
 }
 
->>>>>>> p-uae/v2.1.0
 void gui_led (int led, int on)
 {
 }
 
-<<<<<<< HEAD
-void gui_hd_led (int led)
-=======
 void gui_hd_led (int unitnum, int led)
->>>>>>> p-uae/v2.1.0
 {
     static int resetcounter;
 
@@ -944,11 +865,7 @@ void gui_hd_led (int unitnum, int led)
 		gui_led (5, gui_data.hd);
 }
 
-<<<<<<< HEAD
-void gui_cd_led (int led)
-=======
 void gui_cd_led (int unitnum, int led)
->>>>>>> p-uae/v2.1.0
 {
     static int resetcounter;
 
@@ -986,11 +903,7 @@ void gui_display (int shortcut)
     int result;
 
     if ((shortcut >= 0) && (shortcut < 4)) {
-<<<<<<< HEAD
-        [[EuaeGui sharedInstance] displayOpenPanelForInsertIntoDriveNumber:shortcut];
-=======
         [[PuaeGui sharedInstance] displayOpenPanelForInsertIntoDriveNumber:shortcut];
->>>>>>> p-uae/v2.1.0
     }
 }
 
@@ -1005,14 +918,6 @@ void gui_message (const char *format,...)
     vsprintf (msg, format, parms);
     va_end (parms);
 
-<<<<<<< HEAD
-    NSRunAlertPanel(nil, [NSString stringWithCString:msg], nil, nil, nil);
-
-    write_log (msg);
-
-    restoreFullscreen ();
-}
-=======
     NSRunAlertPanel(nil, [NSString stringWithCString:msg encoding:NSASCIIStringEncoding], nil, nil, nil);
 
     write_log ("%s", msg);
@@ -1023,4 +928,3 @@ void gui_disk_image_change (int unitnum, const TCHAR *name) {}
 void gui_lock (void) {}
 void gui_unlock (void) {}
 
->>>>>>> p-uae/v2.1.0

@@ -15,10 +15,7 @@ struct flag_struct {
     unsigned int x;
 };
 
-<<<<<<< HEAD
-=======
 extern struct flag_struct regflags;
->>>>>>> p-uae/v2.1.0
 
 /*
  * The bits in the cznv field in the above structure are assigned to
@@ -46,7 +43,7 @@ extern struct flag_struct regflags;
 #define FLAGVAL_V	(1 << FLAGBIT_V)
 #define FLAGVAL_X	(1 << FLAGBIT_X)
 
-<<<<<<< HEAD
+
 #define SET_ZFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_Z) | ((y) << FLAGBIT_Z))
 #define SET_CFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_C) | ((y) << FLAGBIT_C))
 #define SET_VFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_V) | ((y) << FLAGBIT_V))
@@ -65,7 +62,7 @@ extern struct flag_struct regflags;
 #define SET_CZNV(flags, X)	((flags)->cznv  = (X))
 
 #define COPY_CARRY(flags)	((flags)->x = (flags)->cznv)
-=======
+#if 0
 #define SET_ZFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_Z) | (((y) ? 1 : 0) << FLAGBIT_Z))
 #define SET_CFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_C) | (((y) ? 1 : 0) << FLAGBIT_C))
 #define SET_VFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_V) | (((y) ? 1 : 0) << FLAGBIT_V))
@@ -84,21 +81,16 @@ extern struct flag_struct regflags;
 #define SET_CZNV(X) (regflags.cznv = (X))
 
 #define COPY_CARRY (regflags.x = regflags.cznv)
+#endif
 >>>>>>> p-uae/v2.1.0
 
 
 /*
  * Test CCR condition
  */
-<<<<<<< HEAD
 STATIC_INLINE int cctrue (struct flag_struct *flags, int cc)
 {
     uae_u32 cznv = flags->cznv;
-=======
-STATIC_INLINE int cctrue(int cc)
-{
-    uae_u32 cznv = regflags.cznv;
->>>>>>> p-uae/v2.1.0
 
     switch (cc) {
 	case 0:  return 1;								/*				T  */

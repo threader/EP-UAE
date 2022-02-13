@@ -14,12 +14,8 @@
 #include "sleep.h"
 #include "machdep/rpt.h"
 #include "machdep/m68k.h"
-<<<<<<< HEAD
-
 #include <signal.h>
 
-
-=======
 #include "events.h"
 #include "custom.h"
 
@@ -33,7 +29,6 @@ struct flag_struct regflags;
 
 #include <signal.h>
 
->>>>>>> p-uae/v2.1.0
 #ifdef __linux__
 /*
  * Extract x86/AMD64 timestamp counter frequency
@@ -82,13 +77,7 @@ frame_time_t linux_get_tsc_freq (void)
 static frame_time_t beos_get_tsc_freq (void)
 {
     system_info info;
-<<<<<<< HEAD
-
     get_system_info (&info);
-
-=======
-    get_system_info (&info);
->>>>>>> p-uae/v2.1.0
     return info.cpu_clock_speed;
 }
 #endif
@@ -97,10 +86,7 @@ static volatile frame_time_t last_time, best_time;
 static frame_time_t timebase;
 
 static volatile int loops_to_go;
-<<<<<<< HEAD
 static int rpt_available;
-=======
->>>>>>> p-uae/v2.1.0
 
 #if defined HAVE_SETITIMER || defined HAVE_ALARM
 # define USE_ALARM
@@ -147,21 +133,12 @@ static RETSIGTYPE alarmhandler(int foo)
 	best_time = bar - last_time;
     first_loop = 0;
     if (--loops_to_go > 0) {
-<<<<<<< HEAD
-	signal (SIGALRM, alarmhandler);
-	last_time = read_processor_time ();
-	set_the_alarm ();
-    } else {
-	alarm (0);
-	signal (SIGALRM, SIG_IGN);
-=======
 		signal (SIGALRM, alarmhandler);
 		last_time = read_processor_time ();
 		set_the_alarm ();
     } else {
 		alarm (0);
 		signal (SIGALRM, SIG_IGN);
->>>>>>> p-uae/v2.1.0
     }
 }
 #endif /* USE_ALARM */
@@ -184,45 +161,6 @@ int machdep_inithrtimer (void)
     static int done = 0;
 
     if (!done) {
-<<<<<<< HEAD
-	rpt_available = 1;
-
-	write_log ("Testing the RDTSC instruction ... ");
-	signal (SIGILL, illhandler);
-	if (setjmp (catch_test) == 0)
-	    read_processor_time ();
-	signal (SIGILL, SIG_DFL);
-	write_log ("done.\n");
-
-	if (! rpt_available) {
-	    write_log ("Your processor does not support the RDTSC instruction.\n");
-	    return 0;
-	}
-
-	timebase = 0;
-
-#ifdef __linux__
-	timebase = linux_get_tsc_freq ();
-#else
-# ifdef __BEOS__
-	timebase = beos_get_tsc_freq ();
-# endif
-#endif
-
-	if (timebase <= 0) {
-
-	    write_log ("Calibrating TSC frequency...");
-	    flush_log ();
-
-	    best_time = MAX_FRAME_TIME;
-	    loops_to_go = 5;
-
-#ifdef USE_ALARM
-	    signal (SIGALRM, alarmhandler);
-#endif
-
- 	    /* We want exact values... */
-=======
 		rpt_available = 1;
 
 		write_log ("Testing the RDTSC instruction ... ");
@@ -258,7 +196,6 @@ int machdep_inithrtimer (void)
 #endif
 
 	    /* We want exact values... */
->>>>>>> p-uae/v2.1.0
 	    sync (); sync (); sync ();
 
 #ifdef USE_ALARM
@@ -295,14 +232,9 @@ frame_time_t machdep_gethrtimebase (void)
     return timebase;
 }
 
-<<<<<<< HEAD
-void machdep_init (void)
-{
-=======
 int machdep_init (void)
 {
 	return 1;
->>>>>>> p-uae/v2.1.0
 }
 
 /*

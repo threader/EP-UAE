@@ -204,11 +204,7 @@ static void get_image (int w, int h, struct disp_info *dispi)
      * the SHM case?
      */
     write_log ("Using normal image buffer.\n");
-<<<<<<< HEAD
-    p = (char *)xmalloc (h * w * ((bit_unit + 7) / 8)); /* ??? */
-=======
     p = (char *)xmalloc (char, h * w * ((bit_unit + 7) / 8)); /* ??? */
->>>>>>> p-uae/v2.1.0
     new_img = XCreateImage (display, vis, bitdepth, ZPixmap, 0, p,
 			    w, h, 32, 0);
     if (new_img->bytes_per_line != w * ((bit_unit + 7) / 8))
@@ -227,21 +223,12 @@ static int get_best_visual (Display *display, int screen, XVisualInfo *vi)
     } else if (XMatchVisualInfo (display, screen, 24, TrueColor,   vi)) {
     } else if (XMatchVisualInfo (display, screen, 32, TrueColor,   vi)) {
     } else if (XMatchVisualInfo (display, screen, 8,  PseudoColor, vi)) {
-<<<<<<< HEAD
-        /* for our HP boxes */
-    } else if (XMatchVisualInfo (display, screen, 8,  GrayScale,   vi)) {
-    } else if (XMatchVisualInfo (display, screen, 4,  PseudoColor, vi)) {
-        /* VGA16 server. Argh. */
-    } else if (XMatchVisualInfo (display, screen, 1,  StaticGray,  vi)) {
-        /* Mono server. Yuk */
-=======
 	/* for our HP boxes */
     } else if (XMatchVisualInfo (display, screen, 8,  GrayScale,   vi)) {
     } else if (XMatchVisualInfo (display, screen, 4,  PseudoColor, vi)) {
 	/* VGA16 server. Argh. */
     } else if (XMatchVisualInfo (display, screen, 1,  StaticGray,  vi)) {
 	/* Mono server. Yuk */
->>>>>>> p-uae/v2.1.0
     } else {
 	write_log ("Can't obtain appropriate X visual.\n");
 	return 0;
@@ -389,11 +376,7 @@ static void x11_flush_screen (struct vidbuf_description *gfxinfo, int first_line
     int      len;								\
     pixtype *newp = (pixtype *)gfxinfo->linemem;				\
     pixtype *oldp = (pixtype *)((uae_u8 *)ami_dinfo.image_mem +			\
-<<<<<<< HEAD
-			        line_no * ami_dinfo.ximg->bytes_per_line);	\
-=======
 				line_no * ami_dinfo.ximg->bytes_per_line);	\
->>>>>>> p-uae/v2.1.0
 										\
     /* Find first modified pixel on this line */				\
     while (newp[xs] == oldp[xs]) {						\
@@ -826,21 +809,13 @@ static void graphics_subinit (void)
     gfxvidinfo.flush_screen = x11_flush_screen;
     gfxvidinfo.lockscr      = x11_lock;
     gfxvidinfo.unlockscr    = x11_unlock;
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> p-uae/v2.1.0
 
     if (need_dither) {
 	gfxvidinfo.maxblocklines = 0;
 	gfxvidinfo.rowbytes = gfxvidinfo.pixbytes * currprefs.gfx_width_win;
 	gfxvidinfo.linemem = malloc (gfxvidinfo.rowbytes);
-<<<<<<< HEAD
-        gfxvidinfo.flush_line  = x11_flush_line_dither;
-=======
 	gfxvidinfo.flush_line  = x11_flush_line_dither;
->>>>>>> p-uae/v2.1.0
     } else if (! dgamode) {
 	gfxvidinfo.emergmem = 0;
 	gfxvidinfo.linemem = 0;
@@ -1091,11 +1066,7 @@ void handle_events (void)
 		case 4:  if (state) record_key (0x7a << 1); break;
 		case 5:  if (state) record_key (0x7b << 1); break;
 	    }
-<<<<<<< HEAD
-            if (buttonno >=0)
-=======
 	    if (buttonno >=0)
->>>>>>> p-uae/v2.1.0
 		setmousebuttonstate(0, buttonno, state);
 	    break;
 	 }
@@ -1178,19 +1149,11 @@ void handle_events (void)
 	 case Expose:
 	    refresh_necessary = 1;
 	    break;
-<<<<<<< HEAD
-         case ClientMessage:
-            if (((Atom)event.xclient.data.l[0]) == delete_win) {
-		uae_stop ();
-            }
-            break;
-=======
 	 case ClientMessage:
 	    if (((Atom)event.xclient.data.l[0]) == delete_win) {
 		//uae_stop ();
 	    }
 	    break;
->>>>>>> p-uae/v2.1.0
 	}
     }
 
@@ -1258,13 +1221,7 @@ int check_prefs_changed_gfx (void)
 
     if (changed_prefs.gfx_width_win == currprefs.gfx_width_win
 	&& changed_prefs.gfx_height_win == currprefs.gfx_height_win
-<<<<<<< HEAD
-	&& changed_prefs.gfx_lores == currprefs.gfx_lores
 	&& changed_prefs.gfx_linedbl == currprefs.gfx_linedbl
-	&& changed_prefs.gfx_correct_aspect == currprefs.gfx_correct_aspect
-=======
-	&& changed_prefs.gfx_linedbl == currprefs.gfx_linedbl
->>>>>>> p-uae/v2.1.0
 	&& changed_prefs.gfx_xcenter == currprefs.gfx_xcenter
 	&& changed_prefs.gfx_ycenter == currprefs.gfx_ycenter
 	&& changed_prefs.gfx_afullscreen == currprefs.gfx_afullscreen
@@ -1274,13 +1231,7 @@ int check_prefs_changed_gfx (void)
     graphics_subshutdown ();
     currprefs.gfx_width_win = changed_prefs.gfx_width_win;
     currprefs.gfx_height_win = changed_prefs.gfx_height_win;
-<<<<<<< HEAD
-    currprefs.gfx_lores = changed_prefs.gfx_lores;
     currprefs.gfx_linedbl = changed_prefs.gfx_linedbl;
-    currprefs.gfx_correct_aspect = changed_prefs.gfx_correct_aspect;
-=======
-    currprefs.gfx_linedbl = changed_prefs.gfx_linedbl;
->>>>>>> p-uae/v2.1.0
     currprefs.gfx_xcenter = changed_prefs.gfx_xcenter;
     currprefs.gfx_ycenter = changed_prefs.gfx_ycenter;
     currprefs.gfx_afullscreen = changed_prefs.gfx_afullscreen;
@@ -1511,41 +1462,24 @@ void gfx_set_picasso_state (int on)
 {
     if (on == screen_is_picasso)
 	return;
-<<<<<<< HEAD
-   
-=======
 
->>>>>>> p-uae/v2.1.0
     /* We can get called by drawing_init() when there's
      * no window opened yet... */
     if (mywin == 0)
 	return
 
-<<<<<<< HEAD
-    write_log("set_picasso_state:%d\n", on);
-=======
     write_log ("set_picasso_state:%d\n", on);
->>>>>>> p-uae/v2.1.0
     graphics_subshutdown ();
     screen_is_picasso = on;
     if (on) {
 	current_width = picasso_vidinfo.width;
 	current_height = picasso_vidinfo.height;
-<<<<<<< HEAD
-        graphics_subinit ();
-    } else {
-	current_width = gfxvidinfo.width;
-	current_height = gfxvidinfo.height;
-        graphics_subinit ();
-        reset_drawing ();
-=======
 	graphics_subinit ();
     } else {
 	current_width = gfxvidinfo.width;
 	current_height = gfxvidinfo.height;
 	graphics_subinit ();
 	reset_drawing ();
->>>>>>> p-uae/v2.1.0
     }
     if (on)
 	DX_SetPalette_real (0, 256);
@@ -1607,11 +1541,7 @@ void toggle_fullscreen (void)
 #endif
 }
 
-<<<<<<< HEAD
-void screenshot (int type)
-=======
 void screenshot (int mode, int doprepare)
->>>>>>> p-uae/v2.1.0
 {
     write_log ("Screenshot not implemented yet\n");
 }
@@ -1667,17 +1597,10 @@ static unsigned int get_mouse_widget_num (unsigned int mouse)
 static int get_mouse_widget_first (unsigned int mouse, int type)
 {
     switch (type) {
-<<<<<<< HEAD
-        case IDEV_WIDGET_BUTTON:
-            return FIRST_BUTTON;
-        case IDEV_WIDGET_AXIS:
-            return FIRST_AXIS;
-=======
 	case IDEV_WIDGET_BUTTON:
 	    return FIRST_BUTTON;
 	case IDEV_WIDGET_AXIS:
 	    return FIRST_AXIS;
->>>>>>> p-uae/v2.1.0
     }
     return -1;
 }
@@ -1685,15 +1608,6 @@ static int get_mouse_widget_first (unsigned int mouse, int type)
 static int get_mouse_widget_type (unsigned int mouse, unsigned int num, char *name, uae_u32 *code)
 {
     if (num >= MAX_AXES && num < MAX_AXES + MAX_BUTTONS) {
-<<<<<<< HEAD
-        if (name)
-            sprintf (name, "Button %d", num + 1 + MAX_AXES);
-        return IDEV_WIDGET_BUTTON;
-    } else if (num < MAX_AXES) {
-        if (name)
-            sprintf (name, "Axis %d", num + 1);
-        return IDEV_WIDGET_AXIS;
-=======
 	if (name)
 	    sprintf (name, "Button %d", num + 1 + MAX_AXES);
 	return IDEV_WIDGET_BUTTON;
@@ -1701,7 +1615,6 @@ static int get_mouse_widget_type (unsigned int mouse, unsigned int num, char *na
 	if (name)
 	    sprintf (name, "Axis %d", num + 1);
 	return IDEV_WIDGET_AXIS;
->>>>>>> p-uae/v2.1.0
     }
     return IDEV_WIDGET_NONE;
 }
@@ -1732,23 +1645,16 @@ static unsigned int get_kb_num (void)
     return 1;
 }
 
-<<<<<<< HEAD
-static const char *get_kb_name (unsigned int kb)
-=======
 static const char *get_kb_friendlyname (unsigned int kb)
->>>>>>> p-uae/v2.1.0
 {
     return "Default keyboard";
 }
 
-<<<<<<< HEAD
-=======
 static const char *get_kb_uniquename (unsigned int kb)
 {
     return " ";
 }
 
->>>>>>> p-uae/v2.1.0
 static unsigned int get_kb_widget_num (unsigned int kb)
 {
     return 255; // fix me
@@ -1811,11 +1717,7 @@ static void unacquire_kb (unsigned int num)
 /*
  * Default inputdevice config for X11 mouse
  */
-<<<<<<< HEAD
-void input_get_default_mouse (struct uae_input_device *uid)
-=======
 int input_get_default_mouse (struct uae_input_device *uid, int num, int port)
->>>>>>> p-uae/v2.1.0
 {
     /* Supports only one mouse */
     uid[0].eventid[ID_AXIS_OFFSET + 0][0]   = INPUTEVENT_MOUSE1_HORIZ;
@@ -1825,10 +1727,7 @@ int input_get_default_mouse (struct uae_input_device *uid, int num, int port)
     uid[0].eventid[ID_BUTTON_OFFSET + 1][0] = INPUTEVENT_JOY1_2ND_BUTTON;
     uid[0].eventid[ID_BUTTON_OFFSET + 2][0] = INPUTEVENT_JOY1_3RD_BUTTON;
     uid[0].enabled = 1;
-<<<<<<< HEAD
-=======
 	return 0;
->>>>>>> p-uae/v2.1.0
 }
 
 struct inputdevice_functions inputdevicefunc_keyboard =
@@ -1839,12 +1738,9 @@ struct inputdevice_functions inputdevicefunc_keyboard =
     unacquire_kb,
     read_kb,
     get_kb_num,
-<<<<<<< HEAD
     get_kb_name,
-=======
     get_kb_friendlyname,
     get_kb_uniquename,
->>>>>>> p-uae/v2.1.0
     get_kb_widget_num,
     get_kb_widget_type,
     get_kb_widget_first

@@ -1,31 +1,17 @@
-<<<<<<< HEAD
- /* 
-  * UAE - The Un*x Amiga Emulator
-  * 
-=======
  /*
   * UAE - The Un*x Amiga Emulator
   *
->>>>>>> p-uae/v2.1.0
   * MC68000 emulation - machine dependent bits
   *
   * Copyright 1996 Bernd Schmidt
   */
 
-<<<<<<< HEAD
- 
-=======
 
->>>>>>> p-uae/v2.1.0
 struct flag_struct {
     unsigned int c;
     unsigned int z;
     unsigned int n;
-<<<<<<< HEAD
-    unsigned int v; 
-=======
     unsigned int v;
->>>>>>> p-uae/v2.1.0
     unsigned int x;
 };
 

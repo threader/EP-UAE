@@ -1,12 +1,6 @@
-<<<<<<< HEAD
- /* 
-  * UAE - The Un*x Amiga Emulator
-  * 
-=======
  /*
   * UAE - The Un*x Amiga Emulator
   *
->>>>>>> p-uae/v2.1.0
   * See if this OS has mmap.
   *
   * Copyright 1996 Bernd Schmidt

@@ -1,17 +1,9 @@
  /*
-<<<<<<< HEAD
-  * UAE - The Un*x Amiga Emulator
-  *
-  * BeOS UI - or the beginnings of one
-  *
-  * Copyright 2004 Richard Drummond
-=======
   * E-UAE - The portable Amiga emulator.
   *
   * BeOS UI - or the beginnings of one
   *
   * Copyright 2004-2007 Richard Drummond
->>>>>>> p-uae/v2.1.0
   */
 
 extern "C" {
@@ -22,10 +14,7 @@ extern "C" {
 #include "gui.h"
 #include "xwin.h"
 #include "disk.h"
-<<<<<<< HEAD
-=======
 #include "gensound.h"
->>>>>>> p-uae/v2.1.0
 }
 
 #include <AppKit.h>
@@ -111,11 +100,7 @@ void floppyFilePanel::run ()
  * The UAE GUI callbacks
  */
 
-<<<<<<< HEAD
 void gui_init (int argc, char **argv)
-=======
-int gui_init (void)
->>>>>>> p-uae/v2.1.0
 {
 }
 
@@ -151,13 +136,10 @@ void gui_fps (int fps, int idle)
     gui_data.idle = idle;
 }
 
-<<<<<<< HEAD
-=======
 void gui_flicker_led (int led, int unitnum, int status)
 {
 }
 
->>>>>>> p-uae/v2.1.0
 void gui_led (int led, int on)
 {
 }
@@ -199,11 +181,8 @@ void gui_cd_led (int led)
 
 void gui_display (int shortcut)
 {
-<<<<<<< HEAD
-=======
     pause_sound ();
 
->>>>>>> p-uae/v2.1.0
     if (shortcut >=0 && shortcut < 4) {
 	/* If we're running full-screen, we must toggle
 	 * to windowed mode before opening the dialog */
@@ -211,15 +190,10 @@ void gui_display (int shortcut)
 
 	if (was_fullscreen = is_fullscreen ()) {
 	    toggle_fullscreen ();
-<<<<<<< HEAD
-	    if (is_fullscreen ())
-	        return;
-=======
 	    if (is_fullscreen ()) {
 		resume_sound ();
 		return;
 	    }
->>>>>>> p-uae/v2.1.0
 	}
 
 	(new floppyFilePanel (shortcut))->run ();
@@ -227,10 +201,7 @@ void gui_display (int shortcut)
 	if (was_fullscreen)
 	    toggle_fullscreen ();
     }
-<<<<<<< HEAD
-=======
     resume_sound ();
->>>>>>> p-uae/v2.1.0
 }
 
 void gui_message (const char *format,...)

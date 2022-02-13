@@ -42,20 +42,12 @@ int truncate (const char *name, long int len)
 	if (SetFilePointer (hFile, len, NULL, FILE_BEGIN) == (DWORD)len) {
 	    if (SetEndOfFile (hFile) == TRUE)
 		result = 0;
-<<<<<<< HEAD
-        } else {
-=======
 	} else {
->>>>>>> p-uae/v2.1.0
 	    write_log ("SetFilePointer() failure for %s to posn %d\n", name, len);
 	}
 	CloseHandle (hFile);
     } else {
-<<<<<<< HEAD
-	write_log( "CreateFile() failed to open %s\n", name );
-=======
 	write_log ( "CreateFile() failed to open %s\n", name );
->>>>>>> p-uae/v2.1.0
     }
 
     if (result == -1)
@@ -68,24 +60,14 @@ int isspecialdrive (const char *name)
 {
     DWORD v;
     DWORD err;
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> p-uae/v2.1.0
     DWORD last = SetErrorMode (SEM_FAILCRITICALERRORS);
 
     v = GetFileAttributes (name);
     err = GetLastError ();
-<<<<<<< HEAD
-    
-    SetErrorMode (last);
-    
-=======
 
     SetErrorMode (last);
 
->>>>>>> p-uae/v2.1.0
     if (v != INVALID_FILE_ATTRIBUTES)
 	return 0;
     if (err == ERROR_NOT_READY)

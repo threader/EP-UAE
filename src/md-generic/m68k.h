@@ -11,7 +11,6 @@
  * Machine-dependent structure for holding the 68k CCR flags
  */
 struct flag_struct {
-<<<<<<< HEAD
     unsigned int cznv;
     unsigned int x;
 };
@@ -74,14 +73,8 @@ STATIC_INLINE int cctrue (struct flag_struct *flags, int cc)
 		 return (((cznv << (FLAGBIT_N - FLAGBIT_V)) ^ cznv) & (FLAGVAL_N | FLAGVAL_Z)) == 0;
 	case 15: cznv &= (FLAGVAL_N | FLAGVAL_Z | FLAGVAL_V);				/* ZFLG && (NFLG != VFLG)	LE */
 		 return (((cznv << (FLAGBIT_N - FLAGBIT_V)) ^ cznv) & (FLAGVAL_N | FLAGVAL_Z)) != 0;
-=======
-    unsigned int c;
-    unsigned int z;
-    unsigned int n;
-    unsigned int v;
-    unsigned int x;
-};
 
+#if 0
 extern struct flag_struct regflags;
 
 #define ZFLG (regflags.z)
@@ -109,8 +102,8 @@ STATIC_INLINE int cctrue(int cc)
      case 13:return NFLG != VFLG;            /* LT */
      case 14:return !ZFLG && (NFLG == VFLG); /* GT */
      case 15:return ZFLG || (NFLG != VFLG);  /* LE */
->>>>>>> p-uae/v2.1.0
     }
     abort ();
     return 0;
 }
+#endif 

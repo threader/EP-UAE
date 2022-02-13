@@ -12,17 +12,12 @@
 
 #include "options.h"
 #include "machdep/m68k.h"
-
-<<<<<<< HEAD
-void machdep_init (void)
-{
-=======
+/* notes regflag */
 struct flag_struct regflags;
 
 int machdep_init (void)
 {
 	return 1;
->>>>>>> p-uae/v2.1.0
 }
 
 /*

@@ -79,11 +79,7 @@ static const char *get_last_floppy_dir (void)
 	    atexit (free_last_floppy_dir);
 	}
 
-<<<<<<< HEAD
         last_floppy_dir = my_strdup (prefs_get_attr ("floppy_path"));
-=======
-	last_floppy_dir = my_strdup (prefs_get_attr ("floppy_path"));
->>>>>>> p-uae/v2.1.0
     }
     return last_floppy_dir;
 }
@@ -99,11 +95,7 @@ static const char *get_last_savestate_dir (void)
 	    atexit (free_last_savestate_dir);
 	}
 
-<<<<<<< HEAD
         last_savestate_dir = my_strdup (prefs_get_attr ("savestate_path"));
-=======
-	last_savestate_dir = my_strdup (prefs_get_attr ("savestate_path"));
->>>>>>> p-uae/v2.1.0
     }
     return last_savestate_dir;
 }
@@ -179,13 +171,8 @@ static void do_file_dialog (unsigned int type)
 	}
 #ifdef __amigaos4__
     } else {
-<<<<<<< HEAD
         IAsl->Obtain ();
         release_asl = 1;
-=======
-	IAsl->Obtain ();
-	release_asl = 1;
->>>>>>> p-uae/v2.1.0
 #endif
     }
 
@@ -217,11 +204,7 @@ static void do_file_dialog (unsigned int type)
 	    break;
 
 	case FILEDIALOG_SAVE_STATE:
-<<<<<<< HEAD
 	    req_prompt = "Select file to save emulator state to\n";
-=======
-	    req_prompt = "Select file to save emulator state to";
->>>>>>> p-uae/v2.1.0
 	    req_pattern = "#?.uss";
 	    req_lastdir = get_last_savestate_dir ();
 	    req_do_save = TRUE;
@@ -257,11 +240,7 @@ static void do_file_dialog (unsigned int type)
 	    strcat (path, "/");
 	strcat (path, FileRequest->fr_File);
 
-<<<<<<< HEAD
         /*
-=======
-	/*
->>>>>>> p-uae/v2.1.0
 	 * Process selected file.
 	 */
 	switch (type) {
@@ -277,21 +256,13 @@ static void do_file_dialog (unsigned int type)
 
 	    case FILEDIALOG_SAVE_STATE:
 		set_last_savestate_dir (FileRequest->fr_Drawer);
-<<<<<<< HEAD
 		savestate_initsave (path, 1);
-=======
-		savestate_initsave (path, 1, 0);
->>>>>>> p-uae/v2.1.0
 		save_state (path, "Description");
 		break;
 
 	    case FILEDIALOG_LOAD_STATE:
 		set_last_savestate_dir (FileRequest->fr_Drawer);
-<<<<<<< HEAD
 		savestate_initsave (path, 1);
-=======
-		savestate_initsave (path, 1, 0);
->>>>>>> p-uae/v2.1.0
 		savestate_state = STATE_DORESTORE;
 		write_log ("Restoring state from '%s'...\n", path);
 		break;
@@ -302,11 +273,7 @@ static void do_file_dialog (unsigned int type)
 
 #ifdef __amigaos4__
     if (release_asl)
-<<<<<<< HEAD
         IAsl->Release ();
-=======
-	IAsl->Release ();
->>>>>>> p-uae/v2.1.0
 #endif
 
     return;
@@ -314,11 +281,7 @@ static void do_file_dialog (unsigned int type)
 
 /****************************************************************************/
 
-<<<<<<< HEAD
 void gui_init (int argc, char **argv)
-=======
-int gui_init (void)
->>>>>>> p-uae/v2.1.0
 {
 }
 
@@ -350,17 +313,12 @@ int gui_update (void)
     return 0;
 }
 
-/****************************************************************************/
-
-<<<<<<< HEAD
-=======
 void gui_flicker_led (int led, int unitnum, int status)
 {
 }
 
 /****************************************************************************/
 
->>>>>>> p-uae/v2.1.0
 void gui_led (int led, int on)
 {
     if (have_rexx)

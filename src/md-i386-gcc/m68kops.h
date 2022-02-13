@@ -22,7 +22,6 @@
  *
  * Evaluate operand and set Z and N flags. Always clear C and V.
  */
-<<<<<<< HEAD
 
 #define optflag_testl(regs, v)				\
 	asm (						\
@@ -219,7 +218,7 @@
 		: "qmi" (s), "q" (d), "r" (regs)	\
 		: "eax", "cc"				\
 	)
-=======
+#if 0
 /* Is there any way to do this without declaring *all* memory clobbered?
    I.e. any way to tell gcc that some byte-sized value is in %al? */
 #ifdef __APPLE__
@@ -328,6 +327,7 @@
 			"movb %%al,_regflags\n\t" \
 			"movb %%ah,_regflags+1\n\t" \
 			:: "qmi" (s), "q" (d) : "%eax","cc","memory")
+# endif 
 #else /*ifdef apple*/
 #define optflag_testl(v) \
   __asm__ __volatile__ ("andl %0,%0\n\t" \
@@ -435,6 +435,6 @@
 			"movb %%ah,regflags+1\n\t" \
 			:: "qmi" (s), "q" (d) : "%eax","cc","memory")
 #endif /*ifdef apple*/
->>>>>>> p-uae/v2.1.0
+#endif // 0
 
 #endif /* EUAE_MACHDEP_M68KOPS_H */

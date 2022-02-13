@@ -28,18 +28,12 @@ struct _ChipsetSpeedPanel
     GtkWidget  *framerate_widget;
     GtkWidget  *collisions_widget;
     GtkWidget  *immediate_blits_widget;
-<<<<<<< HEAD
-=======
     GtkWidget  *leds_on_screen_widget;
->>>>>>> p-uae/v2.1.0
 
     guint       framerate;
     guint       collision_level;
     guint       immediate_blits;
-<<<<<<< HEAD
-=======
     guint       leds_on_screen;
->>>>>>> p-uae/v2.1.0
 };
 
 struct _ChipsetSpeedPanelClass
@@ -55,10 +49,7 @@ GtkWidget*	chipsetspeedpanel_new		  (void);
 void chipsetspeedpanel_set_framerate		  (ChipsetSpeedPanel *panel, guint framerate);
 void chipsetspeedpanel_set_collision_level	  (ChipsetSpeedPanel *panel, guint collision_level);
 void chipsetspeedpanel_set_immediate_blits	  (ChipsetSpeedPanel *panel, guint immediate_blits);
-<<<<<<< HEAD
-=======
 void chipsetspeedpanel_set_leds_on_screen	  (ChipsetSpeedPanel *panel, guint leds_on_screen);
->>>>>>> p-uae/v2.1.0
 
 #ifdef __cplusplus
 }

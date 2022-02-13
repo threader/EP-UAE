@@ -210,11 +210,6 @@ static struct uae_hotkeyseq ami_hotkeys[] =
     { MAKE_HOTKEYSEQ (AK_CTRL, AK_LALT, AK_I, -1,      INPUTEVENT_SPC_INHIBITSCREEN) },
     { MAKE_HOTKEYSEQ (AK_CTRL, AK_LALT, AK_P, -1,      INPUTEVENT_SPC_SCREENSHOT) },
     { MAKE_HOTKEYSEQ (AK_CTRL, AK_LALT, AK_A, -1,      INPUTEVENT_SPC_SWITCHINTERPOL) },
-<<<<<<< HEAD
-    { MAKE_HOTKEYSEQ (AK_CTRL, AK_LALT, AK_NPADD, -1,  INPUTEVENT_SPC_INCRFRAMERATE) },
-    { MAKE_HOTKEYSEQ (AK_CTRL, AK_LALT, AK_NPSUB, -1,  INPUTEVENT_SPC_DECRFRAMERATE) },
-=======
->>>>>>> p-uae/v2.1.0
     { MAKE_HOTKEYSEQ (AK_CTRL, AK_LALT, AK_F1, -1,     INPUTEVENT_SPC_FLOPPY0) },
     { MAKE_HOTKEYSEQ (AK_CTRL, AK_LALT, AK_F2, -1,     INPUTEVENT_SPC_FLOPPY1) },
     { MAKE_HOTKEYSEQ (AK_CTRL, AK_LALT, AK_F3, -1,     INPUTEVENT_SPC_FLOPPY2) },
@@ -435,11 +430,7 @@ static void flush_clear_screen_gfxlib (struct vidbuf_description *gfxinfo)
 			     W->Width - W->BorderLeft - W->BorderRight,
 			     W->Height - W->BorderTop - W->BorderBottom,
 			     0);
-<<<<<<< HEAD
-        else
-=======
 	else
->>>>>>> p-uae/v2.1.0
 #endif
 	{
 	    SetAPen  (RP, get_nearest_color (0,0,0));
@@ -448,11 +439,7 @@ static void flush_clear_screen_gfxlib (struct vidbuf_description *gfxinfo)
 	}
     }
     if (use_delta_buffer)
-<<<<<<< HEAD
-        memset (oldpixbuf, 0, gfxinfo->rowbytes * gfxinfo->height);
-=======
 	memset (oldpixbuf, 0, gfxinfo->rowbytes * gfxinfo->height);
->>>>>>> p-uae/v2.1.0
 }
 
 /****************************************************************************/
@@ -1014,15 +1001,9 @@ static int setup_customscreen (void)
     } else {
 #endif
 	/* No (suitable) RTG screen available. Try a native mode */
-<<<<<<< HEAD
-	depth = os39 ? 8 : (currprefs.gfx_lores ? 5 : 4);
-	mode = PAL_MONITOR_ID; // FIXME: should check whether to use PAL or NTSC.
-	if (currprefs.gfx_lores)
-=======
 	depth = os39 ? 8 : (currprefs.gfx_lores_mode ? 5 : 4);
 	mode = PAL_MONITOR_ID; // FIXME: should check whether to use PAL or NTSC.
 	if (currprefs.gfx_lores_mode)
->>>>>>> p-uae/v2.1.0
 	    mode |= (gfxvidinfo.height > 256) ? LORESLACE_KEY : LORES_KEY;
 	else
 	    mode |= (gfxvidinfo.height > 256) ? HIRESLACE_KEY : HIRES_KEY;
@@ -1098,11 +1079,7 @@ static int setup_publicscreen(void)
     if ((S->ViewPort.Modes & (HIRES | LACE)) == HIRES) {
 	if (gfxvidinfo.height + S->BarHeight + 1 >= S->Height) {
 	    gfxvidinfo.height >>= 1;
-<<<<<<< HEAD
-	    currprefs.gfx_correct_aspect = 1;
-=======
 //	    currprefs.gfx_correct_aspect = 1;
->>>>>>> p-uae/v2.1.0
 	}
     }
 
@@ -1162,15 +1139,9 @@ static char *get_num (char *s, int *n)
      ++s;
      if(*s=='x' || *s=='X') {
        do {char c=*++s;
-<<<<<<< HEAD
-           if(c>='0' && c<='9') {i*=16; i+= c-'0';}    else
-           if(c>='a' && c<='f') {i*=16; i+= c-'a'+10;} else
-           if(c>='A' && c<='F') {i*=16; i+= c-'A'+10;} else break;
-=======
 	   if(c>='0' && c<='9') {i*=16; i+= c-'0';}    else
 	   if(c>='a' && c<='f') {i*=16; i+= c-'a'+10;} else
 	   if(c>='A' && c<='F') {i*=16; i+= c-'A'+10;} else break;
->>>>>>> p-uae/v2.1.0
        } while(1);
      } else while(*s>='0' && *s<='7') {i*=8; i+= *s++ - '0';}
    } else {
@@ -1227,13 +1198,8 @@ static int setup_userscreen (void)
 	}
 #ifdef __amigaos4__
     } else {
-<<<<<<< HEAD
-        IAsl->Obtain ();
-        release_asl = 1;
-=======
 	IAsl->Obtain ();
 	release_asl = 1;
->>>>>>> p-uae/v2.1.0
 #endif
     }
 
@@ -1428,19 +1394,11 @@ int graphics_setup (void)
 
 #ifdef USE_CYBERGFX
     if (!CyberGfxBase) {
-<<<<<<< HEAD
-        CyberGfxBase = OpenLibrary ("cybergraphics.library", 40);
-#ifdef __amigaos4__
-        if (CyberGfxBase) {
-	   ICyberGfx = (struct CyberGfxIFace *) GetInterface (CyberGfxBase, "main", 1, NULL);
-           if (!ICyberGfx) {
-=======
 	CyberGfxBase = OpenLibrary ("cybergraphics.library", 40);
 #ifdef __amigaos4__
 	if (CyberGfxBase) {
 	   ICyberGfx = (struct CyberGfxIFace *) GetInterface (CyberGfxBase, "main", 1, NULL);
 	   if (!ICyberGfx) {
->>>>>>> p-uae/v2.1.0
 	       CloseLibrary (CyberGfxBase);
 	       CyberGfxBase = 0;
 	   }
@@ -1552,13 +1510,8 @@ int graphics_init (void)
 
 /* We'll ignore color_mode for now.
     if (currprefs.color_mode > 5) {
-<<<<<<< HEAD
-        write_log ("Bad color mode selected. Using default.\n");
-        currprefs.color_mode = 0;
-=======
 	write_log ("Bad color mode selected. Using default.\n");
 	currprefs.color_mode = 0;
->>>>>>> p-uae/v2.1.0
     }
 */
 
@@ -1567,11 +1520,7 @@ int graphics_init (void)
 
     if (gfxvidinfo.width < 320)
 	gfxvidinfo.width = 320;
-<<<<<<< HEAD
-    if (!currprefs.gfx_correct_aspect && (gfxvidinfo.width < 64))
-=======
     if (/*!currprefs.gfx_correct_aspect &&*/ (gfxvidinfo.width < 64))
->>>>>>> p-uae/v2.1.0
 	gfxvidinfo.width = 200;
 
     gfxvidinfo.width += 7;
@@ -1679,11 +1628,7 @@ int graphics_init (void)
     gfxvidinfo.flush_clear_screen = flush_clear_screen_gfxlib;
     gfxvidinfo.flush_screen       = dummy_flush_screen;
     gfxvidinfo.lockscr            = dummy_lock;
-<<<<<<< HEAD
-    gfxvidinfo.unlockscr          = dummy_unlock;     
-=======
     gfxvidinfo.unlockscr          = dummy_unlock;
->>>>>>> p-uae/v2.1.0
 
     if (!use_cyb) {
 	/*
@@ -1740,11 +1685,7 @@ void graphics_leave (void)
 # ifdef USE_CYBERGFX_V41
     if (CybBuffer) {
 	FreeVec (CybBuffer);
-<<<<<<< HEAD
-        CybBuffer = NULL;
-=======
 	CybBuffer = NULL;
->>>>>>> p-uae/v2.1.0
     }
 # else
     if (CybBitMap) {
@@ -1947,11 +1888,7 @@ void handle_events(void)
 		 * A simple fix is just to tell UAE that all keys have been released.
 		 * This avoids keys appearing to be "stuck" down.
 		 */
-<<<<<<< HEAD
-		inputdevice_acquire ();
-=======
 		inputdevice_acquire (1);
->>>>>>> p-uae/v2.1.0
 		inputdevice_release_all_keys ();
 		reset_hotkeys ();
 
@@ -1977,11 +1914,7 @@ void handle_events(void)
 	    default:
 		write_log ("Unknown event class: %x\n", class);
 		break;
-<<<<<<< HEAD
-        }
-=======
 	}
->>>>>>> p-uae/v2.1.0
     }
 
     appw_events();
@@ -2065,24 +1998,15 @@ static void set_title (void)
 
     if (!*ScreenTitle) {
 	sprintf (ScreenTitle,
-<<<<<<< HEAD
-                 "UAE-%d.%d.%d (%s%s%s)  by Bernd Schmidt & contributors, "
-                 "Amiga Port by Samuel Devulder.",
-=======
 		 "UAE-%d.%d.%d (%s%s%s)  by Bernd Schmidt & contributors, "
 		 "Amiga Port by Samuel Devulder.",
->>>>>>> p-uae/v2.1.0
 		  UAEMAJOR, UAEMINOR, UAESUBREV,
 		  currprefs.cpu_level==0?"68000":
 		  currprefs.cpu_level==1?"68010":
 		  currprefs.cpu_level==2?"68020":"68020/68881",
 		  currprefs.address_space_24?" 24bits":"",
 		  currprefs.cpu_compatible?" compat":"");
-<<<<<<< HEAD
-        SetWindowTitles(W, title, ScreenTitle);
-=======
 	SetWindowTitles(W, title, ScreenTitle);
->>>>>>> p-uae/v2.1.0
     } else SetWindowTitles(W, title, (char*)-1);
 #endif
 
@@ -2106,11 +2030,7 @@ void main_window_led (int led, int on)                /* is used in amigui.c */
  * Routines for OS2.0 (code taken out of mpeg_play by Michael Balzer)
  */
 static struct BitMap *myAllocBitMap(ULONG sizex, ULONG sizey, ULONG depth,
-<<<<<<< HEAD
-                                    ULONG flags, struct BitMap *friend_bitmap)
-=======
 				    ULONG flags, struct BitMap *friend_bitmap)
->>>>>>> p-uae/v2.1.0
 {
     struct BitMap *bm;
 
@@ -2174,13 +2094,8 @@ static LONG ObtainColor (ULONG r,ULONG g,ULONG b)
 		pen[maxpen++] = i;
 	    else
 		i = -1;
-<<<<<<< HEAD
-        }
-        return i;
-=======
 	}
 	return i;
->>>>>>> p-uae/v2.1.0
     }
 
     colors = is_halfbrite ? 32 : (1 << RPDepth (RP));
@@ -2337,35 +2252,6 @@ static void ham_conv (UWORD *src, UBYTE *buf, UWORD len)
 #endif
     rgb.all = 0;
     while(len--) {
-<<<<<<< HEAD
-        UBYTE c,t;
-        RGB.all = *src++;
-        c = d_cmd[RGB.all];
-        /* cowabonga! */
-        t = h_buf[16912 + RGB.all - rgb.all];
-#ifndef USE_BITFIELDS
-        if(t<=d_dst[RGB.all]) {
-	    static int ht[]={32+10,48+5,16+0}; ULONG m;
-	    t &= 3; m = 0x1F<<(ht[t]&15);
-            m = ~m; rgb.all &= m;
-            m = ~m; m &= RGB.all;rgb.all |= m;
-	    m >>= ht[t]&15;
-	    c = (ht[t]&~15) | m;
-        } else {
-	    rgb.all = c;
-	    rgb.all <<= 5; rgb.all |= c;
-	    rgb.all <<= 5; rgb.all |= c;
-        }
-#else
-        if(t<=d_dst[RGB.all]) {
-            t&=3;
-            if(!t)        {c = 32; c |= (rgb._.r = RGB._.r);}
-            else {--t; if(!t) {c = 48; c |= (rgb._.g = RGB._.g);}
-            else              {c = 16; c |= (rgb._.b = RGB._.b);} }
-        } else rgb._.r = rgb._.g = rgb._.b = c;
-#endif
-        *buf++ = c;
-=======
 	UBYTE c,t;
 	RGB.all = *src++;
 	c = d_cmd[RGB.all];
@@ -2393,7 +2279,6 @@ static void ham_conv (UWORD *src, UBYTE *buf, UWORD len)
 	} else rgb._.r = rgb._.g = rgb._.b = c;
 #endif
 	*buf++ = c;
->>>>>>> p-uae/v2.1.0
     }
 }
 
@@ -2427,20 +2312,12 @@ int is_vsync (void)
 {
     return 0;
 }
-<<<<<<< HEAD
-   
-=======
 
->>>>>>> p-uae/v2.1.0
 void toggle_fullscreen (void)
 {
 }
 
-<<<<<<< HEAD
-void screenshot (int type)
-=======
 void screenshot (int mode, int doprepare)
->>>>>>> p-uae/v2.1.0
 {
     write_log ("Screenshot not implemented yet\n");
 }
@@ -2493,17 +2370,10 @@ static unsigned int get_mouse_widget_num (unsigned int mouse)
 static int get_mouse_widget_first (unsigned int mouse, int type)
 {
     switch (type) {
-<<<<<<< HEAD
-        case IDEV_WIDGET_BUTTON:
-            return FIRST_BUTTON;
-        case IDEV_WIDGET_AXIS:
-            return FIRST_AXIS;
-=======
 	case IDEV_WIDGET_BUTTON:
 	    return FIRST_BUTTON;
 	case IDEV_WIDGET_AXIS:
 	    return FIRST_AXIS;
->>>>>>> p-uae/v2.1.0
     }
     return -1;
 }
@@ -2511,15 +2381,6 @@ static int get_mouse_widget_first (unsigned int mouse, int type)
 static int get_mouse_widget_type (unsigned int mouse, unsigned int num, char *name, uae_u32 *code)
 {
     if (num >= MAX_AXES && num < MAX_AXES + MAX_BUTTONS) {
-<<<<<<< HEAD
-        if (name)
-            sprintf (name, "Button %d", num + 1 + MAX_AXES);
-        return IDEV_WIDGET_BUTTON;
-    } else if (num < MAX_AXES) {
-        if (name)
-            sprintf (name, "Axis %d", num + 1);
-        return IDEV_WIDGET_AXIS;
-=======
 	if (name)
 	    sprintf (name, "Button %d", num + 1 + MAX_AXES);
 	return IDEV_WIDGET_BUTTON;
@@ -2527,7 +2388,6 @@ static int get_mouse_widget_type (unsigned int mouse, unsigned int num, char *na
 	if (name)
 	    sprintf (name, "Axis %d", num + 1);
 	return IDEV_WIDGET_AXIS;
->>>>>>> p-uae/v2.1.0
     }
     return IDEV_WIDGET_NONE;
 }
@@ -2553,11 +2413,7 @@ struct inputdevice_functions inputdevicefunc_mouse = {
 /*
  * Default inputdevice config for mouse
  */
-<<<<<<< HEAD
-void input_get_default_mouse (struct uae_input_device *uid)
-=======
 int input_get_default_mouse (struct uae_input_device *uid, int num, int port)
->>>>>>> p-uae/v2.1.0
 {
     /* Supports only one mouse for now */
     uid[0].eventid[ID_AXIS_OFFSET + 0][0]   = INPUTEVENT_MOUSE1_HORIZ;
@@ -2567,10 +2423,7 @@ int input_get_default_mouse (struct uae_input_device *uid, int num, int port)
     uid[0].eventid[ID_BUTTON_OFFSET + 1][0] = INPUTEVENT_JOY1_2ND_BUTTON;
     uid[0].eventid[ID_BUTTON_OFFSET + 2][0] = INPUTEVENT_JOY1_3RD_BUTTON;
     uid[0].enabled = 1;
-<<<<<<< HEAD
-=======
 	return 0;
->>>>>>> p-uae/v2.1.0
 }
 
 /****************************************************************************
@@ -2681,13 +2534,8 @@ int gfx_parse_option (struct uae_prefs *p, const char *option, const char *value
 {
     return (cfgfile_yesno  (option, value, "use_dither",   &p->amiga_use_dither)
 	 || cfgfile_yesno  (option, value, "use_grey",	 &p->amiga_use_grey)
-<<<<<<< HEAD
-         || cfgfile_strval (option, value, "screen_type",  &p->amiga_screen_type, screen_type, 0)
-         || cfgfile_string (option, value, "publicscreen", &p->amiga_publicscreen[0], 256)
-=======
 	 || cfgfile_strval (option, value, "screen_type",  &p->amiga_screen_type, screen_type, 0)
 	 || cfgfile_string (option, value, "publicscreen", &p->amiga_publicscreen[0], 256)
->>>>>>> p-uae/v2.1.0
     );
 }
 

@@ -20,11 +20,7 @@
  * to Amiga keycodes or UAE commands.
  */
 static const int default_keymap[] = {
-<<<<<<< HEAD
-                                INPUTEVENT_ZERO,
-=======
 				INPUTEVENT_ZERO,
->>>>>>> p-uae/v2.1.0
     /* UAEKEY_ESCAPE */ 	INPUTEVENT_KEY_ESC,
 
     /* UAEKEY_F1 */		INPUTEVENT_KEY_F1,
@@ -153,10 +149,6 @@ static const int default_keymap[] = {
     /* UAEKEY_WAKE */		INPUTEVENT_ZERO
 };
 
-<<<<<<< HEAD
-
-=======
->>>>>>> p-uae/v2.1.0
 /*
  * Build a default key translation table using the
  * specified host keymap.
@@ -170,11 +162,7 @@ struct uae_input_device_kbr_default *uaekey_make_default_kbr (const struct uaeke
     for (i = 0; i < 256 && hostkeys[i].hostkey != -1; i++);
 
     if (i == 256)
-<<<<<<< HEAD
-	abort ();
-=======
 		abort ();
->>>>>>> p-uae/v2.1.0
 
     count = i;
 
@@ -182,19 +170,11 @@ struct uae_input_device_kbr_default *uaekey_make_default_kbr (const struct uaeke
 	    malloc (sizeof (struct uae_input_device_kbr_default) * (count + 1));
 
     if (trans) {
-<<<<<<< HEAD
-	for (i = 0; i < count; i++) {
-	    trans[i].scancode = hostkeys[i].hostkey;
-	    trans[i].event    = default_keymap[hostkeys[i].uaekey];
-	}
-	trans[i].scancode = -1;
-=======
 		for (i = 0; i < count; i++) {
 		    trans[i].scancode = hostkeys[i].hostkey;
 		    trans[i].event    = default_keymap[hostkeys[i].uaekey];
 		}
 		trans[i].scancode = -1;
->>>>>>> p-uae/v2.1.0
     }
 
     return trans;

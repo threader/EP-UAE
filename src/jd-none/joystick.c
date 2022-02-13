@@ -78,14 +78,8 @@ struct inputdevice_functions inputdevicefunc_joystick = {
 /*
  * Set default inputdevice config for SDL joysticks
  */
-<<<<<<< HEAD
-void input_get_default_joystick (struct uae_input_device *uid)
-{
-    uid[0].enabled = 0;
-=======
 int input_get_default_joystick (struct uae_input_device *uid, int num, int port, int cd32)
 {
     uid[0].enabled = 0;
 	return 0;
->>>>>>> p-uae/v2.1.0
 }

@@ -81,11 +81,7 @@ static void read_joy (unsigned int nr)
 
     len = read(fd, &buffer, sizeof(buffer));
     if (len != sizeof(buffer))
-<<<<<<< HEAD
-	return;
-=======
 		return;
->>>>>>> p-uae/v2.1.0
 
     /* According to old 0.x JS API, we don't know the range
      * or the centre for either axis, so we try to work these
@@ -124,18 +120,10 @@ static int init_joysticks(void)
     snprintf (js_prefix, JS_MAXPATHLEN, "/dev/%s", JS_DEVNAME_PREFIX);
 
     snprintf (js_path, JS_MAXPATHLEN, "%s0", js_prefix);
-    if ((js0 = open (js_path, O_RDONLY)) >= 0)
-<<<<<<< HEAD
-	nr_joysticks++;
 
-    snprintf (js_path, JS_MAXPATHLEN, "%s1", js_prefix);
-    if ((js1 = open (js_path, O_RDONLY)) >= 0)
-	nr_joysticks++;
 
 #ifdef __linux__
-   if (nr_joysticks == 0) {
-        /*
-=======
+    if ((js0 = open (js_path, O_RDONLY)) >= 0)
 		nr_joysticks++;
 
     snprintf (js_path, JS_MAXPATHLEN, "%s1", js_prefix);
@@ -145,7 +133,6 @@ static int init_joysticks(void)
 #ifdef __linux__
    if (nr_joysticks == 0) {
 	/*
->>>>>>> p-uae/v2.1.0
 	 * If we haven't found any joysticks yet,
 	 * look for /dev/input/js* nodes
 	 */
@@ -179,15 +166,9 @@ static int init_joysticks(void)
 static void close_joysticks(void)
 {
     if (js0 >= 0)
-<<<<<<< HEAD
-	close (js0);
-    if (js1 >= 0)
-	close (js1);
-=======
 		close (js0);
     if (js1 >= 0)
 		close (js1);
->>>>>>> p-uae/v2.1.0
 }
 
 static unsigned int get_joystick_num (void)
@@ -208,11 +189,7 @@ static void read_joysticks (void)
 {
     unsigned int i;
     for (i = 0; i < get_joystick_num(); i++)
-<<<<<<< HEAD
-	read_joy (i);
-=======
 		read_joy (i);
->>>>>>> p-uae/v2.1.0
 }
 
 static const char *get_joystick_name (unsigned int joy)
@@ -269,21 +246,6 @@ struct inputdevice_functions inputdevicefunc_joystick = {
 /*
  * Set default inputdevice config for joysticks
  */
-<<<<<<< HEAD
-void input_get_default_joystick (struct uae_input_device *uid)
-{
-    unsigned int i, port;
-
-    for (i = 0; i < nr_joysticks; i++) {
-        port = i & 1;
-        uid[i].eventid[ID_AXIS_OFFSET + 0][0]   = port ? INPUTEVENT_JOY2_HORIZ : INPUTEVENT_JOY1_HORIZ;
-        uid[i].eventid[ID_AXIS_OFFSET + 1][0]   = port ? INPUTEVENT_JOY2_VERT  : INPUTEVENT_JOY1_VERT;
-        uid[i].eventid[ID_BUTTON_OFFSET + 0][0] = port ? INPUTEVENT_JOY2_FIRE_BUTTON : INPUTEVENT_JOY1_FIRE_BUTTON;
-        uid[i].eventid[ID_BUTTON_OFFSET + 1][0] = port ? INPUTEVENT_JOY2_2ND_BUTTON  : INPUTEVENT_JOY1_2ND_BUTTON;
-        uid[i].eventid[ID_BUTTON_OFFSET + 2][0] = port ? INPUTEVENT_JOY2_3RD_BUTTON  : INPUTEVENT_JOY1_3RD_BUTTON;
-    }
-    uid[0].enabled = 1;
-=======
 int input_get_default_joystick (struct uae_input_device *uid, int num, int port, int cd32)
 {
 	unsigned int i;
@@ -301,5 +263,4 @@ int input_get_default_joystick (struct uae_input_device *uid, int num, int port,
 	if (i == 0)
 		return 1;
 	return 0;
->>>>>>> p-uae/v2.1.0
 }

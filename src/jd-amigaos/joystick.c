@@ -76,15 +76,6 @@ static void read_joy (unsigned int nr)
 	    int x = 0, y = 0;
 
 	    if (state & JPF_JOY_UP)
-<<<<<<< HEAD
-	        y = -1;
-	    else if (state & JPF_JOY_DOWN)
-	        y = 1;
-	    if (state & JPF_JOY_LEFT)
-	        x = -1;
-	    else if (state & JPF_JOY_RIGHT)
-	        x = 1;
-=======
 		y = -1;
 	    else if (state & JPF_JOY_DOWN)
 		y = 1;
@@ -92,7 +83,6 @@ static void read_joy (unsigned int nr)
 		x = -1;
 	    else if (state & JPF_JOY_RIGHT)
 		x = 1;
->>>>>>> p-uae/v2.1.0
 
 	    setjoystickstate (nr, 0, x, 1);
 	    setjoystickstate (nr, 1, y, 1);
@@ -168,15 +158,9 @@ struct inputdevice_functions inputdevicefunc_joystick = {
 /*
  * Set default inputdevice config for Amiga joysticks
  */
-<<<<<<< HEAD
-void input_get_default_joystick (struct uae_input_device *uid)
-{
-    unsigned int i, port;
-=======
 int input_get_default_joystick (struct uae_input_device *uid, int num, int port, int cd32)
 {
     unsigned int i;
->>>>>>> p-uae/v2.1.0
 
     for (i = 0; i < nr_joysticks; i++) {
 	port = i & 1;

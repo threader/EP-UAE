@@ -6,10 +6,7 @@
   * Copyright 1995 Ed Hanway
   * Copyright 1995, 1996, 1997 Bernd Schmidt
   * Copyright 2006-2007 Richard Drummond
-<<<<<<< HEAD
-=======
   * Copyright 2010 Mustafa Tufan
->>>>>>> p-uae/v2.1.0
   */
 
 #include "sysconfig.h"
@@ -28,10 +25,7 @@
 #include "disk.h"
 #include "debug.h"
 #include "xwin.h"
-<<<<<<< HEAD
 #include "drawing.h"
-=======
->>>>>>> p-uae/v2.1.0
 #include "inputdevice.h"
 #include "keybuf.h"
 #include "gui.h"
@@ -39,21 +33,15 @@
 #include "autoconf.h"
 #include "traps.h"
 #include "osemu.h"
-<<<<<<< HEAD
 #include "filesys.h"
-=======
->>>>>>> p-uae/v2.1.0
 #include "picasso96.h"
 #include "bsdsocket.h"
 #include "uaeexe.h"
 #include "native2amiga.h"
 #include "scsidev.h"
-<<<<<<< HEAD
-#include "akiko.h"
 #include "savestate.h"
 #include "hrtimer.h"
 #include "sleep.h"
-=======
 #include "uaeserial.h"
 #include "akiko.h"
 #include "cdtv.h"
@@ -71,14 +59,12 @@
 #include "dongle.h"
 #include "sleep.h"
 #include "consolehook.h"
->>>>>>> p-uae/v2.1.0
 #include "version.h"
 
 #ifdef USE_SDL
 #include "SDL.h"
 #endif
 
-<<<<<<< HEAD
 #ifdef WIN32
 //FIXME: This shouldn't be necessary
 #include "windows.h"
@@ -333,13 +319,6 @@ static void fix_options (void)
 	write_log ("Please use \"uae -h\" to get usage information.\n");
 }
 
-
-#ifndef DONT_PARSE_CMDLINE
-
-void usage (void)
-{
-    cfgfile_show_usage ();
-=======
 struct uae_prefs currprefs, changed_prefs;
 int config_changed;
 
@@ -360,42 +339,29 @@ char optionsfile[256];
 static void hr (void)
 {
     write_log ("------------------------------------------------------------------------------------\n");
->>>>>>> p-uae/v2.1.0
+
 }
 
 static void show_version (void)
 {
-<<<<<<< HEAD
 #ifdef PACKAGE_VERSION
     write_log (PACKAGE_NAME " " PACKAGE_VERSION "\n");
 #else
-    write_log ("UAE %d.%d.%d\n", UAEMAJOR, UAEMINOR, UAESUBREV);
+    write_log ("EP-UAE %d.%d.%d\n", UAEMAJOR, UAEMINOR, UAESUBREV);
 #endif
-=======
-    write_log ("P-UAE %d.%d.%d\n", UAEMAJOR, UAEMINOR, UAESUBREV);
->>>>>>> p-uae/v2.1.0
     write_log ("Build date: " __DATE__ " " __TIME__ "\n");
 }
 
 static void show_version_full (void)
 {
-<<<<<<< HEAD
-    write_log ("\n");
-    show_version ();
-    write_log ("\nCopyright 2003-2007 Richard Drummond and contributors.\n");
-    write_log ("Based on source code from:\n");
-    write_log ("UAE    - copyright 1995-2002 Bernd Schmidt;\n");
-    write_log ("WinUAE - copyright 1999-2007 Toni Wilen.\n");
-    write_log ("See the source code for a full list of contributors.\n");
 
-    write_log ("This is free software; see the file COPYING for copying conditions.  There is NO\n");
-    write_log ("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
-=======
 	hr ();
     show_version ();
 	hr ();
     write_log ("Copyright 1995-2002 Bernd Schmidt\n");
     write_log ("          1999-2010 Toni Wilen\n");
+    write_log ("          TODO n");
+
     write_log ("          2003-2007 Richard Drummond\n");
     write_log ("          2006-2010 Mustafa Tufan\n\n");
     write_log ("See the source for a full list of contributors.\n");
@@ -842,7 +808,6 @@ static char *parsetext (const char *s)
 	} else {
 		return my_strdup (s);
 	}
->>>>>>> p-uae/v2.1.0
 }
 
 static void parse_cmdline (int argc, char **argv)
@@ -850,7 +815,6 @@ static void parse_cmdline (int argc, char **argv)
     int i;
 
     for (i = 1; i < argc; i++) {
-<<<<<<< HEAD
 	if (strcmp (argv[i], "-cfgparam") == 0) {
 	    if (i + 1 < argc)
 		i++;
@@ -895,7 +859,6 @@ static void parse_cmdline (int argc, char **argv)
 		    i++;
 	    }
 	}
-=======
 		if (!_tcsncmp (argv[i], "-diskswapper=", 13)) {
 			char *txt = parsetext (argv[i] + 13);
 			parse_diskswapper (txt);
@@ -945,44 +908,12 @@ static void parse_cmdline (int argc, char **argv)
 				    i++;
 		    }
 		}
->>>>>>> p-uae/v2.1.0
     }
 }
 #endif
 
 static void parse_cmdline_and_init_file (int argc, char **argv)
 {
-<<<<<<< HEAD
-    char *home;
-#ifdef _WIN32
-    extern char *start_path;
-#endif
-
-    strcpy (optionsfile, "");
-
-#ifdef OPTIONS_IN_HOME
-    home = getenv ("HOME");
-    if (home != NULL && strlen (home) < 240)
-    {
-	strcpy (optionsfile, home);
-	strcat (optionsfile, "/");
-    }
-#endif
-
-#ifdef _WIN32
-    sprintf( optionsfile, "%s\\Configurations\\", start_path );
-#endif
-
-    strcat (optionsfile, OPTIONSFILENAME);
-
-    if (! cfgfile_load (&currprefs, optionsfile, 0)) {
-//	write_log ("failed to load config '%s'\n", optionsfile);
-#ifdef OPTIONS_IN_HOME
-	/* sam: if not found in $HOME then look in current directory */
-        char *saved_path = strdup (optionsfile);
-	strcpy (optionsfile, OPTIONSFILENAME);
-	if (! cfgfile_load (&currprefs, optionsfile, 0) ) {
-=======
 
 	strcpy (optionsfile, "");
 
@@ -1008,21 +939,17 @@ static void parse_cmdline_and_init_file (int argc, char **argv)
 	char *saved_path = strdup (optionsfile);
 	strcpy (optionsfile, OPTIONSFILENAME);
 	if (! target_cfgfile_load (&currprefs, optionsfile, 0) ) {
->>>>>>> p-uae/v2.1.0
 	    /* If not in current dir either, change path back to home
 	     * directory - so that a GUI can save a new config file there */
 	    strcpy (optionsfile, saved_path);
 	}
-<<<<<<< HEAD
-
-        free (saved_path);
+	free (saved_path);
 #endif
     }
-    fix_options ();
+    fixup_prefs (&currprefs);
 
     parse_cmdline (argc, argv);
-
-    fix_options ();
+    fixup_prefs (&currprefs);
 }
 
 /*
@@ -1534,16 +1461,6 @@ int init_sdl (void)
 #else
 #define init_sdl()
 #endif
-=======
-	free (saved_path);
-#endif
-    }
-    fixup_prefs (&currprefs);
-
-    parse_cmdline (argc, argv);
-    fixup_prefs (&currprefs);
-}
-
 void reset_all_systems (void)
 {
 	init_eventtab ();
@@ -1864,17 +1781,13 @@ void real_main (int argc, char **argv)
 	}
 	zfile_exit ();
 }
->>>>>>> p-uae/v2.1.0
 
 #ifndef NO_MAIN_IN_MAIN_C
 int main (int argc, char **argv)
 {
-<<<<<<< HEAD
     init_sdl ();
     gui_init (argc, argv);
-=======
 	show_version_full ();
->>>>>>> p-uae/v2.1.0
     real_main (argc, argv);
     return 0;
 }

@@ -14,14 +14,9 @@
 #include "machdep/m68k.h"
 
 
-<<<<<<< HEAD
-void machdep_init (void)
-{
-=======
 int machdep_init (void)
 {
 	return 1;
->>>>>>> p-uae/v2.1.0
 }
 
 /*

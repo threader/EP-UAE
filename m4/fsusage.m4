@@ -13,11 +13,7 @@ AC_DEFUN([gl_FILE_TYPE],
   AC_REQUIRE([AC_HEADER_STAT])
 ])
 
-<<<<<<< HEAD
 #serial 11
-
-=======
->>>>>>> p-uae/v2.1.0
 # From fileutils/configure.in
 
 AC_DEFUN([gl_FSUSAGE],

@@ -44,11 +44,6 @@ extern OSErr CPSSetFrontProcess (CPSProcessSerNum *psn);
 
 #endif /* SDL_USE_CPS */
 
-<<<<<<< HEAD
-static int     gArgc;
-static char  **gArgv;
-BOOL           gFinderLaunch;
-=======
 // Function found in gui-cocoa/cocoaui.m
 extern void cocoa_gui_early_setup (void);
 
@@ -56,7 +51,6 @@ static int     gArgc;
 static char  **gArgv;
 BOOL           gFinderLaunch = NO;
 BOOL           gFinishedLaunching = NO;
->>>>>>> p-uae/v2.1.0
 
 NSString *getApplicationName (void)
 {
@@ -160,15 +154,12 @@ static void setApplicationMenu (void)
     [appleMenu addItem:[NSMenuItem separatorItem]];
 
     title = [@"Quit " stringByAppendingString:appName];
-<<<<<<< HEAD
     /* E-UAE: Removed @"q" key equivalent so it doesn't interfere with using the command key as an emulated amiga key */
     [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@""];
 
-=======
     menuItem = [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@"q"];
 	/* PUAE: Made the key equivalent Option-Cmd-q so it doesn't interfere with using the command key as an emulated amiga key */
 	[menuItem setKeyEquivalentModifierMask:NSCommandKeyMask|NSAlternateKeyMask];
->>>>>>> p-uae/v2.1.0
 
     /* Put menu into the menubar */
     menuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
@@ -236,12 +227,9 @@ static void CustomApplicationMain (int argc, char **argv)
     setApplicationMenu ();
     setupWindowMenu ();
 
-<<<<<<< HEAD
-=======
 	/* Set up the UAE menus */
 	cocoa_gui_early_setup();
 
->>>>>>> p-uae/v2.1.0
     /* Create SDLMain and make it the app delegate */
     euae_main = [[EUAE_Main alloc] init];
     [NSApp setDelegate:euae_main];
@@ -258,11 +246,6 @@ static void CustomApplicationMain (int argc, char **argv)
     return NO;
 }
 
-<<<<<<< HEAD
-extern NSString *finderLaunchFilename;
-- (BOOL) application:(NSApplication *)theApplication openFile:(NSString *)filename
-{
-=======
 NSString *finderLaunchFilename = nil;
 - (BOOL) application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
@@ -274,18 +257,13 @@ NSString *finderLaunchFilename = nil;
 	if (gFinishedLaunching)
 		return NO;
 		
->>>>>>> p-uae/v2.1.0
     if (filename != nil) {
 	if (finderLaunchFilename != nil)
 	    [finderLaunchFilename release];
 	finderLaunchFilename = [[NSString alloc] initWithString:filename];
 	return YES;
     }
-<<<<<<< HEAD
-
-=======
 	
->>>>>>> p-uae/v2.1.0
     return NO;
 }
 
@@ -295,23 +273,18 @@ NSString *finderLaunchFilename = nil;
     /* Set the working directory to the .app's parent directory */
     [self setupWorkingDirectory:gFinderLaunch];
 
-<<<<<<< HEAD
-=======
 	gFinishedLaunching = YES;
 	
->>>>>>> p-uae/v2.1.0
 #ifdef USE_SDL
     setenv ("SDL_ENABLEAPPEVENTS", "1", 1);
 
-
-<<<<<<< HEAD
+/* notes sdl */
     if (init_sdl ()) 
 #endif
     {
       
 	/* Hand off to main application code */
 	real_main (gArgc, gArgv);
-=======
     /* if (init_sdl ()) */
 #endif
     {
@@ -381,7 +354,6 @@ NSString *finderLaunchFilename = nil;
     if (finderLaunchFilename != nil) {
 	[finderLaunchFilename release];
 	finderLaunchFilename = nil;
->>>>>>> p-uae/v2.1.0
     }
 
     /* We're done, thank you for playing */
@@ -398,20 +370,12 @@ NSString *finderLaunchFilename = nil;
 /* Main entry point to executable - should *not* be SDL_main! */
 int main (int argc, char **argv)
 {
-<<<<<<< HEAD
-    char logfile_path[MAX_PATH] = "~/Library/Logs/E-UAE.log";
-=======
-    char logfile_path[MAX_PATH] = "~/Library/Logs/PUAE.log";
->>>>>>> p-uae/v2.1.0
+    char logfile_path[MAX_PATH] = "~/Library/Logs/EP-UAE.log";
 
     /* Copy the arguments into a global variable */
     /* This is passed if we are launched by double-clicking */
     if (argc >= 2 && strncmp (argv[1], "-psn", 4) == 0 ) {
 	gArgc = 1;
-<<<<<<< HEAD
-	gFinderLaunch = YES;
-=======
->>>>>>> p-uae/v2.1.0
         gFinderLaunch = YES;
         cfgfile_subst_home (logfile_path, MAX_PATH);
         set_logfile (logfile_path);
@@ -447,8 +411,5 @@ int target_parse_option (struct uae_prefs *p, const char *option, const char *va
 
 void target_default_options (struct uae_prefs *p)
 {
-<<<<<<< HEAD
-=======
 	p->use_gl = 1;
->>>>>>> p-uae/v2.1.0
 }

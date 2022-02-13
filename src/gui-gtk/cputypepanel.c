@@ -73,14 +73,12 @@ static void cputypepanel_init (CpuTypePanel *ctpanel)
 
     gtkutil_add_table (GTK_WIDGET (ctpanel),
 	make_label ("CPU Model"), 1, 1, GTK_FILL,
-<<<<<<< HEAD
 	ctpanel->cputype_widget    = make_chooser (5, "68000", "68010", "68020", "68040", "68060"), 2, 1, GTK_EXPAND | GTK_FILL,
 	GTKUTIL_ROW_END,
 	ctpanel->addr24bit_widget  = gtk_check_button_new_with_label ("24-bit addressing"), 1, 2, GTK_EXPAND,
 	GTKUTIL_ROW_END,
 	ctpanel->fpuenabled_widget = gtk_check_button_new_with_label ("Emulate FPU"), 1, 2, GTK_EXPAND,
 	GTKUTIL_ROW_END,
-=======
 	ctpanel->cputype_widget    = make_chooser (
 #ifdef FPUEMU
 						   5, "68000", "68010", "68020", "68040", "68060"
@@ -95,7 +93,6 @@ static void cputypepanel_init (CpuTypePanel *ctpanel)
 	ctpanel->fpuenabled_widget = gtk_check_button_new_with_label ("Emulate FPU"), 1, 2, GTK_EXPAND,
 	GTKUTIL_ROW_END,
 #endif
->>>>>>> p-uae/v2.1.0
 	make_label ("Accuracy"), 1, 1, GTK_FILL,
 	ctpanel->accuracy_widget   = make_chooser (3, "Normal", "Compatible", "Cycle exact"), 2, 1, GTK_EXPAND | GTK_FILL,
 	GTKUTIL_ROW_END,
@@ -108,17 +105,14 @@ static void cputypepanel_init (CpuTypePanel *ctpanel)
     gtk_signal_connect (GTK_OBJECT (ctpanel->addr24bit_widget), "toggled",
 			GTK_SIGNAL_FUNC (on_addr24bit_toggled),
 			ctpanel);
-<<<<<<< HEAD
     gtk_signal_connect (GTK_OBJECT (ctpanel->fpuenabled_widget), "toggled",
 			GTK_SIGNAL_FUNC (on_fpuenabled_toggled),
 			ctpanel);
-=======
 #ifdef FPUEMU
     gtk_signal_connect (GTK_OBJECT (ctpanel->fpuenabled_widget), "toggled",
 			GTK_SIGNAL_FUNC (on_fpuenabled_toggled),
 			ctpanel);
 #endif
->>>>>>> p-uae/v2.1.0
     gtk_signal_connect (GTK_OBJECT (ctpanel->accuracy_widget), "selection-changed",
 			GTK_SIGNAL_FUNC (on_accuracy_changed),
 			ctpanel);
@@ -146,7 +140,6 @@ static void update_state (CpuTypePanel *ctpanel)
     }
 
     gtk_widget_set_sensitive (ctpanel->addr24bit_widget, cpu == 2);
-<<<<<<< HEAD
     gtk_widget_set_sensitive (ctpanel->fpuenabled_widget, cpu == 2);
 
     if (fpu != ctpanel->fpuenabled) {
@@ -155,7 +148,6 @@ static void update_state (CpuTypePanel *ctpanel)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ctpanel->fpuenabled_widget), fpu);
         gtk_signal_handler_unblock_by_data (GTK_OBJECT (ctpanel->fpuenabled_widget), ctpanel );
     }
-=======
 #ifdef FPUEMU
     gtk_widget_set_sensitive (ctpanel->fpuenabled_widget, cpu == 2);
 
@@ -166,7 +158,6 @@ static void update_state (CpuTypePanel *ctpanel)
 	gtk_signal_handler_unblock_by_data (GTK_OBJECT (ctpanel->fpuenabled_widget), ctpanel );
     }
 #endif
->>>>>>> p-uae/v2.1.0
 
     if (addr24 != ctpanel->addr24bit) {
 	ctpanel->addr24bit  = addr24;
@@ -191,19 +182,13 @@ static void on_addr24bit_toggled (GtkWidget *w, CpuTypePanel *ctpanel)
     gtk_signal_emit_by_name (GTK_OBJECT(ctpanel), "addr24bit-changed");
 }
 
-<<<<<<< HEAD
-=======
 #ifdef FPUEMU
->>>>>>> p-uae/v2.1.0
 static void on_fpuenabled_toggled (GtkWidget *w, CpuTypePanel *ctpanel)
 {
     ctpanel->fpuenabled = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (ctpanel->fpuenabled_widget));
     gtk_signal_emit_by_name (GTK_OBJECT(ctpanel), "cputype-changed");
 }
-<<<<<<< HEAD
-=======
 #endif
->>>>>>> p-uae/v2.1.0
 
 static void on_accuracy_changed (GtkWidget *w, CpuTypePanel *ctpanel)
 {
@@ -248,18 +233,12 @@ void cputypepanel_set_cpulevel (CpuTypePanel *ctpanel, guint cpulevel)
 	chooserwidget_set_choice (CHOOSERWIDGET (ctpanel->cputype_widget), cputype);
 
     }
-<<<<<<< HEAD
-=======
 #ifdef FPUEMU
->>>>>>> p-uae/v2.1.0
     if (fpu != ctpanel->fpuenabled) {
 	ctpanel->fpuenabled = fpu;
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ctpanel->fpuenabled_widget), fpu);
     }
-<<<<<<< HEAD
-=======
 #endif
->>>>>>> p-uae/v2.1.0
     update_state (ctpanel);
 }
 

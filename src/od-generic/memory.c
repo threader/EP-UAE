@@ -9,17 +9,12 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 
-<<<<<<< HEAD
-=======
 #include "options.h"
 #include <sys/sysctl.h>
->>>>>>> p-uae/v2.1.0
 #include "include/memory.h"
 
 #ifdef JIT
 
-<<<<<<< HEAD
-=======
 #define BARRIER 32
 #define MAXZ3MEM 0x7F000000
 #define MAXZ3MEM64 0xF0000000
@@ -52,52 +47,35 @@ static uae_u8 *memwatchtable;
 static uae_u64 size64;
 int maxmem;
 
->>>>>>> p-uae/v2.1.0
 #include <sys/mman.h>
 
 /*
  * Allocate executable memory for JIT cache
  */
-<<<<<<< HEAD
-void *cache_alloc (int size)
-=======
 uae_u8 *cache_alloc (int size)
->>>>>>> p-uae/v2.1.0
 {
    void *cache;
 
    size = size < getpagesize() ? getpagesize() : size;
 
-<<<<<<< HEAD
-   if ((cache = valloc (size)))
-	mprotect (cache, size, PROT_READ|PROT_WRITE|PROT_EXEC);
-=======
 	if ((cache = valloc (size)))
 		mprotect (cache, size, PROT_READ|PROT_WRITE|PROT_EXEC);
->>>>>>> p-uae/v2.1.0
 
    return cache;
 }
 
-<<<<<<< HEAD
-void cache_free (void *cache)
-=======
 void cache_free (uae_u8 *cache)
->>>>>>> p-uae/v2.1.0
 {
     free (cache);
 }
 
 #ifdef NATMEM_OFFSET
-<<<<<<< HEAD
 void init_shm (void)
 {
     canbang = 1;
 }
 #endif
 
-#endif
-=======
 static uae_u32 lowmem (void)
 {
 	uae_u32 change = 0;
@@ -606,4 +584,3 @@ int my_shmget (key_t key, size_t size, int shmflg, const char *name)
 #endif //NATMEM_OFFSET
 
 #endif //JIT
->>>>>>> p-uae/v2.1.0

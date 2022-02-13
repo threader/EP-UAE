@@ -46,11 +46,6 @@
 #include <proto/dos.h>
 #endif
 
-<<<<<<< HEAD
-#include <dos/obsolete.h>
-
-=======
->>>>>>> p-uae/v2.1.0
 /****************************************************************************/
 
 #include <ctype.h>
@@ -66,11 +61,7 @@ void initpseudodevices (void);
 void closepseudodevices (void);
 
 static void myDoIO(struct IOStdReq *ioreq, LONG CMD, LONG FLAGS, LONG OFFSET,
-<<<<<<< HEAD
-                   LONG LENGTH, LONG DATA);
-=======
 		   LONG LENGTH, LONG DATA);
->>>>>>> p-uae/v2.1.0
 
 /****************************************************************************/
 
@@ -100,22 +91,6 @@ void initpseudodevices(void)
     /* check if dev: already exists */
     set_req(0);lock = Lock(amiga_dev_path,SHARED_LOCK);set_req(1);
     if(!lock) {
-<<<<<<< HEAD
-        char name[80];
-        set_req(0);lock = Lock(pseudo_dev_path,SHARED_LOCK);set_req(1);
-        if(!lock) {
-            /* create it */
-            lock = CreateDir(pseudo_dev_path);
-            if(!lock) goto fail;
-            UnLock(lock);lock = Lock(pseudo_dev_path,SHARED_LOCK);
-            pseudo_dev_created = 1;
-        }
-        strcpy(name,amiga_dev_path);
-        if(*name && name[strlen(name)-1]==':') name[strlen(name)-1]='\0';
-        if(!AssignLock(name,lock)) {UnLock(lock);goto fail;}
-        /* the lock is the assign now */
-        pseudo_dev_assigned = 1;
-=======
 	char name[80];
 	set_req(0);lock = Lock(pseudo_dev_path,SHARED_LOCK);set_req(1);
 	if(!lock) {
@@ -130,26 +105,16 @@ void initpseudodevices(void)
 	if(!AssignLock(name,lock)) {UnLock(lock);goto fail;}
 	/* the lock is the assign now */
 	pseudo_dev_assigned = 1;
->>>>>>> p-uae/v2.1.0
     } else UnLock(lock);
 
     /* Create the dev:DFi entry */
     for(i=0;i<4;++i) if(device_exists("trackdisk.device",i)) {
-<<<<<<< HEAD
-        ULONG fd;
-        char name[80];
-
-        sprintf(name,"%sDF%d",amiga_dev_path,i);
-        fd = Open(name,MODE_NEWFILE);
-        if(fd) {Close(fd);dfx_done[i]=1;}
-=======
 	ULONG fd;
 	char name[80];
 
 	sprintf(name,"%sDF%d",amiga_dev_path,i);
 	fd = Open(name,MODE_NEWFILE);
 	if(fd) {Close(fd);dfx_done[i]=1;}
->>>>>>> p-uae/v2.1.0
     }
 
     return;
@@ -165,25 +130,6 @@ void closepseudodevices(void)
 {
     int i;
     for(i=0;i<4;++i) if(dfx_done[i]) {
-<<<<<<< HEAD
-        char name[80];
-        sprintf(name,"%sDF%d",amiga_dev_path,i);
-        DeleteFile(name);
-        dfx_done[i] = 0;
-    }
-
-    if(pseudo_dev_assigned) {
-        char name[80];
-        strcpy(name,amiga_dev_path);
-        if(*name && name[strlen(name)-1]==':') name[strlen(name)-1]='\0';
-        AssignLock (name, (BPTR)NULL);
-        pseudo_dev_assigned = 0;
-    }
-
-    if(pseudo_dev_created) {
-        DeleteFile(pseudo_dev_path);
-        pseudo_dev_created = 0;
-=======
 	char name[80];
 	sprintf(name,"%sDF%d",amiga_dev_path,i);
 	DeleteFile(name);
@@ -201,7 +147,6 @@ void closepseudodevices(void)
     if(pseudo_dev_created) {
 	DeleteFile(pseudo_dev_path);
 	pseudo_dev_created = 0;
->>>>>>> p-uae/v2.1.0
     }
 }
 
@@ -219,19 +164,11 @@ static void set_req(int ok)
     if(pr->pr_Task.tc_Node.ln_Type != NT_PROCESS) return;
 
     if(ok)  {
-<<<<<<< HEAD
-        pr->pr_WindowPtr = (APTR)wd;
-    }
-    else    {
-        wd = (ULONG)pr->pr_WindowPtr;
-        pr->pr_WindowPtr = (APTR)-1;
-=======
 	pr->pr_WindowPtr = (APTR)wd;
     }
     else    {
 	wd = (ULONG)pr->pr_WindowPtr;
 	pr->pr_WindowPtr = (APTR)-1;
->>>>>>> p-uae/v2.1.0
     }
 }
 
@@ -247,17 +184,6 @@ static int device_exists (const char *device_name, int device_unit)
 
     port = CreatePort(0, 0);
     if(port) {
-<<<<<<< HEAD
-        ioreq = CreateStdIO(port);
-        if(ioreq) {
-            if(!OpenDevice(device_name,device_unit,(void*)ioreq,0)) {
-                CloseDevice((void*)ioreq);
-                ret = 1;
-            }
-            DeleteStdIO(ioreq);
-        }
-        DeletePort(port);
-=======
 	ioreq = CreateStdIO(port);
 	if(ioreq) {
 	    if(!OpenDevice(device_name,device_unit,(void*)ioreq,0)) {
@@ -267,7 +193,6 @@ static int device_exists (const char *device_name, int device_unit)
 	    DeleteStdIO(ioreq);
 	}
 	DeletePort(port);
->>>>>>> p-uae/v2.1.0
     }
     return ret;
 }
@@ -281,35 +206,6 @@ static void extract_dev_unit(char *name, char **dev_name, int *dev_unit)
     char *s;
     if(tolower(name[0])=='d' && tolower(name[1])=='f' &&
        name[2]>='0' && name[2]<='3' && name[3]=='\0') {
-<<<<<<< HEAD
-        /* DF0 */
-        *dev_unit = name[2]-'0';
-        *dev_name = strdup("trackdisk.device");
-    } else if((s = strrchr(name,'/'))) {
-        /* trackdisk[.device]/0 */
-        *dev_unit = atoi(s+1);
-        *dev_name = malloc(1 + s-name);
-        if(*dev_name) {
-            strncpy(*dev_name, name, 1 + s-name);
-            (*dev_name)[s-name]='\0';
-        }
-    } else {
-        /* ?? STRANGEDISK0: ?? */
-        *dev_unit = 0;
-        *dev_name = strdup(name);
-    }
-    if(*dev_name) {
-        char *s;
-        if(!(s = strrchr(*dev_name,'.'))) {
-            /* .device is missing */
-            s = malloc(8+strlen(*dev_name));
-            if(s) {
-                sprintf(s,"%s.device",*dev_name);
-                free(*dev_name);
-                *dev_name = s;
-            }
-        }
-=======
 	/* DF0 */
 	*dev_unit = name[2]-'0';
 	*dev_name = strdup("trackdisk.device");
@@ -337,7 +233,6 @@ static void extract_dev_unit(char *name, char **dev_name, int *dev_unit)
 		*dev_name = s;
 	    }
 	}
->>>>>>> p-uae/v2.1.0
     }
 }
 
@@ -356,13 +251,8 @@ static int raw_copy(char *dev_name, int dev_unit, FILE *dst)
     static char name[]      = {'D','F','0','\0'};
 
     if(!strcmp(dev_name, "trackdisk.device")) {
-<<<<<<< HEAD
-        inhibited = 1;
-        name[2] = '0'+dev_unit;
-=======
 	inhibited = 1;
 	name[2] = '0'+dev_unit;
->>>>>>> p-uae/v2.1.0
     }
 
     /* allocate system stuff */
@@ -376,43 +266,6 @@ static int raw_copy(char *dev_name, int dev_unit, FILE *dst)
     /* check if a disk is present */
     myDoIO(ioreq, TD_CHANGESTATE, 0, -1, -1, -1);
     if(!ioreq->io_Error && ioreq->io_Actual) {
-<<<<<<< HEAD
-        fprintf(stderr,"No disk in %s unit %d !\n", dev_name, dev_unit);
-        retstatus = 0;
-    } else {
-        int tr = 0;
-        int write_protected = 0;
-        /* check if disk is write-protected:
-        myDoIO(ioreq, TD_PROTSTATUS, 0, -1, -1, -1);
-        if(!ioreq->io_Error && ioreq->io_Actual) write_protected = 1;
-        */
-
-        /* inhibit device */
-        if(inhibited) inhibited = dev_inhibit(name,1);
-
-        /* read tracks */
-        for(tr = 0; tr < 160; ++tr) {
-            printf("Reading track %2d side %d of %s unit %d  \r",
-                   tr/2, tr%2, dev_name, dev_unit);
-            fflush(stdout);
-            myDoIO(ioreq, CMD_READ, -1, tracklen*tr, tracklen, (LONG)buffer);
-            if(ioreq->io_Error) printf("Err. on\n");
-            if(fwrite(buffer, 1, tracklen, dst) != (unsigned int)tracklen) {
-               retstatus = 0;
-               break;
-            }
-        }
-
-        /* ok everything done! */
-        printf("                                                                        \r");
-        fflush(stdout);
-
-        /* stop motor */
-        myDoIO(ioreq, TD_MOTOR, 0, -1, 0, -1);
-
-        /* uninhibit */
-        if(inhibited) dev_inhibit(name,0);
-=======
 	fprintf(stderr,"No disk in %s unit %d !\n", dev_name, dev_unit);
 	retstatus = 0;
     } else {
@@ -448,7 +301,6 @@ static int raw_copy(char *dev_name, int dev_unit, FILE *dst)
 
 	/* uninhibit */
 	if(inhibited) dev_inhibit(name,0);
->>>>>>> p-uae/v2.1.0
     }
     CloseDevice((struct IORequest*)ioreq);   } else retstatus = 0;
     FreeMem(buffer,tracklen);                } else retstatus = 0;
@@ -474,29 +326,12 @@ int readdevice(char *name, char *dst)
     /* disable break */
     oldsa_valid = (0==sigaction(SIGINT, NULL, &oldsa));
     signal(SIGINT, SIG_IGN); /* <--- gcc complains about something */
-<<<<<<< HEAD
-                             /* in there but I don't know why. */
-=======
 			     /* in there but I don't know why. */
->>>>>>> p-uae/v2.1.0
 #endif
 
     /* get device name & unit */
     extract_dev_unit(name, &device_name, &device_unit);
     if(device_name) {
-<<<<<<< HEAD
-        /* if no destination then just check if the device exists */
-        if(dst == NULL)
-           retstatus = device_exists(device_name, device_unit);
-        else {
-            /* open dest file */
-            if((f = fopen(dst,"wb"))) {
-                retstatus = raw_copy(device_name, device_unit, f);
-                fclose(f);
-            }
-        }
-        free(device_name);
-=======
 	/* if no destination then just check if the device exists */
 	if(dst == NULL)
 	   retstatus = device_exists(device_name, device_unit);
@@ -508,7 +343,6 @@ int readdevice(char *name, char *dst)
 	    }
 	}
 	free(device_name);
->>>>>>> p-uae/v2.1.0
     }
 
 #ifdef HAVE_SIGACTION
@@ -522,11 +356,7 @@ int readdevice(char *name, char *dst)
 /****************************************************************************/
 
 static void myDoIO(struct IOStdReq *ioreq, LONG CMD, LONG FLAGS, LONG OFFSET,
-<<<<<<< HEAD
-                   LONG LENGTH, LONG DATA)
-=======
 		   LONG LENGTH, LONG DATA)
->>>>>>> p-uae/v2.1.0
 {
     if(CMD>=0)    ioreq->io_Command = CMD;
     if(FLAGS>=0)  ioreq->io_Flags   = FLAGS;

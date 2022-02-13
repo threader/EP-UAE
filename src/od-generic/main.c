@@ -2,11 +2,7 @@
  * UAE - The Un*x Amiga Emulator
  *
  * Copyright 2004 Richard Drummond
-<<<<<<< HEAD
- * 
-=======
  *
->>>>>>> p-uae/v2.1.0
  * Start-up and support functions used by Linux/Unix targets
  */
 

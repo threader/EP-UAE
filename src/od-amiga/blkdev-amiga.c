@@ -78,11 +78,7 @@ static int open_iocontext (const char *device, int unit, struct IOContext *ioc)
 				(struct IORequest*)ioc->ioreq,
 				0);
 	    if (error == 0) {
-<<<<<<< HEAD
-	        ioc->scsibuf = AllocMem (DEVICE_SCSI_BUFSIZE, MEMF_ANY);
-=======
 		ioc->scsibuf = AllocMem (DEVICE_SCSI_BUFSIZE, MEMF_ANY);
->>>>>>> p-uae/v2.1.0
 
 		if (ioc->scsibuf) {
 		    DEBUG_LOG ("Success\n");
@@ -146,11 +142,7 @@ static int add_device (const char *device, int unit)
    int result = 0;
 
    if (total_drives < MAX_DRIVES) {
-<<<<<<< HEAD
-        struct scsidevdata *sdd = &drives[total_drives];
-=======
 	struct scsidevdata *sdd = &drives[total_drives];
->>>>>>> p-uae/v2.1.0
 
 	memset (sdd, 0, sizeof (struct scsidevdata));
 
@@ -196,11 +188,7 @@ static int execscsicmd (struct IOContext *ioc, const uae_u8 *cmd_data, int cmd_l
 
     DEBUG_LOG ("SCSIDEV: sending command: 0x%2x\n", cmd->scsi_Command[0]);
 
-<<<<<<< HEAD
-    gui_cd_led (1);
-=======
     gui_cd_led (0, 1);
->>>>>>> p-uae/v2.1.0
 
     error = DoIO ((struct IORequest *)ioreq);
 
@@ -326,11 +314,7 @@ static int check_device (const char *device, int unit)
 	    const char *prod_rev = (const char *) &inqbuf[32];
 
 	    write_log ("%-16.16s %3d: '%-8.8s' '%-16.16s' '%-4.4s' %s\n",
-<<<<<<< HEAD
-                       device, unit, vendor, prod_id, prod_rev, type == 5 ? "CD-ROM" : "");
-=======
 		       device, unit, vendor, prod_id, prod_rev, type == 5 ? "CD-ROM" : "");
->>>>>>> p-uae/v2.1.0
 	    if (type == 5)
 		result = 1;
 
@@ -361,17 +345,10 @@ static int open_scsi_device (int unitnum)
     DEBUG_LOG ("SCSIDEV: unit=%d: open_scsi_device\n", unitnum);
 
     if (unitnum < total_drives) {
-<<<<<<< HEAD
-        struct scsidevdata *sdd = &drives[unitnum];
-	struct IOContext   *ioc = &(sdd->main_ioc);
-
-        if (ioc->ioreq) {
-=======
 	struct scsidevdata *sdd = &drives[unitnum];
 	struct IOContext   *ioc = &(sdd->main_ioc);
 
 	if (ioc->ioreq) {
->>>>>>> p-uae/v2.1.0
 	    DEBUG_LOG ("Already open\n");
 
 	    result = 1;
@@ -389,19 +366,11 @@ static void close_scsi_device (int unitnum)
     DEBUG_LOG ("SCSIDEV: unit=%d: close_scsi_device\n", unitnum);
 
     if (unitnum < total_drives) {
-<<<<<<< HEAD
-        struct scsidevdata *sdd  = &drives[unitnum];
-        struct Task        *self = FindTask (NULL);
-
-        if (self == sdd->main_task)
-            close_iocontext (&(sdd->main_ioc));
-=======
 	struct scsidevdata *sdd  = &drives[unitnum];
 	struct Task        *self = FindTask (NULL);
 
 	if (self == sdd->main_task)
 	    close_iocontext (&(sdd->main_ioc));
->>>>>>> p-uae/v2.1.0
     }
 }
 
@@ -444,11 +413,7 @@ static void close_device_thread (int unitnum)
 	struct scsidevdata *sdd  = &drives[unitnum];
 	struct Task        *self = FindTask (NULL);
 
-<<<<<<< HEAD
-        if(sdd->local_ioc.ioreq) {
-=======
 	if(sdd->local_ioc.ioreq) {
->>>>>>> p-uae/v2.1.0
 	    if (self == sdd->local_task) {
 		close_iocontext (&(sdd->local_ioc));
 		sdd->local_task = NULL;

@@ -4,11 +4,7 @@
 dnl AM_PATH_GTK([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND [, MODULES]]]])
 dnl Test for GTK, and define GTK_CFLAGS and GTK_LIBS
 dnl
-<<<<<<< HEAD
-AC_DEFUN(AM_PATH_GTK,
-=======
 AC_DEFUN([AM_PATH_GTK],
->>>>>>> p-uae/v2.1.0
 [dnl 
 dnl Get the cflags and libraries from the gtk-config script
 dnl
