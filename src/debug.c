@@ -110,9 +110,6 @@ void activate_debugger (void)
 	mmu_triggered = 0;
 }
 
-int firsthist = 0;
-int lasthist = 0;
-static struct regstruct history[MAX_HIST];
 
 static const char help[] = {
 	"          HELP for UAE Debugger\n"
@@ -2292,42 +2289,39 @@ static void m68k_modify (const char **inptr)
 	if (!next_string (inptr, parm, sizeof (parm) / sizeof (TCHAR), 1))
 		return;
     c1 = toupper (parm[0]);
-    c2 = 99;
+    c2 = toupper (parm[1]);
     if (c1 == 'A' || c1 == 'D' || c1 == 'P') {
-		c2 = toupper (parm[1]);
-		if (isdigit (c2))
-			c2 -= '0';
-		else
-			c2 = 99;
-	}
-	v = readhex (inptr);
-	if (c1 == 'A' && c2 < 8)
-		regs.regs[8 + c2] = v;
-	else if (c1 == 'D' && c2 < 8)
-		regs.regs[c2] = v;
-	else if (c1 == 'P' && c2 == 0)
-		regs.irc = v;
-	else if (c1 == 'P' && c2 == 1)
-		regs.ir = v;
-	else if (!_tcscmp (parm, "SR")) {
-		regs.sr = v;
-		MakeFromSR ();
-	} else if (!_tcscmp (parm, "CCR")) {
-		regs.sr = (regs.sr & ~31) | (v & 31);
-		MakeFromSR ();
-	} else if (!_tcscmp (parm, "USP")) {
-		regs.usp = v;
-	} else if (!_tcscmp (parm, "ISP")) {
-		regs.isp = v;
-	} else if (!_tcscmp (parm, "PC")) {
-		m68k_setpc (v);
-		fill_prefetch_slow ();
-	} else {
-		for (i = 0; m2cregs[i].regname; i++) {
-			if (!_tcscmp (parm, m2cregs[i].regname))
-				val_move2c2 (m2cregs[i].regno, v);
-		}
-	}
+	if (!isdigit (c2))
+	    return;
+	c2 -= '0';
+    }
+    v = readhex (inptr);
+    if (c1 == 'A')
+	regs.regs[8 + c2] = v;
+    else if (c1 == 'D')
+	regs.regs[c2] = v;
+    else if (c1 == 'P' && c2 == 0)
+	regs.irc = v;
+    else if (c1 == 'P' && c2 == 1)
+	regs.ir = v;
+    else if (!strcmp (parm, "VBR"))
+	regs.vbr = v;
+    else if (!strcmp (parm, "USP")) {
+	regs.usp = v;
+	MakeFromSR (&regs);
+    } else if (!strcmp (parm, "ISP")) {
+	regs.isp = v;
+	MakeFromSR (&regs);
+    } else if (!strcmp (parm, "MSP")) {
+	regs.msp = v;
+	MakeFromSR (&regs);
+    } else if (!strcmp (parm, "SR")) {
+	regs.sr = v;
+	MakeFromSR (&regs);
+    } else if (!strcmp (parm, "CCR")) {
+	regs.sr = (regs.sr & ~15) | (v & 15);
+	MakeFromSR (&regs);
+    }
 }
 
 static void debug_1 (void)
@@ -2429,7 +2423,7 @@ static void debug_1 (void)
 		skipaddr_doskip = readint (&inptr);
 	    if (skipaddr_doskip <= 0 || skipaddr_doskip > 10000)
 		skipaddr_doskip = 1;
-	    set_special (SPCFLAG_BRK);
+	    set_special (&regs, SPCFLAG_BRK);
 	    exception_debugging = 1;
 	    return;
 	case 'z':
@@ -2451,8 +2445,8 @@ static void debug_1 (void)
 
 	case 'g':
 	    if (more_params (&inptr)) {
-		m68k_setpc (readhex (&inptr));
-		fill_prefetch_slow ();
+		m68k_setpc (&regs, readhex (&inptr));
+		fill_prefetch_slow (&regs);
 	    }
 	    debugger_active = 0;
 	    debugging = 0;
@@ -2462,7 +2456,7 @@ static void debug_1 (void)
 	case 'H':
 	{
 	    unsigned int count, temp, badly;
-	    uae_u32 oldpc = m68k_getpc ();
+	    uae_u32 oldpc = m68k_getpc (&regs);
 	    struct regstruct save_regs = regs;
 
 	    badly = 0;
@@ -2484,7 +2478,7 @@ static void debug_1 (void)
 	    }
 	    while (temp != lasthist) {
 		regs = history[temp];
-		m68k_setpc (history[temp].pc);
+		m68k_setpc (&regs, history[temp].pc);
 		if (badly) {
 		    m68k_dumpstate (stdout, NULL);
 		} else {
@@ -2494,7 +2488,7 @@ static void debug_1 (void)
 		    temp = 0;
 	    }
 	    regs = save_regs;
-	    m68k_setpc (oldpc);
+	    m68k_setpc (&regs, oldpc);
 	}
 	break;
 	case 'm':
@@ -2546,7 +2540,7 @@ static void debug_1 (void)
 static void addhistory (void)
 {
     history[lasthist] = regs;
-    history[lasthist].pc = m68k_getpc ();
+    history[lasthist].pc = m68k_getpc (&regs);
     if (++lasthist == MAX_HIST)
 	lasthist = 0;
     if (lasthist == firsthist) {
@@ -2587,7 +2581,7 @@ void debug (void)
 
     if (!memwatch_triggered) {
 	if (do_skip) {
-	    uae_u32 pc = munge24 (m68k_getpc ());
+	    uae_u32 pc = munge24 (m68k_getpc (&regs));
 	    uae_u16 opcode = (currprefs.cpu_compatible || currprefs.cpu_cycle_exact) ? regs.ir : get_word (pc);
 	    int bp = 0;
 
@@ -2620,7 +2614,7 @@ void debug (void)
 		}
 	    }
 	    if (!bp) {
-		set_special (SPCFLAG_BRK);
+		set_special (&regs, SPCFLAG_BRK);
 		return;
 	    }
 	}
@@ -2632,7 +2626,7 @@ void debug (void)
     if (skipaddr_doskip > 0) {
 	skipaddr_doskip--;
 	if (skipaddr_doskip > 0) {
-			set_special (SPCFLAG_BRK);
+	    set_special (&regs, SPCFLAG_BRK);
 	    return;
 	}
     }

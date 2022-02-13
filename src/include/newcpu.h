@@ -31,9 +31,9 @@
  SET_VFLG (regs, 0); \
 } while (0)
 
-#if 0
 #define COPY_CARRY(regs) (SET_XFLG (regs, GET_CFLG (regs)))
 
+#if 0
 #define SET_CFLG(x) (CFLG() = (x))
 #define SET_NFLG(x) (NFLG() = (x))
 #define SET_VFLG(x) (VFLG() = (x))
@@ -75,7 +75,6 @@ struct regstruct;
 typedef unsigned long cpuop_func (uae_u32, struct regstruct *regs) REGPARAM;
 typedef  void cpuop_func_ce (uae_u32, struct regstruct *regs) REGPARAM;
 
-
 struct cputbl {
     cpuop_func *handler;
     uae_u16 opcode;
@@ -101,18 +100,9 @@ typedef uae_u8 flagtype;
    apps */
 #define USE_LONG_DOUBLE 0
 
+
 #if USE_LONG_DOUBLE
 typedef long double fptype;
-#else
-typedef double fptype;
-#endif
-#endif
-
-extern struct regstruct
-{
-    uae_u32 regs[16];
-    struct flag_struct ccrflags;
-
 #define LDPTR tbyte ptr
 #else
 typedef double fptype;
@@ -146,9 +136,10 @@ struct cache040
 	int count;
 };
 
-struct regstruct
+extern struct regstruct
 {
     uae_u32 regs[16];
+    struct flag_struct ccrflags;
 
     uae_u32 pc;
     uae_u8 *pc_p;
@@ -506,7 +497,7 @@ extern void m68k_disasm (void *, uaecptr, uaecptr *, int);
 
 extern void m68k_disasm_ea (void *f, uaecptr addr, uaecptr *nextpc, int cnt, uae_u32 *seaddr, uae_u32 *deaddr);
 extern void sm68k_disasm(char *, char *, uaecptr addr, uaecptr *nextpc);
-extern void m68k_reset (void);
+extern void m68k_reset (int);
 extern int getDivu68kCycles(uae_u32 dividend, uae_u16 divisor);
 extern int getDivs68kCycles(uae_s32 dividend, uae_s16 divisor);
 

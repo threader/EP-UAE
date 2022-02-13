@@ -387,13 +387,6 @@ out1:
 		    default: abort();
 		    }
 		    break;
-		case 'A':
-		    srcmode = Areg;
-		    switch (opcstr[pos++]) {
-		    case 'r': srcreg = bitval[bitr]; srcgather = 1; srcpos = bitpos[bitr]; break;
-		    case 'R': srcreg = bitval[bitR]; srcgather = 1; srcpos = bitpos[bitR]; break;
-		    default: abort();
-		    }
 		default: abort();
 		}
 	    } else {
@@ -408,36 +401,13 @@ out1:
 		}
 		mnp++;
 	    }
-	    pos++;
-	}
-	mnemonic[mnp] = 0;
-
-	/* now, we have read the mnemonic and the size */
-	while (opcstr[pos] && isspace(opcstr[pos]))
-	    pos++;
-
-	/* A goto a day keeps the D******a away. */
-	if (opcstr[pos] == 0)
-	    goto endofline;
-
-	/* parse the source address */
-	usesrc = 1;
-	switch (opcstr[pos++]) {
-	case 'D':
-	    srcmode = Dreg;
-	    switch (opcstr[pos++]) {
-	    case 'r': srcreg = bitval[bitr]; srcgather = 1; srcpos = bitpos[bitr]; break;
-	    case 'R': srcreg = bitval[bitR]; srcgather = 1; srcpos = bitpos[bitR]; break;
-	    default: abort();
-	    }
-	    break;
-	case 'A':
-	    srcmode = Areg;
-	    switch (opcstr[pos++]) {
-	    case 'r': srcreg = bitval[bitr]; srcgather = 1; srcpos = bitpos[bitr]; break;
-	    case 'R': srcreg = bitval[bitR]; srcgather = 1; srcpos = bitpos[bitR]; break;
-	    default: abort();
-	    }
+		case 'A':
+		    srcmode = Areg;
+		    switch (opcstr[pos++]) {
+		    case 'r': srcreg = bitval[bitr]; srcgather = 1; srcpos = bitpos[bitr]; break;
+		    case 'R': srcreg = bitval[bitR]; srcgather = 1; srcpos = bitpos[bitR]; break;
+		    default: abort();
+		    }
 		    switch (opcstr[pos]) {
 		    case 'p': srcmode = Apdi; pos++; break;
 		    case 'P': srcmode = Aipi; pos++; break;

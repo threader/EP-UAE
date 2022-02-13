@@ -26,10 +26,10 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleName</key>
-	<string>PUAE</string>
+	<string>EP-UAE</string>
 	<key>CFBundleGetInfoString</key>
-	<string>2.1.0</string>
+	<string>0.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>2.1.0</string>
+	<string>0.0.0</string>
 </dict>
 </plist>

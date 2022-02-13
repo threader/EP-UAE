@@ -535,14 +535,14 @@ int is_ar_pc_in_ram (void)
 /* flag writing == 1 for writing memory, 0 for reading from memory. */
 STATIC_INLINE int ar3a (uaecptr addr, uae_u8 b, int writing)
 {
-	uaecptr pc;
-	/*	if (addr < 8) //|| writing ) */
-	/*	{ */
-	/*		if (writing) */
-	/*   write_log_debug("ARSTATUS armode:%d, Writing %d to address %p, PC=%p\n", armode, b, addr, m68k_getpc ()); */
-	/*		else */
-	/*    write_log_debug("ARSTATUS armode:%d, Reading %d from address %p, PC=%p\n", armode, armemory_rom[addr], addr, m68k_getpc ()); */
-	/*	}	 */
+    uaecptr pc;
+/*	if ( addr < 8 ) //|| writing ) */
+/*	{ */
+/*		if ( writing ) */
+/*   write_log_debug("ARSTATUS armode:%d, Writing %d to address %p, PC=%p\n", armode, b, addr, m68k_getpc (&regs)); */
+/*		else */
+/*    write_log_debug("ARSTATUS armode:%d, Reading %d from address %p, PC=%p\n", armode, armemory_rom[addr], addr, m68k_getpc (&regs)); */
+/*	}	 */
 
 	if (armodel == 1) /* With AR1. It is always a read. Actually, it is a strobe on exit of the AR.
 					  * but, it is also read during the checksum routine. */
@@ -560,12 +560,12 @@ STATIC_INLINE int ar3a (uaecptr addr, uae_u8 b, int writing)
 					wait_for_pc = longget (m68k_areg (regs, 7) + 2); /* Get (SP+2) */
 					set_special (SPCFLAG_ACTION_REPLAY);
 
-					pc = m68k_getpc ();
+					pc = m68k_getpc (&regs);
 					/*		    write_log_debug ("Action Replay marked as ACTION_REPLAY_WAIT_PC, PC=%p\n",pc);*/
 				}
 				else
 				{
-					uaecptr pc = m68k_getpc ();
+					uaecptr pc = m68k_getpc (&regs);
 					/*		    write_log_debug ("Action Replay marked as IDLE, PC=%p\n",pc);*/
 					action_replay_flag = ACTION_REPLAY_IDLE;
 				}
@@ -605,7 +605,7 @@ STATIC_INLINE int ar3a (uaecptr addr, uae_u8 b, int writing)
 		} else
 			write_log ("AR: exit with armode(%d)\n", armode);
 
-		set_special (SPCFLAG_ACTION_REPLAY);
+		set_special (&regs, SPCFLAG_ACTION_REPLAY);
 		action_replay_flag = ACTION_REPLAY_HIDE;
 	} else if (addr == 6) {
 		copytoamiga (regs.vbr + 0x7c, artemp, 4);
@@ -936,7 +936,7 @@ static void action_replay_go (void)
 	hide_cart (0);
 	memcpy (armemory_ram + 0xf000, ar_custom, 2 * 256);
 	action_replay_flag = ACTION_REPLAY_ACTIVE;
-	set_special (SPCFLAG_ACTION_REPLAY);
+	set_special (&regs, SPCFLAG_ACTION_REPLAY);
 	copyfromamiga (artemp, regs.vbr + 0x7c, 4);
 	copytoamiga (regs.vbr + 0x7c, armemory_rom + 0x7c, 4);
 	NMI ();
