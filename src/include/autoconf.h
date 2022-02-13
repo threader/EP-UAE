@@ -52,8 +52,6 @@ extern uaecptr ROM_hardfile_resname, ROM_hardfile_resid;
 extern uaecptr ROM_hardfile_init;
 extern uaecptr filesys_initcode;
 
-extern int is_hardfile (int unit_no);
-extern int nr_units (void);
 extern int nr_directory_units (struct uae_prefs*);
 extern uaecptr need_uae_boot_rom (void);
 
@@ -78,8 +76,6 @@ int filesys_media_change (const char *rootdir, int inserted, struct uaedev_confi
 
 extern char *filesys_createvolname (const char *volname, const char *rootdir, const char *def);
 extern int target_get_volume_name(struct uaedev_mount_info *mtinf, const char *volumepath, char *volumename, int size, int inserted, int fullcheck);
-
-extern int sprintf_filesys_unit (char *buffer, int num);
 
 extern void filesys_reset (void);
 extern void filesys_cleanup (void);

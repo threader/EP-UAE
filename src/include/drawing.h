@@ -102,7 +102,6 @@ struct color_entry {
 STATIC_INLINE xcolnr getxcolor (int c)
 {
 #ifdef AGA
-
     if (direct_rgb)
 		return CONVERT_RGB(c);
     else
@@ -167,8 +166,6 @@ struct color_change {
 };
 
 /* 440 rather than 880, since sprites are always lores.  */
-
-#ifdef CUSTOM_SIMPLE
 #ifdef UAE_MINI
 #define MAX_PIXELS_PER_LINE 880
 #define MAX_VIDHEIGHT 800
@@ -236,9 +233,6 @@ struct decision {
     unsigned int ham_seen:1;
     unsigned int ham_at_start:1;
     unsigned int valid:1;
-    unsigned int ehb_seen;
-    unsigned int ham_seen;
-    unsigned int ham_at_start;
 };
 
 /* Anything related to changes in hw registers during the DDF for one

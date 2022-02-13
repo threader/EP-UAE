@@ -109,10 +109,6 @@ typedef struct {
        ourselves. This holds the memory address where the start of memory is
        for this particular bank. */
     uae_u8 *baseaddr;
-
-extern uae_u8 *filesysory;
-
-extern addrbank chipmem_bank;
 	TCHAR *name;
     /* for instruction opcode/operand fetches */
     mem_get_func lgeti, wgeti;
@@ -176,7 +172,6 @@ extern uae_u8 *REGPARAM3 default_xlate(uaecptr addr) REGPARAM;
 /* 680x0 opcode fetches */
 extern uae_u32 REGPARAM3 dummy_lgeti (uaecptr addr) REGPARAM;
 extern uae_u32 REGPARAM3 dummy_wgeti (uaecptr addr) REGPARAM;
->>>>>>> p-uae/v2.1.0
 
 #define bankindex(addr) (((uaecptr)(addr)) >> 16)
 
@@ -189,19 +184,6 @@ extern uae_u8 *baseaddr[MEMORY_BANKS];
 #define get_mem_bank(addr) (*mem_banks[bankindex(addr)])
 
 #ifdef JIT
-/* notes memory.h jit */
-#if 0
-# define put_mem_bank(addr, b, realstart) do { \
-    (mem_banks[bankindex(addr)] = (b)); \
-    if ((b)->baseaddr) \
-        baseaddr[bankindex(addr)] = (b)->baseaddr - (realstart); \
-    else \
-        baseaddr[bankindex(addr)] = (uae_u8*)(((long)b)+1); \
-} while (0)
-//#else
-# define put_mem_bank(addr, b, realstart) \
-#endif
-
 #define put_mem_bank(addr, b, realstart) do { \
     (mem_banks[bankindex(addr)] = (b)); \
     if ((b)->baseaddr) \
@@ -243,18 +225,6 @@ STATIC_INLINE uae_u32 get_word(uaecptr addr)
 STATIC_INLINE uae_u32 get_byte(uaecptr addr)
 {
     addr &= MEMORY_RANGE_MASK;
-    return byteget(addr);
-}
-STATIC_INLINE uae_u32 get_long (uaecptr addr)
-{
-    return longget(addr);
-}
-STATIC_INLINE uae_u32 get_word (uaecptr addr)
-{
-    return wordget(addr);
-}
-STATIC_INLINE uae_u32 get_byte (uaecptr addr)
-{
     return byteget(addr);
 }
 STATIC_INLINE uae_u32 get_longi(uaecptr addr)
@@ -312,25 +282,13 @@ STATIC_INLINE void put_byte(uaecptr addr, uae_u32 b)
     byteput(addr, b);
 }
 
-STATIC_INLINE void put_long (uaecptr addr, uae_u32 l)
-{
-    longput(addr, l);
-}
-STATIC_INLINE void put_word (uaecptr addr, uae_u32 w)
-{
-    wordput(addr, w);
-}
-STATIC_INLINE void put_byte (uaecptr addr, uae_u32 b)
-{
-    byteput(addr, b);
-}
-
 extern void put_long_slow (uaecptr addr, uae_u32 v);
 extern void put_word_slow (uaecptr addr, uae_u32 v);
 extern void put_byte_slow (uaecptr addr, uae_u32 v);
 extern uae_u32 get_long_slow (uaecptr addr);
 extern uae_u32 get_word_slow (uaecptr addr);
 extern uae_u32 get_byte_slow (uaecptr addr);
+
 
 /*
  * Store host pointer v at addr
@@ -343,10 +301,6 @@ STATIC_INLINE void put_pointer (uaecptr addr, void *v)
 {
     const unsigned int n = SIZEOF_VOID_P / 4;
     union {
-#if 0
-	void    *ptr;
-	uae_u32  longs[SIZEOF_VOID_P / 4];
-#endif
 		void    *ptr;
 		uae_u32  longs[SIZEOF_VOID_P / 4];
     } p;
@@ -364,14 +318,10 @@ STATIC_INLINE void put_pointer (uaecptr addr, void *v)
 }
 # endif
 #endif
-#if 0
-STATIC_INLINE uae_u8 *get_real_address(uaecptr addr)
-{
-    addr &= MEMORY_RANGE_MASK;
-#endif
 
 STATIC_INLINE uae_u8 *get_real_address (uaecptr addr)
 {
+    addr &= MEMORY_RANGE_MASK;
     return get_mem_bank(addr).xlateaddr(addr);
 }
 
@@ -401,8 +351,6 @@ extern uae_u32 chipmem_bget_ce2 (uaecptr) REGPARAM;
 extern void chipmem_lput_ce2 (uaecptr, uae_u32) REGPARAM;
 extern void chipmem_wput_ce2 (uaecptr, uae_u32) REGPARAM;
 extern void chipmem_bput_ce2 (uaecptr, uae_u32) REGPARAM;
-    return get_mem_bank(addr).check(addr, size);
-}
 
 extern int addr_valid (TCHAR*, uaecptr,uae_u32);
 
@@ -420,11 +368,6 @@ extern uae_u32 REGPARAM3 chipmem_agnus_bget (uaecptr) REGPARAM;
 extern void REGPARAM3 chipmem_agnus_lput (uaecptr, uae_u32) REGPARAM;
 extern void REGPARAM3 chipmem_agnus_wput (uaecptr, uae_u32) REGPARAM;
 extern void REGPARAM3 chipmem_agnus_bput (uaecptr, uae_u32) REGPARAM;
-
-extern uae_u32 chipmem_mask, kickmem_mask;
-extern uae_u8 *kickmemory;
-extern int kickmem_size;
-extern addrbank dummy_bank;
 
 /* 68020+ Chip RAM DMA contention emulation */
 extern uae_u32 REGPARAM3 chipmem_lget_ce2 (uaecptr) REGPARAM;

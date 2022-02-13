@@ -219,16 +219,6 @@ static GtkWidget *make_message_box (const gchar *title, const gchar *message, in
 void on_message_box_quit (GtkWidget *w, gpointer user_data);
 
 
-static void uae_pause (void)
-{
-    write_comm_pipe_int (&from_gui_pipe, GUICMD_PAUSE , 1);
-}
-
-static void uae_resume (void)
-{
-    write_comm_pipe_int (&to_gui_pipe, GUICMD_UNPAUSE, 1);
-}
-
 static void set_mem32_widgets_state (void)
 {
     int enable = changed_prefs.cpu_model >= 68020 && ! changed_prefs.address_space_24;
@@ -444,7 +434,7 @@ static void set_hd_state (void)
 {
     char  texts[HDLIST_MAX_COLS][256];
     char *tptrs[HDLIST_MAX_COLS];
-    int nr = nr_units ();
+    int nr = nr_units (currprefs.mountinfo);
     int i;
 //	UnitInfo *ui;
 
@@ -1437,11 +1427,6 @@ static void make_sound_widgets (GtkWidget *vbox)
     gtk_widget_set_sensitive (newbox, sound_available);
     gtk_widget_show (newbox);
     gtk_box_pack_start (GTK_BOX (hbox), newbox, FALSE, TRUE, 0);
-
-    newbox = make_radio_group_box ("Resolution", soundlabels1, sound_bits_widget, 1, sound_changed);
-    gtk_widget_set_sensitive (newbox, sound_available);
-    gtk_widget_show (newbox);
-    gtk_box_pack_start (GTK_BOX (hbox), newbox, FALSE, TRUE, 0);
 }
 
 static void make_mem_widgets (GtkWidget *vbox)
@@ -1692,11 +1677,13 @@ static void newdir_ok (void)
     if (strlen (dirdlg_volname) == 0 || strlen (dirdlg_path) == 0) {
 		/* Uh, no messageboxes in gtk?  */
     } else if (hd_change_mode) {
-		set_filesys_unit (selected_hd_row, dirdlg_devname, dirdlg_volname, dirdlg_path, readonly, secspertrack, surfaces, reserved, blocksize, bootpri, donotmount, autoboot, 0, hdc, flags);
-		set_hd_state ();
+	set_filesys_unit (currprefs.mountinfo, selected_hd_row, dirdlg_devname, dirdlg_volname, dirdlg_path,
+			  readonly, 0, 0, 0, 0, bootpri, 0, 0);
+	set_hd_state ();
     } else {
-		add_filesys_unit (dirdlg_devname, dirdlg_volname, dirdlg_path, readonly, secspertrack, surfaces, reserved, blocksize, bootpri, donotmount, autoboot, 0, hdc, flags);
-		set_hd_state ();
+	add_filesys_unit (currprefs.mountinfo, dirdlg_devname, dirdlg_volname, dirdlg_path,
+			  readonly, 0, 0, 0, 0, bootpri, 0, 0);
+	set_hd_state ();
     }
     gtk_widget_destroy (dirdlg);
 }
@@ -1882,7 +1869,7 @@ static void did_hdchange (void)
 				&filesysdir, &flags);
 */
     hd_change_mode = 1;
-    if (is_hardfile (selected_hd_row)) {
+    if (is_hardfile (currprefs.mountinfo, selected_hd_row)) {
     } else {
 		create_dirdlg ("Hard disk properties");
 		gtk_entry_set_text (GTK_ENTRY (devname_entry), devname);
@@ -2360,14 +2347,14 @@ void gui_handle_events (void)
 			break;
 	    case UAECMD_SAVESTATE_LOAD:
 			uae_sem_wait (&gui_sem);
-			savestate_initsave (gui_sstate_name, 0, 0);
+			savestate_initsave (gui_sstate_name, 0);
 			savestate_state = STATE_DORESTORE;
             write_log ("Restoring state from '%s'...\n", gui_sstate_name);
 			uae_sem_post (&gui_sem);
 			break;
 	    case UAECMD_SAVESTATE_SAVE:
 			uae_sem_wait (&gui_sem);
-			savestate_initsave (gui_sstate_name, 0, 0);
+			savestate_initsave (gui_sstate_name, 0);
 			save_state (gui_sstate_name, "puae");
             write_log ("Saved state to '%s'...\n", gui_sstate_name);
 			uae_sem_post (&gui_sem);

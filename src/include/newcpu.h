@@ -32,29 +32,6 @@
 } while (0)
 
 #define COPY_CARRY(regs) (SET_XFLG (regs, GET_CFLG (regs)))
-
-#if 0
-#define SET_CFLG(x) (CFLG() = (x))
-#define SET_NFLG(x) (NFLG() = (x))
-#define SET_VFLG(x) (VFLG() = (x))
-#define SET_ZFLG(x) (ZFLG() = (x))
-#define SET_XFLG(x) (XFLG() = (x))
-
-#define GET_CFLG() CFLG()
-#define GET_NFLG() NFLG()
-#define GET_VFLG() VFLG()
-#define GET_ZFLG() ZFLG()
-#define GET_XFLG() XFLG()
-
-#define CLEAR_CZNV() do { \
-	SET_CFLG (0); \
-	SET_ZFLG (0); \
-	SET_NFLG (0); \
-	SET_VFLG (0); \
-} while (0)
-#define COPY_CARRY() (SET_XFLG (GET_CFLG ()))
-#endif 
-
 #endif
 
 extern const int areg_byteinc[];
@@ -100,7 +77,6 @@ typedef uae_u8 flagtype;
    apps */
 #define USE_LONG_DOUBLE 0
 
-
 #if USE_LONG_DOUBLE
 typedef long double fptype;
 #define LDPTR tbyte ptr
@@ -136,7 +112,7 @@ struct cache040
 	int count;
 };
 
-extern struct regstruct
+struct regstruct
 {
     uae_u32 regs[16];
     struct flag_struct ccrflags;
@@ -145,12 +121,6 @@ extern struct regstruct
     uae_u8 *pc_p;
     uae_u8 *pc_oldp;
 
-    uae_u16 irc;
-    uae_u16 ir;
-
-    uae_u32 spcflags;
-
-    uaecptr  usp,isp,msp;
     uae_u16 irc, ir;
     uae_u32 spcflags;
 
@@ -163,22 +133,6 @@ extern struct regstruct
     flagtype x;
     flagtype stopped;
     unsigned int intmask;
-
-    uae_u32 vbr;
-
-#ifdef FPUEMU
-    fptype fp_result;
-
-    fptype fp[8];
-
-    uae_u32 fpcr,fpsr,fpiar;
-    uae_u32 fpsr_highbyte;
-#endif
-
-    uae_u32 sfc, dfc;
-
-    uae_u32 kick_mask;
-    int intmask;
 	int ipl, ipl_pin;
 
     uae_u32 vbr, sfc, dfc;
@@ -209,6 +163,9 @@ extern struct regstruct
     uae_u8 panic;
     uae_u32 panic_pc, panic_addr;
 
+	uae_u32 prefetch020data;
+	uae_u32 prefetch020addr;
+	int ce020memcycles;
 } regs, lastint_regs;
 
 typedef struct {
@@ -225,11 +182,6 @@ typedef union {
     cpuop_func* handler;
     struct blockinfo_t* bi;
 } cacheline;
-
-	uae_u32 prefetch020data;
-	uae_u32 prefetch020addr;
-	int ce020memcycles;
-};
 
 extern struct regstruct regs;
 
@@ -329,141 +281,6 @@ STATIC_INLINE void m68k_setstopped (struct regstruct *regs, int stop)
 
 extern uae_u32 get_disp_ea_020 (struct regstruct *regs, uae_u32 base, uae_u32 dp) REGPARAM;
 extern uae_u32 get_disp_ea_000 (struct regstruct *regs, uae_u32 base, uae_u32 dp) REGPARAM;
-extern int mmu_enabled, mmu_triggered;
-extern int cpu_cycles;
-extern int cpucycleunit;
-STATIC_INLINE void set_special (uae_u32 x)
-{
-	regs.spcflags |= x;
-    cycles_do_special ();
-}
-
-STATIC_INLINE void unset_special (uae_u32 x)
-{
-	regs.spcflags &= ~x;
-}
-
-#define m68k_dreg(r,num) ((r).regs[(num)])
-#define m68k_areg(r,num) (((r).regs + 8)[(num)])
-
-STATIC_INLINE void m68k_setpc (uaecptr newpc)
-{
-	regs.pc_p = regs.pc_oldp = get_real_address (newpc);
-	regs.fault_pc = regs.pc = newpc;
-}
-
-STATIC_INLINE uaecptr m68k_getpc (void)
-{
-	return (uaecptr)(regs.pc + ((uae_u8*)regs.pc_p - (uae_u8*)regs.pc_oldp));
-}
-#define M68K_GETPC m68k_getpc()
-
-STATIC_INLINE uaecptr m68k_getpc_p (uae_u8 *p)
-{
-	return (uaecptr)(regs.pc + ((uae_u8*)p - (uae_u8*)regs.pc_oldp));
-}
-
-#define m68k_incpc(o) ((regs).pc_p += (o))
-
-#ifdef MMU
-STATIC_INLINE void m68k_setpc_mmu (uaecptr newpc)
-{
-	regs.fault_pc = regs.pc = newpc;
-	regs.pc_p = regs.pc_oldp = 0;
-}
-#endif
-STATIC_INLINE void m68k_setpci (uaecptr newpc)
-{
-	regs.fault_pc = regs.pc = newpc;
-}
-STATIC_INLINE uaecptr m68k_getpci (void)
-{
-	return regs.pc;
-}
-STATIC_INLINE void m68k_incpci(int o)
-{
-	regs.pc += o;
-}
-
-STATIC_INLINE void m68k_do_rts (void)
-{
-    m68k_setpc (get_long(m68k_areg (regs, 7)));
-    m68k_areg (regs, 7) += 4;
-}
-STATIC_INLINE void m68k_do_rtsi (void)
-{
-	m68k_setpci (get_long (m68k_areg (regs, 7)));
-    m68k_areg (regs, 7) += 4;
-}
-
-STATIC_INLINE void m68k_do_bsr (uaecptr oldpc, uae_s32 offset)
-{
-    m68k_areg (regs, 7) -= 4;
-    put_long(m68k_areg (regs, 7), oldpc);
-    m68k_incpc (offset);
-}
-STATIC_INLINE void m68k_do_bsri (uaecptr oldpc, uae_s32 offset)
-{
-    m68k_areg (regs, 7) -= 4;
-    put_long(m68k_areg (regs, 7), oldpc);
-    m68k_incpci(offset);
-}
-
-#define get_ibyte(o) do_get_mem_byte((uae_u8 *)((regs).pc_p + (o) + 1))
-#define get_iword(o) do_get_mem_word((uae_u16 *)((regs).pc_p + (o)))
-#define get_ilong(o) do_get_mem_long((uae_u32 *)((regs).pc_p + (o)))
-
-#define get_iwordi(o) get_wordi(o)
-#define get_ilongi(o) get_longi(o)
-
-/* These are only used by the 68020/68881 code, and therefore don't
- * need to handle prefetch.  */
-STATIC_INLINE uae_u32 next_ibyte (void)
-{
-    uae_u32 r = get_ibyte (0);
-    m68k_incpc (2);
-    return r;
-}
-STATIC_INLINE uae_u32 next_iword (void)
-{
-    uae_u32 r = get_iword (0);
-    m68k_incpc (2);
-    return r;
-}
-STATIC_INLINE uae_u32 next_iwordi (void)
-{
-	uae_u32 r = get_iwordi (m68k_getpci ());
-    m68k_incpc (2);
-    return r;
-}
-STATIC_INLINE uae_u32 next_ilong (void)
-{
-    uae_u32 r = get_ilong (0);
-    m68k_incpc (4);
-    return r;
-}
-STATIC_INLINE uae_u32 next_ilongi (void)
-{
-	uae_u32 r = get_ilongi (m68k_getpci ());
-    m68k_incpc (4);
-    return r;
-}
-
-extern void m68k_setstopped (void);
-extern void m68k_resumestopped (void);
-
-extern uae_u32 REGPARAM3 get_disp_ea_020 (uae_u32 base, uae_u32 dp) REGPARAM;
-extern uae_u32 REGPARAM3 get_disp_ea_020ce (uae_u32 base, uae_u32 dp) REGPARAM;
-extern uae_u32 REGPARAM3 get_disp_ea_040mmu (uae_u32 base, uae_u32 dp) REGPARAM;
-extern uae_u32 REGPARAM3 get_disp_ea_000 (uae_u32 base, uae_u32 dp) REGPARAM;
-extern uae_u32 get_bitfield (uae_u32 src, uae_u32 bdata[2], uae_s32 offset, int width);
-extern void put_bitfield (uae_u32 dst, uae_u32 bdata[2], uae_u32 val, uae_s32 offset, int width);
-extern uae_u32 get_bitfield_020ce (uae_u32 src, uae_u32 bdata[2], uae_s32 offset, int width);
-extern void put_bitfield_020ce (uae_u32 dst, uae_u32 bdata[2], uae_u32 val, uae_s32 offset, int width);
-extern uae_u32 get_bitfield_040mmu (uae_u32 src, uae_u32 bdata[2], uae_s32 offset, int width);
-extern void put_bitfield_040mmu (uae_u32 dst, uae_u32 bdata[2], uae_u32 val, uae_s32 offset, int width);
-
-extern int get_cpu_model(void);
 
 /* Hack to stop conflict with AROS Exception function */
 #ifdef __AROS__
@@ -494,7 +311,6 @@ extern void init_m68k_full (void);
 extern void m68k_go (int);
 extern void m68k_dumpstate (void *, uaecptr *);
 extern void m68k_disasm (void *, uaecptr, uaecptr *, int);
-
 extern void m68k_disasm_ea (void *f, uaecptr addr, uaecptr *nextpc, int cnt, uae_u32 *seaddr, uae_u32 *deaddr);
 extern void sm68k_disasm(char *, char *, uaecptr addr, uaecptr *nextpc);
 extern void m68k_reset (int);
@@ -502,6 +318,7 @@ extern int getDivu68kCycles(uae_u32 dividend, uae_u16 divisor);
 extern int getDivs68kCycles(uae_s32 dividend, uae_s16 divisor);
 
 extern void mmu_op       (uae_u32, struct regstruct *regs, uae_u16);
+extern void mmu_op030       (uae_u32, struct regstruct *regs, uae_u16);
 
 extern void fpp_opp      (uae_u32, struct regstruct *regs, uae_u16);
 extern void fdbcc_opp    (uae_u32, struct regstruct *regs, uae_u16);
@@ -512,19 +329,13 @@ extern void fsave_opp    (uae_u32, struct regstruct *regs);
 extern void frestore_opp (uae_u32, struct regstruct *regs);
 extern uae_u32 fpp_get_fpsr (const struct regstruct *regs);
 
-extern void m68k_do_rte (void);
-
-extern void mmu_op (uae_u32, uae_u32);
-extern void mmu_op30 (uaecptr, uae_u32, uae_u16, uaecptr);
-
-extern void fpuop_arithmetic(uae_u32, uae_u16);
-extern void fpuop_dbcc(uae_u32, uae_u16);
-extern void fpuop_scc(uae_u32, uae_u16);
-extern void fpuop_trapcc(uae_u32, uaecptr, uae_u16);
+extern void fpuop_arithmetic(uae_u32, struct regstruct *regs, uae_u16);
+extern void fpuop_dbcc(uae_u32,  struct regstruct *regs, uae_u16);
+extern void fpuop_scc(uae_u32,  struct regstruct *regs, uae_u16);
+extern void fpuop_trapcc(uae_u32,  struct regstruct *regs, uaecptr, uae_u16);
 extern void fpuop_bcc(uae_u32, uaecptr, uae_u32);
 extern void fpuop_save(uae_u32);
 extern void fpuop_restore(uae_u32);
-extern uae_u32 fpp_get_fpsr (void);
 extern void fpu_reset (void);
 extern void fpux_save (int*);
 extern void fpux_restore (int*);
@@ -575,16 +386,6 @@ extern uae_u32 start_pc;
 #define cacheline(x) (((uae_uintptr) x) & TAGMASK)
 
 void newcpu_showstate (void);
-
-#ifdef JIT
-extern void flush_icache (int n);
-extern void compemu_reset (void);
-#else
-#define flush_icache(X) do {} while (0)
-#endif
-extern void fill_prefetch_slow (void);
-
-#define CPU_OP_NAME(a) op ## a
 
 /* 68060 */
 extern const struct cputbl op_smalltbl_0_ff[];

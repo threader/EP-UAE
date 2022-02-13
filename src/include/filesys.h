@@ -18,9 +18,6 @@ struct hardfiledata {
     int surfaces;
     int reservedblocks;
     unsigned int blocksize;
-    void *handle;
-    int readonly;
-    int blocksize;
     struct hardfilehandle *handle;
     int handle_valid;
     int readonly;

@@ -174,24 +174,6 @@ extern void inputdevice_tablet_strobe (void);
 #define JSEM_MICE      200
 #define JSEM_END       300
 #define JSEM_NONE      300
-
-#define JSEM_DECODEVAL(port,p) ((port) == 0 ? (p)->jport0 : (p)->jport1)
-
-/* Determine how port <p> is configured */
-#define JSEM_ISNUMPAD(port,p)        (jsem_iskbdjoy (port,p) == JSEM_KBDLAYOUT)
-#define JSEM_ISCURSOR(port,p)        (jsem_iskbdjoy (port,p) == JSEM_KBDLAYOUT + 1)
-#define JSEM_ISSOMEWHEREELSE(port,p) (jsem_iskbdjoy (port,p) == JSEM_KBDLAYOUT + 2)
-#define JSEM_ISXARCADE1(port,p)      (jsem_iskbdjoy (port,p) == JSEM_KBDLAYOUT + 3)
-#define JSEM_ISXARCADE2(port,p)      (jsem_iskbdjoy (port,p) == JSEM_KBDLAYOUT + 4)
-#define JSEM_LASTKBD                 (JSEM_KBDLAYOUT + 5)
-#define JSEM_ISANYKBD(port,p)        (jsem_iskbdjoy (port,p) >= JSEM_KBDLAYOUT && jsem_iskbdjoy(port,p) < JSEM_KBDLAYOUT + JSEM_LASTKBD)
-
-extern int compatibility_device[2];
-
-extern int jsem_isjoy    (int port, const struct uae_prefs *p);
-extern int jsem_ismouse  (int port, const struct uae_prefs *p);
-extern int jsem_iskbdjoy (int port, const struct uae_prefs *p);
-
 #define JSEM_XARCADE1LAYOUT (JSEM_KBDLAYOUT + 3)
 #define JSEM_XARCADE2LAYOUT (JSEM_KBDLAYOUT + 4)
 #define JSEM_DECODEVAL(port,p) ((p)->jports[port].id)
@@ -202,6 +184,8 @@ extern int jsem_iskbdjoy (int port, const struct uae_prefs *p);
 #define JSEM_ISXARCADE2(port,p) (jsem_iskbdjoy(port,p) == JSEM_XARCADE2LAYOUT)
 #define JSEM_LASTKBD 5
 #define JSEM_ISANYKBD(port,p)        (jsem_iskbdjoy (port,p) >= JSEM_KBDLAYOUT && jsem_iskbdjoy(port,p) < JSEM_KBDLAYOUT + JSEM_LASTKBD)
+
+extern int compatibility_device[2];
 
 extern int jsem_isjoy    (int port, const struct uae_prefs *p);
 extern int jsem_ismouse  (int port, const struct uae_prefs *p);

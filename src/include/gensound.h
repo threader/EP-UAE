@@ -15,7 +15,6 @@ extern unsigned int obtainedfreq;
 
 /* Determine if we can produce any sound at all.  This can be only a guess;
  * if unsure, say yes.  Any call to init_sound may change the value.  */
-
 extern int setup_sound (void);
 
 extern int init_sound (void);
@@ -41,12 +40,4 @@ STATIC_INLINE void init_sound_table8  (void) { }
 #else
 extern void init_sound_table16 (void);
 extern void init_sound_table8 (void);
-
-extern void sample16s_handler (void);
-extern void sample16ss_handler (void);
-
-#ifdef MULTIPLICATION_PROFITABLE
-STATIC_INLINE void init_sound_table16 (void) { }
-#else
-extern void init_sound_table16 (void);
 #endif

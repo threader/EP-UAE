@@ -38,7 +38,6 @@ extern void activate_debugger (void);
 extern void deactivate_debugger (void);
 extern int notinrom (void);
 extern const char *debuginfo (int);
-extern void record_copper (uaecptr addr, int hpos, int vpos);
 extern void record_copper_reset (void);
 extern int mmu_init (int, uaecptr,uaecptr);
 extern void mmu_do_hit (void);
