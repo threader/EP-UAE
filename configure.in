@@ -6,7 +6,7 @@ dnl Updated and generally mauled 2008 Mustafa Tufan
 dnl
 
 AC_PREREQ(2.55)
-AC_INIT(PUAE, 2.1.0, ,puae)
+AC_INIT(EP-UAE, 0.0.0, ,ep-uae)
 AC_CONFIG_SRCDIR([bootstrap.sh])
 AM_CONFIG_HEADER([src/sysconfig.h])
 AC_CANONICAL_TARGET
@@ -209,6 +209,7 @@ dnl
 SAVE_LIBS="$LIBS"
 LIBS="$LIBS -ldl"
 AC_CHECK_LIB(dl, dlopen, [
+    UAE_LIBS="-ldl $UAE_LIBS"
     AC_DEFINE(HAVE_DLOPEN, 1, "Define to 1 if you have 'dlopen' function)
   ], [
     LIBS="$SAVE_LIBS"
@@ -551,10 +552,6 @@ dnl
 dnl Win32 build has its own writelog.c
 dnl
 if [[ "$OSDEP" != "od-win32" ]]; then
-   EXTRAOBJS=writelog.o
-fi
-
-
    EXTRAOBJS='writelog.$(OBJEXT)'
 fi
 
@@ -563,7 +560,7 @@ dnl
 dnl  Options
 dnl
 
-AC_ARG_ENABLE(profiling,       AS_HELP_STRING([--enable-profiling], 
+AC_ARG_ENABLE(profiling,       AS_HELP_STRING([--enable-profiling],       [Build a profiling (SLOW!) version]),                       [DO_PROFILING=$enableval],[])
 AC_ARG_ENABLE(aga,             AS_HELP_STRING([--enable-aga],             [Enable AGA chipset emulation (default yes)]),              [WANT_AGA=$enableval],[])
 AC_ARG_ENABLE(cdtv,            AS_HELP_STRING([--enable-cdtv],            [Enable CDTV emulation (default no)]),                      [WANT_CDTV=$enableval],[])
 AC_ARG_ENABLE(cd32,            AS_HELP_STRING([--enable-cd32],            [Enable CD32 emulation (default no)]),                      [WANT_CD32=$enableval],[])
@@ -711,7 +708,7 @@ if [[ "x$WANT_SDL" != "xno" ]]; then
     SAVE_CPPFLAGS=$CPPFLAGS
     SAVE_LIBS=$LIBS
     CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
-    LIBS="$SDL_LIBS $LIBS"
+    LIBS="$LIBS $SDL_LIBS"
 
     AC_TRY_LINK(
     [
@@ -745,7 +742,7 @@ fi
 if test $ac_cv_prog_gcc = yes; then
   WARNING_CFLAGS="$WARNING_CFLAGS -Wall -Wno-unused -Wno-format -W -Wmissing-prototypes -Wstrict-prototypes"
   OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -fomit-frame-pointer -ffast-math"
-# notes fast-math
+dnl notes fast-math
 fi
 
 if [[ "x$DO_PROFILING" = "xyes" ]]; then
@@ -966,9 +963,6 @@ if [[ "$GFX_DEP" = "gfx-x11" ]]; then
     TMP_SAVE_LIBS=$LIBS
     LIBS="$X_LIBS $LIBS"
     AC_CHECK_LIB(Xxf86dga, XF86DGAQueryExtension, HAVE_DGA=yes, HAVE_DGA=no, [ $X_PRE_LIBS -lXext -lX11 $X_EXTRA_LIBS ])
-
-    echo $LIBS
-
     LIBS=$TMP_SAVE_LIBS
     if [[ "x$HAVE_DGA" = "xno" ]]; then
       AC_MSG_WARN([Could not find DGA extension, ignoring --enable-dga])
@@ -1075,14 +1069,6 @@ dnl See if we can at least compile SHM support
   GFX_LIBS="$X_LIBS $X_PRE_LIBS -lXext -lX11 $X_EXTRA_LIBS"
 fi
 
-
-dnl
-dnl
-dnl  Check which sound target to use
-dnl
-dnl
-dnl
-AC_MSG_NOTICE([================================================================])
 
 dnl
 dnl  Check which sound target to use
@@ -1252,6 +1238,7 @@ if [[ "x$WANT_AUTOCONFIG" != "xno" ]]; then
   FILESYSOBJS='filesys.$(OBJEXT) fsdb.$(OBJEXT) fsusage.$(OBJEXT) hardfile.$(OBJEXT)'
   if [[ "x$HOST_OS" != "xwin32" ]]; then
     FILESYSOBJS="$FILESYSOBJS filesys_unix.\$(OBJEXT) fsdb_unix.\$(OBJEXT) hardfile_unix.\$(OBJEXT)"  else
+  else
     FILESYSOBJS="$FILESYSOBJS"
   fi
   dnl  Filesys support currently requires threads, because hardfile
@@ -1347,9 +1334,9 @@ typedef int BOOL;
         if [[ "$srcdir" != "." ]]; then
 #          AC_CONFIG_LINKS(src/libscg.a:src/libscg.a)
  #         AC_CONFIG_LINKS(src/libschily.a:src/libschily.a)
-	  UAE_LIBS="$LIBSCG_LIBS $UAE_LIBS"
+	  UAE_LIBS="$UAE_LIBS $LIBSCG_LIBS"
         else
-          UAE_LIBS="-L. $SCGLIBS $UAE_LIBS"
+          UAE_LIBS="$UAE_LIBS -L. $SCGLIBS"
         fi
       ],
       [
@@ -1512,7 +1499,7 @@ dnl
 if [[ "x$WANT_SDL" = "xyes" ]]; then
    UAE_DEFINES="$UAE_DEFINES -DUSE_SDL"
    JOY_DEP=jd-sdl
-   UAE_LIBS="$SDL_LIBS $UAE_LIBS"
+   UAE_LIBS="$UAE_LIBS $SDL_LIBS"
    UAE_CPPFLAGS="$UAE_CPPFLAGS $SDL_CFLAGS"
 fi
 
@@ -1770,7 +1757,6 @@ AC_MSG_NOTICE([================================================================]
 UAE_LIBS="$GUI_LIBS $GFX_LIBS $SND_LIBS $JOY_LIBS $UAE_LIBS"
 UAE_CPPFLAGS="$UAE_CPPFLAGS $UAE_DEFINES $GFX_CPPFLAGS"
 UAE_CFLAGS="$OPTIMIZED_FLAGS $UAE_CFLAGS $GUI_CFLAGS $GFX_CFLAGS $SND_CFLAGS $JOY_CFLAGS"
-
 
 AC_CONFIG_LINKS(src/target.h:src/targets/$TARGETDEP)
 AC_CONFIG_LINKS(src/machdep:src/$MACHDEP)
