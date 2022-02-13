@@ -14,6 +14,7 @@ AC_DEFUN([gl_FILE_TYPE],
 ])
 
 #serial 11
+
 # From fileutils/configure.in
 
 AC_DEFUN([gl_FSUSAGE],
