@@ -1,5 +1,3 @@
- /*
-=======
 #ifndef UAE_SYSDEPS_H
 #define UAE_SYSDEPS_H
 
@@ -430,4 +428,6 @@ extern void xfree (const void*);
 #define _tcstol strtol
 #define _wunlink unlink
 #define _tcsftime strftime
+#endif
+
 #endif

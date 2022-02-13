@@ -26,20 +26,6 @@ struct strlist {
 #define MAX_INPUT_SUB_EVENT 4
 #define MAX_INPUT_SIMULTANEOUS_KEYS 4
 
-struct uae_input_device {
-    char    *name;
-    uae_s16  eventid[MAX_INPUT_DEVICE_EVENTS][MAX_INPUT_SUB_EVENT];
-    char    *custom [MAX_INPUT_DEVICE_EVENTS][MAX_INPUT_SUB_EVENT];
-    uae_u16  flags  [MAX_INPUT_DEVICE_EVENTS][MAX_INPUT_SUB_EVENT];
-    uae_s16  extra  [MAX_INPUT_DEVICE_EVENTS][MAX_INPUT_SIMULTANEOUS_KEYS];
-    uae_u8   enabled;
-};
-
-#define MAX_SPARE_DRIVES 20
-
-#define CONFIG_TYPE_HARDWARE 1
-#define CONFIG_TYPE_HOST 2
-
 #define FILTER_SOUND_OFF 0
 #define FILTER_SOUND_EMUL 1
 #define FILTER_SOUND_ON 2
@@ -111,12 +97,6 @@ struct uae_prefs {
 
     struct strlist *all_lines;
 
-    char description[256];
-    char info[256];
-    int config_version;
-
-    int illegal_mem;
-
     TCHAR description[256];
     TCHAR info[256];
     int config_version;
@@ -125,20 +105,17 @@ struct uae_prefs {
 
     int illegal_mem;
     int no_xhair;
-
     int use_serial;
     int serial_demand;
     int serial_hwctsrts;
     int serial_direct;
     int parallel_demand;
-
     int parallel_matrix_emulation;
     int parallel_postscript_emulation;
     int parallel_postscript_detection;
     int parallel_autoflush_time;
     TCHAR ghostscript_parameters[256];
     int use_gfxlib;
-
     int socket_emu;
 
 #ifdef DEBUGGER
@@ -152,15 +129,6 @@ struct uae_prefs {
     int produce_sound;
     int sound_stereo;
     int sound_stereo_separation;
-
-    int sound_mixed_stereo;
-    int sound_bits;
-    int sound_freq;
-    int sound_latency;
-    int sound_interpol;
-    int sound_adjust;
-    int sound_volume;
-
     int sound_mixed_stereo_delay;
     int sound_freq;
     int sound_maxbsiz;
@@ -172,7 +140,6 @@ struct uae_prefs {
     int sound_stereo_swap_paula;
     int sound_stereo_swap_ahi;
     int sound_auto;
->>>>>>> p-uae/v2.1.0
 
 #ifdef JIT
     int comptrustbyte;
@@ -180,10 +147,7 @@ struct uae_prefs {
     int comptrustlong;
     int comptrustnaddr;
     int compnf;
-
-    int compforcesettings;
     int compfpu;
-
     int comp_midopt;
     int comp_lowopt;
     int fpu_strict;
@@ -195,23 +159,6 @@ struct uae_prefs {
     int cachesize;
     int optcount[10];
 #endif
-
-    int gfx_framerate;
-    int gfx_width_win, gfx_height_win;
-    int gfx_width_fs, gfx_height_fs;
-    int gfx_width, gfx_height;
-    int gfx_refreshrate;
-    int gfx_vsync;
-    int gfx_lores;
-    int gfx_linedbl;
-    int gfx_correct_aspect;
-    int gfx_afullscreen;
-    int gfx_pfullscreen;
-    int gfx_xcenter;
-    int gfx_ycenter;
-
-#ifdef GFXFILTER
-    int gfx_filter;
 
     int avoid_cmov;
     int avoid_dga;
@@ -254,16 +201,10 @@ struct uae_prefs {
     int gfx_filter;
     TCHAR gfx_filtershader[MAX_DPATH];
 	TCHAR gfx_filtermask[MAX_DPATH];
-
     int gfx_filter_scanlines;
     int gfx_filter_scanlineratio;
     int gfx_filter_scanlinelevel;
     int gfx_filter_horiz_zoom, gfx_filter_vert_zoom;
-    int gfx_filter_horiz_offset, gfx_filter_vert_offset;
-    int gfx_filter_filtermode;
-#endif
-
-    int color_mode;
     int gfx_filter_horiz_zoom_mult, gfx_filter_vert_zoom_mult;
     int gfx_filter_horiz_offset, gfx_filter_vert_offset;
     int gfx_filter_filtermode;
@@ -283,27 +224,6 @@ struct uae_prefs {
     int keyboard_leds[3];
     int keyboard_leds_in_use;
     int scsi;
-
-    int catweasel_io;
-    int cpu_idle;
-    int cpu_cycle_exact;
-    int blitter_cycle_exact;
-    int floppy_speed;
-    int tod_hack;
-    uae_u32 maprom;
-
-    char df[4][256];
-    char dfxlist[MAX_SPARE_DRIVES][256];
-    char romfile[256];
-    char romextfile[256];
-    char keyfile[256];
-    char flashfile[256];
-#ifdef ACTION_REPLAY
-    char cartfile[256];
-#endif
-    char prtname[256];
-    char sername[256];
-
     int sana2;
     int uaeserial;
     int catweasel;
@@ -370,16 +290,9 @@ struct uae_prefs {
     TCHAR amaxromfile[MAX_DPATH];
     TCHAR a2065name[MAX_DPATH];
 	TCHAR cdimagefile[MAX_DPATH];
-
 #ifndef WIN32
     char scsi_device[256];
 #endif
-
-
-    int m68k_speed;
-    int cpu_level;
-    int cpu_compatible;
-    int address_space_24;
 
     TCHAR path_floppy[256];
     TCHAR path_hardfile[256];
@@ -396,7 +309,6 @@ struct uae_prefs {
     int picasso96_nocustom;
     int picasso96_modeflags;
 
-
 #ifdef HAVE_MACHDEP_TIMER
     int use_processor_clock;
 #endif
@@ -407,12 +319,6 @@ struct uae_prefs {
     uae_u32 chipmem_size;
     uae_u32 bogomem_size;
     uae_u32 a3000mem_size;
-    uae_u32 gfxmem_size;
-
-    int kickshifter;
-    int filesys_no_uaefsdb;
-
-    struct uaedev_mount_info *mountinfo;
     uae_u32 mbresmem_low_size;
     uae_u32 mbresmem_high_size;
     uae_u32 gfxmem_size;
@@ -466,14 +372,6 @@ struct uae_prefs {
     int win32_iconified_priority;
     int win32_iconified_pause;
     int win32_iconified_nosound;
-
-    int win32_no_overlay; /* If this is set, we won't try and use any RGB overlays */
-    int win32_ctrl_F11_is_quit;
-    int win32_automount_drives;
-    int win32_midioutdev;
-    int win32_midiindev;
-    int win32_aspi;
-    int win32_soundcard;
 
     int win32_rtgmatchdepth;
     int win32_rtgscaleifsmall;
@@ -533,16 +431,6 @@ struct uae_prefs {
     int input_joymouse_deadzone;
     int input_joystick_deadzone;
     int input_joymouse_speed;
-    int input_autofire_framecnt;
-    int input_mouse_speed;
-    struct uae_input_device joystick_settings[MAX_INPUT_SETTINGS + 1][MAX_INPUT_DEVICES];
-    struct uae_input_device mouse_settings[MAX_INPUT_SETTINGS + 1][MAX_INPUT_DEVICES];
-    struct uae_input_device keyboard_settings[MAX_INPUT_SETTINGS + 1][MAX_INPUT_DEVICES];
-};
-
-extern void save_options (FILE *, const struct uae_prefs *, int);
-extern void cfgfile_write (FILE *f, const char *format,...);
-
     int input_analog_joystick_mult;
     int input_analog_joystick_offset;
     int input_autofire_framecnt;
@@ -590,7 +478,6 @@ extern int cfgfile_strval (const TCHAR *option, const TCHAR *value, const TCHAR 
 extern int cfgfile_string (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz);
 extern TCHAR *cfgfile_subst_path (const TCHAR *path, const TCHAR *subst, const TCHAR *file);
 
-
 int parse_cmdline_option (struct uae_prefs *, char, char *);
 
 extern int cfgfile_yesno  (const char *option, const char *value, const char *name, int *location);
@@ -615,12 +502,6 @@ extern void gfx_default_options (struct uae_prefs *);
 extern void audio_default_options (struct uae_prefs *p);
 extern void audio_save_options (FILE *f, const struct uae_prefs *p);
 extern int  audio_parse_option (struct uae_prefs *p, const char *option, const char *value);
-
-extern int cfgfile_load (struct uae_prefs *, const char *filename, int *);
-extern int cfgfile_save (const struct uae_prefs *, const char *filename, int);
-extern void cfgfile_parse_line (struct uae_prefs *p, char *, int);
-extern int cfgfile_parse_option (struct uae_prefs *p, char *option, char *value, int);
-extern int cfgfile_get_description (const char *filename, char *description, int*);
 
 extern int cfgfile_load (struct uae_prefs *p, const char *filename, int *type, int ignorelink, int userconfig);
 extern int cfgfile_save (const struct uae_prefs *, const char *filename, int);
@@ -674,7 +555,7 @@ extern void machdep_free (void);
 #define fuzzy_memset(p, c, o, l) fuzzy_memset_1 ((p), QUADRUPLIFY (c), (o) & ~3, ((l) + 4) >> 2)
 STATIC_INLINE void fuzzy_memset_1 (void *p, uae_u32 c, int offset, int len)
 {
-    uae_u32 *p2 = (uae_u32 *)((TCHAR *)p + offset);
+    uae_u32 *p2 = (uae_u32 *)((char *)p + offset);
     int a = len & 7;
     len >>= 3;
     switch (a) {
@@ -717,7 +598,7 @@ STATIC_INLINE void fuzzy_memset_1 (void *p, uae_u32 c, int offset, int len)
 #define fuzzy_memset_le32(p, c, o, l) fuzzy_memset_le32_1 ((p), QUADRUPLIFY (c), (o) & ~3, ((l) + 7) >> 2)
 STATIC_INLINE void fuzzy_memset_le32_1 (void *p, uae_u32 c, int offset, int len)
 {
-    uae_u32 *p2 = (uae_u32 *)((TCHAR *)p + offset);
+    uae_u32 *p2 = (uae_u32 *)((char *)p + offset);
 
     switch (len) {
      case 9: p2[0] = c; p2[1] = c; p2[2] = c; p2[3] = c; p2[4] = c; p2[5] = c; p2[6] = c; p2[7] = c; p2[8] = c; break;

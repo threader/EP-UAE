@@ -1883,15 +1883,7 @@ static void gen_opcode (unsigned long int opcode)
     case i_BSET:
 		genamode (curi->smode, "srcreg", curi->size, "src", 1, 0, 0);
 		genamode (curi->dmode, "dstreg", curi->size, "dst", 1, 0, 0);
-
-	if (isreg (curi->dmode))
-	    addcycles (4);
-	fill_prefetch_next ();
-	if (curi->size == sz_byte)
-	    printf ("\tsrc &= 7;\n");
-	else
-	    printf ("\tsrc &= 31;\n");
-
+		fill_prefetch_next ();
 		bsetcycles (curi);
 		// bclr needs 1 extra cycle
 		if (curi->mnemo == i_BCLR && curi->dmode == Dreg)
@@ -1920,9 +1912,10 @@ static void gen_opcode (unsigned long int opcode)
     case i_CMP:
 		genamode (curi->smode, "srcreg", curi->size, "src", 1, 0, 0);
 		genamode (curi->dmode, "dstreg", curi->size, "dst", 1, 0, 0);
-		fill_prefetch_next ();
-		if (curi->dmode == Dreg && curi->size == sz_long)
+	if (isreg (curi->dmode)) {
+	    if (curi->dmode == Areg || (curi->dmode == Dreg && curi->size == sz_long))
 			addcycles000 (2);
+		}
 		start_brace ();
 		genflags (flag_cmp, curi->size, "newv", "src", "dst");
 		break;
@@ -1930,7 +1923,10 @@ static void gen_opcode (unsigned long int opcode)
 		genamode (curi->smode, "srcreg", curi->size, "src", 1, 0, 0);
 		genamode (curi->dmode, "dstreg", sz_long, "dst", 1, 0, 0);
 		fill_prefetch_next ();
+	if (isreg (curi->dmode)) {
+	    if (curi->dmode == Areg || (curi->dmode == Dreg && curi->size == sz_long))
 		addcycles000 (2);
+		}
 		start_brace ();
 		genflags (flag_cmp, sz_long, "newv", "src", "dst");
 		break;

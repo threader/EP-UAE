@@ -27,23 +27,6 @@ extern struct inputdevice_functions inputdevicefunc_joystick;
 extern struct inputdevice_functions inputdevicefunc_mouse;
 extern struct inputdevice_functions inputdevicefunc_keyboard;
 
-    int (*acquire)(int,int);
-    void (*unacquire)(int);
-    void          (*read)             (void);
-    int (*get_num)(void);
-    char* (*get_friendlyname)(int);
-    char* (*get_uniquename)(int);
-    int (*get_widget_num)(int);
-    int (*get_widget_type)(int,int,TCHAR*,uae_u32*);
-    int (*get_widget_first)(int,int);
-    int (*get_flags)(int);
-};
-extern struct inputdevice_functions idev[3];
-extern struct inputdevice_functions inputdevicefunc_joystick;
-extern struct inputdevice_functions inputdevicefunc_mouse;
-extern struct inputdevice_functions inputdevicefunc_keyboard;
-extern int pause_emulation;
-
 struct uae_input_device_kbr_default {
     int scancode;
     int event;
@@ -64,9 +47,7 @@ struct uae_input_device_kbr_default {
 #define ID_AXIS_TOTAL 32
 
 extern int inputdevice_iterate (int devnum, int num, TCHAR *name, int *af);
-extern int inputdevice_set_mapping (int devnum, int num, TCHAR *name, TCHAR *custom, int flags, int sub);
-extern int inputdevice_get_mapped_name (int devnum, int num, int *pflags, TCHAR *name, TCHAR *custom, int sub);
-
+extern int inputdevice_set_mapping (int devnum, int num, const um, int *pflags, TCHAR *name, TCHAR *custom, int sub);
 extern void inputdevice_copyconfig (const struct uae_prefs *src, struct uae_prefs *dst);
 extern void inputdevice_copy_single_config (struct uae_prefs *p, int src, int dst, int devnum);
 extern void inputdevice_swap_ports (struct uae_prefs *p, int devnum);
@@ -211,7 +192,6 @@ extern int jsem_isjoy    (int port, const struct uae_prefs *p);
 extern int jsem_ismouse  (int port, const struct uae_prefs *p);
 extern int jsem_iskbdjoy (int port, const struct uae_prefs *p);
 
-extern int inputdevice_uaelib (const char *s, const char *parm);
 #define JSEM_XARCADE1LAYOUT (JSEM_KBDLAYOUT + 3)
 #define JSEM_XARCADE2LAYOUT (JSEM_KBDLAYOUT + 4)
 #define JSEM_DECODEVAL(port,p) ((p)->jports[port].id)

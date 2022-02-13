@@ -42,7 +42,7 @@ extern int bogusframe;
 extern unsigned long hsync_counter;
 
 extern uae_u16 dmacon;
-extern uae_u16 intena,intreq;
+extern uae_u16 intena, intreq, intreqr;
 
 //extern int current_hpos (void);
 extern unsigned int vpos;
@@ -50,15 +50,6 @@ extern unsigned int vpos;
 extern int n_frames;
 
 int is_bitplane_dma (unsigned int hpos);
-
-extern uae_u16 intena, intreq, intreqr;
-
-//extern int current_hpos (void);
-extern int vpos;
-
-//extern int find_copper_record (uaecptr, int *, int *);
-
-extern int n_frames;
 
 STATIC_INLINE int dmaen (unsigned int dmamask)
 {
@@ -125,9 +116,6 @@ extern uae_u16 INTREQR (void);
 #define VBLANK_SPRITE_NTSC 20
 #define VBLANK_HZ_PAL 50
 #define VBLANK_HZ_NTSC 60
-
-extern frame_time_t syncbase;
-#define NUMSCRLINES (maxvpos+1-minfirstline+1)
 #define EQU_ENDLINE_PAL 9
 #define EQU_ENDLINE_NTSC 10
 
@@ -161,13 +149,6 @@ extern frame_time_t syncbase;
 #define CYCLE_NOCPU	0x80
 */
 
-extern unsigned int frametime;
-extern unsigned int timeframes;
-extern unsigned int plfstrt;
-extern unsigned int plfstop;
-extern unsigned int plffirstline, plflastline;
-extern uae_u16 htotal, vtotal;
-
 #define CYCLE_STROBE	0x02
 #define CYCLE_MISC		0x04
 #define CYCLE_SPRITE	0x08
@@ -176,8 +157,11 @@ extern uae_u16 htotal, vtotal;
 #define CYCLE_CPU		0x40
 #define CYCLE_CPUNASTY	0x80
 
-extern unsigned long frametime, timeframes;
-extern int plfstrt, plfstop, plffirstline, plflastline;
+extern unsigned long frametime;
+extern unsigned long timeframes;
+extern unsigned int plfstrt;
+extern unsigned int plfstop;
+extern unsigned int plffirstline, plflastline;
 extern uae_u16 htotal, vtotal, beamcon0;
 
 /* 100 words give you 1600 horizontal pixels. Should be more than enough for
@@ -218,7 +202,7 @@ STATIC_INLINE int GET_RES (uae_u16 con0)
 {
     int res = ((con0) & 0x8000) ? RES_HIRES : ((con0) & 0x40) ? RES_SUPERHIRES : RES_LORES;
     return res;
-
+}
 STATIC_INLINE int GET_RES_DENISE (uae_u16 con0)
 {
     if (!(currprefs.chipset_mask & CSMASK_ECS_DENISE))
@@ -235,10 +219,7 @@ STATIC_INLINE int GET_RES_AGNUS (uae_u16 con0)
 #define GET_SPRITEWIDTH(FMODE) ((((FMODE) >> 2) & 3) == 3 ? 64 : (((FMODE) >> 2) & 3) == 0 ? 16 : 32)
 /* Compute the number of bitplanes from a value written to BPLCON0  */
 
-#define GET_PLANES(x) ((((x) >> 12) & 7) | (((x) & 0x10) >> 1))
-
-extern void fpscounter_reset (void);
-extern frame_time_t idletime;
+//#define GET_PLANES(x) ((((x) >> 12) & 7) | (((x) & 0x10) >> 1))
 
 STATIC_INLINE int GET_PLANES(uae_u16 bplcon0)
 {
