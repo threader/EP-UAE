@@ -10,7 +10,9 @@ aclocal -I m4 \
 echo ..almost over..
 echo .
 cd src/tools
-aclocal
+aclocal &&
 autoconf
 echo Done. Thank you.
 echo .
+cd ../../
+chmod 0755 configure src/tools/configure

@@ -120,9 +120,6 @@ static int init_joysticks(void)
     snprintf (js_prefix, JS_MAXPATHLEN, "/dev/%s", JS_DEVNAME_PREFIX);
 
     snprintf (js_path, JS_MAXPATHLEN, "%s0", js_prefix);
-
-
-#ifdef __linux__
     if ((js0 = open (js_path, O_RDONLY)) >= 0)
 		nr_joysticks++;
 

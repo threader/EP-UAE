@@ -1738,7 +1738,6 @@ struct inputdevice_functions inputdevicefunc_keyboard =
     unacquire_kb,
     read_kb,
     get_kb_num,
-    get_kb_name,
     get_kb_friendlyname,
     get_kb_uniquename,
     get_kb_widget_num,

@@ -105,14 +105,6 @@ static void chipsetspeedpanel_init (ChipsetSpeedPanel *panel)
     gtk_signal_connect (GTK_OBJECT (panel->immediate_blits_widget), "toggled",
 			GTK_SIGNAL_FUNC (on_immediate_blits_changed),
 			panel);
-    );
-
-    gtk_scale_set_value_pos (GTK_SCALE (panel->framerate_widget), GTK_POS_TOP);
-    gtk_scale_set_digits (GTK_SCALE (panel->framerate_widget), 0);
-
-    gtk_signal_connect (GTK_OBJECT ( GTK_RANGE(panel->framerate_widget)->adjustment), "value-changed", GTK_SIGNAL_FUNC (on_framerate_changed), panel);
-    gtk_signal_connect (GTK_OBJECT (panel->collisions_widget), "selection-changed", GTK_SIGNAL_FUNC (on_sprite_collisions_changed), panel);
-    gtk_signal_connect (GTK_OBJECT (panel->immediate_blits_widget), "toggled", GTK_SIGNAL_FUNC (on_immediate_blits_changed), panel);
 }
 
 static void on_framerate_changed (GtkWidget *w, ChipsetSpeedPanel *panel)

@@ -10,7 +10,7 @@
 #include "sysdeps.h"
 
 #include "options.h"
-#include <sys/sysctl.h>
+#include <linux/sysctl.h>
 #include "include/memory.h"
 
 #ifdef JIT
@@ -74,7 +74,6 @@ void init_shm (void)
 {
     canbang = 1;
 }
-#endif
 
 static uae_u32 lowmem (void)
 {

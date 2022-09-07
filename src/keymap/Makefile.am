@@ -6,7 +6,7 @@ INCLUDES =  -I$(top_srcdir)/src/include -I$(top_builddir)/src -I$(top_srcdir)/sr
 
 noinst_LIBRARIES = libkeymap.a
 
-libkeymap_a_SOURCES = keymap.c x11_rawkeys.c quartz_rawkeys.c beos_rawkeys.c \
+libkeymap_a_SOURCES = keymap.c x11pc_rawkeys.c quartz_rawkeys.c beos_rawkeys.c \
 		      amiga_rawkeys.cpc_rawkeys.c quartz_rawkeys.c beos_rawkeys.c \
 		      amiga_rawkeys.c
 
