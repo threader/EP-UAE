@@ -33,17 +33,9 @@
 #include "crc_csum.h"
 #include "pfile.h"
 
-
-static void dms_decrypt(UCHAR *, USHORT);
-
-static char modes[7][7]={"NOCOMP","SIMPLE","QUICK ","MEDIUM","DEEP  ","HEAVY1","HEAVY2"};
 static USHORT PWDCRC;
 
 UCHAR *text;
-
-
-
-USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT opt, USHORT PCRC, USHORT pwd){
 
 static int dolog = 0;
 
@@ -259,13 +251,6 @@ USHORT DMS_Process_File(struct zfile *fi, struct zfile *fo, USHORT cmd, USHORT o
 
 	if (cmd != CMD_VIEW) {
 		if (cmd == CMD_SHOWBANNER) /*  Banner is in the first track  */
-			ret = Process_Track(fi,NULL,b1,b2,cmd,opt,(geninfo & 2)?pwd:0);
-		else {
-			while ( (ret=Process_Track(fi,fo,b1,b2,cmd,opt,(geninfo & 2)?pwd:0)) == NO_PROBLEM ) ;
-		}
-	}
-
-	if ((cmd == CMD_VIEWFULL) || (cmd == CMD_SHOWDIZ) || (cmd == CMD_SHOWBANNER)) write_log("\n");
 			ret = Process_Track(fi,NULL,b1,b2,cmd,opt,geninfo,extra);
 		else {
 			for (;;) {
@@ -394,44 +379,6 @@ static USHORT Process_Track(struct zfile *fi, struct zfile *fo, UCHAR *b1, UCHAR
 	/*  track 80 is FILEID.DIZ, track 0xffff (-1) is Banner  */
 	/*  and track 0 with 1024 bytes only is a fake boot block with more advertising */
 	/*  FILE_ID.DIZ is never encrypted  */
-
-	if (pwd && (number!=80)) dms_decrypt(b1,pklen1);
-
-	if ((cmd == CMD_UNPACK) && (number<80) && (unpklen>2048)) {
-		r = Unpack_Track(b1, b2, pklen2, unpklen, cmode, flags);
-		if (r != NO_PROBLEM) 
-			if (pwd)
-				return ERR_BADPASSWD;
-			else
-				return r;
-		if (usum != Calc_CheckSum(b2,(ULONG)unpklen))
-			if (pwd)
-				return ERR_BADPASSWD;
-			else
-				return ERR_CSUM;
-		if (zfile_fwrite(b2,1,(size_t)unpklen,fo) != unpklen) return ERR_CANTWRITE;
-	}
-
-	if ((cmd == CMD_SHOWBANNER) && (number == 0xffff)){
-		r = Unpack_Track(b1, b2, pklen2, unpklen, cmode, flags);
-		if (r != NO_PROBLEM) 
-			if (pwd)
-				return ERR_BADPASSWD;
-			else
-				return r;
-		if (usum != Calc_CheckSum(b2,(ULONG)unpklen))
-			if (pwd)
-				return ERR_BADPASSWD;
-			else
-				return ERR_CSUM;
-		printbandiz(b2,unpklen);
-	}
-
-	if ((cmd == CMD_SHOWDIZ) && (number == 80)) {
-		r = Unpack_Track(b1, b2, pklen2, unpklen, cmode, flags);
-		if (r != NO_PROBLEM) return r;
-		if (usum != Calc_CheckSum(b2,(ULONG)unpklen)) return ERR_CSUM;
-		printbandiz(b2,unpklen);
 	//if (pwd && (number!=80)) dms_decrypt(b1,pklen1);
 
 	if ((cmd == CMD_UNPACK) && (number<80) && (unpklen>2048)) {

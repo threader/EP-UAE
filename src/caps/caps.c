@@ -13,9 +13,9 @@
 
 #ifdef CAPS
 
-#include <caps/capsimage.h>
-#include "zfile.h"
 #include "caps.h"
+#include "zfile.h"
+#include "caps/capsimage.h"
 
 static CapsLong caps_cont[4]= {-1, -1, -1, -1};
 static int caps_locked[4];
@@ -23,7 +23,6 @@ static int caps_flags = DI_LOCK_DENVAR|DI_LOCK_DENNOISE|DI_LOCK_NOISE|DI_LOCK_UP
 #define LIB_TYPE 1
 
 
-#ifndef TARGET_AMIGAOS
 #if defined HAVE_DLOPEN && !defined HAVE_FRAMEWORK_CAPSIMAGE
 
 #include <dlfcn.h>
@@ -55,12 +54,6 @@ struct {
   CapsLong (*CAPSGetVersionInfo)(struct CapsVersionInfo *pi, CapsULong flag);
 } capslib;
 
-#ifdef HAVE_DLOPEN
-
-#include <dlfcn.h>
-
-#define CAPSLIB_NAME    "libcapsimage.so.2"
-
 /*
  * The Unix/dlopen method for loading and linking the CAPSLib plug-in
  */
@@ -88,10 +81,6 @@ static int load_capslib (void)
     write_log ("Unable to open " CAPSLIB_NAME "\n.");
     return 0;
 }
-#endif // HAVE_DLOPEN
-
-#else
-
 
 /*
  * Some defines so that we don't care that CAPSLib
@@ -372,10 +361,6 @@ LONG CAPSGetVersionInfo (struct CapsVersionInfo *pi, CapsULong flag)
     return retval;
 }
 
-#endif
-
-
-#ifdef TARGET_AMIGAOS
 #else
 
 #if 0
@@ -437,27 +422,6 @@ static int load_capslib (void)
 
 #endif
 #endif
-#ifndef TARGET_AMIGAOS
-
-/*
- * Some defines so that we don't care that CAPSLib
- * isn't statically linked
- */
-#define CAPSInit            capslib.CAPSInit
-#define CAPSExit            capslib.CAPSExit
-#define CAPSAddImage        capslib.CAPSAddImage
-#define CAPSRemImage        capslib.CAPSRemImage
-#define CAPSLockImage       capslib.CAPSLockImage
-#define CAPSLockImageMemory capslib.CAPSLockImageMemory
-#define CAPSUnlockImage     capslib.CAPSUnlockImage
-#define CAPSLoadImage       capslib.CAPSLoadImage
-#define CAPSGetImageInfo    capslib.CAPSGetImageInfo
-#define CAPSLockTrack       capslib.CAPSLockTrack
-#define CAPSUnlockTrack     capslib.CAPSUnlockTrack
-#define CAPSUnlockAllTracks capslib.CAPSUnlockAllTracks
-#define CAPSGetPlatformName capslib.CAPSGetPlatformName
-#define CAPSGetVersionInfo  capslib.CAPSGetVersionInfo
-
 #endif
 
 /*
@@ -523,7 +487,6 @@ int caps_loadimage (struct zfile *zf, unsigned int drv, unsigned int *num_tracks
     if (zfile_fread (buf, len, 1, zf) == 0)
 	return 0;
     ret = CAPSLockImageMemory (caps_cont[drv], buf, len, 0);
-
     xfree (buf);
     if (ret != imgeOk)
 	return 0;
