@@ -6,7 +6,6 @@
   * (c) 1995 Bernd Schmidt
   */
 
-
 typedef enum { DRV_NONE = -1, DRV_35_DD = 0, DRV_35_HD, DRV_525_SD, DRV_35_DD_ESCOM } drive_type;
 
 #define HISTORY_FLOPPY 0
@@ -30,11 +29,6 @@ extern int disk_getwriteprotect (const char *name);
 extern int disk_setwriteprotect (int num, const char *name, int protect);
 extern void disk_creatediskfile (char *name, int type, drive_type adftype, const char *disk_name);
 extern void dumpdisk (void);
-extern int DISK_history_add (const char *name, int idx);
-extern char *DISK_history_get (int idx);
-int DISK_examine_image (struct uae_prefs *p, int num, uae_u32 *crc32);
-extern char *DISK_get_saveimagepath (const char *name);
-extern void DISK_reinsert (int num);
 extern int DISK_history_add (const TCHAR *name, int idx, int type, int donotcheck);
 extern char *DISK_history_get (int idx, int type);
 int DISK_examine_image (struct uae_prefs *p, int num, uae_u32 *crc32);

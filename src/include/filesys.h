@@ -129,9 +129,6 @@ extern void filesys_prepare_reset (void);
 extern void filesys_start_threads (void);
 extern void filesys_flush_cache (void);
 
-extern struct hardfiledata *get_hardfile_data (int nr);
-#define FILESYS_MAX_BLOCKSIZE 2048
-extern int hdf_open (struct hardfiledata *hfd, const char *name);
 
 extern struct hardfiledata *get_hardfile_data (int nr);
 #define FILESYS_MAX_BLOCKSIZE 2048

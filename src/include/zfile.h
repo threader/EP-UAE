@@ -9,12 +9,12 @@
 struct zfile;
 extern int is_zlib;
 
-extern struct zfile *zfile_fopen (const char *, const char *);
-extern struct zfile *zfile_fopen_empty (const char *name, int size);
+//extern struct zfile *zfile_fopen (const char *, const char *);
+//extern struct zfile *zfile_fopen_empty (const char *name, int size);
 extern int zfile_exists (const char *name);
 extern void zfile_fclose (struct zfile *);
-extern int zfile_fseek (struct zfile *z, long offset, int mode);
-extern long zfile_ftell (struct zfile *z);
+//extern int zfile_fseek (struct zfile *z, long offset, int mode);
+//extern long zfile_ftell (struct zfile *z);
 extern size_t zfile_fread  (void *b, size_t l1, size_t l2, struct zfile *z);
 extern size_t zfile_fwrite  (const void *b, size_t l1, size_t l2, struct zfile *z);
 extern void zfile_exit (void);

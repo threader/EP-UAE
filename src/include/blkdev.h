@@ -40,7 +40,6 @@ struct device_info {
     int bytespersector;
     int bus, target, lun;
     int id;
-    char label[60];
     char label[MAX_DPATH];
 	char mediapath[MAX_DPATH];
 };
