@@ -125,7 +125,6 @@
  */ /* notes ccr */
 #define m68k_flag_cmp(regs, l, s, d)			\
 #define m68k_flag_cmp(l, s, d)			\
->>>>>>> p-uae/v2.1.0
     asm (						\
 	MIT(	"cmp"#l" %1,%2		\n\t"		\
 		"movew ccr, %0          \n\t"		\

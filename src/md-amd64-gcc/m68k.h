@@ -82,7 +82,6 @@ extern struct flag_struct regflags;
 
 #define COPY_CARRY (regflags.x = regflags.cznv)
 #endif
->>>>>>> p-uae/v2.1.0
 
 
 /*
