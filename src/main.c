@@ -33,7 +33,6 @@
 #include "autoconf.h"
 #include "traps.h"
 #include "osemu.h"
-#include "filesys.h"
 #include "picasso96.h"
 #include "bsdsocket.h"
 #include "uaeexe.h"
@@ -73,40 +72,11 @@
 struct uae_prefs currprefs, changed_prefs;
 
 static int restart_program;
-static char restart_config[256];
-static char optionsfile[256];
-
-int cloanto_rom = 0;
-
 int log_scsi;
 
 struct gui_info gui_data;
 
-
-/*
- * Random prefs-related junk that needs to go elsewhere.
- */
-
-void fixup_prefs_dimensions (struct uae_prefs *prefs)
-{
-    if (prefs->gfx_width_fs < 320)
-	prefs->gfx_width_fs = 320;
-    if (prefs->gfx_height_fs < 200)
-	prefs->gfx_height_fs = 200;
-    if (prefs->gfx_height_fs > 1280)
-	prefs->gfx_height_fs = 1280;
-    prefs->gfx_width_fs += 7;
-    prefs->gfx_width_fs &= ~7;
-    if (prefs->gfx_width_win < 320)
-	prefs->gfx_width_win = 320;
-    if (prefs->gfx_height_win < 200)
-	prefs->gfx_height_win = 200;
-    if (prefs->gfx_height_win > 1280)
-	prefs->gfx_height_win = 1280;
-    prefs->gfx_width_win += 7;
-    prefs->gfx_width_win &= ~7;
-}
-
+#if 0
 static void fixup_prefs_joysticks (struct uae_prefs *prefs)
 {
     int joy_count = inputdevice_get_device_total (IDTYPE_JOYSTICK);
@@ -123,7 +93,7 @@ static void fixup_prefs_joysticks (struct uae_prefs *prefs)
 	    prefs->jport1 = (prefs->jport0 != JSEM_KBDLAYOUT) ? JSEM_KBDLAYOUT : JSEM_NONE;
     }
 }
-
+#endif 
 static void fix_options (void)
 {
     int err = 0;
@@ -313,7 +283,7 @@ static void fix_options (void)
 #endif
 #endif
 
-    fixup_prefs_joysticks (&currprefs);
+   // fixup_prefs_joysticks (&currprefs);
 
     if (err)
 	write_log ("Please use \"uae -h\" to get usage information.\n");
@@ -719,8 +689,21 @@ static int restart_program;
 static char restart_config[MAX_DPATH];
 static int default_config;
 
+static int uae_state;
+static int uae_target_state;
+
 void uae_reset (int hardreset)
 {
+    switch (uae_target_state) {
+	case UAE_STATE_QUITTING:
+	case UAE_STATE_STOPPED:
+	case UAE_STATE_COLD_START:
+	case UAE_STATE_WARM_START:
+	    /* Do nothing */
+	    break;
+	default:
+	    uae_target_state = hardreset ? UAE_STATE_COLD_START : UAE_STATE_WARM_START;
+    }
 	if (quit_program == 0) {
 		quit_program = -2;
 		if (hardreset)
@@ -731,6 +714,9 @@ void uae_reset (int hardreset)
 
 void uae_quit (void)
 {
+    if (uae_target_state != UAE_STATE_QUITTING) {
+	uae_target_state = UAE_STATE_QUITTING;
+    }
 	deactivate_debugger ();
 	if (quit_program != -1)
 		quit_program = -1;
@@ -822,7 +808,7 @@ static void parse_cmdline (int argc, char **argv)
 #ifdef FILESYS
 	    free_mountinfo (currprefs.mountinfo);
 #endif
-	    if (cfgfile_load (&currprefs, argv[i] + 8, 0))
+	    if (target_cfgfile_load (&currprefs, argv[i] + 8, 0))
 		strcpy (optionsfile, argv[i] + 8);
 	}
 	/* Check for new-style "-f xxx" argument, where xxx is config-file */
@@ -833,7 +819,7 @@ static void parse_cmdline (int argc, char **argv)
 #ifdef FILESYS
 		free_mountinfo (currprefs.mountinfo);
 #endif
-		if (cfgfile_load (&currprefs, argv[++i], 0))
+		if (target_cfgfile_load (&currprefs, argv[++i], 0))
 		    strcpy (optionsfile, argv[i]);
 	    }
 	} else if (strcmp (argv[i], "-s") == 0) {
@@ -987,9 +973,6 @@ void uae_save_config (void)
  * A first cut at better state management...
  */
 
-static int uae_state;
-static int uae_target_state;
-
 int uae_get_state (void)
 {
     return uae_state;
@@ -1024,43 +1007,12 @@ void uae_resume (void)
 	uae_target_state = UAE_STATE_RUNNING;
 }
 
-void uae_quit (void)
-{
-    if (uae_target_state != UAE_STATE_QUITTING) {
-	uae_target_state = UAE_STATE_QUITTING;
-    }
-}
-
 void uae_stop (void)
 {
     if (uae_target_state != UAE_STATE_QUITTING && uae_target_state != UAE_STATE_STOPPED) {
 	uae_target_state = UAE_STATE_STOPPED;
 	restart_config[0] = 0;
     }
-}
-
-void uae_reset (int hard_reset)
-{
-    switch (uae_target_state) {
-	case UAE_STATE_QUITTING:
-	case UAE_STATE_STOPPED:
-	case UAE_STATE_COLD_START:
-	case UAE_STATE_WARM_START:
-	    /* Do nothing */
-	    break;
-	default:
-	    uae_target_state = hard_reset ? UAE_STATE_COLD_START : UAE_STATE_WARM_START;
-    }
-}
-
-/* This needs to be rethought */
-void uae_restart (int opengui, char *cfgfile)
-{
-    uae_stop ();
-    restart_program = opengui > 0 ? 1 : (opengui == 0 ? 2 : 3);
-    restart_config[0] = 0;
-    if (cfgfile)
-	strcpy (restart_config, cfgfile);
 }
 
 
@@ -1191,28 +1143,6 @@ static int do_init_machine (void)
 }
 
 /*
- * Helper for reset method
- */
-static void reset_all_systems (void)
-{
-    init_eventtab ();
-
-    memory_reset ();
-#ifdef BSDSOCKET
-    bsdlib_reset ();
-#endif
-#ifdef FILESYS
-    filesys_reset ();
-    filesys_start_threads ();
-    hardfile_reset ();
-#endif
-#ifdef SCSIEMU
-    scsidev_reset ();
-    scsidev_start_threads ();
-#endif
-}
-
-/*
  * Reset emulator
  */
 static void do_reset_machine (int hardreset)
@@ -1227,8 +1157,8 @@ static void do_reset_machine (int hardreset)
      * fastram state restore breaks
      */
     reset_all_systems ();
-    customreset ();
-    m68k_reset ();
+    customreset (hardreset);
+    m68k_reset (hardreset);
     if (hardreset) {
 	memset (chipmemory, 0, allocated_chipmem);
 	write_log ("chipmem cleared\n");
@@ -1306,7 +1236,7 @@ static void do_exit_machine (void)
     cfgfile_addcfgparam (0);
 }
 
-
+#if 0
 /*
  * Here's where all the action takes place!
  */
@@ -1448,7 +1378,7 @@ void real_main (int argc, char **argv)
     }
     zfile_exit ();
 }
-
+#endif
 #ifdef USE_SDL
 int init_sdl (void)
 {
@@ -1786,7 +1716,7 @@ void real_main (int argc, char **argv)
 int main (int argc, char **argv)
 {
     init_sdl ();
-    gui_init (argc, argv);
+    gui_init ();
 	show_version_full ();
     real_main (argc, argv);
     return 0;

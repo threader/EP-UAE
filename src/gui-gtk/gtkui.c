@@ -2662,7 +2662,7 @@ int gui_open (void)
    return result;
 }
 
-void gui_init (int argc, char **argv)
+int gui_init (void)
 {
     uae_thread_id tid;
 
