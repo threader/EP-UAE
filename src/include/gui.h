@@ -6,7 +6,7 @@
   * Copyright 1996 Bernd Schmidt
   */
 
-extern void gui_init (int argc, char **argv);
+extern int gui_init (void);
 extern int gui_open (void);
 extern int gui_update (void);
 extern void gui_exit (void);
