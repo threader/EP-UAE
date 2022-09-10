@@ -13,6 +13,7 @@ STATIC_INLINE uae_u32 get_long_prefetch (struct regstruct *regs, int o)
 }
 
 #ifdef CPUEMU_6
+#if 0
 STATIC_INLINE uae_u32 mem_access_delay_word_read (uaecptr addr)
 {
     if (addr < 0x200000 || (addr >= 0xc00000 && addr < 0xe00000)) {
@@ -28,20 +29,10 @@ STATIC_INLINE uae_u32 mem_access_delay_byte_read (uaecptr addr)
 	return wait_cpu_cycle_read (addr, 0);
     } else if (!(addr >= 0xa00000 && addr < 0xc00000)) {
 	do_cycles_ce (4 * CYCLE_UNIT / 2);
-
-STATIC_INLINE uae_u32 get_word_prefetch (int o)
-{
-	uae_u32 v = regs.irc;
-	regs.irc = get_wordi (m68k_getpc () + o);
-	return v;
+    }
+    return get_byte (addr);
 }
-STATIC_INLINE uae_u32 get_long_prefetch (int o)
-{
-	uae_u32 v = get_word_prefetch (o) << 16;
-	v |= get_word_prefetch (o + 2);
-	return v;
-}
-
+#endif
 #ifdef CPUEMU_20
 
 STATIC_INLINE void checkcycles_ce020 (void)
@@ -257,17 +248,17 @@ STATIC_INLINE void put_byte_ce020 (uaecptr addr, uae_u8 v)
 
 extern void fill_cache0x0 (uae_u32);
 
-STATIC_INLINE uae_u32 get_word_ce020_prefetch (int o)
+STATIC_INLINE uae_u32 get_word_ce020_prefetch (struct regstruct *regs, int o)
 {
-	uae_u32 pc = m68k_getpc () + o;
+	uae_u32 pc = m68k_getpc (regs) + o;
 
 	for (;;) {
-		if (pc == regs.prefetch020addr) {
-			uae_u32 v = regs.prefetch020data >> 16;
+		if (pc == regs->prefetch020addr) {
+			uae_u32 v = regs->prefetch020data >> 16;
 			return v;
 		}
-		if (pc == regs.prefetch020addr + 2) {
-			uae_u32 v = regs.prefetch020data & 0xffff;
+		if (pc == regs->prefetch020addr + 2) {
+			uae_u32 v = regs->prefetch020data & 0xffff;
 			fill_cache0x0 (pc + 2);
 			return v;
 		}
@@ -275,24 +266,24 @@ STATIC_INLINE uae_u32 get_word_ce020_prefetch (int o)
 	}
 }
 
-STATIC_INLINE uae_u32 get_long_ce020_prefetch (int o)
+STATIC_INLINE uae_u32 get_long_ce020_prefetch (struct regstruct *regs, int o)
 {
 	uae_u32 v;
-	v = get_word_ce020_prefetch (o) << 16;
-	v |= get_word_ce020_prefetch (o + 2);
+	v = get_word_ce020_prefetch (regs, o) << 16;
+	v |= get_word_ce020_prefetch (regs, o + 2);
 	return v;
 }
 
 STATIC_INLINE uae_u32 next_iword_020ce (void)
 {
-	uae_u32 r = get_word_ce020_prefetch (0);
-	m68k_incpc (2);
+	uae_u32 r = get_word_ce020_prefetch (&regs, 0);
+	m68k_incpc (regs, 2);
 	return r;
 }
 STATIC_INLINE uae_u32 next_ilong_020ce (void)
 {
-	uae_u32 r = get_long_ce020_prefetch (0);
-	m68k_incpc (4);
+	uae_u32 r = get_long_ce020_prefetch (&regs, 0);
+	m68k_incpc (regs, 4);
 	return r;
 }
 #endif
@@ -403,8 +394,8 @@ STATIC_INLINE uae_u32 get_word_ce_prefetch (struct regstruct *regs, int o)
 #if 0
 STATIC_INLINE uae_u32 get_word_ce_prefetch (int o)
 {
-	uae_u32 v = regs.irc;
-	regs.irc = get_wordi_ce (m68k_getpc () + o);
+	uae_u32 v = regs->irc;
+	regs.irc = get_wordi_ce (m68k_getpc (regs) + o);
     return v;
 }
 #endif 
@@ -430,11 +421,6 @@ STATIC_INLINE void m68k_do_rts_ce (struct regstruct *regs)
 	m68k_setpc (regs, pc);
 }
 
-STATIC_INLINE void m68k_do_bsr_ce (struct regstruct *regs, uaecptr oldpc, uae_s32 offset)
-	exception3 (0x4e75, m68k_getpc (), pc);
-    else
-	m68k_setpc (pc);
-}
 
 STATIC_INLINE void m68k_do_bsr_ce (uaecptr oldpc, uae_s32 offset)
 {
@@ -450,9 +436,6 @@ STATIC_INLINE void m68k_do_jsr_ce (struct regstruct *regs, uaecptr oldpc, uaecpt
     put_word_ce (m68k_areg (regs, 7), oldpc >> 16);
     put_word_ce (m68k_areg (regs, 7) + 2, oldpc);
     m68k_setpc (regs, dest);
-}
-#endif
-    m68k_incpc (offset);
 }
 
 STATIC_INLINE void m68k_do_jsr_ce (uaecptr oldpc, uaecptr dest)

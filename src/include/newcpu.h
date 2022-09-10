@@ -268,6 +268,34 @@ STATIC_INLINE uae_u32 next_ilong (struct regstruct *regs)
     m68k_incpc (regs, 4);
     return r;
 }
+STATIC_INLINE uae_u32 next_iwordi (struct regstruct *regs)
+{
+	uae_u32 r = get_iwordi (m68k_getpci (regs));
+    m68k_incpc (regs, 2);
+    return r;
+}
+STATIC_INLINE uae_u32 next_ilongi (struct regstruct *regs)
+{
+	uae_u32 r = get_ilongi (m68k_getpci (regs));
+    m68k_incpc (regs, 4);
+    return r;
+}
+
+//extern void m68k_setstopped (struct regstruct *regs, int stop);
+extern void m68k_resumestopped (void);
+
+extern uae_u32 REGPARAM3 get_disp_ea_020 (struct regstruct *regs, uae_u32 base, uae_u32 dp) REGPARAM;
+extern uae_u32 REGPARAM3 get_disp_ea_020ce (struct regstruct *regs, uae_u32 base, uae_u32 dp) REGPARAM;
+extern uae_u32 REGPARAM3 get_disp_ea_040mmu (struct regstruct *regs, uae_u32 base, uae_u32 dp) REGPARAM;
+extern uae_u32 REGPARAM3 get_disp_ea_000 (struct regstruct *regs, uae_u32 base, uae_u32 dp) REGPARAM;
+extern uae_u32 get_bitfield (uae_u32 src, uae_u32 bdata[2], uae_s32 offset, int width);
+extern void put_bitfield (uae_u32 dst, uae_u32 bdata[2], uae_u32 val, uae_s32 offset, int width);
+extern uae_u32 get_bitfield_020ce (uae_u32 src, uae_u32 bdata[2], uae_s32 offset, int width);
+extern void put_bitfield_020ce (uae_u32 dst, uae_u32 bdata[2], uae_u32 val, uae_s32 offset, int width);
+extern uae_u32 get_bitfield_040mmu (uae_u32 src, uae_u32 bdata[2], uae_s32 offset, int width);
+extern void put_bitfield_040mmu (uae_u32 dst, uae_u32 bdata[2], uae_u32 val, uae_s32 offset, int width);
+
+extern int get_cpu_model(void);
 
 
 STATIC_INLINE void m68k_setstopped (struct regstruct *regs, int stop)
@@ -317,9 +345,10 @@ extern void m68k_reset (int);
 extern int getDivu68kCycles(uae_u32 dividend, uae_u16 divisor);
 extern int getDivs68kCycles(uae_s32 dividend, uae_s16 divisor);
 
-extern void mmu_op       (uae_u32, struct regstruct *regs, uae_u16);
-extern void mmu_op030       (uae_u32, struct regstruct *regs, uae_u16);
+extern void mmu_op       (uae_u32, struct regstruct *regs, uae_u32);
+extern void mmu_op030       (uaecptr, uae_u32, struct regstruct *regs, uae_u16, uaecptr);
 
+extern void fpuop_arithmetic(uae_u32, struct regstruct *regs, uae_u16);
 extern void fpp_opp      (uae_u32, struct regstruct *regs, uae_u16);
 extern void fdbcc_opp    (uae_u32, struct regstruct *regs, uae_u16);
 extern void fscc_opp     (uae_u32, struct regstruct *regs, uae_u16);
@@ -328,17 +357,6 @@ extern void fbcc_opp     (uae_u32, struct regstruct *regs, uaecptr, uae_u32);
 extern void fsave_opp    (uae_u32, struct regstruct *regs);
 extern void frestore_opp (uae_u32, struct regstruct *regs);
 extern uae_u32 fpp_get_fpsr (const struct regstruct *regs);
-
-extern void fpuop_arithmetic(uae_u32, struct regstruct *regs, uae_u16);
-extern void fpuop_dbcc(uae_u32,  struct regstruct *regs, uae_u16);
-extern void fpuop_scc(uae_u32,  struct regstruct *regs, uae_u16);
-extern void fpuop_trapcc(uae_u32,  struct regstruct *regs, uaecptr, uae_u16);
-extern void fpuop_bcc(uae_u32, uaecptr, uae_u32);
-extern void fpuop_save(uae_u32);
-extern void fpuop_restore(uae_u32);
-extern void fpu_reset (void);
-extern void fpux_save (int*);
-extern void fpux_restore (int*);
 
 extern void exception3 (uae_u32 opcode, uaecptr addr, uaecptr fault);
 extern void exception3i (uae_u32 opcode, uaecptr addr, uaecptr fault);

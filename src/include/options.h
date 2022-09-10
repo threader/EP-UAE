@@ -300,6 +300,7 @@ struct uae_prefs {
     TCHAR path_rom[256];
 
     int m68k_speed;
+    int cpu_level;
     int cpu_model;
     int mmu_model;
     int cpu060_revision;
