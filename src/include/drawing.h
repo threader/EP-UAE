@@ -41,7 +41,7 @@
 
 #define max_diwlastword (PIXEL_XPOS(0x1d4 >> 1))
 
-extern int lores_factor, lores_shift, sprite_width, interlace_seen;
+extern int lores_factor, lores_shift, interlace_seen;
 extern int aga_mode, direct_rgb;
 
 STATIC_INLINE int coord_hw_to_window_x (int x)
@@ -229,6 +229,8 @@ struct decision {
 #endif
     uae_u8 nr_planes;
     uae_u8 bplres;
+/* note */
+    unsigned int ehb_seen:1;
     unsigned int any_hires_sprites:1;
     unsigned int ham_seen:1;
     unsigned int ham_at_start:1;
@@ -245,7 +247,7 @@ struct draw_info {
 
 
 extern uae_u8 *real_bplpt[8];
-extern int next_sprite_entry;
+//extern int next_sprite_entry;
 
 extern struct decision line_decisions[2 * (MAXVPOS + 1) + 1];
 extern struct draw_info line_drawinfo[2][2 * (MAXVPOS + 1) + 1];

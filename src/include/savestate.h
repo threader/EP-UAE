@@ -27,13 +27,11 @@ extern char *restore_string_func (const uae_u8 **);
 #define save_u32(x) save_u32_func (&dst, (x))
 #define save_u16(x) save_u16_func (&dst, (x))
 #define save_u8(x) save_u8_func (&dst, (x))
-#define save_u8(x)  save_u8_func (&dst, (x))
 
 #define restore_u64() restore_u64_func (&src)
 #define restore_u32() restore_u32_func (&src)
 #define restore_u16() restore_u16_func (&src)
 #define restore_u8() restore_u8_func (&src)
-#define restore_u8()  restore_u8_func (&src)
 
 #define save_string(x) save_string_func (&dst, (x))
 #define restore_string() restore_string_func (&src)

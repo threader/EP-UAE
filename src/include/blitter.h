@@ -29,17 +29,17 @@ extern uae_u16 bltcon0, bltcon1;
 extern uae_u32 bltapt, bltbpt, bltcpt, bltdpt;
 extern int blit_singlechannel;
 
-extern void maybe_blit (int, int);
-extern void reset_blit (int);
+extern void maybe_blit (unsigned int, int);
+extern void reset_blit (unsigned int);
 extern int blitnasty (void);
-extern int blitnnasty (int);
+extern int blitnnasty (unsigned int);
 extern void blitter_handler (uae_u32);
 extern void build_blitfilltable (void);
-extern void do_blitter (int, int);
-extern void decide_blitter (int hpos);
-extern int blitter_need (int hpos);
-extern void blitter_done_notify (int hpos);
-extern void blitter_slowdown (int, int, int, int);
+extern void do_blitter (unsigned int, int);
+extern void decide_blitter (unsigned int hpos);
+extern int blitter_need (unsigned int hpos);
+extern void blitter_done_notify (unsigned int hpos);
+extern void blitter_slowdown (int, int, unsigned int, unsigned int);
 extern int blitter_channel_state (void);
 
 typedef void blitter_func(uaecptr, uaecptr, uaecptr, uaecptr, struct bltinfo *);

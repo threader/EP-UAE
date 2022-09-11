@@ -139,7 +139,6 @@ extern frame_time_t syncbase;
 #define DMA_BLITPRI   0x0400
 
 /* notes 
-#define CYCLE_REFRESH	0x01
 #define CYCLE_MISC	0x02
 #define CYCLE_SPRITE	0x04
 #define CYCLE_BITPLANE	0x08
@@ -149,6 +148,7 @@ extern frame_time_t syncbase;
 #define CYCLE_NOCPU	0x80
 */
 
+#define CYCLE_REFRESH	0x01
 #define CYCLE_STROBE	0x02
 #define CYCLE_MISC		0x04
 #define CYCLE_SPRITE	0x08
@@ -162,7 +162,7 @@ extern unsigned long timeframes;
 extern unsigned int plfstrt;
 extern unsigned int plfstop;
 extern unsigned int plffirstline, plflastline;
-extern uae_u16 htotal, vtotal, beamcon0;
+extern uae_u16 htotal, vtotal;
 
 /* 100 words give you 1600 horizontal pixels. Should be more than enough for
  * superhires. Don't forget to update the definition in genp2c.c as well.
@@ -245,7 +245,7 @@ extern void misc_hsync_stuff (void);
 
 extern void hsync_handler (void);
 extern void copper_handler (void);
-extern void alloc_cycle_ext (int, int);
+extern void alloc_cycle_ext (unsigned int, int);
 extern int ispal (void);
 
 #define HSYNCTIME (maxhpos * CYCLE_UNIT);
