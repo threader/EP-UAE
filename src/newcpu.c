@@ -533,7 +533,7 @@ static uae_s32 ShowEA (void *f, uae_u16 opcode, int reg, amodes mode, wordsizes 
 				_stprintf (offtxt, "-$%04x", -disp16);
 	   } else {
 				_stprintf (offtxt, "$%04x", disp16);
-				addr = m68k_areg (regs, reg) + disp16;
+				addr = m68k_areg (&regs, reg) + disp16;
 				_stprintf (buffer, "(A%d, %s) == $%08lx", reg, offtxt, (unsigned long)addr);
 	}
 	}
@@ -956,20 +956,20 @@ uae_u32 REGPARAM2 get_disp_ea_020ce (struct regstruct *regs, uae_u32 base, uae_u
 			regd = 0;
 
 		if ((dp & 0x30) == 0x20) {
-			base += (uae_s32)(uae_s16) next_iword_020ce ();
+			base += (uae_s32)(uae_s16) next_iword_020ce (regs);
 			cycles++;
 		}
 		if ((dp & 0x30) == 0x30) {
-			base += next_ilong_020ce ();
+			base += next_ilong_020ce (regs);
 			cycles++;
 		}
 
 		if ((dp & 0x3) == 0x2) {
-			outer = (uae_s32)(uae_s16) next_iword_020ce ();
+			outer = (uae_s32)(uae_s16) next_iword_020ce (regs);
 			cycles++;
 		}
 		if ((dp & 0x3) == 0x3) {
-			outer = next_ilong_020ce ();
+			outer = next_ilong_020ce (regs);
 			cycles++;
 		}
 
@@ -1008,14 +1008,14 @@ uae_u32 REGPARAM2 get_disp_ea_040mmu (struct regstruct *regs, uae_u32 base, uae_
 		if (dp & 0x40) regd = 0;
 
 		if ((dp & 0x30) == 0x20)
-			base += (uae_s32)(uae_s16) next_iword_mmu ();
+			base += (uae_s32)(uae_s16) next_iword_mmu (regs);
 		if ((dp & 0x30) == 0x30)
-			base += next_ilong_mmu ();
+			base += next_ilong_mmu (regs);
 
 		if ((dp & 0x3) == 0x2)
-			outer = (uae_s32)(uae_s16) next_iword_mmu ();
+			outer = (uae_s32)(uae_s16) next_iword_mmu (regs);
 		if ((dp & 0x3) == 0x3)
-			outer = next_ilong_mmu ();
+			outer = next_ilong_mmu (regs);
 
 		if ((dp & 0x4) == 0)
 			base += regd;
@@ -1786,8 +1786,8 @@ int m68k_move2c (int regno, uae_u32 *regp)
 		case 0x800: regs.usp = *regp; break;
 		case 0x801: regs.vbr = *regp; break;
 		case 0x802: regs.caar = *regp & 0xfc; break;
-		case 0x803: regs.msp = *regp; if (regs.m == 1) m68k_areg (regs, 7) = regs.msp; break;
-		case 0x804: regs.isp = *regp; if (regs.m == 0) m68k_areg (regs, 7) = regs.isp; break;
+		case 0x803: regs.msp = *regp; if (regs.m == 1) m68k_areg (&regs, 7) = regs.msp; break;
+		case 0x804: regs.isp = *regp; if (regs.m == 0) m68k_areg (&regs, 7) = regs.isp; break;
 			/* 68040 only */
 		case 0x805: regs.mmusr = *regp; break;
 			/* 68040/060 */
@@ -1853,8 +1853,8 @@ int m68k_movec2 (int regno, uae_u32 *regp)
 		case 0x800: *regp = regs.usp; break;
 		case 0x801: *regp = regs.vbr; break;
 		case 0x802: *regp = regs.caar; break;
-		case 0x803: *regp = regs.m == 1 ? m68k_areg (regs, 7) : regs.msp; break;
-		case 0x804: *regp = regs.m == 0 ? m68k_areg (regs, 7) : regs.isp; break;
+		case 0x803: *regp = regs.m == 1 ? m68k_areg (&regs, 7) : regs.msp; break;
+		case 0x804: *regp = regs.m == 0 ? m68k_areg (&regs, 7) : regs.isp; break;
 		case 0x805: *regp = regs.mmusr; break;
 		case 0x806: *regp = regs.urp; break;
 		case 0x807: *regp = regs.srp; break;
@@ -1905,7 +1905,7 @@ void m68k_divl (uae_u32 opcode, uae_u32 src, uae_u16 extra, uaecptr oldpc)
     }
     if (extra & 0x800) {
 		/* signed variant */
-		uae_s64 a = (uae_s64)(uae_s32)m68k_dreg (regs, (extra >> 12) & 7);
+		uae_s64 a = (uae_s64)(uae_s32)m68k_dreg (&regs, (extra >> 12) & 7);
 		uae_s64 quot, rem;
 
 		if (extra & 0x400) {
@@ -2041,7 +2041,7 @@ void m68k_mull (uae_u32 opcode, uae_u32 src, uae_u16 extra)
 #if defined (uae_s64)
     if (extra & 0x800) {
 		/* signed variant */
-		uae_s64 a = (uae_s64)(uae_s32)m68k_dreg (regs, (extra >> 12) & 7);
+		uae_s64 a = (uae_s64)(uae_s32)m68k_dreg (&regs, (extra >> 12) & 7);
 
 		a *= (uae_s64)(uae_s32)src;
 		SET_VFLG (&regs.ccrflags, 0);
@@ -2968,7 +2968,7 @@ retry:
 	TRY (prb) {
 		for (;;) {
 			pc = regs.fault_pc = m68k_getpc (&regs);
-			opcode = get_iword_mmu (0);
+			opcode = get_iword_mmu (&regs, 0);
 			count_instr (opcode);
 			do_cycles (cpu_cycles);
 			cpu_cycles = (*cpufunctbl[opcode])(opcode, r);
@@ -3939,7 +3939,7 @@ void cpureset (void)
 	ins = get_word (pc + 2);
 	if ((ins & ~7) == 0x4ed0) {
 		int reg = ins & 7;
-		uae_u32 addr = m68k_areg (regs, reg);
+		uae_u32 addr = m68k_areg (&regs, reg);
 		write_log ("reset/jmp (ax) combination emulated -> %x\n", addr);
 		customreset (0);
 		if (addr < 0x80000)
@@ -4225,17 +4225,17 @@ void flush_mmu (uaecptr addr, int n)
 {
 }
 
-void m68k_do_rts_mmu (void)
+void m68k_do_rts_mmu (struct regstruct *regs)
 {
 	m68k_setpc (&regs, get_long_mmu (m68k_areg (regs, 7)));
 	m68k_areg (regs, 7) += 4;
 }
 
-void m68k_do_bsr_mmu (uaecptr oldpc, uae_s32 offset)
+void m68k_do_bsr_mmu (uaecptr oldpc, struct regstruct *regs, uae_s32 offset)
 {
 	put_long_mmu (m68k_areg (regs, 7) - 4, oldpc);
 	m68k_areg (regs, 7) -= 4;
-	m68k_incpci (offset);
+	m68k_incpci (regs, offset);
 }
 #endif
 
