@@ -63,7 +63,7 @@ void init_eventtab (void)
 
     events_schedule ();
 }
-
+#if 0
 /*
  * Determine next event pending
  */
@@ -81,7 +81,6 @@ void events_schedule (void)
     }
     nextevent = currcycle + mintime;
 }
-
 /*
  * Handle all events due at current time
  */
@@ -94,3 +93,5 @@ void handle_active_events (void)
 	}
     }
 }
+
+#endif 
