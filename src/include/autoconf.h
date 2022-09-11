@@ -13,19 +13,6 @@ extern uae_u32 addr (int);
 extern void db (uae_u8);
 extern void dw (uae_u16);
 extern void dl (uae_u32);
-
-extern uae_u32 ds (const char *);
-extern void calltrap (uae_u32);
-extern void org (uae_u32);
-extern uae_u32 here (void);
-
-#define deftrap(f) define_trap((f), 0, "")
-#ifdef TRACE_TRAPS
-# define deftrap2(f, mode, str) define_trap((f), (mode), (str))
-#else
-# define deftrap2(f, mode, str) define_trap((f), (mode), "")
-#endif
-
 extern uae_u32 ds_ansi (const uae_char*);
 extern uae_u32 ds (const char *);
 extern uae_u8 dbg (uaecptr);

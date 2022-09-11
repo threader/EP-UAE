@@ -489,9 +489,11 @@ static struct regstruct regs_backup[16];
 static int backup_pointer = 0;
 static long int m68kpc_offset;
 
-#define get_ibyte_1(regs, o) get_byte((regs)->pc + ((regs)->pc_p - (regs)->pc_oldp) + (o) + 1)
-#define get_iword_1(regs, o) get_word((regs)->pc + ((regs)->pc_p - (regs)->pc_oldp) + (o))
-#define get_ilong_1(regs, o) get_long((regs)->pc + ((regs)->pc_p - (regs)->pc_oldp) + (o))
+#if 0
+#define get_ibyte_1(o) get_byte (regs.pc + (regs.pc_p - regs.pc_oldp) + (o) + 1)
+#define get_iword_1(o) get_word (regs.pc + (regs.pc_p - regs.pc_oldp) + (o))
+#define get_ilong_1(o) get_long (regs.pc + (regs.pc_p - regs.pc_oldp) + (o))
+#endif
 
 static uae_s32 ShowEA (void *f, uae_u16 opcode, int reg, amodes mode, wordsizes size, TCHAR *buf, uae_u32 *eaddr, int safemode)
 {
@@ -569,7 +571,7 @@ static uae_s32 ShowEA (void *f, uae_u16 opcode, int reg, amodes mode, wordsizes 
 			    disp, outer,
 			    (unsigned long)addr);
 		} else {
-			addr = m68k_areg (regs, reg) + (uae_s32)((uae_s8)disp8) + dispreg;
+			addr = m68k_areg (&regs, reg) + (uae_s32)((uae_s8)disp8) + dispreg;
 			sprintf (buffer, "(A%d, %c%d.%c*%d, $%02x) == $%08lx", reg,
 				dp & 0x8000 ? 'A' : 'D', (int)r, dp & 0x800 ? 'L' : 'W',
 		       1 << ((dp >> 9) & 3), disp8,
@@ -2645,7 +2647,7 @@ STATIC_INLINE int do_specialties (int cycles, struct regstruct *regs)
 
 	if (currprefs.cpu_cycle_exact) {
 		if (time_for_interrupt ()) {
-			do_interrupt (regs->ipl);
+			do_interrupt (regs->ipl, regs);
 		}
 	} else {
 		if (regs->spcflags & SPCFLAG_INT) {
@@ -2959,6 +2961,7 @@ static void opcodedebug (uae_u32 pc, uae_u16 opcode)
 /* Aranym MMU 68040  */
 static void m68k_run_mmu040 (void)
 {
+	struct regstruct *r = &regs;
 	uae_u32 opcode;
 	uaecptr pc;
 retry:
@@ -2981,11 +2984,11 @@ retry:
 		if (currprefs.mmu_model == 68060) {
 			regs.fault_pc = pc;
 			if (mmufixup[1].reg >= 0) {
-				m68k_areg (regs, mmufixup[1].reg) = mmufixup[1].value;
+				m68k_areg (&regs, mmufixup[1].reg) = mmufixup[1].value;
 				mmufixup[1].reg = -1;
 			}
 		} else {
-			if (regs->wb3_status & 0x80) {
+			if (regs.wb3_status & 0x80) {
 				// movem to memory?
 				if ((opcode & 0xff80) == 0x4880) {
 					regs.mmu_ssw |= MMU_SSW_CM;
@@ -2997,7 +3000,7 @@ retry:
 		//opcodedebug (regs.fault_pc, opcode);
 
 		if (mmufixup[0].reg >= 0) {
-			m68k_areg (regs, mmufixup[0].reg) = mmufixup[0].value;
+			m68k_areg (&regs, mmufixup[0].reg) = mmufixup[0].value;
 			mmufixup[0].reg = -1;
 		}
 		//activate_debugger ();
@@ -3057,7 +3060,7 @@ static void m68k_run_2p (void)
 	out_cd32io (m68k_getpc (r));
 #endif
 
-	do_cycles (cpu_cycles, r);
+	do_cycles (cpu_cycles);
 
 	if (pc == prefetch_pc)
 	    opcode = prefetch >> 16;

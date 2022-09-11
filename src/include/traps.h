@@ -61,7 +61,11 @@ void init_traps (void);
 void init_extended_traps (void);
 
 #define deftrap(f) define_trap((f), 0, "")
-#define deftrap2(f, mode, str) define_trap((f), (mode), (str))
+#ifdef TRACE_TRAPS
+# define deftrap2(f, mode, str) define_trap((f), (mode), (str))
+#else
+# define deftrap2(f, mode, str) define_trap((f), (mode), "")
+#endif
 #define deftrapres(f, mode, str) define_trap((f), (mode | TRAPFLAG_UAERES), (str))
 
 #endif

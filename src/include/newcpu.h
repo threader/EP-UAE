@@ -220,7 +220,7 @@ STATIC_INLINE uaecptr m68k_getpc_p (struct regstruct *regs, uae_u8 *p)
     return regs->pc + ((char *)p - (char *)regs->pc_oldp);
 }
 
-#define m68k_incpc(regs, o) ((regs)->pc_p += (o))
+#define m68k_incpc(regs, o) ((regs)->pc_p += (regs, o))
 
 STATIC_INLINE void m68k_do_rts (struct regstruct *regs)
 {
