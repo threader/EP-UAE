@@ -17,6 +17,7 @@
 #include "custom.h"
 #include "newcpu.h"
 #include "cia.h"
+#include "serial.h"
 
 #undef POSIX_SERIAL
 /* Some more or less good way to determine whether we can safely compile in
@@ -45,10 +46,18 @@
 #define SERIALDEBUG	1 /* 0, 1, 2 3 */
 #define MODEMTEST	0 /* 0 or 1 */
 
+static int data_in_serdat;	/* new data written to SERDAT */
+static int data_in_serdatr;	/* new data received */
+static int data_in_sershift;	/* data transferred from SERDAT to shift register */
+static uae_u16 serdatshift;	/* serial shift register */
+static int ovrun;
+
 void serial_open(void);
 void serial_close(void);
 void serial_init (void);
 void serial_exit (void);
+
+uae_u16 serper, serdat, serdatr;
 
 void serial_dtr_on (void);
 void serial_dtr_off (void);
@@ -56,8 +65,7 @@ void serial_dtr_off (void);
 void serial_flush_buffer (void);
 static int serial_read (char *buffer);
 
-int serial_readstatus (void);
-uae_u16 serial_writestatus (int, int);
+uae_u8 serial_readstatus (uae_u8);
 
 uae_u16 SERDATR (void);
 
@@ -157,6 +165,39 @@ void SERPER (uae_u16 w)
 #endif
 }
 
+
+static void checksend (int mode)
+{
+    int bufstate;
+
+#ifdef SERIAL_PORT
+    bufstate = checkserwrite ();
+#else
+    bufstate = 1;
+#endif
+
+    if (!data_in_serdat && !data_in_sershift)
+	return;
+
+    if (data_in_sershift && mode == 0 && bufstate)
+	data_in_sershift = 0;
+
+    if (data_in_serdat && !data_in_sershift) {
+	data_in_sershift = 1;
+	serdatshift = serdat;
+#ifdef SERIAL_PORT
+	if (ninebit)
+	    writeser (((serdatshift >> 8) & 1) | 0xa8);
+	writeser (serdatshift);
+#endif
+	data_in_serdat = 0;
+        INTREQ (0x8000 | 0x0001);
+#if SERIALDEBUG > 2
+	write_log ("SERIAL: send %04.4X (%c)\n", serdatshift, dochar (serdatshift));
+#endif
+    }
+}
+
 /* Not (fully) implemented yet:
  *
  *  -  Something's wrong with the Interrupts.
@@ -215,29 +256,12 @@ void SERDAT (uae_u16 w)
     write_log ("SERIAL: wrote 0x%04x (%c) PC=%x\n", w, dochar (w), m68k_getpc (&regs));
 #endif
 
+    serdat|=0x2000; /* Set TBE in the SERDATR ... */
+    intreq|=1;      /* ... and in INTREQ register */
     return;
 }
 
 uae_u16 SERDATR (void)
-{
-    serdatr &= 0x03ff;
-    if (!data_in_serdat)
-	serdatr |= 0x2000;
-    if (!data_in_sershift)
-	serdatr |= 0x1000;
-    if (data_in_serdatr)
-	serdatr |= 0x4000;
-    if (ovrun)
-	serdatr |= 0x8000;
-#if SERIALDEBUG > 2
-    write_log( "SERIAL: read 0x%04.4x (%c) %x\n", serdatr, dochar (serdatr), m68k_getpc (&regs));
-#endif
-    ovrun = 0;
-    data_in_serdatr = 0;
-    return serdatr;
-}
-
-void serial_check_irq (void)
 {
     if (!currprefs.use_serial)
 		return 0;
@@ -245,10 +269,6 @@ void serial_check_irq (void)
     write_log ("SERDATR: read 0x%04x\n", serdat);
 #endif
     waitqueue = 0;
-
-    if (data_in_serdatr)
-	INTREQ_0 (0x8000 | 0x0800);
-
     return serdat;
 }
 
@@ -281,7 +301,7 @@ int SERDATS (void)
 
 void serial_dtr_on(void)
 {
-#if SERIALHSDEBUG > 0
+#if SERIALDEBUG > 0
     write_log ("SERIAL: DTR on\n");
 #endif
     dtr = 1;
@@ -294,7 +314,7 @@ void serial_dtr_on(void)
 
 void serial_dtr_off(void)
 {
-#if SERIALHSDEBUG > 0
+#if SERIALDEBUG > 0
     write_log ("SERIAL: DTR off\n");
 #endif
     dtr = 0;
@@ -304,17 +324,6 @@ void serial_dtr_off(void)
     setserstat(TIOCM_DTR, dtr);
 #endif
 }
-
-void serial_dtr_off(void)
-{
-#if SERIALDEBUG > 0
-    write_log ("DTR off.\n");
-#endif
-    dtr = 0;
-    if (currprefs.serial_demand)
-		serial_close ();
-}
-
 static int serial_read (char *buffer)
 {
     if (inptr < inlast) {
@@ -350,57 +359,7 @@ void serial_flush_buffer (void)
     }
 }
 
-uae_u8 serial_writestatus (uae_u8 newstate, uae_u8 dir)
-{
-#ifdef SERIAL_PORT
-    if (((oldserbits ^ newstate) & 0x80) && (dir & 0x80)) {
-	if (newstate & 0x80)
-	    serial_dtr_off();
-	else
-	    serial_dtr_on();
-    }
-
-    if (!currprefs.serial_hwctsrts && (dir & 0x40)) {
-	if ((oldserbits ^ newstate) & 0x40) {
-	    if (newstate & 0x40) {
-		setserstat (TIOCM_RTS, 0);
-#if SERIALHSDEBUG > 0
-		write_log ("SERIAL: RTS cleared\n");
-#endif
-	    } else {
-	        setserstat (TIOCM_RTS, 1);
-#if SERIALHSDEBUG > 0
-		write_log ("SERIAL: RTS set\n");
-#endif
-	    }
-	}
-    }
-
-#if 0 /* CIA io-pins can be read even when set to output.. */
-    if ((newstate & 0x20) != (oldserbits & 0x20) && (dir & 0x20))
-        write_log ("SERIAL: warning, program tries to use CD as an output!\n");
-    if ((newstate & 0x10) != (oldserbits & 0x10) && (dir & 0x10))
-        write_log ("SERIAL: warning, program tries to use CTS as an output!\n");
-    if ((newstate & 0x08) != (oldserbits & 0x08) && (dir & 0x08))
-        write_log ("SERIAL: warning, program tries to use DSR as an output!\n");
-#endif
-
-    if (((newstate ^ oldserbits) & 0x40) && !(dir & 0x40))
-	write_log ("SERIAL: warning, program tries to use RTS as an input!\n");
-    if (((newstate ^ oldserbits) & 0x80) && !(dir & 0x80))
-	write_log ("SERIAL: warning, program tries to use DTR as an input!\n");
-
-#endif
-
-    oldserbits &= ~(0x80 | 0x40);
-    newstate &= 0x80 | 0x40;
-    oldserbits |= newstate;
-    serial_status_debug ("write");
-
-    return oldserbits;
-}
-
-int serial_readstatus(void)
+uae_u8 serial_readstatus (uae_u8 dir)
 {
     int status = 0;
 
@@ -440,7 +399,7 @@ int serial_readstatus(void)
     return status;
     }
 
-uae_u16 serial_writestatus (int old, int nw)
+uae_u16 serial_writestatus (uae_u8 old, uae_u8 nw)
 {
     if ((old & 0x80) == 0x80 && (nw & 0x80) == 0x00)
 	    serial_dtr_on();
@@ -517,7 +476,6 @@ void serial_exit (void)
     serial_close ();	/* serial_close can always be called because it	*/
 #endif
     dtr = 0;		/* just closes *opened* filehandles which is ok	*/
-    oldserbits = 0;	/* when exiting.	
     return;		/* when exiting.				*/
 }
 
