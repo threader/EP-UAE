@@ -183,7 +183,6 @@ typedef union {
     struct blockinfo_t* bi;
 } cacheline;
 
-extern struct regstruct regs;
 
 STATIC_INLINE uae_u32 munge24 (uae_u32 x)
 {
@@ -214,6 +213,7 @@ STATIC_INLINE uaecptr m68k_getpc (struct regstruct *regs)
 {
     return regs->pc + ((char *)regs->pc_p - (char *)regs->pc_oldp);
 }
+#define M68K_GETPC m68k_getpc(&regs)
 
 STATIC_INLINE uaecptr m68k_getpc_p (struct regstruct *regs, uae_u8 *p)
 {
@@ -356,7 +356,12 @@ extern void ftrapcc_opp  (uae_u32, struct regstruct *regs, uaecptr);
 extern void fbcc_opp     (uae_u32, struct regstruct *regs, uaecptr, uae_u32);
 extern void fsave_opp    (uae_u32, struct regstruct *regs);
 extern void frestore_opp (uae_u32, struct regstruct *regs);
+extern uae_u32 get_fpsr (const struct regstruct *regs);
 extern uae_u32 fpp_get_fpsr (const struct regstruct *regs);
+// Note
+extern void fpu_reset (void);
+extern void fpux_save (int*);
+extern void fpux_restore (int*);
 
 extern void exception3 (uae_u32 opcode, uaecptr addr, uaecptr fault);
 extern void exception3i (uae_u32 opcode, uaecptr addr, uaecptr fault);
@@ -373,21 +378,6 @@ STATIC_INLINE int notinrom (void)
 }
 
 #define CPU_OP_NAME(a) op ## a
-
-/* 68040 */
-extern const struct cputbl op_smalltbl_0_ff[];
-/* 68020 + 68881 */
-extern const struct cputbl op_smalltbl_1_ff[];
-/* 68020 */
-extern const struct cputbl op_smalltbl_2_ff[];
-/* 68010 */
-extern const struct cputbl op_smalltbl_3_ff[];
-/* 68000 */
-extern const struct cputbl op_smalltbl_4_ff[];
-/* 68000 slow but compatible.  */
-extern const struct cputbl op_smalltbl_5_ff[];
-/* 68000 slow but compatible and cycle-exact.  */
-extern const struct cputbl op_smalltbl_6_ff[];
 
 extern cpuop_func *cpufunctbl[65536] ASM_SYM_FOR_FUNC ("cpufunctbl");
 

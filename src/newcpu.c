@@ -74,8 +74,6 @@ cpuop_func *cpufunctbl[65536];
 
 struct mmufixup mmufixup[2];
 
-extern uae_u32 get_fpsr (void);
-
 #define COUNT_INSTRS 0
 #define MC68060_PCR   0x04300000
 #define MC68EC060_PCR 0x04310000
@@ -325,12 +323,12 @@ void fill_prefetch_slow (struct regstruct *regs)
 #endif
 #ifdef CPUEMU_12
 	if (currprefs.cpu_cycle_exact) {
-		regs.ir = get_word_ce (m68k_getpc (regs));
-		regs.irc = get_word_ce (m68k_getpc (regs) + 2);
+		regs->ir = get_word_ce (m68k_getpc (regs));
+		regs->irc = get_word_ce (m68k_getpc (regs) + 2);
 	} else {
 #endif
-		regs.ir = get_word (m68k_getpc (regs));
-		regs.irc = get_word (m68k_getpc (regs) + 2);
+		regs->ir = get_word (m68k_getpc (regs));
+		regs->irc = get_word (m68k_getpc (regs) + 2);
 #ifdef CPUEMU_12
 	}
 #endif
@@ -413,7 +411,7 @@ void check_prefs_changed_cpu (void)
 		currprefs.cpu_idle = changed_prefs.cpu_idle;
     }
     if (changed)
-		set_special (SPCFLAG_BRK);
+		set_special (&regs, SPCFLAG_BRK);
 
 }
 
@@ -529,13 +527,14 @@ static uae_s32 ShowEA (void *f, uae_u16 opcode, int reg, amodes mode, wordsizes 
 	{
 			TCHAR offtxt[80];
 	    disp16 = get_iword_1 (&regs, m68kpc_offset); m68kpc_offset += 2;
-	    	if (disp16 < 0)
+	    	if (disp16 < 0) {
 				_stprintf (offtxt, "-$%04x", -disp16);
-	    	else
+	   } else {
 				_stprintf (offtxt, "$%04x", disp16);
 				addr = m68k_areg (regs, reg) + disp16;
 				_stprintf (buffer, "(A%d, %s) == $%08lx", reg, offtxt, (unsigned long)addr);
-		}
+	}
+	}
 		break;
      case Ad8r:
 		dp = get_iword_1 (&regs, m68kpc_offset); m68kpc_offset += 2;
@@ -912,7 +911,7 @@ void put_bitfield_040mmu (uae_u32 dst, uae_u32 bdata[2], uae_u32 val, uae_s32 of
 uae_u32 REGPARAM2 get_disp_ea_020 (struct regstruct *regs, uae_u32 base, uae_u32 dp)
 {
     int reg = (dp >> 12) & 15;
-	uae_s32 regd = regs.regs[reg];
+	uae_s32 regd = regs->regs[reg];
     if ((dp & 0x800) == 0)
 		regd = (uae_s32)(uae_s16)regd;
     regd <<= (dp >> 9) & 3;
@@ -943,7 +942,7 @@ uae_u32 REGPARAM2 get_disp_ea_020ce (struct regstruct *regs, uae_u32 base, uae_u
 	int cycles = 0;
 	uae_u32 v;
 
-	uae_s32 regd = regs.regs[reg];
+	uae_s32 regd = regs->regs[reg];
 	if ((dp & 0x800) == 0)
 		regd = (uae_s32)(uae_s16)regd;
 	regd <<= (dp >> 9) & 3;
@@ -997,7 +996,7 @@ uae_u32 REGPARAM2 get_disp_ea_020ce (struct regstruct *regs, uae_u32 base, uae_u
 uae_u32 REGPARAM2 get_disp_ea_040mmu (struct regstruct *regs, uae_u32 base, uae_u32 dp)
 {
 	int reg = (dp >> 12) & 15;
-	uae_s32 regd = regs.regs[reg];
+	uae_s32 regd = regs->regs[reg];
 	if ((dp & 0x800) == 0)
 		regd = (uae_s32)(uae_s16)regd;
 	regd <<= (dp >> 9) & 3;
@@ -1033,7 +1032,7 @@ uae_u32 REGPARAM2 get_disp_ea_040mmu (struct regstruct *regs, uae_u32 base, uae_
 uae_u32 REGPARAM2 get_disp_ea_000 (struct regstruct *regs, uae_u32 base, uae_u32 dp)
 {
     int reg = (dp >> 12) & 15;
-	uae_s32 regd = regs.regs[reg];
+	uae_s32 regd = regs->regs[reg];
 #if 1
     if ((dp & 0x800) == 0)
 	regd = (uae_s32)(uae_s16)regd;
@@ -1064,30 +1063,30 @@ STATIC_INLINE int in_rtarea (uaecptr pc)
 	return (munge24 (pc) & 0xFFFF0000) == rtarea_base && uae_boot_rom;
 }
 
-void REGPARAM2 MakeSR (void)
+void REGPARAM2 MakeSR (struct regstruct *regs)
 {
-	regs.sr = ((regs.t1 << 15) | (regs.t0 << 14)
-		| (regs.s << 13) | (regs.m << 12) | (regs.intmask << 8)
-		| (GET_XFLG () << 4) | (GET_NFLG () << 3)
-		| (GET_ZFLG () << 2) | (GET_VFLG () << 1)
-		|  GET_CFLG ());
+	regs->sr = ((regs->t1 << 15) | (regs->t0 << 14)
+		| (regs->s << 13) | (regs->m << 12) | (regs->intmask << 8)
+		| (GET_XFLG (&regs->ccrflags) << 4) | (GET_NFLG (&regs->ccrflags) << 3)
+		| (GET_ZFLG (&regs->ccrflags) << 2) | (GET_VFLG (&regs->ccrflags) << 1)
+		|  GET_CFLG (&regs->ccrflags));
 }
 
-void REGPARAM2 MakeFromSR (void)
+void REGPARAM2 MakeFromSR (struct regstruct *regs)
 {
-	int oldm = regs.m;
-	int olds = regs.s;
+	int oldm = regs->m;
+	int olds = regs->s;
 
-	SET_XFLG ((regs.sr >> 4) & 1);
-	SET_NFLG ((regs.sr >> 3) & 1);
-	SET_ZFLG ((regs.sr >> 2) & 1);
-	SET_VFLG ((regs.sr >> 1) & 1);
-	SET_CFLG (regs.sr & 1);
-	if (regs.t1 == ((regs.sr >> 15) & 1) &&
-		regs.t0 == ((regs.sr >> 14) & 1) &&
-		regs.s  == ((regs.sr >> 13) & 1) &&
-		regs.m  == ((regs.sr >> 12) & 1) &&
-		regs.intmask == ((regs.sr >> 8) & 7))
+    SET_XFLG (&regs->ccrflags, (regs->sr >> 4) & 1);
+    SET_NFLG (&regs->ccrflags, (regs->sr >> 3) & 1);
+    SET_ZFLG (&regs->ccrflags, (regs->sr >> 2) & 1);
+    SET_VFLG (&regs->ccrflags, (regs->sr >> 1) & 1);
+    SET_CFLG (&regs->ccrflags,  regs->sr & 1);
+    if (regs->t1 == ((regs->sr >> 15) & 1) &&
+	regs->t0 == ((regs->sr >> 14) & 1) &&
+	regs->s  == ((regs->sr >> 13) & 1) &&
+	regs->m  == ((regs->sr >> 12) & 1) &&
+	regs->intmask == ((regs->sr >> 8) & 7))
 	    return;
     regs->t1 = (regs->sr >> 15) & 1;
     regs->t0 = (regs->sr >> 14) & 1;
@@ -1098,7 +1097,7 @@ void REGPARAM2 MakeFromSR (void)
 	 /* 68060 does not have MSP but does have M-bit.. */
 	if (currprefs.cpu_model >= 68060)
 			regs->msp = regs->isp;
-		if (olds != regs.s) {
+		if (olds != regs->s) {
 	    if (olds) {
 		if (oldm)
 					regs->msp = m68k_areg (regs, 7);
@@ -1288,8 +1287,8 @@ STATIC_INLINE void Exception_ce000 (int nr, struct regstruct *regs,  uaecptr old
 	MakeSR (regs);
 
 	if (!regs->s) {
-		regs.usp = m68k_areg (regs, 7);
-		m68k_areg (regs, 7) = regs.isp;
+		regs->usp = m68k_areg (regs, 7);
+		m68k_areg (regs, 7) = regs->isp;
 		regs->s = 1;
     }
     if (nr == 2 || nr == 3) { /* 2=bus error, 3=address error */
@@ -1324,41 +1323,41 @@ kludge_me_do:
 		if (nr == 2 || nr == 3)
 		    uae_reset (1); /* there is nothing else we can do.. */
 		else
-			exception3 (regs.ir, m68k_getpc (regs), newpc);
+			exception3 (regs->ir, m68k_getpc (regs), newpc);
 		return;
     }
     m68k_setpc (regs, newpc);
-	regs.ir = get_word_ce (m68k_getpc (regs)); // prefetch 1
+	regs->ir = get_word_ce (m68k_getpc (regs)); // prefetch 1
 	do_cycles_ce000 (2);
-	regs.irc = get_word_ce (m68k_getpc (regs) + 2); // prefetch 2
+	regs->irc = get_word_ce (m68k_getpc (regs) + 2); // prefetch 2
 #ifdef JIT
-    set_special (SPCFLAG_END_COMPILE);
+    set_special (regs, SPCFLAG_END_COMPILE);
 #endif
-	exception_trace (nr);
+	exception_trace (regs, nr);
 }
 #endif
 
 #ifdef MMU
-static void Exception_mmu (int nr, uaecptr oldpc)
+static void Exception_mmu (int nr, struct regstruct *regs, uaecptr oldpc)
 {
-	uae_u32 currpc = m68k_getpc (), newpc;
+	uae_u32 currpc = m68k_getpc (regs), newpc;
 	int sv = regs->s;
 	int i;
 
 	exception_debug (nr);
-	MakeSR ();
+	MakeSR (regs);
 
-	if (!regs.s) {
-		regs.usp = m68k_areg (regs, 7);
+	if (!regs->s) {
+		regs->usp = m68k_areg (regs, 7);
 		if (currprefs.cpu_model >= 68020)
 			m68k_areg (regs, 7) = regs->m ? regs->msp : regs->isp;
 		else
 			m68k_areg (regs, 7) = regs->isp;
-		regs.s = 1;
+		regs->s = 1;
 		mmu_set_super (1);
 	}
 	if (nr == 2) {
-//		write_log ("%08x %08x %08x\n", currpc, oldpc, regs.mmu_fault_addr);
+//		write_log ("%08x %08x %08x\n", currpc, oldpc, regs->mmu_fault_addr);
 //		if (currpc == 0x0013b5e2)
 //			activate_debugger ();
 		// bus error
@@ -1378,7 +1377,7 @@ static void Exception_mmu (int nr, uaecptr oldpc)
 		put_word_mmu (m68k_areg (regs, 7), 0);
 		m68k_areg (regs, 7) -= 2;
 		put_word_mmu (m68k_areg (regs, 7), regs->wb3_status);
-		regs.wb3_status = 0;
+		regs->wb3_status = 0;
 		m68k_areg (regs, 7) -= 2;
 		put_word_mmu (m68k_areg (regs, 7), regs->mmu_ssw);
 		m68k_areg (regs, 7) -= 4;
@@ -1454,15 +1453,15 @@ kludge_me_do:
 		if (nr == 2 || nr == 3)
 			uae_reset (1); /* there is nothing else we can do.. */
 		else
-			exception3 (regs.ir, m68k_getpc (regs), newpc);
+			exception3 (regs->ir, m68k_getpc (regs), newpc);
 		return;
 	}
-	m68k_setpc (newpc);
+	m68k_setpc (regs, newpc);
 #ifdef JIT
-	set_special (SPCFLAG_END_COMPILE);
+	set_special (regs, SPCFLAG_END_COMPILE);
 #endif
 	fill_prefetch_slow (regs);
-	exception_trace (nr);
+	exception_trace (regs, nr);
 }
 #endif
 
@@ -1480,13 +1479,13 @@ static void Exception_normal (int nr, struct regstruct *regs,  uaecptr oldpc)
 	if (!regs->s) {
 		regs->usp = m68k_areg (regs, 7);
 		if (currprefs.cpu_model >= 68020)
-			m68k_areg (regs, 7) = regs.m ? regs.msp : regs.isp;
+			m68k_areg (regs, 7) = regs->m ? regs->msp : regs->isp;
 		else
-			m68k_areg (regs, 7) = regs.isp;
+			m68k_areg (regs, 7) = regs->isp;
 		regs->s = 1;
 #ifdef MMU
 		if (currprefs.mmu_model)
-			mmu_set_super (regs.s);
+			mmu_set_super (regs->s);
 #endif
     }
     if (currprefs.cpu_model > 68000) {
@@ -1499,7 +1498,7 @@ static void Exception_normal (int nr, struct regstruct *regs,  uaecptr oldpc)
 					if (currprefs.mmu_model) {
 
 						for (i = 0 ; i < 7 ; i++) {
-							m68k_areg (regs, 7) -= 4;
+							m68k_areg (regs,7) -= 4;
 							put_long_mmu (m68k_areg (regs, 7), 0);
 						}
 						m68k_areg (regs, 7) -= 4;
@@ -1514,7 +1513,7 @@ static void Exception_normal (int nr, struct regstruct *regs,  uaecptr oldpc)
 						put_word_mmu (m68k_areg (regs, 7), 0);
 						m68k_areg (regs, 7) -= 2;
 						put_word_mmu (m68k_areg (regs, 7), regs->wb3_status);
-						regs.wb3_status = 0;
+						regs->wb3_status = 0;
 						m68k_areg (regs, 7) -= 2;
 						put_word_mmu (m68k_areg (regs, 7), regs->mmu_ssw);
 						m68k_areg (regs, 7) -= 4;
@@ -1526,19 +1525,19 @@ static void Exception_normal (int nr, struct regstruct *regs,  uaecptr oldpc)
 						put_long_mmu (m68k_areg (regs, 7), oldpc);
 						m68k_areg (regs, 7) -= 2;
 						put_word_mmu (m68k_areg (regs, 7), regs->sr);
-						newpc = get_long_mmu (regs.vbr + 4 * nr);
+						newpc = get_long_mmu (regs->vbr + 4 * nr);
 						if (newpc & 1) {
 							if (nr == 2 || nr == 3)
 								uae_reset (1); /* there is nothing else we can do.. */
 							else
-								exception3 (regs.ir, m68k_getpc (regs), newpc);
+								exception3 (regs->ir, m68k_getpc (regs), newpc);
 							return;
 						}
-						m68k_setpc (newpc);
+						m68k_setpc (regs, newpc);
 #ifdef JIT
-						set_special (SPCFLAG_END_COMPILE);
+						set_special (regs, SPCFLAG_END_COMPILE);
 #endif
-						exception_trace (nr);
+						exception_trace (regs, nr);
 						return;
 
 					} else {
@@ -1564,7 +1563,7 @@ static void Exception_normal (int nr, struct regstruct *regs,  uaecptr oldpc)
 						m68k_areg (regs, 7) -= 4;
 						put_long (m68k_areg (regs, 7), oldpc);
 						m68k_areg (regs, 7) -= 2;
-						put_word (m68k_areg (regs, 7), regs.sr);
+						put_word (m68k_areg (regs, 7), regs->sr);
 						goto kludge_me_do;
 #ifdef MMU
 					}
@@ -1597,22 +1596,22 @@ static void Exception_normal (int nr, struct regstruct *regs,  uaecptr oldpc)
 				m68k_areg (regs, 7) -= 2;
 				put_word (m68k_areg (regs, 7), 0xb000 + nr * 4);
 		    }
-			write_log ("Exception %d (%x) at %x -> %x!\n", nr, oldpc, currpc, get_long (regs.vbr + 4*nr));
+			write_log ("Exception %d (%x) at %x -> %x!\n", nr, oldpc, currpc, get_long (regs->vbr + 4*nr));
 		} else if (nr ==5 || nr == 6 || nr == 7 || nr == 9) {
 			m68k_areg (regs, 7) -= 4;
 			put_long (m68k_areg (regs, 7), oldpc);
 			m68k_areg (regs, 7) -= 2;
 			put_word (m68k_areg (regs, 7), 0x2000 + nr * 4);
-		} else if (regs.m && nr >= 24 && nr < 32) { /* M + Interrupt */
+		} else if (regs->m && nr >= 24 && nr < 32) { /* M + Interrupt */
 			m68k_areg (regs, 7) -= 2;
 			put_word (m68k_areg (regs, 7), nr * 4);
 			m68k_areg (regs, 7) -= 4;
 			put_long (m68k_areg (regs, 7), currpc);
 			m68k_areg (regs, 7) -= 2;
-			put_word (m68k_areg (regs, 7), regs.sr);
-			regs.sr |= (1 << 13);
-			regs.msp = m68k_areg (regs, 7);
-			m68k_areg (regs, 7) = regs.isp;
+			put_word (m68k_areg (regs, 7), regs->sr);
+			regs->sr |= (1 << 13);
+			regs->msp = m68k_areg (regs, 7);
+			m68k_areg (regs, 7) = regs->isp;
 			m68k_areg (regs, 7) -= 2;
 			put_word (m68k_areg (regs, 7), 0x1000 + nr * 4);
 		} else {
@@ -1627,9 +1626,9 @@ static void Exception_normal (int nr, struct regstruct *regs,  uaecptr oldpc)
 		put_word (m68k_areg (regs, 7) + 0, mode);
 		put_long (m68k_areg (regs, 7) + 2, last_fault_for_exception_3);
 		put_word (m68k_areg (regs, 7) + 6, last_op_for_exception_3);
-		put_word (m68k_areg (regs, 7) + 8, regs.sr);
+		put_word (m68k_areg (regs, 7) + 8, regs->sr);
 		put_long (m68k_areg (regs, 7) + 10, last_addr_for_exception_3);
-		write_log ("Exception %d (%x) at %x -> %x!\n", nr, oldpc, currpc, get_long (regs.vbr + 4*nr));
+		write_log ("Exception %d (%x) at %x -> %x!\n", nr, oldpc, currpc, get_long (regs->vbr + 4*nr));
 		goto kludge_me_do;
     }
     m68k_areg (regs, 7) -= 4;
@@ -1677,14 +1676,14 @@ void REGPARAM2 Exception (int nr, struct regstruct *regs, uaecptr oldpc)
 #endif
 }
 
-STATIC_INLINE void do_interrupt (int nr)
+STATIC_INLINE void do_interrupt (int nr, struct regstruct *regs)
 {
 #ifdef DEBUG
 	if (debug_dma)
 		record_dma_event (DMA_EVENT_CPUIRQ, current_hpos (), vpos);
 #endif
 
-    regs.stopped = 0;
+    regs->stopped = 0;
     unset_special (regs, SPCFLAG_STOP);
     assert (nr < 8 && nr >= 0);
 
@@ -1696,7 +1695,7 @@ STATIC_INLINE void do_interrupt (int nr)
 
 void NMI (void)
 {
-	do_interrupt (7);
+	do_interrupt (7, &regs);
 }
 
 #ifndef CPUEMU_68000_ONLY
@@ -1808,7 +1807,7 @@ int m68k_move2c (int regno, uae_u32 *regp)
 			}
 			break;
 		default:
-			op_illg (0x4E7B);
+			op_illg (0x4E7B, &regs);
 		    return 0;
 		}
     }
@@ -1821,7 +1820,7 @@ int m68k_movec2 (int regno, uae_u32 *regp)
     write_log ("movec2 %04X PC=%x\n", regno, M68K_GETPC);
 #endif
     if (movec_illg (regno)) {
-		op_illg (0x4E7A);
+		op_illg (0x4E7A, &regs);
 		return 0;
     } else {
 		switch (regno) {
@@ -1860,7 +1859,7 @@ int m68k_movec2 (int regno, uae_u32 *regp)
 		case 0x808: *regp = regs.pcr; break;
 
 		default:
-			op_illg (0x4E7A);
+			op_illg (0x4E7A, &regs);
 		    return 0;
 		}
     }
@@ -2143,7 +2142,7 @@ void m68k_reset (int hardreset)
     }
 #endif
 	m68k_areg (&regs, 7) = get_long (0);
-    m68k_setpc (&regs get_long (4));
+    m68k_setpc (&regs, get_long (4));
     regs.s = 1;
     regs.m = 0;
     regs.stopped = 0;
@@ -2344,7 +2343,7 @@ static void mmu_op30_pmove (uaecptr pc, uae_u32 opcode, struct regstruct *regs, 
     }
 
     if (!reg) {
-		op_illg (regs, opcode);
+		op_illg (opcode, regs);
 		return;
     }
 #if MMUOP_DEBUG > 0
@@ -2401,8 +2400,8 @@ static void mmu_op30_pflush (uaecptr pc, uae_u32 opcode, struct regstruct *regs,
 void mmu_op30 (uaecptr pc, uae_u32 opcode, struct regstruct *regs, uae_u16 extra, uaecptr extraa)
 {
     if (currprefs.cpu_model != 68030) {
-		m68k_setpc (&regs, pc);
-		op_illg (regs, opcode);
+		m68k_setpc (regs, pc);
+		op_illg (opcode, regs);
 		return;
     }
 	if (extra & 0x8000)
@@ -2410,7 +2409,7 @@ void mmu_op30 (uaecptr pc, uae_u32 opcode, struct regstruct *regs, uae_u16 extra
 	else if (extra & 0x2000)
 		mmu_op30_pflush (pc, opcode, regs, extra, extraa);
 	else
-		mmu_op30_pmove (pc, opcode, regs extra, extraa);
+		mmu_op30_pmove (pc, opcode, regs, extra, extraa);
 }
 
 void mmu_op (uae_u32 opcode, struct regstruct *regs, uae_u32 extra)
@@ -2426,7 +2425,7 @@ void mmu_op (uae_u32 opcode, struct regstruct *regs, uae_u32 extra)
 #endif
     if ((opcode & 0xFE0) == 0x0500) {
 	/* PFLUSH */
-		regs.mmusr = 0;
+		regs->mmusr = 0;
 #if MMUOP_DEBUG > 0
 	write_log ("PFLUSH @ %08x\n", m68k_getpc (regs));
 #endif
@@ -2451,7 +2450,7 @@ void mmu_op (uae_u32 opcode, struct regstruct *regs, uae_u32 extra)
 #if MMUOP_DEBUG > 0
     write_log ("Unknown MMU OP %04X\n", opcode);
 #endif
-    m68k_setpc (m68k_getpc (regs) - 2);
+    m68k_setpc (regs, m68k_getpc (regs) - 2);
 	op_illg (opcode, regs);
 }
 
@@ -2466,7 +2465,7 @@ static void do_trace (struct regstruct *regs)
 		/* should also include TRAP, CHK, SR modification FPcc */
 		/* probably never used so why bother */
 		/* We can afford this to be inefficient... */
-		m68k_setpc (regs, m68k_getpc ());
+		m68k_setpc (regs, m68k_getpc (regs));
 		fill_prefetch_slow (regs);
 		if (currprefs.mmu_model)
 			opcode = get_word_mmu (regs->pc);
@@ -2501,7 +2500,7 @@ static void do_trace (struct regstruct *regs)
 // handle interrupt delay (few cycles)
 STATIC_INLINE int time_for_interrupt (void)
 {
-	if (regs->ipl > regs.intmask || regs->ipl == 7) {
+	if (regs.ipl > regs.intmask || regs.ipl == 7) {
 #if 0
 		if (regs->ipl == 3 && current_hpos () < 11) {
 			write_log ("%d\n", current_hpos ());
@@ -2517,13 +2516,13 @@ void doint (void)
 {
 	if (currprefs.cpu_cycle_exact) {
 		regs.ipl_pin = intlev ();
-		set_special (regs, SPCFLAG_INT);
+		set_special (&regs, SPCFLAG_INT);
 		return;
 	}
 	if (currprefs.cpu_compatible)
-		set_special (regs, SPCFLAG_INT);
+		set_special (&regs, SPCFLAG_INT);
 	else
-		set_special (regs, SPCFLAG_DOINT);
+		set_special (&regs, SPCFLAG_DOINT);
 }
 
 #define sleep_resolution 1000 / 1
@@ -2570,7 +2569,7 @@ STATIC_INLINE int do_specialties (int cycles, struct regstruct *regs)
 		do_copper ();
 
 #ifdef JIT
-    unset_special (SPCFLAG_END_COMPILE);   /* has done its job */
+    unset_special (regs, SPCFLAG_END_COMPILE);   /* has done its job */
 #endif
 
     while ((regs->spcflags & SPCFLAG_BLTNASTY) && dmaen (DMA_BLITTER) && cycles > 0 && !currprefs.blitter_cycle_exact) {
@@ -2595,19 +2594,19 @@ STATIC_INLINE int do_specialties (int cycles, struct regstruct *regs)
 
 	while (regs->spcflags & SPCFLAG_STOP) {
 		do_cycles (currprefs.cpu_cycle_exact ? 2 * CYCLE_UNIT : 4 * CYCLE_UNIT);
-		if (regs.spcflags & SPCFLAG_COPPER)
+		if (regs->spcflags & SPCFLAG_COPPER)
 			do_copper ();
 
 		if (currprefs.cpu_cycle_exact) {
 			ipl_fetch ();
 			if (time_for_interrupt ()) {
-				do_interrupt (regs->ipl);
+				do_interrupt (regs->ipl, regs);
 			}
 		} else {
 			if (regs->spcflags & (SPCFLAG_INT | SPCFLAG_DOINT)) {
 				int intr = intlev ();
 				unset_special (regs, SPCFLAG_INT | SPCFLAG_DOINT);
-				if (intr > 0 && intr > regs.intmask)
+				if (intr > 0 && intr > regs->intmask)
 					do_interrupt (intr, regs);
 			}
 		}
@@ -2619,7 +2618,7 @@ STATIC_INLINE int do_specialties (int cycles, struct regstruct *regs)
 			return 1;
 		}
 
-		if (currprefs.cpu_idle && currprefs.m68k_speed != 0 && ((regs.spcflags & SPCFLAG_STOP)) == SPCFLAG_STOP) {
+		if (currprefs.cpu_idle && currprefs.m68k_speed != 0 && ((regs->spcflags & SPCFLAG_STOP)) == SPCFLAG_STOP) {
 			/* sleep 1ms if STOP-instruction is executed */
 			if (1) {
 				static int sleepcnt, lvpos, zerocnt;
@@ -2642,7 +2641,7 @@ STATIC_INLINE int do_specialties (int cycles, struct regstruct *regs)
 	}
 
 	if (regs->spcflags & SPCFLAG_TRACE)
-		do_trace ();
+		do_trace (regs);
 
 	if (currprefs.cpu_cycle_exact) {
 		if (time_for_interrupt ()) {
@@ -2779,7 +2778,7 @@ static void m68k_run_1 (void)
 	}
 #endif
 		do_cycles (cpu_cycles);
-		cpu_cycles = (*cpufunctbl[opcode])(opcode);
+		cpu_cycles = (*cpufunctbl[opcode])(opcode, r);
 		cpu_cycles &= cycles_mask;
 		cpu_cycles |= cycles_val;
 		if (r->spcflags) {
@@ -2838,7 +2837,7 @@ void exec_nostats (void)
 
     for (;;)
     {
-		uae_u16 opcode = get_iword (r, 0);
+		uae_u32 opcode = get_iword (r, 0);
 
 		cpu_cycles = (*cpufunctbl[opcode])(opcode, r);
 
@@ -2899,11 +2898,19 @@ typedef void compiled_handler (void);
 static void m68k_run_jit (void)
 {
     for (;;) {
-		((compiled_handler*)(pushall_call_handler))();
+#if defined X86_ASSEMBLY
+	__asm__ __volatile__(
+	    "\tpush %%ebp\n\tcall *%0\n\tpop %%ebp"  /* FIXME */
+	    :: "m" (cache_tags[cacheline(regs.pc_p)].handler)
+	    : "%edx", "%ecx", "%eax",
+	    "%esi", "%ebx", "%edi", "%ebp", "memory", "cc");
+#else
+	((compiled_handler*)(pushall_call_handler))();
+#endif
 		/* Whenever we return from that, we should check spcflags */
 		if (uae_int_requested) {
 			INTREQ_f (0x8008);
-		    set_special (SPCFLAG_INT);
+		    set_special (regs, SPCFLAG_INT);
 		}
 		if (regs.spcflags) {
 			if (do_specialties (0, &regs)) {
@@ -2957,7 +2964,7 @@ static void m68k_run_mmu040 (void)
 retry:
 	TRY (prb) {
 		for (;;) {
-			pc = regs.fault_pc = m68k_getpc (regs);
+			pc = regs.fault_pc = m68k_getpc (&regs);
 			opcode = get_iword_mmu (0);
 			count_instr (opcode);
 			do_cycles (cpu_cycles);
@@ -2965,7 +2972,7 @@ retry:
 			cpu_cycles &= cycles_mask;
 			cpu_cycles |= cycles_val;
 			if (regs.spcflags) {
-				if (do_specialties (cpu_cycles, regs))
+				if (do_specialties (cpu_cycles, &regs))
 					return;
 			}
 		}
@@ -2978,7 +2985,7 @@ retry:
 				mmufixup[1].reg = -1;
 			}
 		} else {
-			if (regs.wb3_status & 0x80) {
+			if (regs->wb3_status & 0x80) {
 				// movem to memory?
 				if ((opcode & 0xff80) == 0x4880) {
 					regs.mmu_ssw |= MMU_SSW_CM;
@@ -2995,7 +3002,7 @@ retry:
 		}
 		//activate_debugger ();
 		TRY (prb2) {
-			Exception (2, regs.fault_pc);
+			Exception (2, regs.fault_pc, addr);
 		} CATCH (prb2) {
 			write_log ("MMU: double bus error, rebooting..\n");
 			uae_reset (1);
@@ -3014,15 +3021,15 @@ static void m68k_run_2ce (void)
 
 	ipl_fetch ();
 	for (;;) {
-		uae_u32 opcode = get_word_ce020_prefetch (0);
-		(*cpufunctbl[opcode])(opcode);
+		uae_u32 opcode = get_word_ce020_prefetch (&regs, 0);
+		(*cpufunctbl[opcode])(opcode, r);
 		if (r->ce020memcycles > 0) {
 			tmpcycles = CYCLE_UNIT * MAX68020CYCLES;
 			do_cycles_ce (r->ce020memcycles);
 			r->ce020memcycles = 0;
 		}
 		if (r->spcflags) {
-			if (do_specialties (0))
+			if (do_specialties (0, &regs))
 				return;
 		}
 		tmpcycles -= cpucycleunit;
@@ -3103,8 +3110,10 @@ static void m68k_run_2 (void)
 /* fake MMU 68k  */
 static void m68k_run_mmu (void)
 {
+
+   struct regstruct *r = &regs;
    for (;;) {
-		uae_u32 opcode = get_iword (0);
+		uae_u32 opcode = get_iword (r, 0);
 		do_cycles (cpu_cycles);
 		mmu_backup_regs = regs;
 		cpu_cycles = (*cpufunctbl[opcode])(opcode, r);
@@ -3114,7 +3123,7 @@ static void m68k_run_mmu (void)
 		if (mmu_triggered)
 		    mmu_do_hit ();
 #endif
-		if (regs->spcflags) {
+		if (r->spcflags) {
 			if (do_specialties (cpu_cycles, r))
 				return;
 		}
@@ -3131,7 +3140,7 @@ static void exception2_handle (uaecptr addr, uaecptr fault)
     last_fault_for_exception_3 = fault;
     last_writeaccess_for_exception_3 = 0;
     last_instructionaccess_for_exception_3 = 0;
-	Exception (2, m68k_getpc (regs));
+	Exception (2, m68k_getpc (&regs), addr);
 }
 
 void m68k_go (int may_quit)
@@ -3172,18 +3181,18 @@ void m68k_go (int may_quit)
 		    /* We may have been restoring state, but we're done now.  */
 		    if (savestate_state == STATE_RESTORE || savestate_state == STATE_REWIND) {
 				map_overlay (1);
-				fill_prefetch_slow (); /* compatibility with old state saves */
+				fill_prefetch_slow (&regs); /* compatibility with old state saves */
 				memory_map_dump ();
 		    }
 		    savestate_restore_finish ();
 #endif
-		    fill_prefetch_slow ();
+		    fill_prefetch_slow (&regs);
 		    if (currprefs.produce_sound == 0)
 				eventtab[ev_audio].active = 0;
 		    handle_active_events ();
 		    if (regs.spcflags)
-				do_specialties (0);
-		    m68k_setpc (regs->pc);
+				do_specialties (&regs, 0);
+		    m68k_setpc (&regs, regs.pc);
 		}
 
 #ifdef DEBUGGER
@@ -3210,7 +3219,7 @@ void m68k_go (int may_quit)
 		if (regs.spcflags) {
 			uae_u32 of = regs.spcflags;
 			regs.spcflags &= ~(regs, SPCFLAG_BRK | SPCFLAG_MODE_CHANGE);
-			do_specialties (0);
+			do_specialties (regs, 0);
 			regs.spcflags |= of & (regs, SPCFLAG_BRK | SPCFLAG_MODE_CHANGE);
 		}
 #endif
@@ -3638,7 +3647,7 @@ void m68k_dumpstate (void *f, uaecptr *nextpc)
 		    if ((i & 3) == 3)
 				f_out (f, "\n");
 		}
-		fpsr = get_fpsr (&regs);
+		fpsr = fpp_get_fpsr (&regs);
 		f_out (f, "N=%d Z=%d I=%d NAN=%d\n",
 			(fpsr & 0x8000000) != 0,
 			(fpsr & 0x4000000) != 0,
@@ -3763,7 +3772,7 @@ void restore_cpu_finish (void)
     set_cpu_caches ();
 	doint ();
 	if (regs.stopped)
-		set_special (SPCFLAG_STOP);
+		set_special (&regs, SPCFLAG_STOP);
 
 }
 
@@ -3910,7 +3919,7 @@ void cpureset (void)
     customreset (0);
 		return;
 	}
-	pc = m68k_getpc (regs);
+	pc = m68k_getpc (&regs);
 	if (pc >= currprefs.chipmem_size) {
 		addrbank *b = &get_mem_bank (pc);
 		if (b->check (pc, 2 + 2)) {
@@ -3920,7 +3929,7 @@ void cpureset (void)
 		}
 		write_log ("M68K RESET PC=%x, rebooting..\n", pc);
 		customreset (0);
-		m68k_setpc (ksboot);
+		m68k_setpc (&regs, ksboot);
 		return;
 	}
 	/* panic, RAM is going to disappear under PC */
@@ -3937,21 +3946,21 @@ void cpureset (void)
 	}
 	write_log ("M68K RESET PC=%x, rebooting..\n", pc);
 	customreset (0);
-	m68k_setpc (ksboot);
+	m68k_setpc (&regs, ksboot);
 }
 
-
+#if 0
 void m68k_setstopped (void)
 {
 	regs.stopped = 1;
 	/* A traced STOP instruction drops through immediately without
 	actually stopping.  */
 	if ((regs.spcflags & SPCFLAG_DOTRACE) == 0)
-		set_special (SPCFLAG_STOP);
+		set_special (&regs, SPCFLAG_STOP);
 	else
 		m68k_resumestopped ();
 }
-
+#endif 
 void m68k_resumestopped (void)
 {
 	if (!regs.stopped)
@@ -3961,8 +3970,8 @@ void m68k_resumestopped (void)
 		if (currprefs.cpu_model == 68000)
 			do_cycles_ce000 (6);
 	}
-	fill_prefetch_slow (regs);
-	unset_special (SPCFLAG_STOP);
+	fill_prefetch_slow (&regs);
+	unset_special (&regs, SPCFLAG_STOP);
 }
 
 /*
@@ -4059,12 +4068,6 @@ int getDivu68kCycles (uae_u32 dividend, uae_u16 divisor)
 		}
 	}
 	return mcycles * 2;
-}
-int getDivu68kCycles(uae_u32 dividend, uae_u16 divisor)
-{
-    int v = getDivu68kCycles_2(dividend, divisor) - 4;
-//    write_log ("U%d ", v);
-    return v;
 }
 
 // DIVS
@@ -4221,7 +4224,7 @@ void flush_mmu (uaecptr addr, int n)
 
 void m68k_do_rts_mmu (void)
 {
-	m68k_setpc (get_long_mmu (m68k_areg (regs, 7)));
+	m68k_setpc (&regs, get_long_mmu (m68k_areg (regs, 7)));
 	m68k_areg (regs, 7) += 4;
 }
 

@@ -12,8 +12,8 @@ STATIC_INLINE uae_u32 get_long_prefetch (struct regstruct *regs, int o)
     return v;
 }
 
-#ifdef CPUEMU_6
 #if 0
+#ifdef CPUEMU_6
 STATIC_INLINE uae_u32 mem_access_delay_word_read (uaecptr addr)
 {
     if (addr < 0x200000 || (addr >= 0xc00000 && addr < 0xe00000)) {
@@ -33,6 +33,7 @@ STATIC_INLINE uae_u32 mem_access_delay_byte_read (uaecptr addr)
     return get_byte (addr);
 }
 #endif
+#endif 
 #ifdef CPUEMU_20
 
 STATIC_INLINE void checkcycles_ce020 (void)
@@ -336,11 +337,6 @@ STATIC_INLINE uae_u32 mem_access_delay_byte_read (uaecptr addr)
 }
 STATIC_INLINE void mem_access_delay_byte_write (uaecptr addr, uae_u32 v)
 {
-    if (addr < 0x200000 || (addr >= 0xc00000 && addr < 0xe00000)) {
-	wait_cpu_cycle_write (addr, 0, v);
-	return;
-    } else if (!(addr >= 0xa00000 && addr < 0xc00000)) {
-	do_cycles_ce (4 * CYCLE_UNIT / 2);
 	switch (ce_banktype[addr >> 16])
 	{
 	case CE_MEMBANK_CHIP:
@@ -354,11 +350,6 @@ STATIC_INLINE void mem_access_delay_byte_write (uaecptr addr, uae_u32 v)
 }
 STATIC_INLINE void mem_access_delay_word_write (uaecptr addr, uae_u32 v)
 {
-    if (addr < 0x200000 || (addr >= 0xc00000 && addr < 0xe00000)) {
-	wait_cpu_cycle_write (addr, 1, v);
-	return;
-    } else if (!(addr >= 0xa00000 && addr < 0xc00000)) {
-	do_cycles_ce (4 * CYCLE_UNIT / 2);
 	switch (ce_banktype[addr >> 16])
 	{
 	case CE_MEMBANK_CHIP:
@@ -390,6 +381,7 @@ STATIC_INLINE uae_u32 get_word_ce_prefetch (struct regstruct *regs, int o)
 {
     uae_u32 v = regs->irc;
     regs->irc = get_word_ce (m68k_getpc(regs) + o);
+    return v;
 }
 #if 0
 STATIC_INLINE uae_u32 get_word_ce_prefetch (int o)
@@ -421,8 +413,7 @@ STATIC_INLINE void m68k_do_rts_ce (struct regstruct *regs)
 	m68k_setpc (regs, pc);
 }
 
-
-STATIC_INLINE void m68k_do_bsr_ce (uaecptr oldpc, uae_s32 offset)
+STATIC_INLINE void m68k_do_bsr_ce (struct regstruct *regs, uaecptr oldpc, uae_s32 offset)
 {
     m68k_areg (regs, 7) -= 4;
     put_word_ce (m68k_areg (regs, 7), oldpc >> 16);
@@ -436,14 +427,6 @@ STATIC_INLINE void m68k_do_jsr_ce (struct regstruct *regs, uaecptr oldpc, uaecpt
     put_word_ce (m68k_areg (regs, 7), oldpc >> 16);
     put_word_ce (m68k_areg (regs, 7) + 2, oldpc);
     m68k_setpc (regs, dest);
-}
-
-STATIC_INLINE void m68k_do_jsr_ce (uaecptr oldpc, uaecptr dest)
-{
-	m68k_areg (regs, 7) -= 4;
-	put_word_ce (m68k_areg (regs, 7), oldpc >> 16);
-	put_word_ce (m68k_areg (regs, 7) + 2, oldpc);
-	m68k_setpc (dest);
 }
 #endif
 

@@ -110,10 +110,10 @@ extern       uae_u8 *save_action_replay    (uae_u32 *, uae_u8 *);
 
 extern void savestate_initsave (const char *filename, int docompress);
 extern void save_state (const char *filename, const char *description);
-#if 0 
+
 extern uae_u8 *restore_mmu (uae_u8 *);
 extern uae_u8 *save_mmu (int *, uae_u8 *);
-
+#if 0
 extern uae_u8 *restore_fpu (uae_u8 *);
 extern uae_u8 *save_fpu (int *, uae_u8 *);
 
