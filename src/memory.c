@@ -188,7 +188,7 @@ static int REGPARAM3 dummy_check (uaecptr addr, uae_u32 size) REGPARAM;
 #define NONEXISTINGDATA 0
 //#define NONEXISTINGDATA 0xffffffff
 
-
+#if 0
 uae_u32 REGPARAM2 dummy_lget (uaecptr addr)
 {
 #ifdef JIT
@@ -288,7 +288,7 @@ int REGPARAM2 dummy_check (uaecptr addr, uae_u32 size)
 
     return 0;
 }
-
+#endif
 #if defined AUTOCONFIG && defined A3000MBRES
 /* A3000 "motherboard resources" bank.  */
 static uae_u32 mbres_lget (uaecptr) REGPARAM;
@@ -361,7 +361,14 @@ void REGPARAM2 mbres_bput (uaecptr addr, uae_u32 b)
     if ((addr & 0xFFFF) == 3)
 	mbres_val = b;
 }
+int REGPARAM2 mbres_check (uaecptr addr, uae_u32 size)
+{
+    if (currprefs.illegal_mem)
+	write_log ("Illegal check at %08lx\n", addr);
 
+    return 0;
+}
+#endif
 
 static void dummylog (int rw, uaecptr addr, int size, uae_u32 val, int ins)
 {
@@ -510,16 +517,6 @@ static uae_u32 REGPARAM2 ones_get (uaecptr addr)
 #endif
 	return 0xffffffff;
 }
-
-int REGPARAM2 mbres_check (uaecptr addr, uae_u32 size)
-{
-    if (currprefs.illegal_mem)
-	write_log ("Illegal check at %08lx\n", addr);
-
-    return 0;
-}
-
-#endif
 
 /* Chip memory */
 

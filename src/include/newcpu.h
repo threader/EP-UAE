@@ -242,9 +242,12 @@ STATIC_INLINE void m68k_do_jsr (struct regstruct *regs, uaecptr oldpc, uaecptr d
     m68k_setpc (regs, dest);
 }
 
-#define get_ibyte(regs, o) do_get_mem_byte((uae_u8 *) ((regs)->pc_p + (o) + 1))
+#define get_ibyte(regs, o) do_get_mem_byte((uae_u8 *)((regs)->pc_p + (o) + 1))
 #define get_iword(regs, o) do_get_mem_word((uae_u16 *)((regs)->pc_p + (o)))
 #define get_ilong(regs, o) do_get_mem_long((uae_u32 *)((regs)->pc_p + (o)))
+
+#define get_iwordi(regs, o) get_wordi(o)
+#define get_ilongi(regs, o) get_longi(o)
 
 /* These are only used by the 68020/68881 code, and therefore don't
  * need to handle prefetch.  */
@@ -270,13 +273,13 @@ STATIC_INLINE uae_u32 next_ilong (struct regstruct *regs)
 }
 STATIC_INLINE uae_u32 next_iwordi (struct regstruct *regs)
 {
-	uae_u32 r = get_iwordi (m68k_getpci (regs));
+	uae_u32 r = get_iwordi  (regs, 0);
     m68k_incpc (regs, 2);
     return r;
 }
 STATIC_INLINE uae_u32 next_ilongi (struct regstruct *regs)
 {
-	uae_u32 r = get_ilongi (m68k_getpci (regs));
+	uae_u32 r = get_ilongi (regs, 0);
     m68k_incpc (regs, 4);
     return r;
 }
