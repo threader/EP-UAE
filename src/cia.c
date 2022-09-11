@@ -15,6 +15,7 @@
 #include "options.h"
 #include "events.h"
 #include "memory.h"
+#include "audio.h"
 #include "custom.h"
 #include "cia.h"
 #include "serial.h"
@@ -234,7 +235,7 @@ static void CIA_update (void)
 
 static void CIA_calctimers (void)
 {
-	long int ciaatimea = -1, ciaatimeb = -1, ciabtimea = -1, ciabtimeb = -1;
+    unsigned long int ciaatimea = ~0L, ciaatimeb = ~0L, ciabtimea = ~0L, ciabtimeb = ~0L;
 
 	eventtab[ev_cia].oldcycles = get_cycles ();
 	if ((ciaacra & 0x21) == 0x01) {
@@ -275,7 +276,6 @@ static void CIA_calctimers (void)
 			}
 		}
 	}
-    }
     if ((ciabcrb & 0x61) == 0x01) {
 	ciabtimeb = (DIV10 - div10) + DIV10 * ciabtb;
     }
@@ -303,8 +303,7 @@ void cia_diskindex (void)
 	ciabicr |= 0x10;
 	RethinkICRB ();
 }
-
-static void cia_parallelack (void)
+void cia_parallelack (void)
 {
 	ciaaicr |= 0x10;
 	RethinkICRA ();
@@ -337,57 +336,10 @@ STATIC_INLINE void ciab_checkalarm (int inc)
 
 STATIC_INLINE void ciaa_checkalarm (int inc)
 {
-    if (checkalarm (ciaatod, ciaaalarm, inc)) {
-        ciaaicr |= 4;
-	RethinkICRA ();
-    }
-}
-
-void CIA_hsync_handler (void)
-{
-    if (ciabtodon) {
-	ciabtod++;
-	ciabtod &= 0xFFFFFF;
-	ciab_checkalarm (1);
-    }
-
-    if (keys_available() && kback && (ciaacra & 0x40) == 0 && (hsync_counter & 15) == 0) {
-	/*
-	 * This hack lets one possible ciaaicr cycle go by without any key
-	 * being read, for every cycle in which a key is pulled out of the
-	 * queue.  If no hack is used, a lot of key events just get lost
-	 * when you type fast.  With a simple hack that waits for ciaasdr
-	 * to be read before feeding it another, it will keep up until the
-	 * queue gets about 14 characters ahead and then lose events, and
-	 * the mouse pointer will freeze while typing is being taken in.
-	 * With this hack, you can type 30 or 40 characters ahead with little
-	 * or no lossage, and the mouse doesn't get stuck.  The tradeoff is
-	 * that the total slowness of typing appearing on screen is worse.
-	 */
-	if (ciaasdr_unread == 2) {
-	    ciaasdr_unread = 0;
-	} else if (ciaasdr_unread == 0) {
-	    switch (kbstate) {
-	     case 0:
-		ciaasdr = (uae_s8)~0xFB; /* aaarghh... stupid compiler */
-		kbstate++;
-		break;
-	     case 1:
-		kbstate++;
-		ciaasdr = (uae_s8)~0xFD;
-		break;
-	     case 2:
-		ciaasdr = ~get_next_key();
-		ciaasdr_unread = 1;      /* interlock to prevent lost keystrokes */
-		break;
-	    }
-	    ciaaicr |= 8;
-	    RethinkICRA();
-	    sleepyhead = 0;
-	} else if (!(++sleepyhead & 15)) {
-	    ciaasdr_unread = 0;          /* give up on this key event after unread for a long time */
+	if (checkalarm (ciaatod, ciaaalarm, inc)) {
+		ciaaicr |= 4;
+		RethinkICRA ();
 	}
-    }
 }
 
 
