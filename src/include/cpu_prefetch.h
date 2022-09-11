@@ -275,13 +275,13 @@ STATIC_INLINE uae_u32 get_long_ce020_prefetch (struct regstruct *regs, int o)
 	return v;
 }
 
-STATIC_INLINE uae_u32 next_iword_020ce (void)
+STATIC_INLINE uae_u32 next_iword_020ce (struct regstruct *regs)
 {
 	uae_u32 r = get_word_ce020_prefetch (&regs, 0);
 	m68k_incpc (regs, 2);
 	return r;
 }
-STATIC_INLINE uae_u32 next_ilong_020ce (void)
+STATIC_INLINE uae_u32 next_ilong_020ce (struct regstruct *regs)
 {
 	uae_u32 r = get_long_ce020_prefetch (&regs, 0);
 	m68k_incpc (regs, 4);

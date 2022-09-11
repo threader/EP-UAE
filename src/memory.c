@@ -103,6 +103,7 @@ uae_u8 ce_banktype[65536];
 static size_t chip_filepos;
 static size_t bogo_filepos;
 static size_t rom_filepos;
+#endif
 
 #if defined(CPU_64_BIT)
 uae_u32 max_z3fastmem = 2048UL * 1024 * 1024;
@@ -1079,7 +1080,7 @@ static uae_u8 *REGPARAM2 a3000hmem_xlate (uaecptr addr)
 
 uae_u8 *kickmemory;
 uae_u16 kickstart_version;
-unsigned int kickmem_size = 0x80000; /* note /*
+unsigned int kickmem_size = 0x80000; /* note */
 
 /*
  * A1000 kickstart RAM handling
@@ -1462,9 +1463,9 @@ uae_u8 REGPARAM2 *default_xlate (uaecptr a)
 				be_cnt = 0;
 		    } else {
 				regs.panic = 1;
-				regs.panic_pc = m68k_getpc ();
+				regs.panic_pc = m68k_getpc (&regs);
 				regs.panic_addr = a;
-				set_special (SPCFLAG_BRK);
+				set_special (&regs, SPCFLAG_BRK);
 		    }
 		}
     }
@@ -2597,7 +2598,7 @@ void map_overlay (int chip)
 	}
 	fill_ce_banks ();
 	if (savestate_state != STATE_RESTORE && savestate_state != STATE_REWIND && valid_address (regs.pc, 4))
-		m68k_setpc ( m68k_getpc ());
+		m68k_setpc (&regs, m68k_getpc (&regs));
 }
 
 void memory_reset (void)
@@ -3049,7 +3050,7 @@ void map_banks (addrbank *bank, int start, int size, int realsize)
 
 /* memory save/restore code */
 
-uae_u8 *save_bootrom (int *len)
+uae_u8 *save_bootrom (uae_u32 *len)
 {
 	if (!uae_boot_rom)
 		return 0;
@@ -3057,48 +3058,48 @@ uae_u8 *save_bootrom (int *len)
 	return rtarea;
 }
 
-uae_u8 *save_cram (int *len)
+uae_u8 *save_cram (uae_u32 *len)
 {
     *len = allocated_chipmem;
     return chipmemory;
 }
 
-uae_u8 *save_bram (int *len)
+uae_u8 *save_bram (uae_u32 *len)
 {
     *len = allocated_bogomem;
     return bogomemory;
 }
 
-uae_u8 *save_a3000lram (int *len)
+uae_u8 *save_a3000lram (uae_u32 *len)
 {
 	*len = allocated_a3000lmem;
 	return a3000lmemory;
 }
 
-uae_u8 *save_a3000hram (int *len)
+uae_u8 *save_a3000hram (uae_u32 *len)
 {
 	*len = allocated_a3000hmem;
 	return a3000hmemory;
 }
 
-void restore_bootrom (int len, size_t filepos)
+void restore_bootrom (uae_u32 len, size_t filepos)
 {
 	bootrom_filepos = filepos;
 }
 
-void restore_cram (int len, size_t filepos)
+void restore_cram (uae_u32 len, size_t filepos)
 {
     chip_filepos = filepos;
     changed_prefs.chipmem_size = len;
 }
 
-void restore_bram (int len, size_t filepos)
+void restore_bram (uae_u32 len, size_t filepos)
 {
     bogo_filepos = filepos;
     changed_prefs.bogomem_size = len;
 }
 
-void restore_a3000lram (int len, size_t filepos)
+void restore_a3000lram (uae_u32 len, size_t filepos)
 {
 	a3000lmem_filepos = filepos;
 	changed_prefs.mbresmem_low_size = len;
@@ -3167,7 +3168,7 @@ uae_u8 *restore_rom (uae_u8 *src)
     return src;
 }
 
-uae_u8 *save_rom (int first, int *len, uae_u8 *dstptr)
+uae_u8 *save_rom (int first, uae_u32 *len, uae_u8 *dstptr)
 {
     static int count;
     uae_u8 *dst, *dstbak;

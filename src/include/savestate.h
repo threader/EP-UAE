@@ -102,7 +102,7 @@ extern uae_u8 *save_fram (uae_u32 *);
 extern uae_u8 *save_zram (uae_u32 *);
 extern uae_u8 *save_pram (uae_u32 *);
 
-extern const uae_u8 *restore_rom (const uae_u8 *src);
+extern uae_u8 *restore_rom (uae_u8 *src);
 extern       uae_u8 *save_rom    (int first, uae_u32 *len, uae_u8 *dstptr);
 
 extern const uae_u8 *restore_action_replay (const uae_u8 *);

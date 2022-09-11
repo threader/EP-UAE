@@ -3143,7 +3143,7 @@ static void exception2_handle (uaecptr addr, uaecptr fault)
     last_fault_for_exception_3 = fault;
     last_writeaccess_for_exception_3 = 0;
     last_instructionaccess_for_exception_3 = 0;
-	Exception (2, m68k_getpc (&regs), addr);
+    Exception (2, &regs, addr);
 }
 
 void m68k_go (int may_quit)
@@ -4227,7 +4227,7 @@ void flush_mmu (uaecptr addr, int n)
 
 void m68k_do_rts_mmu (struct regstruct *regs)
 {
-	m68k_setpc (&regs, get_long_mmu (m68k_areg (regs, 7)));
+	m68k_setpc (regs, get_long_mmu (m68k_areg (regs, 7)));
 	m68k_areg (regs, 7) += 4;
 }
 
