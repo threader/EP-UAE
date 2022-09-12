@@ -1434,7 +1434,7 @@ static void expamem_init_a4091 (void)
 #endif
 }
 
-void p96memstart(void)
+static void p96memstart(void)
 {
 	/* make sure there is always empty space between Z3 and P96 RAM */
 	p96ram_start = currprefs.z3fastmem_start + ((currprefs.z3fastmem_size + currprefs.z3fastmem2_size + 0xffffff) & ~0xffffff);
@@ -1595,7 +1595,7 @@ void expansion_init (void)
 		write_log ("virtual memory exhausted (filesysory)!\n");
 		exit (0);
     	}
-	filesys_bank.baseaddr = filesysory;
+	filesys_bank.baseaddr = (uae_u8*)filesysory;
 #endif
 }
 
@@ -1651,7 +1651,7 @@ uae_u8 *save_fram (uae_u32 *len)
     return fastmemory;
 }
 
-uae_u8 *save_zram (uae_u32 *len)
+uae_u8 *save_zram (uae_u32 *len, int num)
 {
 	*len = num ? allocated_z3fastmem2 : allocated_z3fastmem;
 	return num ? z3fastmem2 : z3fastmem;
@@ -1669,7 +1669,7 @@ void restore_fram (uae_u32 len, size_t filepos)
     changed_prefs.fastmem_size = len;
 }
 
-void restore_zram (uae_u32 len, size_t filepos)
+void restore_zram (uae_u32 len, size_t filepos, int num)
 {
 	if (num) {
 		z3_filepos2 = filepos;
@@ -1700,7 +1700,7 @@ uae_u8 *save_expansion (uae_u32 *len, uae_u8 *dstptr)
     return dstbak;
 }
 
-uae_u8 *restore_expansion (uae_u8 *src)
+const uae_u8 *restore_expansion (const uae_u8 *src)
 {
     fastmem_start = restore_u32 ();
     z3fastmem_start = restore_u32 ();

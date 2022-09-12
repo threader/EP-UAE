@@ -90,17 +90,21 @@ extern       uae_u8 *save_keyboard    (uae_u32 *len);
 extern void restore_cram (uae_u32, size_t);
 extern void restore_bram (uae_u32, size_t);
 extern void restore_fram (uae_u32, size_t);
-extern void restore_zram (uae_u32, size_t);
+extern void restore_zram (uae_u32, size_t, int);
 extern void restore_pram (uae_u32, size_t);
 extern void restore_ram  (size_t, uae_u8*);
+extern void restore_a3000lram (uae_u32, size_t);
+extern void restore_a3000hram (uae_u32, size_t);
 
 extern uae_u8 *save_cram (uae_u32 *);
 extern uae_u8 *save_bram (uae_u32 *);
 extern uae_u8 *save_fram (uae_u32 *);
-extern uae_u8 *save_zram (uae_u32 *);
+extern uae_u8 *save_zram (uae_u32 *, int);
 extern uae_u8 *save_pram (uae_u32 *);
+extern uae_u8 *save_a3000lram (uae_u32 *);
+extern uae_u8 *save_a3000hram (uae_u32 *);
 
-extern uae_u8 *restore_rom (uae_u8 *src);
+extern const uae_u8 *restore_rom (const uae_u8 *src);
 extern       uae_u8 *save_rom    (int first, uae_u32 *len, uae_u8 *dstptr);
 
 extern const uae_u8 *restore_action_replay (const uae_u8 *);
