@@ -53,6 +53,9 @@ static int picasso_is_special_read = PIC_READ;  /* ditto */
 
 #ifdef PICASSO96
 
+static int p96syncrate;
+int p96hsync_counter;
+
 int p96hack_vpos, p96hack_vpos2, p96refresh_active;
 
 #define P96TRACING_ENABLED 0
@@ -1644,18 +1647,17 @@ uae_u32 REGPARAM2 picasso_SetGC (struct regstruct *regs)
  */
 uae_u32 REGPARAM2 picasso_SetPanning (struct regstruct *regs)
 {
-    uaecptr bmeptr;
     uaecptr bi                =           m68k_areg (regs, 0);
+    uaecptr bmeptr = get_long (bi + PSSO_BoardInfo_BitMapExtra);        /* Get our BoardInfo ptr's BitMapExtra ptr */
     uaecptr start_of_screen   =           m68k_areg (regs, 1);
     uae_u16 Width             =           m68k_dreg (regs, 0);
+    int oldxoff = picasso96_state.XOffset;
+    int oldyoff = picasso96_state.YOffset;
     picasso96_state.XOffset   = (uae_s16) m68k_dreg (regs, 1);
     picasso96_state.YOffset   = (uae_s16) m68k_dreg (regs, 2);
     picasso96_state.RGBFormat =           m68k_dreg (regs, 7);
 
     wgfx_flushline();
-
-    /* Get our BoardInfo ptr's BitMapExtra ptr */
-    bmeptr = get_long (bi + PSSO_BoardInfo_BitMapExtra);
 
     picasso96_state.Address       = start_of_screen; /* Amiga-side address */
     picasso96_state.VirtualWidth  = get_word (bmeptr + PSSO_BitMapExtra_Width);
@@ -1875,8 +1877,11 @@ uae_u32 REGPARAM2 picasso_FillRect (struct regstruct *regs)
 		unsigned int i;
 		uaecptr addr;
 		if (renderinfo_is_current_screen (&ri)) {
-		    uae_u32 offset = X * Bpp + Y * ri.BytesPerRow;
-		    addr = gfxmem_start + (uaecptr)(ri.Memory - gfxmemory) + offset;
+// Note
+		    uae_u32 diff = gfxmem_start - (uae_u32)gfxmemory;
+		    addr = ri.Memory + X * Bpp + Y * ri.BytesPerRow + diff;
+//		    uae_u32 offset = X * Bpp + Y * ri.BytesPerRow;
+//		    addr = gfxmem_start + (uaecptr)(ri.Memory - gfxmemory) + offset;
 
 		    if (Width == 1) {
 			for (i = 0; i < Height; i++) {
@@ -3281,10 +3286,4 @@ void InitPicasso96 (void)
     }
 }
 
-void init_hz_p96 (void)
-{
-}
-void picasso_handle_hsync (void)
-{
-}
 #endif

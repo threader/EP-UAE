@@ -3102,13 +3102,13 @@ void restore_a3000lram (uae_u32 len, size_t filepos)
 	changed_prefs.mbresmem_low_size = len;
 }
 
-void restore_a3000hram (int len, size_t filepos)
+void restore_a3000hram (uae_u32 len, size_t filepos)
 {
 	a3000hmem_filepos = filepos;
 	changed_prefs.mbresmem_high_size = len;
 }
 
-uae_u8 *restore_rom (uae_u8 *src)
+const uae_u8 *restore_rom (const uae_u8 *src)
 {
 	uae_u32 crc32, mem_start, mem_size, mem_type, version;
 	TCHAR *s, *romn;
