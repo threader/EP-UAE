@@ -287,7 +287,21 @@ int zfile_gettype (struct zfile *z)
     zfile_fread (buf, 8, 1, z);
     zfile_fseek (z, -8, SEEK_CUR);
     if (!memcmp (buf, exeheader, sizeof(buf)))
-	return ZFILE_DISKIMAGE;
+		return ZFILE_DISKIMAGE;
+	if (!memcmp (buf, "RDSK", 4))
+		return ZFILE_HDFRDB;
+	if (!memcmp (buf, "DOS", 3)) {
+		if (z->size < 4 * 1024 * 1024)
+			return ZFILE_DISKIMAGE;
+		else
+			return ZFILE_HDF;
+	}
+	if (ext != NULL) {
+		if (strcasecmp (ext, "hdf") == 0)
+			return ZFILE_HDF;
+		if (strcasecmp (ext, "hdz") == 0)
+			return ZFILE_HDF;
+	}
     return ZFILE_UNKNOWN;
 }
 
@@ -1108,37 +1122,6 @@ static struct zfile *lha (struct zfile *z)
     return z;
 }
 
-static struct zfile *dms (struct zfile *z)
-{
-    int ret;
-    struct zfile *zo;
-
-    zo = zfile_fopen_empty ("zipped.dms", 1760 * 512);
-    if (!zo) return z;
-    ret = DMS_Process_File (z, zo, CMD_UNPACK, OPT_VERBOSE, 0, 0);
-    if (ret == NO_PROBLEM || ret == DMS_FILE_END) {
-	zfile_fclose (z);
-	return zo;
-    }
-    return z;
-}
-
-#if 0
-static struct zfile *dms (struct zfile *z)
-{
-    char cmd[2048];
-    struct zfile *zi = createinputfile (z);
-    struct zfile *zo = createoutputfile (z);
-    if (zi && zo) {
-	sprintf(cmd, "xdms -q u \"%s\" +\"%s\"", zi->name, zo->name);
-	execute_command (cmd);
-    }
-    zfile_fclose (zi);
-    zfile_fclose (z);
-    return updateoutputfile (zo);
-}
-#endif
-
 static const char *ignoreextensions[] =
     { ".gif", ".jpg", ".png", ".xml", ".pdf", ".txt", 0 };
 static const char *diskimageextensions[] =
@@ -1148,14 +1131,13 @@ static int isdiskimage (char *name)
 {
     int i;
 
-static struct zfile *bunzip (const char *decompress, struct zfile *z)
-{
-    return z;
-}
-
-static struct zfile *lha (struct zfile *z)
-{
-    return z;
+    i = 0;
+    while (diskimageextensions[i]) {
+	if (strlen (name) > 3 && !strcasecmp (name + strlen (name) - 4, diskimageextensions[i]))
+	    return 1;
+	i++;
+    }
+    return 0;
 }
 
 static struct zfile *dms (struct zfile *z, int index, int *retcode)
