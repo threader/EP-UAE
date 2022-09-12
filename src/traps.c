@@ -82,7 +82,7 @@ static void trap_HandleExtendedTrap (TrapHandler, int has_retval);
 
 uaecptr find_trap (const TCHAR *name)
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < trap_count; i++) {
 		struct Trap *trap = &traps[i];
@@ -109,7 +109,7 @@ unsigned int define_trap (TrapHandler handler_func, int flags, const TCHAR *name
 		abort ();
 		return -1;
     } else {
-		int i;
+		unsigned int i;
 		unsigned int trap_num;
 		struct Trap *trap;
 		uaecptr addr = here ();
@@ -183,24 +183,19 @@ void REGPARAM2 m68k_handle_trap (unsigned int trap_num, struct regstruct *regs)
 
 typedef struct ExtendedTrapContext
 {
-    /*
-     * Same as simple trap
-     */
-    struct regstruct  regs;			/* Trap's working copy of 68k state. This is what
-						 * the trap handler should access to get arguments
-						 * from 68k space. */
+	/* Trap's working copy of 68k state. This is what the trap handler should
+	* access to get arguments from 68k space. */
+	struct regstruct regs;
 
-    /*
-     * Extended trap only
-     */
-    TrapHandler       trap_handler;		/* Trap handler function that gets called on the trap context */
-    int               trap_has_retval;		/* Should the handler return a value to 68k space in D0? */
-    uae_u32           trap_retval;		/* Return value from trap handler */
+	/* Trap handler function that gets called on the trap context */
+	TrapHandler trap_handler;
+	/* Should the handler return a value to 68k space in D0? */
+	int trap_has_retval;
+	/* Return value from trap handler */
+	uae_u32 trap_retval;
 
 	/* Copy of 68k state at trap entry. */
 	struct regstruct saved_regs;
-
-    struct regstruct  saved_regs;                /* Copy of 68k state at trap entry. */
 
 	/* Thread which effects the trap context. */
 	uae_thread_id thread;
@@ -209,15 +204,11 @@ typedef struct ExtendedTrapContext
 	/* context and the trap context. */
 	uae_sem_t switch_to_trap_sem;
 
-
-    uae_thread_id     thread;			/* Thread which effects the trap context. */
-    uae_sem_t         switch_to_emu_sem;	/* For IPC between the main emulator. */
-    uae_sem_t         switch_to_trap_sem;	/* context and the trap context. */
-
-
-    uaecptr           call68k_func_addr;	/* When calling a 68k function from a trap handler, this
-						 * is set to the address of the function to call. */
-    uae_u32           call68k_retval;		/* And this gets set to the return value of the 68k call */
+	/* When calling a 68k function from a trap handler, this is set to the
+	* address of the function to call.  */
+	uaecptr call68k_func_addr;
+	/* And this gets set to the return value of the 68k call.  */
+	uae_u32 call68k_retval;
 } ExtendedTrapContext;
 
 
@@ -261,11 +252,11 @@ static void *trap_thread (void *arg)
     /* Don't allow an interrupt and thus potentially another
      * trap to be invoked while we hold the above mutex.
      * This is probably just being paranoid. */
-	regs.intmask = 7;
+    context->regs.intmask = 7;
 
     /* Set PC to address of the exit handler, so that it will be called
      * when the 68k context resumes. */
-    m68k_setpc (exit_trap_trapaddr);
+    m68k_setpc (&context->regs, exit_trap_trapaddr);
     current_context = context;
 
     /* Switch back to 68k context */
@@ -282,7 +273,7 @@ static void *trap_thread (void *arg)
  */
 static void trap_HandleExtendedTrap (TrapHandler handler_func, int has_retval)
 {
-    struct ExtendedTrapContext *context = calloc (1, sizeof (ExtendedTrapContext));
+	struct ExtendedTrapContext *context = xcalloc (ExtendedTrapContext, 1);
 
     if (context) {
 		uae_sem_init (&context->switch_to_trap_sem, 0, 0);
@@ -291,12 +282,12 @@ static void trap_HandleExtendedTrap (TrapHandler handler_func, int has_retval)
 		context->trap_handler    = handler_func;
 		context->trap_has_retval = has_retval;
 
+	context->regs = regs;       /* Working copy of regs */
+
 		context->saved_regs = regs; /* Copy of regs to be restored when trap is done */
 
-	context->saved_regs = regs; /* Copy of regs to be restored when trap is done */
-
 	/* Start thread to handle new trap context. */
-	uae_start_thread (trap_thread, (void *)context, &context->thread);
+	uae_start_thread ("Trap", trap_thread, (void *)context, &context->thread);
 
 	/* Switch to trap context to begin execution of
 	 * trap handler function.
@@ -358,7 +349,7 @@ static uae_u32 trap_Call68k (ExtendedTrapContext *context, uaecptr func_addr)
  */
 static uae_u32 REGPARAM2 m68k_call_handler (struct regstruct *regs)
 {
-    ExtendedTrapContext *context = current_context;
+	ExtendedTrapContext *context = current_context;
 
 	uae_u32 sp;
 
@@ -396,7 +387,7 @@ static uae_u32 REGPARAM2 m68k_call_handler (struct regstruct *regs)
  */
 static uae_u32 REGPARAM2 m68k_return_handler (struct regstruct *regs)
 {
-    ExtendedTrapContext *context;
+	ExtendedTrapContext *context;
     uae_u32 sp;
 
     /* One trap returning at a time, please! */
@@ -404,7 +395,7 @@ static uae_u32 REGPARAM2 m68k_return_handler (struct regstruct *regs)
 
     /* Get trap context from 68k stack. */
     sp = m68k_areg (regs, 7);
-	context = (TrapContext *)get_pointer (sp);
+	context = (ExtendedTrapContext *)get_pointer (sp);
     sp += sizeof (void *);
     m68k_areg (regs, 7) = sp;
 
@@ -486,7 +477,7 @@ uae_u32 CallLib (TrapContext *context, uaecptr base, uae_s16 offset)
  */
 uae_u32 CallFunc (TrapContext *context, uaecptr func)
 {
-	return trap_Call68k (context, func);
+	return trap_Call68k ((ExtendedTrapContext *)context, func);
 }
 
 
