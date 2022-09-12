@@ -13,6 +13,8 @@
 #define IDTYPE_KEYBOARD 2
 
 struct inputdevice_functions {
+    int           (*init)             (void);
+    void          (*close)            (void);
     int           (*acquire)          (unsigned int, int);
     void          (*unacquire)        (unsigned int);
     void          (*read)             (void);
@@ -21,11 +23,13 @@ struct inputdevice_functions {
     unsigned int  (*get_widget_num)   (unsigned int);
     int           (*get_widget_type)  (unsigned int, unsigned int, char *, uae_u32 *);
     int           (*get_widget_first) (unsigned int, int);
+    int (*get_flags)(unsigned int);
 };
-
+extern struct inputdevice_functions idev[3];
 extern struct inputdevice_functions inputdevicefunc_joystick;
 extern struct inputdevice_functions inputdevicefunc_mouse;
 extern struct inputdevice_functions inputdevicefunc_keyboard;
+extern int pause_emulation;
 
 struct uae_input_device_kbr_default {
     int scancode;
@@ -47,15 +51,16 @@ struct uae_input_device_kbr_default {
 #define ID_AXIS_TOTAL 32
 
 extern int inputdevice_iterate (int devnum, int num, TCHAR *name, int *af);
-extern int inputdevice_set_mapping (int devnum, int num, const um, int *pflags, TCHAR *name, TCHAR *custom, int sub);
+extern int inputdevice_set_mapping (int devnum, int num, TCHAR *name, TCHAR *custom, int flags, int sub);
+extern int inputdevice_get_mapped_name (int devnum, int num, int *pflags, TCHAR *name, TCHAR *custom, int sub);
 extern void inputdevice_copyconfig (const struct uae_prefs *src, struct uae_prefs *dst);
 extern void inputdevice_copy_single_config (struct uae_prefs *p, int src, int dst, int devnum);
 extern void inputdevice_swap_ports (struct uae_prefs *p, int devnum);
 extern void inputdevice_config_change (void);
 extern int inputdevice_config_change_test (void);
 extern int inputdevice_get_device_index (unsigned int devnum);
-extern const char *inputdevice_get_device_name (int type, int devnum);
-extern const TCHAR *inputdevice_get_device_unique_name (int type, int devnum);
+extern TCHAR *inputdevice_get_device_name (int type, int devnum);
+extern TCHAR *inputdevice_get_device_unique_name (int type, int devnum);
 extern int inputdevice_get_device_status (int devnum);
 extern void inputdevice_set_device_status (int devnum, int enabled);
 extern int inputdevice_get_device_total (int type);
