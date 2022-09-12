@@ -1547,7 +1547,7 @@ static void update_child_names (Unit *unit, a_inode *a, a_inode *parent)
 			write_log ("malformed file name");
 		}
 		name_start++;
-	new_name = (char *)xmalloc (strlen (name_start) + l0);
+	new_name = (char *)xmalloc (char, strlen (name_start) + l0);
 		_tcscpy (new_name, parent->nname);
 		_tcscat (new_name, dirsep);
 		_tcscat (new_name, name_start);
@@ -4621,7 +4621,7 @@ static void
 	PUT_PCK_RES2 (packet, ERROR_DISK_WRITE_PROTECTED);
 	return;
     }
-*/* see v089 */
+/* see v089 */
     /* get volume name */
     xfree (unit->ui.volname);
 	unit->ui.volname = bstr1 (name);

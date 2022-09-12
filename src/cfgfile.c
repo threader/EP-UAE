@@ -2965,7 +2965,7 @@ uae_u32 cfgfile_modify (uae_u32 index, char *parms, uae_u32 size, char *out, uae
 		    break;
 		}
 	    }
-			set_special (SPCFLAG_BRK);
+			set_special (&regs, SPCFLAG_BRK);
 	    i++;
 	}
     }
