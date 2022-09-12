@@ -202,8 +202,8 @@ static uae_u32 REGPARAM2 getchipmemsize (TrapContext *context)
 
 static uae_u32 REGPARAM2 uae_puts (TrapContext *context)
 {
-	puts ((char*)get_real_address (m68k_areg (regs, 0)));
-	return 0;
+    puts ((char *)get_real_address (m68k_areg (&context->regs, 0)));
+    return 0;
 }
 
 void rtarea_init_mem (void)
