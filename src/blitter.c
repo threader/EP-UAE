@@ -37,13 +37,13 @@ int blitter_nasty;
 
 static int original_ch, original_fill, original_line;
 
-static int blinea_shift;
+static unsigned int blinea_shift;
 static uae_u16 blinea, blineb;
-static int blitline, blitfc, blitfill, blitife, blitsing, blitdesc;
-static int blitonedot, blitsign, blitlinepixel;
+static unsigned int blitline, blitfc, blitfill, blitife, blitsing, blitdesc;
+static unsigned int blitonedot, blitsign, blitlinepixel;
 static int blit_add;
 static int blit_modadda, blit_modaddb, blit_modaddc, blit_modaddd;
-static int blit_ch;
+static unsigned int blit_ch;
 static int vblitsize, hblitsize;
 
 #ifdef BLITTER_DEBUG
@@ -60,24 +60,27 @@ static uae_u8 blit_filltable[256][4][2];
 uae_u32 blit_masktable[BLITTER_MAX_WORDS];
 enum blitter_states bltstate;
 
-static int blit_cyclecounter, blit_waitcyclecounter;
-static int blit_maxcyclecounter, blit_slowdown, blit_totalcyclecounter;
-static int blit_startcycles, blit_misscyclecounter;
+static unsigned int blit_cyclecounter, blit_waitcyclecounter;
+static unsigned int blit_maxcyclecounter, blit_totalcyclecounter;
+static unsigned int blit_startcycles, blit_misscyclecounter;
+static int blit_slowdown;
 
 #ifdef CPUEMU_12
 extern uae_u8 cycle_line[256];
 #endif
 
-static long blit_firstline_cycles;
-static long blit_first_cycle;
-static int blit_last_cycle, blit_dmacount, blit_dmacount2;
-static int blit_linecycles, blit_extracycles, blit_nod;
-static const int *blit_diag;
+static unsigned long blit_firstline_cycles;
+static unsigned long blit_first_cycle;
+static unsigned int blit_last_cycle, blit_dmacount, blit_dmacount2;
+static int blit_linecycles, blit_extracycles;
+static const uae_s8 *blit_diag;
 static int blit_frozen, blit_faulty;
 static int blit_final;
 static int blt_delayed_irq;
 static uae_u16 ddat1, ddat2;
 static int ddat1use, ddat2use;
+
+static unsigned int blit_nod;
 
 int blit_interrupt;
 
@@ -125,7 +128,7 @@ idle cycle added (still requires free bus cycle)
 
 */
 
-static const int blit_cycle_diagram_fill[][10] =
+static const uae_s8 blit_cycle_diagram_fill[][10] =
 {
 	{ 0 },						/* 0 */
 	{ 3, 0,0,0,	    0,4,0 },	/* 1 */
@@ -173,17 +176,17 @@ There is at least one demo that does this..
 */
 
 // 5 = internal "processing cycle"
-static const int blit_cycle_diagram_line[] =
+static const uae_s8 blit_cycle_diagram_line[] =
 {
 	4, 0,3,5,4,	    0,3,5,4
 };
 
-static const int blit_cycle_diagram_finald[] =
+static const uae_s8 blit_cycle_diagram_finald[] =
 {
 	2, 0,4,	    0,4
 };
 
-static const int blit_cycle_diagram_finalld[] =
+static const uae_s8 blit_cycle_diagram_finalld[] =
 {
 	2, 0,0,	    0,0
 };
@@ -192,14 +195,14 @@ static const int blit_cycle_diagram_finalld[] =
 void build_blitfilltable (void)
 {
 	unsigned int d, fillmask;
-	int i;
+	unsigned int i;
 
 	for (i = 0; i < BLITTER_MAX_WORDS; i++)
 		blit_masktable[i] = 0xFFFF;
 
 	for (d = 0; d < 256; d++) {
 		for (i = 0; i < 4; i++) {
-			int fc = i & 1;
+			unsigned int fc = i & 1;
 			uae_u8 data = d;
 			for (fillmask = 1; fillmask != 0x100; fillmask <<= 1) {
 				uae_u16 tmp = data;
@@ -217,7 +220,7 @@ void build_blitfilltable (void)
 	}
 }
 
-STATIC_INLINE void record_dma_blit (uae_u16 reg, uae_u16 dat, uae_u32 addr, int hpos)
+STATIC_INLINE void record_dma_blit (uae_u16 reg, uae_u16 dat, uae_u32 addr, unsigned int hpos)
 {
 #ifdef DEBUGGER
 	int type;
@@ -250,19 +253,19 @@ STATIC_INLINE const int *get_ch (void)
 	return blit_diag;
 }
 
-STATIC_INLINE int channel_state (int cycles)
+STATIC_INLINE int channel_state (unsigned int cycles)
 {
 	const int *diag;
 	if (cycles < 0)
 		return 0;
 	diag = get_ch ();
-	if (cycles < diag[0])
+	if ((int)cycles < diag[0])
 		return diag[1 + cycles];
 	cycles -= diag[0];
 	cycles %= diag[0];
 	return diag[1 + diag[0] + cycles];
 }
-STATIC_INLINE int channel_pos (int cycles)
+STATIC_INLINE int channel_pos (unsigned int cycles)
 {
 	const int *diag;
 	if (cycles < 0)
@@ -280,8 +283,8 @@ int blitter_channel_state (void)
 	return channel_state (blit_cyclecounter);
 }
 
-extern int is_bitplane_dma (int hpos);
-STATIC_INLINE int canblit (int hpos)
+extern int is_bitplane_dma (unsigned int hpos);
+STATIC_INLINE int canblit (unsigned int hpos)
 {
 	if (is_bitplane_dma (hpos))
 		return 0;
@@ -293,7 +296,7 @@ STATIC_INLINE int canblit (int hpos)
 // blitter interrupt is set when last "main" cycle
 // has been finished, any non-linedraw D-channel blit
 // still needs 2 more cycles before final D is written
-static void blitter_interrupt (int hpos, int done)
+static void blitter_interrupt (unsigned int hpos, int done)
 {
 	if (blit_interrupt)
 		return;
@@ -305,7 +308,7 @@ static void blitter_interrupt (int hpos, int done)
 		record_dma_event (DMA_EVENT_BLITIRQ, hpos, vpos);
 }
 
-static void blitter_done (int hpos)
+static void blitter_done (unsigned int hpos)
 {
 	ddat1use = ddat2use = 0;
 	bltstate = blit_startcycles == 0 || !currprefs.blitter_cycle_exact ? BLT_done : BLT_init;
@@ -314,7 +317,7 @@ static void blitter_done (int hpos)
 	if (debug_dma)
 		record_dma_event (DMA_EVENT_BLITFINISHED, hpos, vpos);
 	event2_remevent (ev2_blitter);
-	unset_special (SPCFLAG_BLTNASTY);
+	unset_special (&regs, SPCFLAG_BLTNASTY);
 #ifdef BLITTER_DEBUG
 	write_log ("cycles %d, missed %d, total %d\n",
 		blit_totalcyclecounter, blit_misscyclecounter, blit_totalcyclecounter + blit_misscyclecounter);
@@ -645,7 +648,7 @@ static unsigned int blitter_cyclecounter;
 static int blitter_hcounter1, blitter_hcounter2;
 static int blitter_vcounter1, blitter_vcounter2;
 
-static void decide_blitter_line (unsigned int hpos)
+static void decide_blitter_line (unsigned int hsync, unsigned int hpos)
 {
 	if (blit_final && vblitsize)
 		blit_final = 0;
@@ -1108,7 +1111,7 @@ static void blitter_force_finish (void)
 #endif
 	    actually_do_blit ();
 	}
-	blitter_done ();
+	blitter_done (current_hpos ());
 	dmacon = odmacon;
     }
 }
@@ -1241,7 +1244,7 @@ void reset_blit (unsigned int bltcon)
 	blit_modset ();
 }
 
-static void do_blitter2 (unsigned int hpos,unsigned  int copper)
+static void do_blitter2 (unsigned int hpos, int copper)
 {
 	unsigned int cycles;
 	int cleanstart;
@@ -1323,9 +1326,9 @@ static void do_blitter2 (unsigned int hpos,unsigned  int copper)
 	bltstate = BLT_init;
 	blit_slowdown = 0;
 
-	unset_special (SPCFLAG_BLTNASTY);
+	unset_special (&regs,SPCFLAG_BLTNASTY);
 	if (dmaen (DMA_BLITPRI))
-		set_special (SPCFLAG_BLTNASTY);
+		set_special (&regs, SPCFLAG_BLTNASTY);
 
 #if 0
 	if (M68K_GETPC >= 0x00070554 && M68K_GETPC <= 0x000706B0) {
@@ -1372,7 +1375,7 @@ static void do_blitter2 (unsigned int hpos,unsigned  int copper)
 	event2_newevent (ev2_blitter, blit_cyclecounter);
 }
 
-void do_blitter (unsigned int hpos,unsigned  int copper)
+void do_blitter (unsigned int hpos, int copper)
 {
 	if (bltstate == BLT_done || !currprefs.blitter_cycle_exact) {
 		do_blitter2 (hpos, copper);
@@ -1384,7 +1387,7 @@ void do_blitter (unsigned int hpos,unsigned  int copper)
 	blit_waitcyclecounter = copper;
 }
 
-void maybe_blit (unsigned int hpos,unsigned  int hack)
+void maybe_blit (unsigned int hpos, int hack)
 {
 	static int warned = 10;
 
@@ -1425,12 +1428,12 @@ end:;
 
 unsigned int blitnasty (void)
 {
-	int cycles, ccnt;
+	unsigned int cycles, ccnt;
 	if (bltstate == BLT_done)
 		return 0;
 	if (!dmaen (DMA_BLITTER))
 		return 0;
-	if (blit_last_cycle >= blit_diag[0] && blit_dmacount == blit_diag[0])
+	if ((int)blit_last_cycle >= blit_diag[0] && (int)blit_dmacount == blit_diag[0])
 		return 0;
 	cycles = (get_cycles () - blit_first_cycle) / CYCLE_UNIT;
 	ccnt = 0;
@@ -1443,7 +1446,7 @@ unsigned int blitnasty (void)
 }
 
 /* very approximate emulation of blitter slowdown caused by bitplane DMA */
-void blitter_slowdown (int ddfstrt, int ddfstop, int totalcycles, int freecycles)
+void blitter_slowdown (int ddfstrt, int ddfstop, unsigned int totalcycles, unsigned int freecycles)
 {
     static int oddfstrt, oddfstop;
     static unsigned ototal, ofree;

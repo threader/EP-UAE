@@ -189,6 +189,9 @@ STATIC_INLINE uae_u32 munge24 (uae_u32 x)
     return x & regs.address_space_mask;
 }
 
+extern int mmu_enabled, mmu_triggered;
+extern int cpu_cycles;
+extern int cpucycleunit;
 STATIC_INLINE void set_special (struct regstruct *regs, uae_u32 x)
 {
     regs->spcflags |= x;

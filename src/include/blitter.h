@@ -31,11 +31,11 @@ extern int blit_singlechannel;
 
 extern void maybe_blit (unsigned int, int);
 extern void reset_blit (unsigned int);
-extern int blitnasty (void);
-extern int blitnnasty (unsigned int);
+extern unsigned int blitnasty (void);
+extern unsigned int blitnnasty (unsigned int);
 extern void blitter_handler (uae_u32);
 extern void build_blitfilltable (void);
-extern void do_blitter (unsigned int, int);
+extern void do_blitter (unsigned int hpos, int);
 extern void decide_blitter (unsigned int hpos);
 extern int blitter_need (unsigned int hpos);
 extern void blitter_done_notify (unsigned int hpos);
