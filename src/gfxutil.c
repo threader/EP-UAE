@@ -250,7 +250,7 @@ void alloc_colors_rgb (int rw, int gw, int bw, int rs, int gs, int bs, int aw, i
 
 void alloc_colors64k (int rw, int gw, int bw, int rs, int gs, int bs, int aw, int as, int alpha, int byte_swap)
 {
-    unsigned int i;
+    unsigned int i, j;
     unsigned int bpp = rw + gw + bw + aw;
 
 	video_calc_gammatable();
