@@ -365,7 +365,7 @@ struct draw_info line_drawinfo[2][2 * (MAXVPOS + 1) + 1];
 #define COLOR_TABLE_SIZE (MAXVPOS + 1) * 2
 struct color_entry color_tables[2][COLOR_TABLE_SIZE];
 
-static int next_sprite_entry = 0;
+int next_sprite_entry = 0;
 static int prev_next_sprite_entry;
 static int next_sprite_forced = 1;
 

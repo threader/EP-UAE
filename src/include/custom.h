@@ -163,6 +163,7 @@ extern unsigned int plfstrt;
 extern unsigned int plfstop;
 extern unsigned int plffirstline, plflastline;
 extern uae_u16 htotal, vtotal;
+extern uae_u32 beamcon0;
 
 /* 100 words give you 1600 horizontal pixels. Should be more than enough for
  * superhires. Don't forget to update the definition in genp2c.c as well.
