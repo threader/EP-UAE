@@ -587,8 +587,6 @@ struct zfile *zfile_gunzip (struct zfile *z)
     struct zfile *z2;
     uae_u8 b;
 
-    if (!zlib_test ())
-	return z;
 	_tcscpy (name, z->name);
     memset (&zs, 0, sizeof (zs));
     memset (header, 0, sizeof (header));
@@ -1356,8 +1354,6 @@ static struct zfile *unzip (struct zfile *z)
     char tmphist[MAX_DPATH];
     int first = 1;
 
-    if (!zlib_test ())
-	return z;
     zf = 0;
     uz = unzOpen (z);
     if (!uz)
@@ -1872,8 +1868,6 @@ int zfile_zuncompress (void *dst, int dstsize, struct zfile *src, int srcsize)
     uae_u8 inbuf[4096];
     int incnt;
 
-    if (!zlib_test ())
-	return 0;
     memset (&zs, 0, sizeof(zs));
 	if (inflateInit (&zs) != Z_OK)
 		return 0;
