@@ -245,9 +245,7 @@ struct draw_info {
     int nr_color_changes, nr_sprites;
 };
 
-
-extern uae_u8 *real_bplpt[8];
-//extern int next_sprite_entry;
+extern int next_sprite_entry;
 
 extern struct decision line_decisions[2 * (MAXVPOS + 1) + 1];
 extern struct draw_info line_drawinfo[2][2 * (MAXVPOS + 1) + 1];
