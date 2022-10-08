@@ -42,7 +42,7 @@ static uaecptr res_init, res_name, res_id, base;
 
 static uae_u32 REGPARAM2 res_getfunc (TrapContext *ctx)
 {
-	uaecptr funcname = m68k_areg (regs, 0);
+	uaecptr funcname = m68k_areg (&regs, 0);
 	uae_char tmp[256];
 	uae_u32 p;
 
@@ -56,7 +56,7 @@ static uae_u32 REGPARAM2 res_getfunc (TrapContext *ctx)
 static uae_u32 REGPARAM2 res_initcode (TrapContext *ctx)
 {
 	uaecptr rb;
-	base = m68k_dreg (regs, 0);
+	base = m68k_dreg (&regs, 0);
 	rb = base + SIZEOF_LIBRARY;
 	put_word (rb + 0, UAEMAJOR);
 	put_word (rb + 2, UAEMINOR);
