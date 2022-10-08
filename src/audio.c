@@ -1126,7 +1126,7 @@ extern unsigned int have_sound;
 //static struct sound_data sdpaula;
 //static struct sound_data *sdp = &sdpaula;
 
-void update_sound (int freq, int longframe, int linetoggle)
+void update_sound (unsigned int freq, int longframe, int linetoggle)
 {
 	static int lastfreq;
 	float lines = 0;
@@ -1202,14 +1202,14 @@ static void state23 (struct audio_channel_data *cdp)
 	}
 }
 
-static void audio_handler (int nr)
+static void audio_handler (unsigned int nr)
 {
 	struct audio_channel_data *cdp = audio_channel + nr;
 
-	int audav = adkcon & (0x01 << nr);
-	int audap = adkcon & (0x10 << nr);
-	int napnav = (!audav && !audap) || audav;
-	int evtime = cdp->evtime;
+    unsigned int audav = adkcon & (0x01 << nr);
+    unsigned int audap = adkcon & (0x10 << nr);
+    unsigned int napnav = (!audav && !audap) || audav;
+    unsigned long evtime = cdp->evtime;
 
 	audio_activate ();
 	cdp->evtime = MAX_EV;
@@ -1841,7 +1841,7 @@ void AUDxPER (unsigned int nr, uae_u16 v)
 #endif
 }
 
-void AUDxLEN (int nr, uae_u16 v)
+void AUDxLEN (unsigned int nr, uae_u16 v)
 {
 	audio_activate();
 	update_audio ();
@@ -1921,7 +1921,7 @@ void led_filter_audio (void)
 }
 
 #ifdef SAVESTATE
-uae_u8 *restore_audio (int i, uae_u8 *src)
+const uae_u8 *restore_audio (unsigned int i, const uae_u8 *src)
 {
 	struct audio_channel_data *acd;
 	uae_u16 p;
@@ -1945,7 +1945,7 @@ uae_u8 *restore_audio (int i, uae_u8 *src)
 #endif /* SAVESTATE */
 
 #if defined SAVESTATE || defined DEBUGGER
-uae_u8 *save_audio (int i, int *len, uae_u8 *dstptr)
+uae_u8 *save_audio (unsigned int i, uae_u32 *len, uae_u8 *dstptr)
 {
 	struct audio_channel_data *acd;
 	uae_u8 *dst, *dstbak;
