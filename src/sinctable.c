@@ -5,7 +5,7 @@
 #include "sinctable.h"
 
 /* tables are: a500 off, a500 on, a1200 off, a1200 on, vanilla. */
-static const int winsinc_integral[5][2048] = {
+const int winsinc_integral[5][2048] = {
     {
 131072,131072,131072,131072,131072,131072,131072,131072,131072,131072,131072,
 131071,131071,131071,131071,131071,131071,131071,131071,131071,131071,131071,131070,
