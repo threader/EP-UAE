@@ -105,7 +105,7 @@ void uae_NotificationHack (uaecptr port, uaecptr nr)
 }
 
 #endif
- */ note */
+ /* note */
 void uae_NewList (uaecptr list)
 {
 	put_long_slow (list, list + 4);
