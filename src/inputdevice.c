@@ -228,7 +228,7 @@ static void out_config (FILE *f, int id, int num, const char *s1, const char *s2
     cfgfile_write (f, "input.%d.%s%d=%s\n", id, s1, num, s2);
 }
 
-static void write_config2 (FILE *f, int idnum, int i, int offset, TCHAR *tmp1, struct uae_input_device *id)
+static void write_config2 (FILE *f, int idnum, int i, int offset, const TCHAR *tmp1, const struct uae_input_device *id)
 {
 	TCHAR tmp2[200], tmp3[200], *p;
 	int evt, got, j, k;
@@ -320,7 +320,7 @@ static void kbrlabel (TCHAR *s)
     }
 }
 
-static void write_kbr_config (FILE *f, int idnum, int devnum, struct uae_input_device *kbr, struct inputdevice_functions *idf)
+static void write_kbr_config (FILE *f, int idnum, int devnum, const struct uae_input_device *kbr, struct inputdevice_functions *idf)
 {
 	TCHAR tmp1[200], tmp2[200], tmp3[200], tmp4[200], *p;
     int i, j, k, evt, skip;
@@ -455,13 +455,14 @@ static void clear_id (struct uae_input_device *id)
     memset (id, 0, sizeof (struct uae_input_device));
 }
 
-void read_inputdevice_config (struct uae_prefs *pr, char *option, char *value)
+void read_inputdevice_config (struct uae_prefs *pr, const char *option,const char *value)
 {
     struct uae_input_device *id = 0;
-	struct inputevent *ie;
-	int devnum, num, button, joystick, flags, i, subnum, idnum, keynum;
+	const struct inputevent *ie;
+	 int devnum, num, button = 0, joystick, flags, i, subnum, idnum, keynum = 0;
     int mask;
-	char *p, *p2, *custom;
+	const char *p, *p2;
+    char *custom;
 
     option += 6; /* "input." */
     p = getstring (&option);
@@ -1379,8 +1380,8 @@ static void mouseupdate (int pct, int vsync)
     }
 }
 
-static int input_vpos, input_frame;
-extern int vpos;
+static unsigned int input_vpos, input_frame;
+
 static void readinput (void)
 {
 	uae_u32 totalvpos;
@@ -1402,7 +1403,7 @@ static void readinput (void)
 int getjoystate (int joy)
 {
 	int left = 1, right = 1, top = 1, bot = 1;
-	uae_u16 v;
+	uae_u16 v = 0;
 
 	if (inputdevice_logging & 2)
 		write_log ("JOY%dDAT %08x\n", joy, M68K_GETPC);
@@ -2130,7 +2131,7 @@ void inputdevice_handle_inputcode (void)
     }
 }
 
-int handle_custom_event (TCHAR *custom)
+static int handle_custom_event (TCHAR *custom)
 {
 	TCHAR *p, *buf, *nextp;
 
@@ -2160,7 +2161,7 @@ int handle_custom_event (TCHAR *custom)
 
 int handle_input_event (int nr, int state, int max, int autofire)
 {
-	struct inputevent *ie;
+	const struct inputevent *ie;
     int joy;
 
     if (nr <= 0)
@@ -3713,7 +3714,7 @@ static int put_event_data (const struct inputdevice_functions *id, int devnum, i
     return -1;
 }
 
-static int is_event_used (const struct inputdevice_functions *id, int devnum, int isnum, int isevent)
+static int is_event_used (const struct inputdevice_functions *id, int devnum, unsigned int isnum, int isevent)
 {
     unsigned int num;
 	struct uae_input_device *uid = get_uid (id, devnum);
@@ -3731,7 +3732,7 @@ static int is_event_used (const struct inputdevice_functions *id, int devnum, in
     return 0;
 }
 
-int inputdevice_get_device_index (unsigned int devnum)
+int inputdevice_get_device_index (int devnum)
 {
 	if (devnum < idev[IDTYPE_JOYSTICK].get_num())
 		return devnum;
@@ -3743,7 +3744,7 @@ int inputdevice_get_device_index (unsigned int devnum)
 		return -1;
 }
 
-static int gettype (unsigned int devnum)
+static int gettype (int devnum)
 {
 	if (devnum < idev[IDTYPE_JOYSTICK].get_num())
 		return IDTYPE_JOYSTICK;
@@ -3770,12 +3771,12 @@ int inputdevice_get_device_total (int type)
     return idev[type].get_num ();
 }
 /* returns the name of device */
-TCHAR *inputdevice_get_device_name (int type, int devnum)
+const TCHAR *inputdevice_get_device_name (int type, int devnum)
 {
 	return idev[type].get_friendlyname (devnum);
 }
 /* returns machine readable name of device */
-TCHAR *inputdevice_get_device_unique_name (int type, int devnum)
+const TCHAR *inputdevice_get_device_unique_name (int type, int devnum)
 {
 	return idev[type].get_uniquename (devnum);
 }
@@ -3816,7 +3817,7 @@ int inputdevice_iterate (int devnum, int num, TCHAR *name, int *af)
 {
     const struct inputdevice_functions *idf = getidf (devnum);
     static int id_iterator;
-	struct inputevent *ie;
+	const struct inputevent *ie;
     int mask, data, flags, type;
     int devindex = inputdevice_get_device_index (devnum);
 	TCHAR *custom;
@@ -3903,7 +3904,7 @@ int inputdevice_get_mapped_name (int devnum, int num, int *pflags, TCHAR *name, 
     return data;
 }
 
-int inputdevice_set_mapping (int devnum, int num, TCHAR *name, TCHAR *custom, int flags, int sub)
+int inputdevice_set_mapping (int devnum, int num, const TCHAR *name, TCHAR *custom, int flags, int sub)
 {
     const struct inputdevice_functions *idf = getidf (devnum);
     const struct uae_input_device *uid = get_uid (idf, inputdevice_get_device_index (devnum));

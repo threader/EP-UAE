@@ -19,6 +19,8 @@ struct inputdevice_functions {
     void          (*unacquire)        (unsigned int);
     void          (*read)             (void);
     unsigned int  (*get_num)          (void);
+    char* (*get_friendlyname)(int);
+    char* (*get_uniquename)(int);
     const char   *(*get_name)         (unsigned int);
     unsigned int  (*get_widget_num)   (unsigned int);
     int           (*get_widget_type)  (unsigned int, unsigned int, char *, uae_u32 *);
@@ -51,16 +53,16 @@ struct uae_input_device_kbr_default {
 #define ID_AXIS_TOTAL 32
 
 extern int inputdevice_iterate (int devnum, int num, TCHAR *name, int *af);
-extern int inputdevice_set_mapping (int devnum, int num, TCHAR *name, TCHAR *custom, int flags, int sub);
+extern int inputdevice_set_mapping (int devnum, int num, const TCHAR *name, TCHAR *custom, int flags, int sub);
 extern int inputdevice_get_mapped_name (int devnum, int num, int *pflags, TCHAR *name, TCHAR *custom, int sub);
 extern void inputdevice_copyconfig (const struct uae_prefs *src, struct uae_prefs *dst);
 extern void inputdevice_copy_single_config (struct uae_prefs *p, int src, int dst, int devnum);
 extern void inputdevice_swap_ports (struct uae_prefs *p, int devnum);
 extern void inputdevice_config_change (void);
 extern int inputdevice_config_change_test (void);
-extern int inputdevice_get_device_index (unsigned int devnum);
-extern TCHAR *inputdevice_get_device_name (int type, int devnum);
-extern TCHAR *inputdevice_get_device_unique_name (int type, int devnum);
+extern int inputdevice_get_device_index (int devnum);
+extern const char *inputdevice_get_device_name (int type, int devnum);
+extern const TCHAR *inputdevice_get_device_unique_name (int type, int devnum);
 extern int inputdevice_get_device_status (int devnum);
 extern void inputdevice_set_device_status (int devnum, int enabled);
 extern int inputdevice_get_device_total (int type);
@@ -138,8 +140,8 @@ extern void inputdevice_vsync (void);
 extern void inputdevice_hsync (void);
 extern void inputdevice_reset (void);
 
-extern void write_inputdevice_config (struct uae_prefs *p, FILE *f);
-extern void read_inputdevice_config (struct uae_prefs *p, TCHAR *option, TCHAR *value);
+extern void write_inputdevice_config (const struct uae_prefs *p, FILE *f);
+extern void read_inputdevice_config (struct uae_prefs *p, const char *option, const char *value);
 extern void reset_inputdevice_config (struct uae_prefs *pr);
 extern int inputdevice_joyport_config (struct uae_prefs *p, TCHAR *value, int portnum, int mode, int type);
 extern int inputdevice_getjoyportdevice (int jport);
@@ -189,8 +191,6 @@ extern void inputdevice_tablet_strobe (void);
 #define JSEM_ISXARCADE2(port,p) (jsem_iskbdjoy(port,p) == JSEM_XARCADE2LAYOUT)
 #define JSEM_LASTKBD 5
 #define JSEM_ISANYKBD(port,p)        (jsem_iskbdjoy (port,p) >= JSEM_KBDLAYOUT && jsem_iskbdjoy(port,p) < JSEM_KBDLAYOUT + JSEM_LASTKBD)
-
-extern int compatibility_device[2];
 
 extern int jsem_isjoy    (int port, const struct uae_prefs *p);
 extern int jsem_ismouse  (int port, const struct uae_prefs *p);
