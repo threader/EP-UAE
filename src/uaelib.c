@@ -27,7 +27,7 @@
 #include "audio.h"
 #include "picasso96.h"
 #include "version.h"
-
+#include "filesys.h"
 /*
  * Returns UAE Version
  */
@@ -130,7 +130,7 @@ static uae_u32 emulib_ChangeLanguage (uae_u32 which)
  * Changes chip memory size
  *  (reboots)
  */
-static uae_u32 REGPARAM2 emulib_ChgCMemSize (uae_u32 memsize)
+static uae_u32 REGPARAM2 emulib_ChgCMemSize (struct regstruct *regs, uae_u32 memsize)
 {
     if (memsize != 0x80000 && memsize != 0x100000 &&
 		memsize != 0x200000) {
@@ -148,7 +148,7 @@ static uae_u32 REGPARAM2 emulib_ChgCMemSize (uae_u32 memsize)
  * Changes slow memory size
  *  (reboots)
  */
-static uae_u32 REGPARAM2 emulib_ChgSMemSize (uae_u32 memsize)
+static uae_u32 REGPARAM2 emulib_ChgSMemSize (struct regstruct *regs, uae_u32 memsize)
 {
     if (memsize != 0x80000 && memsize != 0x100000 &&
 		memsize != 0x180000 && memsize != 0x1C0000) {
@@ -166,7 +166,7 @@ static uae_u32 REGPARAM2 emulib_ChgSMemSize (uae_u32 memsize)
  * Changes fast memory size
  *  (reboots)
  */
-static uae_u32 REGPARAM2 emulib_ChgFMemSize (uae_u32 memsize)
+static uae_u32 REGPARAM2 emulib_ChgFMemSize (struct regstruct *regs, uae_u32 memsize)
 {
     if (memsize != 0x100000 && memsize != 0x200000 &&
 		memsize != 0x400000 && memsize != 0x800000) {
@@ -404,9 +404,9 @@ static uae_u32 REGPARAM2 uaelib_demux2 (TrapContext *context)
      case 6: return emulib_EnableSound (ARG1);
      case 7: return emulib_EnableJoystick (ARG1);
      case 8: return emulib_SetFrameRate (ARG1);
-	case 9: return emulib_ChgCMemSize (ARG1);
-	case 10: return emulib_ChgSMemSize (ARG1);
-	case 11: return emulib_ChgFMemSize (ARG1);
+     case 9: return emulib_ChgCMemSize (&context->regs, ARG1);
+     case 10: return emulib_ChgSMemSize (&context->regs, ARG1);
+     case 11: return emulib_ChgFMemSize (&context->regs, ARG1);
      case 12: return emulib_ChangeLanguage (ARG1);
 	/* The next call brings bad luck */
      case 13: return emulib_ExitEmu ();
@@ -462,7 +462,7 @@ static uae_u32 REGPARAM2 uaelib_demux2 (TrapContext *context)
 		{
 			uae_u32 d0, d1;
 			d0 = emulib_target_getcpurate (ARG1, &d1);
-			m68k_dreg (regs, 1) = d1;
+			m68k_dreg (&context->regs, 1) = d1;
 			return d0;
 		}
 
