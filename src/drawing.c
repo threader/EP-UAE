@@ -2474,7 +2474,7 @@ static void write_tdnumber (uae_u8 *buf, int bpp, int x, int y, int num, uae_u32
     }
 }
 
-static void draw_status_line_single (uae_u8 *buf, int bpp, int y, int totalwidth, uae_u32 *rc, uae_u32 *gc, uae_u32 *bc, uae_u32 *alpha)
+void draw_status_line_single (uae_u8 *buf, int bpp, int y, int totalwidth, uae_u32 *rc, uae_u32 *gc, uae_u32 *bc, uae_u32 *alpha)
 {
     int x_start, j, led, border;
     uae_u32 c1, c2, cb;
@@ -2918,7 +2918,7 @@ void vsync_handle_redraw (int long_frame, int lof_changed)
 		if (quit_program < 0) {
 		    quit_program = -quit_program;
 		    set_inhibit_frame (IHF_QUIT_PROGRAM);
-		    set_special (SPCFLAG_BRK);
+		    set_special (&regs, SPCFLAG_BRK);
 		    return;
 		}
 
