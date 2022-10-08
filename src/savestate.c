@@ -131,15 +131,15 @@ void save_string_func (uae_u8 **dstp, const TCHAR *from)
     *dstp = dst;
 }
 
-uae_u32 restore_u32_func (uae_u8 **dstp)
+uae_u32 restore_u32_func (const uae_u8 **dstp)
 {
     uae_u32 v;
-	uae_u8 *dst = *dstp;
+    const uae_u8 *dst = *dstp;
     v = (dst[0] << 24) | (dst[1] << 16) | (dst[2] << 8) | (dst[3]);
     *dstp = dst + 4;
     return v;
 }
-uae_u64 restore_u64_func (uae_u8 **dstp)
+uae_u64 restore_u64_func (const uae_u8 **dstp)
 {
     uae_u64 v;
 
@@ -148,18 +148,18 @@ uae_u64 restore_u64_func (uae_u8 **dstp)
     v |= restore_u32_func (dstp);
     return v;
 }
-uae_u16 restore_u16_func (uae_u8 **dstp)
+uae_u16 restore_u16_func (const uae_u8 **dstp)
 {
     uae_u16 v;
-	uae_u8 *dst = *dstp;
+    const uae_u8 *dst = *dstp;
     v=(dst[0] << 8) | (dst[1]);
     *dstp = dst + 2;
     return v;
 }
-uae_u8 restore_u8_func (uae_u8 **dstp)
+uae_u8 restore_u8_func (const uae_u8 **dstp)
 {
     uae_u8 v;
-	uae_u8 *dst = *dstp;
+    const uae_u8 *dst = *dstp;
     v = dst[0];
     *dstp = dst + 1;
     return v;
@@ -679,9 +679,8 @@ int save_state (const TCHAR *filename, const TCHAR *description)
 			xfree (tmp);
 	}
 	zfile_fclose (f);
-	return 1;
-    }
-#endif
+		return 1;
+	}
 
     dst = header;
     save_u32 (0);

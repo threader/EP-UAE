@@ -100,6 +100,7 @@ extern uae_u8 *save_cram (uae_u32 *);
 extern uae_u8 *save_bram (uae_u32 *);
 extern uae_u8 *save_fram (uae_u32 *);
 extern uae_u8 *save_zram (uae_u32 *, int);
+extern uae_u8 *save_bootrom (uae_u32 *);
 extern uae_u8 *save_pram (uae_u32 *);
 extern uae_u8 *save_a3000lram (uae_u32 *);
 extern uae_u8 *save_a3000hram (uae_u32 *);
@@ -110,8 +111,8 @@ extern       uae_u8 *save_rom    (int first, uae_u32 *len, uae_u8 *dstptr);
 extern const uae_u8 *restore_action_replay (const uae_u8 *);
 extern       uae_u8 *save_action_replay    (uae_u32 *, uae_u8 *);
 
-extern void savestate_initsave (const char *filename, int docompress);
-extern void save_state (const char *filename, const char *description);
+extern void savestate_initsave (const char *filename, int docompress, int nodialogs);
+extern int save_state (const char *filename, const char *description);
 
 extern uae_u8 *restore_mmu (uae_u8 *);
 extern uae_u8 *save_mmu (int *, uae_u8 *);
