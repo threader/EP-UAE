@@ -259,7 +259,7 @@ static void enforcer_display_hit (const char *addressmode, uae_u32 pc, uaecptr a
 	enforcer_buf_ptr += _tcslen (enforcer_buf_ptr);
 
     /* Stack */
-	a7 = m68k_areg (regs, 7);
+	a7 = m68k_areg (&regs, 7);
     for (i = 0; i < 8 * STACKLINES; i++) {
 		a7 += 4;
 	if (!(i % 8)) {
@@ -274,7 +274,7 @@ static void enforcer_display_hit (const char *addressmode, uae_u32 pc, uaecptr a
     }
 
     /* Segtracker output */
-	a7 = m68k_areg (regs, 7);
+	a7 = m68k_areg (&regs, 7);
     if (get_long (a7-4) != pc) {
 	if (enforcer_decode_hunk_and_offset (buf, pc)) {
 			_tcscpy (enforcer_buf_ptr, buf);
@@ -404,14 +404,14 @@ static uae_u32 REGPARAM2 chipmem_lget2 (uaecptr addr)
 
 	if (ISILLEGAL_LONG (addr))
 	{
-		enforcer_display_hit ("LONG READ from",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+		enforcer_display_hit ("LONG READ from",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 		if (enforcermode & 1)
-			set_special (SPCFLAG_TRAP);
+			set_special (&regs, SPCFLAG_TRAP);
 	}
     return do_get_mem_long (m);
 }
 
-uae_u32 REGPARAM2 chipmem_wget2(uaecptr addr)
+static uae_u32 REGPARAM2 chipmem_wget2 (uaecptr addr)
 {
     uae_u16 *m;
 
@@ -421,29 +421,29 @@ uae_u32 REGPARAM2 chipmem_wget2(uaecptr addr)
 
 	if (ISILLEGAL_WORD (addr))
 	{
-		enforcer_display_hit ("WORD READ from",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+		enforcer_display_hit ("WORD READ from",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 		if (enforcermode & 1)
-			set_special (SPCFLAG_TRAP);
+			set_special (&regs, SPCFLAG_TRAP);
 	}
     return do_get_mem_word (m);
 }
 
-uae_u32 REGPARAM2 chipmem_bget2 (uaecptr addr)
+static uae_u32 REGPARAM2 chipmem_bget2 (uaecptr addr)
 {
     addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
 
 	if (ISILLEGAL_BYTE (addr))
 	{
-		enforcer_display_hit ("BYTE READ from",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+		enforcer_display_hit ("BYTE READ from",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 		if (enforcermode & 1)
-			set_special (SPCFLAG_TRAP);
+			set_special (&regs, SPCFLAG_TRAP);
 	}
 
     return chipmemory[addr];
 }
 
-void REGPARAM2 chipmem_lput2 (uaecptr addr, uae_u32 l)
+static void REGPARAM2 chipmem_lput2 (uaecptr addr, uae_u32 l)
 {
     uae_u32 *m;
 
@@ -453,10 +453,10 @@ void REGPARAM2 chipmem_lput2 (uaecptr addr, uae_u32 l)
 
 	if (ISILLEGAL_LONG (addr))
 	{
-		enforcer_display_hit ("LONG WRITE to",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+		enforcer_display_hit ("LONG WRITE to",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 		if (enforcermode & 1)
 			if (addr != 0x100)
-				set_special (SPCFLAG_TRAP);
+				set_special (&regs, SPCFLAG_TRAP);
 	}
 	if (ISEXEC (addr) || ISEXEC (addr + 1) || ISEXEC (addr + 2) || ISEXEC (addr + 3))
 		return;
@@ -473,9 +473,9 @@ static void REGPARAM2 chipmem_wput2 (uaecptr addr, uae_u32 w)
 
 	if (ISILLEGAL_WORD (addr))
 	{
-		enforcer_display_hit ("WORD WRITE to",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+		enforcer_display_hit ("WORD WRITE to",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 		if (enforcermode & 1)
-			set_special (SPCFLAG_TRAP);
+			set_special (&regs, SPCFLAG_TRAP);
 	}
 	if (ISEXEC (addr) || ISEXEC (addr + 1))
 		return;
@@ -489,9 +489,9 @@ static void REGPARAM2 chipmem_bput2 (uaecptr addr, uae_u32 b)
 
 	if (ISILLEGAL_BYTE (addr))
 	{
-		enforcer_display_hit ("BYTE WRITE to",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+		enforcer_display_hit ("BYTE WRITE to",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 		if (enforcermode & 1)
-			set_special (SPCFLAG_TRAP);
+			set_special (&regs, SPCFLAG_TRAP);
 	}
 	if (ISEXEC (addr))
 		return;
@@ -512,12 +512,6 @@ static uae_u8 * REGPARAM2 chipmem_xlate2 (uaecptr addr)
     return chipmemory + addr;
 }
 
-static const addrbank enforcer_chipmem_bank = {
-    chipmem_lget2, chipmem_wget2, chipmem_bget2,
-    chipmem_lput2, chipmem_wput2, chipmem_bput2,
-    chipmem_xlate2, chipmem_check2, NULL
-};
-
 /*
  * Replacement dummy memory accessors
  */
@@ -532,9 +526,9 @@ static int      dummy_check2   (uaecptr addr, uae_u32 size) REGPARAM;
 static uae_u32 REGPARAM2 dummy_lget2 (uaecptr addr)
 {
 	special_mem_r;
-	enforcer_display_hit ("LONG READ from",(uae_u32)(regs.pc_p - NMEM_OFFSET), addr);
+	enforcer_display_hit ("LONG READ from",(uae_u32)(&regs.pc_p - NMEM_OFFSET), addr);
 	if (enforcermode & 1) {
-		set_special (SPCFLAG_TRAP);
+		set_special (&regs, SPCFLAG_TRAP);
 		return 0;
 	}
     return 0xbadedeef;
@@ -552,14 +546,14 @@ static uae_u32 REGPARAM2 dummy_wget2 (uaecptr addr)
     if (addr >= 0x00F10000 && addr <= 0x00F7FFFF) {
 	if (!warned_JIT_0xF10000) {
 	    warned_JIT_0xF10000 = 1;
-			enforcer_display_hit ("LONG READ from",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+			enforcer_display_hit ("LONG READ from",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 	}
 	return 0;
     }
 #endif
-	enforcer_display_hit ("WORD READ from",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+	enforcer_display_hit ("WORD READ from",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 	if (enforcermode & 1) {
-		set_special (SPCFLAG_TRAP);
+		set_special (&regs, SPCFLAG_TRAP);
     return 0;
 	}
 	return 0xbadf;
@@ -568,9 +562,9 @@ static uae_u32 REGPARAM2 dummy_wget2 (uaecptr addr)
 static uae_u32 REGPARAM2 dummy_bget2 (uaecptr addr)
 {
 	special_mem_r;
-	enforcer_display_hit ("BYTE READ from",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+	enforcer_display_hit ("BYTE READ from",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 	if (enforcermode & 1) {
-		set_special (SPCFLAG_TRAP);
+		set_special (&regs, SPCFLAG_TRAP);
 		return 0;
 	}
 	return 0xbadedeef;
@@ -579,9 +573,9 @@ static uae_u32 REGPARAM2 dummy_bget2 (uaecptr addr)
 static void REGPARAM2 dummy_lput2 (uaecptr addr, uae_u32 l)
 {
 	special_mem_w;
-	enforcer_display_hit ("LONG WRITE to",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+	enforcer_display_hit ("LONG WRITE to",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 	if (enforcermode & 1) {
-		set_special (SPCFLAG_TRAP);
+		set_special (&regs, SPCFLAG_TRAP);
 		return;
 	}
 }
@@ -589,9 +583,9 @@ static void REGPARAM2 dummy_lput2 (uaecptr addr, uae_u32 l)
 static void REGPARAM2 dummy_wput2 (uaecptr addr, uae_u32 w)
 {
 	special_mem_w;
-	enforcer_display_hit ("WORD WRITE to",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+	enforcer_display_hit ("WORD WRITE to",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 	if (enforcermode & 1) {
-		set_special (SPCFLAG_TRAP);
+		set_special (&regs, SPCFLAG_TRAP);
 		return;
 	}
 }
@@ -599,9 +593,9 @@ static void REGPARAM2 dummy_wput2 (uaecptr addr, uae_u32 w)
 static void REGPARAM2 dummy_bput2 (uaecptr addr, uae_u32 b)
 {
 	special_mem_w;
-	enforcer_display_hit ("BYTE WRITE to",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+	enforcer_display_hit ("BYTE WRITE to",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 	if (enforcermode & 1) {
-		set_special (SPCFLAG_TRAP);
+		set_special (&regs, SPCFLAG_TRAP);
 		return;
 	}
 }
@@ -609,15 +603,10 @@ static void REGPARAM2 dummy_bput2 (uaecptr addr, uae_u32 b)
 static int REGPARAM2 dummy_check2 (uaecptr addr, uae_u32 size)
 {
 	special_mem_r;
-	enforcer_display_hit ("CHECK from ",(uae_u32)(regs.pc_p - NMEM_OFFSET),addr);
+	enforcer_display_hit ("CHECK from ",(uae_u32)(&regs.pc_p - NMEM_OFFSET),addr);
 	return 0;
 }
 
-const addrbank enforcer_dummy_bank = {
-    dummy_lget2, dummy_wget2, dummy_bget2,
-    dummy_lput2, dummy_wput2, dummy_bput2,
-    default_xlate, dummy_check2, NULL
-};
 
 /*************************************************************
  enable the enforcer like support, maybe later this make MMU
