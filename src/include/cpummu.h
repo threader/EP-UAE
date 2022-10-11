@@ -562,35 +562,35 @@ STATIC_INLINE uae_u32 get_long_mmu (uaecptr addr)
 }
 STATIC_INLINE uae_u32 get_ibyte_mmu (struct regstruct *regs, int o)
 {
-    uae_u32 pc = m68k_getpc (&regs) + o;
+    uae_u32 pc = m68k_getpc (regs) + o;
     return uae_mmu_get_iword (pc);
 }
 STATIC_INLINE uae_u32 get_iword_mmu (struct regstruct *regs ,int o)
 {
-    uae_u32 pc = m68k_getpc (&regs) + o;
+    uae_u32 pc = m68k_getpc (regs) + o;
     return uae_mmu_get_iword (pc);
 }
 STATIC_INLINE uae_u32 get_ilong_mmu (struct regstruct *regs,int o)
 {
-    uae_u32 pc = m68k_getpc (&regs) + o;
+    uae_u32 pc = m68k_getpc (regs) + o;
     return uae_mmu_get_ilong (pc);
 }
 STATIC_INLINE uae_u32 next_iword_mmu (struct regstruct *regs)
 {
-    uae_u32 pc = m68k_getpc (&regs);
-    m68k_incpci (2);
+    uae_u32 pc = m68k_getpc (regs);
+    m68k_incpci (regs, 2);
     return uae_mmu_get_iword (pc);
 }
 STATIC_INLINE uae_u32 next_ilong_mmu (struct regstruct *regs)
 {
-    uae_u32 pc = m68k_getpc (&regs);
-    m68k_incpci (4);
+    uae_u32 pc = m68k_getpc (regs);
+    m68k_incpci (regs, 4);
     return uae_mmu_get_ilong (pc);
 }
 
 extern void m68k_do_rts_mmu (struct regstruct *regs);
 extern void m68k_do_rte_mmu (uaecptr a7);
-extern void m68k_do_bsr_mmu (uaecptr oldpc, struct regstruct *regs, uae_s32 offset);
+extern void m68k_do_bsr_mmu (struct regstruct *regs, uaecptr oldpc, uae_s32 offset);
 
 struct mmufixup
 {

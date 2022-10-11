@@ -489,11 +489,9 @@ static struct regstruct regs_backup[16];
 static int backup_pointer = 0;
 static long int m68kpc_offset;
 
-#if 0
-#define get_ibyte_1(o) get_byte (regs.pc + (regs.pc_p - regs.pc_oldp) + (o) + 1)
-#define get_iword_1(o) get_word (regs.pc + (regs.pc_p - regs.pc_oldp) + (o))
-#define get_ilong_1(o) get_long (regs.pc + (regs.pc_p - regs.pc_oldp) + (o))
-#endif
+#define get_ibyte_1(regs, o) get_byte((regs)->pc + ((regs)->pc_p - (regs)->pc_oldp) + (o) + 1)
+#define get_iword_1(regs, o) get_word((regs)->pc + ((regs)->pc_p - (regs)->pc_oldp) + (o))
+#define get_ilong_1(regs, o) get_long((regs)->pc + ((regs)->pc_p - (regs)->pc_oldp) + (o))
 
 static uae_s32 ShowEA (void *f, uae_u16 opcode, int reg, amodes mode, wordsizes size, TCHAR *buf, uae_u32 *eaddr, int safemode)
 {
@@ -3418,7 +3416,7 @@ void m68k_disasm_2 (char *buf, int bufsize, uaecptr addr, uaecptr *nextpc, int c
 	}
 
 	for (i = 0; i < (m68kpc_offset - oldpc) / 2; i++) {
-	    f_out (buf, "%04x ", get_iword_1 (regs, oldpc + i * 2));
+	    f_out (buf, "%04x ", get_iword_1 (&regs, oldpc + i * 2));
 	}
 		while (i++ < 5)
 			f_out (buf, "     ");
@@ -4231,7 +4229,7 @@ void m68k_do_rts_mmu (struct regstruct *regs)
 	m68k_areg (regs, 7) += 4;
 }
 
-void m68k_do_bsr_mmu (uaecptr oldpc, struct regstruct *regs, uae_s32 offset)
+void m68k_do_bsr_mmu (struct regstruct *regs, uaecptr oldpc, uae_s32 offset)
 {
 	put_long_mmu (m68k_areg (regs, 7) - 4, oldpc);
 	m68k_areg (regs, 7) -= 4;

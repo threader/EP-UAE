@@ -229,10 +229,12 @@ STATIC_INLINE uae_u32 get_byte(uaecptr addr)
 }
 STATIC_INLINE uae_u32 get_longi(uaecptr addr)
 {
+    addr &= MEMORY_RANGE_MASK;
     return longgeti(addr);
 }
 STATIC_INLINE uae_u32 get_wordi(uaecptr addr)
 {
+    addr &= MEMORY_RANGE_MASK;
     return wordgeti(addr);
 }
 
