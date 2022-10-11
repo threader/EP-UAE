@@ -25,6 +25,8 @@ extern void akiko_lput (uaecptr addr, uae_u32 value) REGPARAM;
 extern const uae_u8 *restore_akiko (const uae_u8 *src);
 extern       uae_u8 *save_akiko    (uae_u32 *len);
 
+extern void restore_akiko_finish(void);
+
 extern void akiko_mute (int);
 
 extern uae_u8 *extendedkickmemory;
