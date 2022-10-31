@@ -98,6 +98,36 @@ struct hd_hardfiledata {
 
 struct uaedev_mount_info;
 extern struct uaedev_mount_info options_mountinfo;
+extern void free_mountinfo (struct uaedev_mount_info *);
+
+extern int nr_units (struct uaedev_mount_info *mountinfo);
+extern int is_hardfile (struct uaedev_mount_info *mountinfo, int unit_no);
+extern const char *set_filesys_unit (struct uaedev_mount_info *mountinfo, int,
+				     const char *devname, const char *volname, const char *rootdir,
+				     int readonly, int secs, int surfaces, int reserved,
+				     int blocksize, int bootpri, const char *filesysdir, int flags);
+extern const char *add_filesys_unit (struct uaedev_mount_info *mountinfo,
+				     const char *devname, const char *volname, const char *rootdir,
+				     int readonly, int secs, int surfaces, int reserved,
+				     int blocksize, int bootpri, const char *filesysdir, int flags);
+extern const char *get_filesys_unit (struct uaedev_mount_info *mountinfo, int nr,
+				     char **devname, char **volame, char **rootdir, int *readonly,
+				     int *secspertrack, int *surfaces, int *reserved,
+				     int *cylinders, uae_u64 *size, int *blocksize, int *bootpri,
+				     char **filesysdir, int *flags);
+extern int kill_filesys_unit (struct uaedev_mount_info *mountinfo, int);
+extern int move_filesys_unit (struct uaedev_mount_info *mountinfo, int nr, int to);
+extern int sprintf_filesys_unit (const struct uaedev_mount_info *mountinfo, char *buffer, int num);
+extern void write_filesys_config (const struct uaedev_mount_info *mountinfo, const char *unexpanded,
+				  const char *defaultpath, FILE *f);
+
+
+extern void filesys_init (void);
+extern void filesys_reset (void);
+extern void filesys_cleanup (void);
+extern void filesys_prepare_reset (void);
+extern void filesys_start_threads (void);
+extern void filesys_flush_cache (void);
 
 extern struct hardfiledata *get_hardfile_data (int nr);
 #define FILESYS_MAX_BLOCKSIZE 2048

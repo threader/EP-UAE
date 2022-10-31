@@ -792,7 +792,7 @@ int cfgfile_intval (const char *option, const char *value, const char *name, int
     }
     return 1;
 }
-int cfgfile_intvalx (const char *option, const char *value, const char *name, int *location, int scale)
+int cfgfile_intvalx (const char *option, const char *value, const char *name, uae_u32 *location, int scale)
 {
 	unsigned int v = 0;
 	int r = cfgfile_intval (option, value, name, &v, scale);
@@ -1912,7 +1912,9 @@ add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, cons
 	int blocksize, int bootpri, int donotmount, int autoboot,
 	const char *filesysdir, int hdc, int flags)
 */
-	    err_msg = add_filesys_unit (currprefs.mountinfo, 0, aname, str, ro, secs, heads, reserved, bs, 0, 0, 0, 0, 0, 0);
+//	    err_msg = add_filesys_unit (currprefs.mountinfo, 0, aname, str, ro, secs, heads, reserved, bs, 0, 0, 0, 0, 0, 0);
+	    err_msg = add_filesys_unit (currprefs.mountinfo, 0, aname, str, ro, secs, heads, reserved, bs, 0, 0, 0);
+
 	write_log ("-- ADD FILESYS UNIT --\n");
 	    if (err_msg)
 			write_log ("Error: %s\n", err_msg);
@@ -2518,7 +2520,9 @@ add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, cons
 	int blocksize, int bootpri, int donotmount, int autoboot,
 	const char *filesysdir, int hdc, int flags)
 */
-	    err = add_filesys_unit (currprefs.mountinfo, 0, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+//	    err = add_filesys_unit (currprefs.mountinfo, 0, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	    err = add_filesys_unit (currprefs.mountinfo, 0, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0);
+
 
 	    if (err)
 		write_log ("%s\n", s2);
@@ -2559,8 +2563,8 @@ add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, cons
 	int blocksize, int bootpri, int donotmount, int autoboot,
 	const char *filesysdir, int hdc, int flags)
 */
-       err_msg = add_filesys_unit (currprefs.mountinfo, 0, 0, x4, 0, atoi (x0), atoi (x1), atoi (x2), atoi (x3), 0, 0, 0, 0, 0, 0);
-
+   //    err_msg = add_filesys_unit (currprefs.mountinfo, 0, 0, x4, 0, atoi (x0), atoi (x1), atoi (x2), atoi (x3), 0, 0, 0, 0, 0, 0);
+       err_msg = add_filesys_unit (currprefs.mountinfo, 0, 0, x4, 0, atoi (x0), atoi (x1), atoi (x2), atoi (x3), 0, 0, 0);
        if (err_msg)
 		   write_log ("%s\n", err_msg);
     }

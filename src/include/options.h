@@ -474,11 +474,6 @@ extern void discard_prefs (struct uae_prefs *, int);
 extern void prefs_set_attr (const char *key, const char *value);
 extern const char *prefs_get_attr (const char *key);
 
-extern int cfgfile_yesno (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location);
-extern int cfgfile_intval (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location, int scale);
-extern int cfgfile_strval (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location, const TCHAR *table[], int more);
-extern int cfgfile_string (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz);
-extern TCHAR *cfgfile_subst_path (const TCHAR *path, const TCHAR *subst, const TCHAR *file);
 
 int parse_cmdline_option (struct uae_prefs *, char, char *);
 
