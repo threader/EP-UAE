@@ -835,7 +835,7 @@ int save_state (const TCHAR *filename, const TCHAR *description)
 	dst = save_filesys_common (&len);
 	if (dst) {
 		save_chunk (f, dst, len, "FSYC", 0);
-		for (i = 0; i < nr_units (); i++) {
+		for (i = 0; i < nr_units (currprefs.mountinfo); i++) {
 			dst = save_filesys (i, &len);
 			if (dst) {
 				save_chunk (f, dst, len, "FSYS", 0);
