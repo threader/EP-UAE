@@ -102,15 +102,17 @@ extern void free_mountinfo (struct uaedev_mount_info *);
 
 extern int nr_units (struct uaedev_mount_info *mountinfo);
 extern int is_hardfile (struct uaedev_mount_info *mountinfo, int unit_no);
-extern const char *set_filesys_unit (struct uaedev_mount_info *mountinfo, int,
+extern int *set_filesys_unit (struct uaedev_mount_info *mountinfo, int,
 				     const char *devname, const char *volname, const char *rootdir,
 				     int readonly, int secs, int surfaces, int reserved,
-				     int blocksize, int bootpri, const char *filesysdir, int flags);
-extern const char *add_filesys_unit (struct uaedev_mount_info *mountinfo,
+				     int blocksize, int bootpri, int donotmount, int autoboot,
+                     const char *filesysdir, int hdc, int flags);
+extern int *add_filesys_unit (struct uaedev_mount_info *mountinfo,
 				     const char *devname, const char *volname, const char *rootdir,
 				     int readonly, int secs, int surfaces, int reserved,
-				     int blocksize, int bootpri, const char *filesysdir, int flags);
-extern const char *get_filesys_unit (struct uaedev_mount_info *mountinfo, int nr,
+				     int blocksize, int bootpri, int donotmount, int autoboot,
+                     const char *filesysdir, int hdc, int flags);
+extern int *get_filesys_unit (struct uaedev_mount_info *mountinfo, int nr,
 				     char **devname, char **volame, char **rootdir, int *readonly,
 				     int *secspertrack, int *surfaces, int *reserved,
 				     int *cylinders, uae_u64 *size, int *blocksize, int *bootpri,
@@ -129,7 +131,7 @@ extern void filesys_prepare_reset (void);
 extern void filesys_start_threads (void);
 extern void filesys_flush_cache (void);
 
-extern struct hardfiledata *get_hardfile_data (int nr);
+extern struct hardfiledata *get_hardfile_data (struct uaedev_mount_info *mountinfo,int nr);
 #define FILESYS_MAX_BLOCKSIZE 2048
 extern int hdf_open (struct hardfiledata *hfd, const TCHAR *name);
 extern int hdf_dup (struct hardfiledata *dhfd, const struct hardfiledata *shfd);
@@ -142,7 +144,7 @@ extern int isspecialdrive (const char *name);
 extern void filesys_cleanup (void);
 extern int filesys_is_readonly (const char *path);
 extern int hdf_init (void);
-extern int get_native_path(uae_u32 lock, char *out);
+extern int get_native_path(struct uaedev_mount_info *mountinfo, uae_u32 lock, char *out);
 extern void hardfile_do_disk_change (struct uaedev_config_info *uci, int insert);
 
 void hdf_hd_close(struct hd_hardfiledata *hfd);

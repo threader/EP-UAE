@@ -355,7 +355,7 @@ static uae_u32 emulib_Minimize (void)
     return 0; // OSDEP_minimize_uae();
 }
 
-static int native_dos_op (uae_u32 mode, uae_u32 p1, uae_u32 p2, uae_u32 p3)
+static int native_dos_op (struct uaedev_mount_info *mountinfo, uae_u32 mode, uae_u32 p1, uae_u32 p2, uae_u32 p3)
 {
 	TCHAR tmp[MAX_DPATH];
 	int v, i;
@@ -365,7 +365,7 @@ static int native_dos_op (uae_u32 mode, uae_u32 p1, uae_u32 p2, uae_u32 p3)
 	/* receive native path from lock
 	* p1 = dos.library:Lock, p2 = buffer, p3 = max buffer size
 	*/
-	v = get_native_path (p1, tmp);
+	v = get_native_path (mountinfo, p1, tmp);
 	if (v)
 		return v;
 	for (i = 0; i <= strlen (tmp) && i < p3 - 1; i++) {
@@ -378,7 +378,7 @@ static int native_dos_op (uae_u32 mode, uae_u32 p1, uae_u32 p2, uae_u32 p3)
 extern uae_u32 picasso_demux (uae_u32 arg, TrapContext *context);
 #endif
 
-static uae_u32 REGPARAM2 uaelib_demux2 (TrapContext *context)
+static uae_u32 REGPARAM2 uaelib_demux2 (struct uaedev_mount_info *mountinfo, TrapContext *context)
 {
 #define ARG0 (get_long (m68k_areg (&context->regs, 7) + 4))
 #define ARG1 (get_long (m68k_areg (&context->regs, 7) + 8))
@@ -386,7 +386,6 @@ static uae_u32 REGPARAM2 uaelib_demux2 (TrapContext *context)
 #define ARG3 (get_long (m68k_areg (&context->regs, 7) + 16))
 #define ARG4 (get_long (m68k_areg (&context->regs, 7) + 20))
 #define ARG5 (get_long (m68k_areg (&context->regs, 7) + 24))
-
 
 #ifndef UAEGFX_INTERNAL
 //	if (ARG0 >= 16 && ARG0 <= 39)
@@ -453,7 +452,7 @@ static uae_u32 REGPARAM2 uaelib_demux2 (TrapContext *context)
 #ifdef DEBUGGER
 	case 84: return mmu_init (ARG1, ARG2, ARG3);
 #endif
-	case 85: return native_dos_op (ARG1, ARG2, ARG3, ARG4);
+	case 85: return native_dos_op (mountinfo, ARG1, ARG2, ARG3, ARG4);
 	case 86:
 		if (valid_address (ARG1, 1))
 			write_log ("DBG: %s\n", get_real_address (ARG1));
@@ -471,7 +470,7 @@ static uae_u32 REGPARAM2 uaelib_demux2 (TrapContext *context)
 }
 
 int uaelib_debug;
-static uae_u32 REGPARAM2 uaelib_demux (TrapContext *context)
+static uae_u32 REGPARAM2 uaelib_demux (struct uaedev_mount_info *mountinfo, TrapContext *context)
 {
 	uae_u32 v;
 	struct regstruct *r = &regs;
@@ -487,7 +486,7 @@ static uae_u32 REGPARAM2 uaelib_demux (TrapContext *context)
 		return 0;
 	}
 #endif
-	v = uaelib_demux2 (context);
+	v = uaelib_demux2 (mountinfo, context);
 	if (uaelib_debug)
 		write_log ("=%08x\n", v);
 	return v;

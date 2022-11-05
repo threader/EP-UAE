@@ -192,19 +192,20 @@ struct uaedev_mount_info {
     UnitInfo ui[MAX_FILESYSTEM_UNITS];
 };
 
-static struct uaedev_mount_info mountinfo;
+static struct uaedev_mount_info current_mountinfo;
+struct uaedev_mount_info options_mountinfo;
 
-int nr_units (void)
+int nr_units (struct uaedev_mount_info *mountinfo)
 {
 	int i, cnt = 0;
 	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
-		if (mountinfo.ui[i].open)
+		if (mountinfo->ui[i].open)
 			cnt++;
 	}
 	return cnt;
 }
 
-int nr_directory_units (struct uae_prefs *p)
+int nr_directory_units (struct uaedev_mount_info *mountinfo, struct uae_prefs *p)
 {
 	int i, cnt = 0;
 	if (p) {
@@ -214,19 +215,19 @@ int nr_directory_units (struct uae_prefs *p)
 		}
 	} else {
 		for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
-			if (mountinfo.ui[i].open && mountinfo.ui[i].controller == 0)
+			if (mountinfo->ui[i].open && mountinfo->ui[i].controller == 0)
 				cnt++;
 		}
 	}
 	return cnt;
 }
 
-int is_hardfile (int unit_no)
+int is_hardfile (struct uaedev_mount_info *mountinfo, int unit_no)
 {
-	if (mountinfo.ui[unit_no].volname || mountinfo.ui[unit_no].wasisempty)
+	if (mountinfo->ui[unit_no].volname || mountinfo->ui[unit_no].wasisempty)
 		return FILESYS_VIRTUAL;
-	if (mountinfo.ui[unit_no].hf.secspertrack == 0) {
-		if (mountinfo.ui[unit_no].hf.flags & 1)
+	if (mountinfo->ui[unit_no].hf.secspertrack == 0) {
+		if (mountinfo->ui[unit_no].hf.flags & 1)
 		    return FILESYS_HARDDRIVE;
 		return FILESYS_HARDFILE_RDB;
     }
@@ -260,19 +261,19 @@ static void close_filesys_unit (UnitInfo *uip)
 	uip->open = 0;
 }
 
-static UnitInfo *getuip(struct uae_prefs *p, int index)
+static UnitInfo *getuip(struct uaedev_mount_info *mountinfo, struct uae_prefs *p, int index)
 {
 	if (index < 0)
 		return NULL;
 	index = p->mountconfig[index].configoffset;
 	if (index < 0)
 		return NULL;
-	return &mountinfo.ui[index];
+	return &mountinfo->ui[index];
 }
 
 int get_filesys_unitconfig (struct uae_prefs *p, int index, struct mountedinfo *mi)
 {
-	UnitInfo *ui = getuip(p, index);
+	UnitInfo *ui = getuip(mi, p, index);
 	struct uaedev_config_info *uci = &p->mountconfig[index];
 	UnitInfo uitmp;
 
@@ -464,11 +465,11 @@ static int set_filesys_volume (const char *rootdir, int *flags, int *readonly, i
 	return 1;
 }
 
-static int set_filesys_unit_1 (int nr,
-	char *devname, char *volname, const char *rootdir, int readonly,
+static int *set_filesys_unit_1 (struct uaedev_mount_info *mountinfo,int nr,
+	const char *devname, const char *volname, const char *rootdir, int readonly,
 	int secspertrack, int surfaces, int reserved,
 	int blocksize, int bootpri, int donotmount, int autoboot,
-	char *filesysdir, int hdc, int flags)
+	const char *filesysdir, int hdc, int flags)
 {
 	UnitInfo *ui;
 	int i;
@@ -478,7 +479,7 @@ static int set_filesys_unit_1 (int nr,
 		return -1;
 	if (nr < 0) {
 		for (nr = 0; nr < MAX_FILESYSTEM_UNITS; nr++) {
-			if (!mountinfo.ui[nr].open)
+			if (!mountinfo->ui[nr].open)
 				break;
 		}
 		if (nr == MAX_FILESYSTEM_UNITS) {
@@ -488,15 +489,15 @@ static int set_filesys_unit_1 (int nr,
 	}
 
 	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
-		if (nr == i || !mountinfo.ui[i].open)
+		if (nr == i || !mountinfo->ui[i].open)
 			continue;
-		if (rootdir && _tcslen (rootdir) > 0 && !_tcsicmp (mountinfo.ui[i].rootdir, rootdir)) {
+		if (rootdir && _tcslen (rootdir) > 0 && !_tcsicmp (mountinfo->ui[i].rootdir, rootdir)) {
 			write_log ("directory/hardfile '%s' already added\n", rootdir);
 			return -1;
 		}
 	}
 
-	ui = &mountinfo.ui[nr];
+	ui = &mountinfo->ui[nr];
 	memset (ui, 0, sizeof (UnitInfo));
 
 	if (volname != NULL) {
@@ -571,31 +572,31 @@ err:
 	return -1;
 }
 
-int set_filesys_unit (int nr,
-	char *devname, char *volname, const char *rootdir, int readonly,
+int *set_filesys_unit (struct uaedev_mount_info *mountinfo, int nr,
+	const char *devname, const char *volname, const char *rootdir, int readonly,
 	int secspertrack, int surfaces, int reserved,
 	int blocksize, int bootpri, int donotmount, int autoboot,
-	char *filesysdir, int hdc, int flags)
+	const char *filesysdir, int hdc, int flags)
 {
 	int ret;
 
-	ret = set_filesys_unit_1 (nr, devname, volname, rootdir, readonly,
+	ret = set_filesys_unit_1 (mountinfo, nr, devname, volname, rootdir, readonly,
 		secspertrack, surfaces, reserved, blocksize, bootpri, donotmount, autoboot,
 		filesysdir, hdc, flags);
 	return ret;
 }
 
-int add_filesys_unit (char *devname, char *volname, const char *rootdir, int readonly,
+int *add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, const char *volname, const char *rootdir, int readonly,
 	int secspertrack, int surfaces, int reserved,
 	int blocksize, int bootpri, int donotmount, int autoboot,
-	char *filesysdir, int hdc, int flags)
+	const char *filesysdir, int hdc, int flags)
 {
 	int ret;
 
-	if (nr_units() >= MAX_FILESYSTEM_UNITS)
+	if (nr_units(currprefs.mountinfo) >= MAX_FILESYSTEM_UNITS)
 		return -1;
 
-	ret = set_filesys_unit_1 (-1, devname, volname, rootdir, readonly,
+	ret = set_filesys_unit_1 (mountinfo, -1, devname, volname, rootdir, readonly,
 		secspertrack, surfaces, reserved, blocksize,
 		bootpri, donotmount, autoboot, filesysdir, hdc, flags);
 	return ret;
@@ -610,7 +611,7 @@ int kill_filesys_unitconfig (struct uae_prefs *p, int nr)
 	uci = &p->mountconfig[nr];
 	hardfile_do_disk_change (uci, 0);
 	if (uci->configoffset >= 0 && uci->controller == 0)
-		filesys_media_change (uci->rootdir, 0, uci);
+		filesys_media_change (currprefs.mountinfo, uci->rootdir, 0, uci);
 	while (nr < MOUNT_CONFIG_SIZE) {
 		memmove (&p->mountconfig[nr], &p->mountconfig[nr + 1], sizeof (struct uaedev_config_info));
 		nr++;
@@ -637,23 +638,23 @@ int move_filesys_unitconfig (struct uae_prefs *p, int nr, int to)
 
 static void filesys_addexternals (void);
 
-static void initialize_mountinfo (void)
+static void initialize_mountinfo (struct uaedev_mount_info *mountinfo)
 {
 	int i;
 	struct uaedev_config_info *uci;
-	UnitInfo *uip = &mountinfo.ui[0];
+	UnitInfo *uip = &mountinfo->ui[0];
 
 	for (i = 0; i < currprefs.mountitems; i++) {
 		int idx;
 		uci = &currprefs.mountconfig[i];
 		if (uci->controller == HD_CONTROLLER_UAE) {
-			idx = set_filesys_unit_1 (-1, uci->devname, uci->ishdf ? NULL : uci->volname, uci->rootdir,
+			idx = set_filesys_unit_1 (mountinfo, -1, uci->devname, uci->ishdf ? NULL : uci->volname, uci->rootdir,
 				uci->readonly, uci->sectors, uci->surfaces, uci->reserved,
 				uci->blocksize, uci->bootpri, uci->donotmount, uci->autoboot, uci->filesys, 0, MYVOLUMEINFO_REUSABLE);
 			if (idx >= 0) {
 				UnitInfo *ui;
 				uci->configoffset = idx;
-				ui = &mountinfo.ui[idx];
+				ui = &mountinfo->ui[idx];
 				ui->configureddrive = 1;
 			}
 		} else if (uci->controller <= HD_CONTROLLER_IDE3) {
@@ -691,9 +692,9 @@ static void initialize_mountinfo (void)
 	//filesys_addexternals ();
 }
 
-int sprintf_filesys_unit (char *buffer, int num)
+int sprintf_filesys_unit (const struct uaedev_mount_info *mountinfo, char *buffer, int num)
 {
-	UnitInfo *uip = mountinfo.ui;
+	UnitInfo *uip = mountinfo->ui;
 
 	if (uip[num].volname != 0)
 		_stprintf (buffer, "(DH%d:) Filesystem, %s: %s %s", num, uip[num].volname,
@@ -704,20 +705,20 @@ int sprintf_filesys_unit (char *buffer, int num)
 	return 0;
 }
 
-void free_mountinfo (void)
+void free_mountinfo (struct uaedev_mount_info *mountinfo)
 {
     int i;
 	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++)
-		close_filesys_unit (mountinfo.ui + i);
+		close_filesys_unit (mountinfo->ui + i);
 #ifdef GAYLE
 	gayle_free_units ();
 #endif
 }
 
-struct hardfiledata *get_hardfile_data (int nr)
+struct hardfiledata *get_hardfile_data (struct uaedev_mount_info *mountinfo, int nr)
 {
-    UnitInfo *uip = mountinfo.ui;
-	if (nr < 0 || nr >= MAX_FILESYSTEM_UNITS || uip[nr].open == 0 || is_hardfile (nr) == FILESYS_VIRTUAL)
+    UnitInfo *uip = mountinfo->ui;
+	if (nr < 0 || nr >= MAX_FILESYSTEM_UNITS || uip[nr].open == 0 || is_hardfile (&current_mountinfo, nr) == FILESYS_VIRTUAL)
 		return 0;
     return &uip[nr].hf;
 }
@@ -1140,16 +1141,16 @@ static void clear_exkeys (Unit *unit)
 	}
 }
 
-int filesys_eject (int nr)
+int filesys_eject (struct uaedev_mount_info *mountinfo, int nr)
 {
-	UnitInfo *ui = &mountinfo.ui[nr];
+	UnitInfo *ui = &mountinfo->ui[nr];
 	Unit *u = ui->self;
 
 	if (!mountertask)
 		return 0;
 	if (!ui->open || u == NULL)
 		return 0;
-	if (is_hardfile (nr) != FILESYS_VIRTUAL)
+	if (is_hardfile (&current_mountinfo, nr) != FILESYS_VIRTUAL)
 		return 0;
 	if (!filesys_isvolume (u))
 		return 0;
@@ -1163,7 +1164,7 @@ int filesys_eject (int nr)
 	return 1;
 }
 
-void filesys_vsync (void)
+void filesys_vsync (struct uaedev_mount_info *mountinfo)
 {
 	Unit *u;
 
@@ -1171,7 +1172,7 @@ void filesys_vsync (void)
 		if (u->reinsertdelay > 0) {
 			u->reinsertdelay--;
 			if (u->reinsertdelay == 0) {
-				filesys_insert (u->unit, u->newvolume, u->newrootdir, u->newreadonly, u->newflags);
+				filesys_insert (&current_mountinfo, u->unit, u->newvolume, u->newrootdir, u->newreadonly, u->newflags);
 				xfree (u->newvolume);
 				u->newvolume = NULL;
 				xfree (u->newrootdir);
@@ -1188,14 +1189,14 @@ static void filesys_delayed_change (Unit *u, int frames, const TCHAR *rootdir, c
 	u->newrootdir = my_strdup (rootdir);
 	if (volume)
 		u->newvolume = my_strdup (volume);
-	filesys_eject(u->unit);
+	filesys_eject(volume, u->unit);
 	if (!rootdir || _tcslen (rootdir) == 0)
 		u->reinsertdelay = 0;
 	if (u->reinsertdelay > 0)
 		write_log ("FILESYS: delayed insert %d: '%s' ('%s')\n", u->unit, volume ? volume : "<none>", rootdir);
 }
 
-int filesys_media_change (const char *rootdir, int inserted, struct uaedev_config_info *uci)
+int filesys_media_change (struct uaedev_mount_info *mountinfo, const char *rootdir, int inserted, struct uaedev_config_info *uci)
 {
 	Unit *u;
 	UnitInfo *ui;
@@ -1209,8 +1210,8 @@ int filesys_media_change (const char *rootdir, int inserted, struct uaedev_confi
 		return -1;
 	nr = -1;
 	for (u = units; u; u = u->next) {
-		if (is_hardfile (u->unit) == FILESYS_VIRTUAL) {
-			ui = &mountinfo.ui[u->unit];
+		if (is_hardfile (&current_mountinfo, u->unit) == FILESYS_VIRTUAL) {
+			ui = &mountinfo->ui[u->unit];
 			if (ui->rootdir && !memcmp (ui->rootdir, rootdir, _tcslen (rootdir)) && _tcslen (rootdir) + 3 >= _tcslen (ui->rootdir)) {
 				if (filesys_isvolume (u) && inserted) {
 					if (uci)
@@ -1224,7 +1225,7 @@ int filesys_media_change (const char *rootdir, int inserted, struct uaedev_confi
 	}
 	ui = NULL;
 	if (nr >= 0)
-		ui = &mountinfo.ui[nr];
+		ui = &mountinfo->ui[nr];
 	/* only configured drives have automount support if automount is disabled */
 	if ((!ui || !ui->configureddrive) && (inserted == 0 || inserted == 1))
 		return 0;
@@ -1232,7 +1233,7 @@ int filesys_media_change (const char *rootdir, int inserted, struct uaedev_confi
 		return 0;
 	/* already mounted volume was ejected? */
 	if (nr >= 0 && !inserted)
-		return filesys_eject (nr);
+		return filesys_eject (volname, nr);
 	if (inserted) {
 		if (uci) {
 			volptr = my_strdup (uci->volname);
@@ -1257,14 +1258,14 @@ int filesys_media_change (const char *rootdir, int inserted, struct uaedev_confi
 		/* new volume inserted and it was previously mounted? */
 		if (nr >= 0) {
 			if (!filesys_isvolume (u)) /* not going to mount twice */
-				return filesys_insert (nr, volptr, rootdir, -1, -1);
+				return filesys_insert (&current_mountinfo, nr, volptr, rootdir, -1, -1);
 			return 0;
 		}
 		if (inserted < 0) /* -1 = only mount if already exists */
 			return 0;
 		/* new volume inserted and it was not previously mounted? 
 		* perhaps we have some empty device slots? */
-		nr = filesys_insert (-1, volptr, rootdir, 0, 0);
+		nr = filesys_insert (&current_mountinfo, -1, volptr, rootdir, 0, 0);
 		if (nr >= 100) {
 			if (uci)
 				uci->configoffset = nr - 100;
@@ -1274,12 +1275,12 @@ int filesys_media_change (const char *rootdir, int inserted, struct uaedev_confi
 		if (uci)
 			_tcscpy (devname, uci->devname);
 		else
-			_stprintf (devname, "RDH%d", nr_units());
-		nr = add_filesys_unit (devname, volptr, rootdir, 0, 0, 0, 0, 0, 0, 0, 1, NULL, 0, MYVOLUMEINFO_REUSABLE);
+			_stprintf (devname, "RDH%d", nr_units(currprefs.mountinfo));
+		nr = add_filesys_unit (mountinfo, devname, volptr, rootdir, 0, 0, 0, 0, 0, 0, 0, 1, NULL, 0, MYVOLUMEINFO_REUSABLE);
 		if (nr < 0)
 			return 0;
 		if (inserted > 1)
-			mountinfo.ui[nr].canremove = 1;
+			mountinfo->ui[nr].canremove = 1;
 		automountunit = nr;
 		uae_Signal (mountertask, 1 << 13);
 		/* poof */
@@ -1301,8 +1302,8 @@ int hardfile_remount (int nr)
 #endif
 	return 1;
 }
-
-int filesys_insert (int nr, TCHAR *volume, const TCHAR *rootdir, int readonly, int flags)
+/* note */
+int filesys_insert (struct uaedev_mount_info *mountinfo, int nr, TCHAR *volume, const TCHAR *rootdir, int readonly, int flags)
 {
 	struct uaedev_config_info *uci;
 	int emptydrive = 0;
@@ -1313,15 +1314,15 @@ int filesys_insert (int nr, TCHAR *volume, const TCHAR *rootdir, int readonly, i
 		return 0;
 	if (nr < 0) {
 		for (u = units; u; u = u->next) {
-			if (is_hardfile (u->unit) == FILESYS_VIRTUAL) {
-				if (!filesys_isvolume (u) && mountinfo.ui[u->unit].canremove)
+			if (is_hardfile (&current_mountinfo, u->unit) == FILESYS_VIRTUAL) {
+				if (!filesys_isvolume (u) && mountinfo->ui[u->unit].canremove)
 					break;
 			}
 		}
 		if (!u) {
 			for (u = units; u; u = u->next) {
-				if (is_hardfile (u->unit) == FILESYS_VIRTUAL) {
-					if (mountinfo.ui[u->unit].canremove)
+				if (is_hardfile (&current_mountinfo, u->unit) == FILESYS_VIRTUAL) {
+					if (mountinfo->ui[u->unit].canremove)
 						break;
 				}
 			}
@@ -1329,9 +1330,9 @@ int filesys_insert (int nr, TCHAR *volume, const TCHAR *rootdir, int readonly, i
 		if (!u)
 			return 0;
 		nr = u->unit;
-		ui = &mountinfo.ui[nr];
+		ui = &mountinfo->ui[nr];
 	} else {
-		ui = &mountinfo.ui[nr];
+		ui = &mountinfo->ui[nr];
 		u = ui->self;
 	}
 	uci = &currprefs.mountconfig[nr];
@@ -1340,7 +1341,7 @@ int filesys_insert (int nr, TCHAR *volume, const TCHAR *rootdir, int readonly, i
 		return 0;
 	if (u->reinsertdelay)
 		return -1;
-	if (is_hardfile (nr) != FILESYS_VIRTUAL)
+	if (is_hardfile (&current_mountinfo, nr) != FILESYS_VIRTUAL)
 		return 0;
 	if (filesys_isvolume (u)) {
 		filesys_delayed_change (u, 50, rootdir, volume, readonly, flags);
@@ -2044,20 +2045,6 @@ static void free_notify_item (Notify *n)
 	xfree (n);
 }
 
-static void free_notify (Unit *unit, int hash, Notify *n)
-{
-    Notify *n1, *prev = 0;
-    for (n1 = unit->notifyhash[hash]; n1; n1 = n1->next) {
-		if (n == n1) {
-		    if (prev)
-				prev->next = n->next;
-		    else
-				unit->notifyhash[hash] = n->next;
-		    break;
-		}
-		prev = n1;
-    }
-}
 
 static void startup_update_unit (Unit *unit, UnitInfo *uinfo)
 {
@@ -2092,7 +2079,7 @@ static Unit *startup_create_unit (UnitInfo *uinfo, int num)
     uinfo->self = unit;
 
     unit->volume = 0;
-	unit->port = m68k_areg (regs, 5);
+	unit->port = m68k_areg (&regs, 5);
 	unit->unit = num;
 
     startup_update_unit (unit, uinfo);
@@ -2149,7 +2136,7 @@ static void filesys_start_thread (UnitInfo *ui, int nr)
 		ui->self = 0;
 	}
 #ifdef UAE_FILESYS_THREADS
-	if (is_hardfile (nr) == FILESYS_VIRTUAL) {
+	if (is_hardfile (&current_mountinfo, nr) == FILESYS_VIRTUAL) {
 		ui->unit_pipe = xmalloc (smp_comm_pipe, 1);
 		ui->back_pipe = xmalloc (smp_comm_pipe, 1);
 		init_comm_pipe (ui->unit_pipe, 100, 3);
@@ -2161,14 +2148,14 @@ static void filesys_start_thread (UnitInfo *ui, int nr)
 		startup_update_unit (ui->self, ui);
 }
 
-static uae_u32 REGPARAM2 startup_handler (TrapContext *context)
+static uae_u32 REGPARAM2 startup_handler (struct uaedev_mount_info *mountinfo, TrapContext *context)
 {
     /* Just got the startup packet. It's in A4. DosBase is in A2,
 	* our allocated volume structure is in A3, A5 is a pointer to
      * our port. */
-	uaecptr rootnode = get_long (m68k_areg (regs, 2) + 34);
+    uaecptr rootnode = get_long (m68k_areg (&context->regs, 2) + 34);
     uaecptr dos_info = get_long (rootnode + 24) << 2;
-	uaecptr pkt = m68k_dreg (regs, 3);
+    uaecptr pkt = m68k_dreg (&context->regs, 3);
     uaecptr arg2 = get_long (pkt + dp_Arg2);
 	uaecptr devnode;
 	int i;
@@ -2186,11 +2173,11 @@ static uae_u32 REGPARAM2 startup_handler (TrapContext *context)
 
 	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
 		/* Hardfile volume name? */
-		if (!mountinfo.ui[i].open)
+		if (!mountinfo->ui[i].open)
 	    	continue;
-		if (is_hardfile(i) != FILESYS_VIRTUAL)
+		if (is_hardfile(&current_mountinfo, i) != FILESYS_VIRTUAL)
 			continue;
-		if (mountinfo.ui[i].startup == arg2)
+		if (mountinfo->ui[i].startup == arg2)
 		    break;
     }
 
@@ -2200,7 +2187,7 @@ static uae_u32 REGPARAM2 startup_handler (TrapContext *context)
 		put_long (pkt + dp_Res2, ERROR_DEVICE_NOT_MOUNTED);
 		return 0;
     }
-    uinfo = mountinfo.ui + i;
+    uinfo = mountinfo->ui + i;
 
 	ed = my_existsdir (uinfo->rootdir);
 	ef = my_existsfile (uinfo->rootdir);
@@ -2345,9 +2332,9 @@ static Key *lookup_key (Unit *unit, uae_u32 uniq)
 
 static Key *new_key (Unit *unit)
 {
-    Key *k = (Key *) xmalloc(sizeof(Key));
-    k->uniq = ++unit->key_uniq;
-    k->fd = -1;
+    Key *k = xcalloc(Key, 1);
+	k->uniq = ++key_uniq;
+    k->fd = NULL;
     k->file_pos = 0;
     k->next = unit->keys;
     unit->keys = k;
@@ -2377,7 +2364,7 @@ dumplock (Unit *unit, uaecptr lock)
 	TRACE((" }\n"));
 }
 
-static a_inode *find_aino (Unit *unit, uaecptr lock, const char *name, int *err)
+static a_inode *find_aino (Unit *unit, uaecptr lock, const char *name, uae_u32 *err)
 {
     a_inode *a;
 
@@ -2421,23 +2408,6 @@ static uaecptr make_lock (Unit *unit, uae_u32 uniq, long mode)
 
     DUMPLOCK(unit, lock);
     return lock;
-}
-
-static uae_u32 notifyhash (char *s)
-{
-    uae_u32 hash = 0;
-    while (*s) hash = (hash << 5) + *s++;
-    return hash % NOTIFY_HASH_SIZE;
-}
-
-static Notify *new_notify (Unit *unit, char *name)
-{
-    Notify *n = xmalloc(sizeof(Notify));
-    int hash = notifyhash (name);
-    n->next = unit->notifyhash[hash];
-    unit->notifyhash[hash] = n;
-    n->partname = name;
-    return n;
 }
 
 static void free_notify (Unit *unit, int hash, Notify *n)
@@ -2556,7 +2526,7 @@ action_add_notify (Unit *unit, dpacket packet)
     n->notifyrequest = nr;
     n->fullname = name;
     if (flags & NRF_NOTIFY_INITIAL) {
-		int uae_u32 err;
+		uae_u32 err;
 		a_inode *a = find_aino (unit, 0, n->fullname, &err);
 		if (err == 0)
 		    notify_send (unit, n);
@@ -2621,7 +2591,7 @@ action_lock (Unit *unit, dpacket packet)
     uaecptr name = GET_PCK_ARG2 (packet) << 2;
     long mode = GET_PCK_ARG3 (packet);
     a_inode *a;
-	int err;
+    uae_u32 err;
 
     if (mode != SHARED_LOCK && mode != EXCLUSIVE_LOCK) {
 		TRACE(("Bad mode %d (should be %d or %d).\n", mode, SHARED_LOCK, EXCLUSIVE_LOCK));
@@ -2677,13 +2647,6 @@ static uaecptr
 {
     uaecptr out;
     a_inode *a;
-    TRACE (("ACTION_DUP_LOCK(0x%lx)\n", lock));
-    DUMPLOCK (unit, lock);
-
-    if (!lock) {
-	PUT_PCK_RES1 (packet, 0);
-	return 0;
-    }
 
 	a = lookup_aino (unit, uniq);
     if (a == 0) {
@@ -3011,12 +2974,12 @@ get_fileinfo (Unit *unit, dpacket packet, uaecptr info, a_inode *aino)
     PUT_PCK_RES1 (packet, DOS_TRUE);
 }
 
-int get_native_path (uae_u32 lock, char *out)
+int get_native_path (struct uaedev_mount_info *mountinfo, uae_u32 lock, char *out)
 {
 	int i = 0;
 	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
-		if (mountinfo.ui[i].self) {
-			a_inode *a = lookup_aino (mountinfo.ui[i].self, get_long ((lock << 2) + 4));
+		if (mountinfo->ui[i].self) {
+			a_inode *a = lookup_aino (mountinfo->ui[i].self, get_long ((lock << 2) + 4));
 			if (a) {
 				_tcscpy (out, a->nname);
 				return 0;
@@ -3365,7 +3328,7 @@ static uae_u32 REGPARAM2 exall_helper (TrapContext *context)
 {
 	int i;
 	Unit *u;
-	uaecptr packet = m68k_areg (regs, 4);
+	uaecptr packet = m68k_areg (&context->regs, 4);
 	uaecptr control = get_long (packet + dp_Arg5);
 	uae_u32 id = get_long (control + 4);
 
@@ -4214,7 +4177,7 @@ action_create_dir (Unit *unit, dpacket packet)
     uaecptr lock = GET_PCK_ARG1 (packet) << 2;
     uaecptr name = GET_PCK_ARG2 (packet) << 2;
     a_inode *aino;
-    int err;
+    uae_u32 err;
 
     TRACE(("ACTION_CREATE_DIR(0x%lx,\"%s\")\n", lock, bstr (unit, name)));
 
@@ -4512,7 +4475,7 @@ action_rename_object (Unit *unit, dpacket packet)
 		PUT_PCK_RES2 (packet, err1);
 		return;
     }
-*/* note */
+/* note */
     /* rename always fails if file is open for writing */
     for (k1 = unit->keys; k1; k1 = knext) {
         knext = k1->next;
@@ -4842,9 +4805,9 @@ static uae_sem_t singlethread_int_sem;
 
 static uae_u32 REGPARAM2 exter_int_helper (TrapContext *context)
 {
-	UnitInfo *uip = mountinfo.ui;
+    UnitInfo *uip = current_mountinfo.ui;
     uaecptr port;
-	int n = m68k_dreg (regs, 0);
+	int n = m68k_dreg (&context->regs, 0);
     static int unit_no;
 
 	switch (n) {
@@ -4889,9 +4852,10 @@ static uae_u32 REGPARAM2 exter_int_helper (TrapContext *context)
 		    lockend = get_long (lockend);
 		    cnt++;
 		}
-				TRACE(("message_lock: %d %x %x %x\n", cnt, locks, lockend, m68k_areg (regs, 3)));
+		TRACE(("%d %x %x %x\n", cnt, locks, lockend, m68k_areg (&context->regs, 3)));
 		put_long (lockend, get_long (m68k_areg (&context->regs, 3)));
-		put_long (m68k_areg (&context->regs, 3), locks);	    }
+		put_long (m68k_areg (&context->regs, 3), locks);
+	    }
 	}
 #else
 	write_log ("exter_int_helper should not be called with arg 1!\n");
@@ -5058,7 +5022,6 @@ static int handle_packet (Unit *unit, dpacket pck)
      /* unsupported packets */
      case ACTION_LOCK_RECORD:
      case ACTION_FREE_RECORD:
-     case ACTION_EXAMINE_ALL:
      case ACTION_MAKE_LINK:
      case ACTION_READ_LINK:
      case ACTION_FORMAT:
@@ -5175,17 +5138,18 @@ static void init_filesys_diagentry (void)
     do_put_mem_long ((uae_u32 *)(filesysory + 0x2100), EXPANSION_explibname);
     do_put_mem_long ((uae_u32 *)(filesysory + 0x2104), filesys_configdev);
     do_put_mem_long ((uae_u32 *)(filesysory + 0x2108), EXPANSION_doslibname);
-	do_put_mem_long ((uae_u32 *)(filesysory + 0x210c), nr_units ());
+    do_put_mem_long ((uae_u32 *)(filesysory + 0x210c), current_mountinfo.num_units);
     native2amiga_startup ();
 }
 
 void filesys_start_threads (void)
 {
+    UnitInfo *uip;
     int i;
 
 	filesys_in_interrupt = 0;
 	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
-		UnitInfo *ui = &mountinfo.ui[i];
+		UnitInfo *ui = &uip[i];
 		if (!ui->open)
 			continue;
 		filesys_start_thread (ui, i);
@@ -5195,7 +5159,7 @@ void filesys_start_threads (void)
 void filesys_cleanup (void)
 {
 	filesys_free_handles ();
-    free_mountinfo ();
+    free_mountinfo (&current_mountinfo);
 }
 
 void filesys_free_handles (void)
@@ -5238,7 +5202,7 @@ static void filesys_reset2 (void)
     units = 0;
 	key_uniq = 0;
 	a_uniq = 0;
-	free_mountinfo ();
+	free_mountinfo (&current_mountinfo);
 }
 
 void filesys_reset (void)
@@ -5246,7 +5210,7 @@ void filesys_reset (void)
 	if (savestate_state == STATE_RESTORE)
 		return;
 	filesys_reset2 ();
-	initialize_mountinfo ();
+	initialize_mountinfo (&current_mountinfo);
 }
 
 static void filesys_prepare_reset2 (void)
@@ -5255,7 +5219,7 @@ static void filesys_prepare_reset2 (void)
 	//    Unit *u;
 	int i;
 
-    uip = mountinfo.ui;
+    uip = current_mountinfo.ui;
 #ifdef UAE_FILESYS_THREADS
 	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
 		if (uip[i].open && uip[i].unit_pipe != 0) {
@@ -5407,10 +5371,10 @@ extern void picasso96_alloc (TrapContext*);
 static uae_u32 REGPARAM2 filesys_init_storeinfo (TrapContext *context)
 {
 	int ret = -1;
-	switch (m68k_dreg (regs, 1))
+	switch (m68k_dreg (&context->regs, 1))
 	{
 /*	case 1:
-		mountertask = m68k_areg (regs, 1);
+		mountertask = m68k_areg (&context->regs, 1);
 		picasso96_alloc (context);
 		break;*/
 	case 2:
@@ -5882,23 +5846,23 @@ static void get_new_device (int type, uaecptr parmpacket, TCHAR **devname, uaecp
 	}
 	*devname_amiga = ds (device_dupfix (expbase, buffer));
     if (type == FILESYS_VIRTUAL)
-		write_log ("FS: mounted virtual unit %s (%s)\n", buffer, mountinfo.ui[unit_no].rootdir);
+		write_log ("FS: mounted virtual unit %s (%s)\n", buffer, current_mountinfo.ui[unit_no].rootdir);
     else
 		write_log ("FS: mounted HDF unit %s (%04x-%08x, %s)\n", buffer,
-		(uae_u32)(mountinfo.ui[unit_no].hf.virtsize >> 32),
-		(uae_u32)(mountinfo.ui[unit_no].hf.virtsize),
-	    mountinfo.ui[unit_no].rootdir);
+		(uae_u32)(current_mountinfo.ui[unit_no].hf.virtsize >> 32),
+		(uae_u32)(current_mountinfo.ui[unit_no].hf.virtsize),
+	    current_mountinfo.ui[unit_no].rootdir);
 }
 
 /* Fill in per-unit fields of a parampacket */
 static uae_u32 REGPARAM2 filesys_dev_storeinfo (TrapContext *context)
 {
-	UnitInfo *uip = mountinfo.ui;
-	int no = m68k_dreg (regs, 6);
+    UnitInfo *uip = current_mountinfo.ui;
+    uae_u32 no = m68k_dreg (&context->regs, 6);
     int unit_no = no & 65535;
     int sub_no = no >> 16;
-	int type = is_hardfile (unit_no);
-	uaecptr parmpacket = m68k_areg (regs, 0);
+    int type = is_hardfile (&current_mountinfo, unit_no);
+    uaecptr parmpacket = m68k_areg (&context->regs, 0);
 
     if (type == FILESYS_HARDFILE_RDB || type == FILESYS_HARDDRIVE) {
 		/* RDB hardfile */
@@ -5934,7 +5898,7 @@ static uae_u32 REGPARAM2 filesys_dev_storeinfo (TrapContext *context)
     if (type == FILESYS_HARDFILE)
 		type = dofakefilesys (&uip[unit_no], parmpacket);
 	if (uip[unit_no].bootpri < -127)
-		m68k_dreg (regs, 7) = m68k_dreg (regs, 7) & ~1; /* do not boot */
+		m68k_dreg (&context->regs, 7) = m68k_dreg (&context->regs, 7) & ~1; /* do not boot */
 	if (uip[unit_no].bootpri < -128)
 		return -1; /* do not mount */
     return type;
@@ -5942,12 +5906,12 @@ static uae_u32 REGPARAM2 filesys_dev_storeinfo (TrapContext *context)
 
 static uae_u32 REGPARAM2 mousehack_done (TrapContext *context)
 {
-	int mode = m68k_dreg (regs, 1);
+	int mode = m68k_dreg (&context->regs, 1);
 	if (mode < 10) {
-		uaecptr diminfo = m68k_areg (regs, 2);
-		uaecptr dispinfo = m68k_areg (regs, 3);
-		uaecptr vp = m68k_areg (regs, 4);
-		input_mousehack_status (mode, diminfo, dispinfo, vp, m68k_dreg (regs, 2));
+		uaecptr diminfo = m68k_areg (&context->regs, 2);
+		uaecptr dispinfo = m68k_areg (&context->regs, 3);
+		uaecptr vp = m68k_areg (&context->regs, 4);
+		input_mousehack_status (mode, diminfo, dispinfo, vp, m68k_dreg (&context->regs, 2));
 	} else if (mode == 10) {
 		;//amiga_clipboard_die ();
 	} else if (mode == 11) {
@@ -5961,15 +5925,15 @@ static uae_u32 REGPARAM2 mousehack_done (TrapContext *context)
 	} else if (mode == 15) {
 		;//amiga_clipboard_init ();
 	} else if (mode == 16) {
-		uaecptr a2 = m68k_areg (regs, 2);
+		uaecptr a2 = m68k_areg (&context->regs, 2);
 		input_mousehack_mouseoffset (a2);
 	} else if (mode == 100) {
 		return consolehook_activate () ? 1 : 0;
 	} else if (mode == 101) {
-		consolehook_ret (m68k_areg (regs, 1), m68k_areg (regs, 2));
+		consolehook_ret (m68k_areg (&context->regs, 1), m68k_areg (&context->regs, 2));
 	} else if (mode == 102) {
-		uaecptr ret = consolehook_beginio (m68k_areg (regs, 1));
-		put_long (m68k_areg (regs, 7) + 4 * 4, ret);
+		uaecptr ret = consolehook_beginio (m68k_areg (&context->regs, 1));
+		put_long (m68k_areg (&context->regs, 7) + 4 * 4, ret);
 	} else {
 		write_log ("Unknown mousehack hook %d\n", mode);
 	}
@@ -6592,7 +6556,7 @@ static uae_u8 *save_filesys_virtual (UnitInfo *ui, uae_u8 *dst)
 uae_u8 *save_filesys_common (int *len)
 {
 	uae_u8 *dstbak, *dst;
-	if (nr_units () == 0)
+	if (nr_units (currprefs.mountinfo) == 0)
 		return NULL;
 	dstbak = dst = xmalloc (uae_u8, 1000);
 	save_u32 (2);
@@ -6617,9 +6581,9 @@ uae_u8 *save_filesys (int num, int *len)
 {
 	uae_u8 *dstbak, *dst;
 	UnitInfo *ui;
-	int type = is_hardfile (num);
+	int type = is_hardfile (&current_mountinfo, num);
 
-	ui = &mountinfo.ui[num];
+	ui = &current_mountinfo.ui[num];
 	if (!ui->open)
 		return NULL;
 	/* not initialized yet, do not save */
@@ -6646,7 +6610,7 @@ uae_u8 *save_filesys (int num, int *len)
 	return dstbak;
 }
 
-uae_u8 *restore_filesys (uae_u8 *src)
+uae_u8 *restore_filesys (struct uaedev_mount_info *mountinfo, uae_u8 *src)
 {
 	int type, devno;
 	UnitInfo *ui;
@@ -6663,7 +6627,7 @@ uae_u8 *restore_filesys (uae_u8 *src)
 	filesysdir = restore_string ();
 	bootpri = restore_u8 ();
 	readonly = restore_u8 ();
-	ui = &mountinfo.ui[devno];
+	ui = &current_mountinfo.ui[devno];
 	ui->startup = restore_u32 ();
 	filesys_configdev = restore_u32 ();
 	if (type == FILESYS_HARDFILE || type == FILESYS_HARDFILE_RDB) {
@@ -6671,7 +6635,7 @@ uae_u8 *restore_filesys (uae_u8 *src)
 		xfree (volname);
 		volname = NULL;
 	}
-	if (set_filesys_unit (devno, devname, volname, rootdir, readonly,
+	if (set_filesys_unit (mountinfo, devno, devname, volname, rootdir, readonly,
 		ui->hf.secspertrack, ui->hf.surfaces, ui->hf.reservedblocks, ui->hf.blocksize,
 		bootpri, 0, 1, filesysdir[0] ? filesysdir : NULL, 0, 0) < 0) {
 			write_log ("filesys '%s' failed to restore\n", rootdir);
@@ -6690,7 +6654,7 @@ end:
 
 int save_filesys_cando (void)
 {
-	if (nr_units () == 0)
+	if (nr_units (currprefs.mountinfo) == 0)
 		return -1;
 	return filesys_in_interrupt ? 0 : 1;
 }

@@ -5089,7 +5089,7 @@ static void fpscounter (void)
 	}
 }
 
-static void vsync_handler (void)
+static void vsync_handler (struct uaedev_mount_info *mountinfo)
 {
 	fpscounter ();
 
@@ -5178,7 +5178,7 @@ static void vsync_handler (void)
 	if (timehack_alive > 0)
 		timehack_alive--;
 	inputdevice_vsync ();
-	filesys_vsync ();
+	filesys_vsync (currprefs.mountinfo);
 #ifdef SAMPLER
 	sampler_vsync ();
 #endif
@@ -5432,7 +5432,7 @@ void hsync_handler (void)
 			lightpen_triggered = 1;
 		}
 		vpos = 0;
-		vsync_handler ();
+		vsync_handler (currprefs.mountinfo);
 		vpos_count = 0;
 #if 0
 		if (input_recording > 0) {

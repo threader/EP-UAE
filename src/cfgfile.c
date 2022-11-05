@@ -1912,8 +1912,8 @@ add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, cons
 	int blocksize, int bootpri, int donotmount, int autoboot,
 	const char *filesysdir, int hdc, int flags)
 */
-//	    err_msg = add_filesys_unit (currprefs.mountinfo, 0, aname, str, ro, secs, heads, reserved, bs, 0, 0, 0, 0, 0, 0);
-	    err_msg = add_filesys_unit (currprefs.mountinfo, 0, aname, str, ro, secs, heads, reserved, bs, 0, 0, 0);
+	    err_msg = add_filesys_unit (currprefs.mountinfo, 0, aname, str, ro, secs, heads, reserved, bs, 0, 0, 0, 0, 0, 0);
+//	    err_msg = add_filesys_unit (currprefs.mountinfo, 0, aname, str, ro, secs, heads, reserved, bs, 0, 0, 0);
 
 	write_log ("-- ADD FILESYS UNIT --\n");
 	    if (err_msg)
@@ -2520,8 +2520,8 @@ add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, cons
 	int blocksize, int bootpri, int donotmount, int autoboot,
 	const char *filesysdir, int hdc, int flags)
 */
-//	    err = add_filesys_unit (currprefs.mountinfo, 0, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-	    err = add_filesys_unit (currprefs.mountinfo, 0, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0);
+	    err = add_filesys_unit (currprefs.mountinfo, 0, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+//	    err = add_filesys_unit (currprefs.mountinfo, 0, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0);
 
 
 	    if (err)
@@ -2563,8 +2563,8 @@ add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, cons
 	int blocksize, int bootpri, int donotmount, int autoboot,
 	const char *filesysdir, int hdc, int flags)
 */
-   //    err_msg = add_filesys_unit (currprefs.mountinfo, 0, 0, x4, 0, atoi (x0), atoi (x1), atoi (x2), atoi (x3), 0, 0, 0, 0, 0, 0);
-       err_msg = add_filesys_unit (currprefs.mountinfo, 0, 0, x4, 0, atoi (x0), atoi (x1), atoi (x2), atoi (x3), 0, 0, 0);
+      err_msg = add_filesys_unit (currprefs.mountinfo, 0, 0, x4, 0, atoi (x0), atoi (x1), atoi (x2), atoi (x3), 0, 0, 0, 0, 0, 0);
+//       err_msg = add_filesys_unit (currprefs.mountinfo, 0, 0, x4, 0, atoi (x0), atoi (x1), atoi (x2), atoi (x3), 0, 0, 0);
        if (err_msg)
 		   write_log ("%s\n", err_msg);
     }

@@ -39,7 +39,7 @@ extern uaecptr ROM_hardfile_resname, ROM_hardfile_resid;
 extern uaecptr ROM_hardfile_init;
 extern uaecptr filesys_initcode;
 
-extern int nr_directory_units (struct uae_prefs*);
+extern int nr_directory_units (struct uaedev_mount_info *mountinfo, struct uae_prefs*);
 extern uaecptr need_uae_boot_rom (void);
 
 struct mountedinfo
@@ -57,9 +57,9 @@ struct mountedinfo
 extern char *validatedevicename (char *s);
 extern char *validatevolumename (char *s);
 
-int filesys_insert(int nr, char *volume, const char *rootdir, int readonly, int flags);
-int filesys_eject(int nr);
-int filesys_media_change (const char *rootdir, int inserted, struct uaedev_config_info *uci);
+int filesys_insert(struct uaedev_mount_info *mountinfo, int nr, char *volume, const char *rootdir, int readonly, int flags);
+int filesys_eject(struct uaedev_mount_info *mountinfo, int nr);
+int filesys_media_change (struct uaedev_mount_info *mountinfo, const char *rootdir, int inserted, struct uaedev_config_info *uci);
 
 extern char *filesys_createvolname (const char *volname, const char *rootdir, const char *def);
 extern int target_get_volume_name(struct uaedev_mount_info *mtinf, const char *volumepath, char *volumename, int size, int inserted, int fullcheck);
@@ -70,7 +70,7 @@ extern void filesys_prepare_reset (void);
 extern void filesys_start_threads (void);
 extern void filesys_flush_cache (void);
 extern void filesys_free_handles (void);
-extern void filesys_vsync (void);
+extern void filesys_vsync (struct uaedev_mount_info *mountinfo);
 
 extern void filesys_install (void);
 extern void filesys_install_code (void);

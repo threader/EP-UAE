@@ -94,7 +94,7 @@ extern void restore_p96_finish (void);
 extern const uae_u8 *restore_keyboard (const uae_u8 *src);
 extern       uae_u8 *save_keyboard    (uae_u32 *len);
 
-extern uae_u8 *restore_filesys (uae_u8 *src);
+extern uae_u8 *restore_filesys (struct uaedev_mount_info *mountinfo, uae_u8 *src);
 extern uae_u8 *save_filesys (int num, int *len);
 extern uae_u8 *restore_filesys_common (uae_u8 *src);
 extern uae_u8 *save_filesys_common (int *len);

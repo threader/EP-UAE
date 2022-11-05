@@ -1358,9 +1358,9 @@ static uaecptr check_boot_rom (void)
 		if (valid_address (RTAREA_DEFAULT, 65536))
 			b = RTAREA_BACKUP;
 	}
-	if (nr_directory_units (NULL))
+	if (nr_directory_units (currprefs.mountinfo, NULL))
 		return b;
-	if (nr_directory_units (&currprefs))
+	if (nr_directory_units (currprefs.mountinfo, &currprefs))
 		return b;
 	if (currprefs.socket_emu)
 		return b;
