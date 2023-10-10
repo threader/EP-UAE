@@ -73,6 +73,7 @@ struct hardfileprivdata {
     volatile int d_request_type[MAX_ASYNC_REQUESTS];
     volatile uae_u32 d_request_data[MAX_ASYNC_REQUESTS];
     smp_comm_pipe requests;
+    uae_thread_id tid;
     int thread_running;
     uae_sem_t sync_sem;
     int opencount;
@@ -1482,7 +1483,7 @@ static int start_thread (TrapContext *context, int unit)
 	if (hfpd->thread_running)
 		return 1;
 	memset (hfpd, 0, sizeof (struct hardfileprivdata));
-	hfpd->base = m68k_areg (regs, 6);
+	hfpd->base = m68k_areg (&regs, 6);
 	init_comm_pipe (&hfpd->requests, 100, 1);
 	uae_sem_init (&hfpd->sync_sem, 0, 0);
 	uae_start_thread ("hardfile", hardfile_thread, hfpd, &hfpd->tid);
@@ -1509,7 +1510,7 @@ static uae_u32 REGPARAM2 hardfile_open (TrapContext *context)
     int err = -1;
 
     /* Check unit number */
-    if (unit >= 0 && get_hardfile_data (unit) && start_thread (unit)) {
+    if (unit >= 0 && get_hardfile_data (unit) && start_thread (context, unit)) {
 	hfpd->opencount++;
 	put_word (m68k_areg(&context->regs, 6) + 32, get_word (m68k_areg(&context->regs, 6) + 32) + 1);
 	put_long (tmp1 + 24, unit); /* io_Unit */
@@ -1772,7 +1773,6 @@ no_disk:
 	case CMD_CLEAR:
 	case CMD_MOTOR:
 	case CMD_SEEK:
-	case CMD_CHANGENUM:
 	case TD_SEEK64:
 	case NSCMD_TD_SEEK64:
 		break;
