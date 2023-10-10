@@ -2605,7 +2605,7 @@ static void process_custom_event (struct uae_input_device *id, int offset, int s
 
 static void setbuttonstateall (struct uae_input_device *id, struct uae_input_device2 *id2, int button, int state)
 {
-	int i;
+    int event, autofire, i;
     uae_u32 mask = 1 << button;
     uae_u32 omask = id2->buttonmask & mask;
     uae_u32 nmask = (state ? 1 : 0) << button;
@@ -2619,13 +2619,13 @@ static void setbuttonstateall (struct uae_input_device *id, struct uae_input_dev
 	return;
 
     for (i = 0; i < MAX_INPUT_SUB_EVENT; i++) {
-		int evt = evt = id->eventid[ID_BUTTON_OFFSET + button][sublevdir[state <= 0 ? 1 : 0][i]];
+		event = id->eventid[ID_BUTTON_OFFSET + button][sublevdir[state <= 0 ? 1 : 0][i]];
 		int autofire = (id->flags[ID_BUTTON_OFFSET + button][sublevdir[state <= 0 ? 1 : 0][i]] & ID_FLAG_AUTOFIRE) ? 1 : 0;
 		int toggle = (id->flags[ID_BUTTON_OFFSET + button][sublevdir[state <= 0 ? 1 : 0][i]] & ID_FLAG_TOGGLE) ? 1 : 0;
 
 	if (state < 0) {
-			handle_input_event (evt, 1, 1, 0);
-			queue_input_event (evt, 0, 1, 1, 0); /* send release event next frame */
+			handle_input_event (event, 1, 1, 0);
+			queue_input_event (event, 0, 1, 1, 0); /* send release event next frame */
 			if (i == 0)
 				process_custom_event (id, ID_BUTTON_OFFSET + button, state);
 		} else if (toggle) {
@@ -2636,12 +2636,12 @@ static void setbuttonstateall (struct uae_input_device *id, struct uae_input_dev
 				continue;
 			id->flags[ID_BUTTON_OFFSET + button][sublevdir[state <= 0 ? 1 : 0][i]] ^= ID_FLAG_TOGGLED;
 			toggled = (id->flags[ID_BUTTON_OFFSET + button][sublevdir[state <= 0 ? 1 : 0][i]] & ID_FLAG_TOGGLED) ? 1 : 0;
-			handle_input_event (evt, toggled, 1, autofire);
+			handle_input_event (event, toggled, 1, autofire);
 			if (i == 0)
 				process_custom_event (id, ID_BUTTON_OFFSET + button, toggled);
 		} else {
 			if ((omask ^ nmask) & mask) {
-				handle_input_event (evt, state, 1, autofire);
+				handle_input_event (event, state, 1, autofire);
 				if (i == 0)
 					process_custom_event (id, ID_BUTTON_OFFSET + button, state);
 			}
