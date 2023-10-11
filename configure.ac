@@ -1257,9 +1257,7 @@ if [[ "x$WANT_AUTOCONFIG" != "xno" ]]; then
   NEED_THREAD_SUPPORT=yes
   FILESYSOBJS='filesys.$(OBJEXT) fsdb.$(OBJEXT) fsusage.$(OBJEXT) hardfile.$(OBJEXT)'
   if [[ "x$HOST_OS" != "xwin32" ]]; then
-    FILESYSOBJS="$FILESYSOBJS filesys_unix.\$(OBJEXT) fsdb_unix.\$(OBJEXT) hardfile_unix.\$(OBJEXT)"  else
-  else
-    FILESYSOBJS="$FILESYSOBJS"
+    FILESYSOBJS="$FILESYSOBJS filesys_unix.\$(OBJEXT) fsdb_unix.\$(OBJEXT) hardfile_unix.\$(OBJEXT)"
   fi
   dnl  Filesys support currently requires threads, because hardfile
   dnl  support requires threads and we can't currently separate the
