@@ -759,6 +759,33 @@ static void sample16i_crux_handler (void)
 	check_sound_buffers ();
 }
 
+#ifdef HAVE_8BIT_AUDIO_SUPPORT
+void sample8_handler (void)
+{
+    uae_u32 data0 = audio_channel[0].current_sample;
+    uae_u32 data1 = audio_channel[1].current_sample;
+    uae_u32 data2 = audio_channel[2].current_sample;
+    uae_u32 data3 = audio_channel[3].current_sample;
+    DO_CHANNEL_1 (data0, 0);
+    DO_CHANNEL_1 (data1, 1);
+    DO_CHANNEL_1 (data2, 2);
+    DO_CHANNEL_1 (data3, 3);
+    data0 &= audio_channel[0].adk_mask;
+    data1 &= audio_channel[1].adk_mask;
+    data2 &= audio_channel[2].adk_mask;
+    data3 &= audio_channel[3].adk_mask;
+    data0 += data1;
+    data0 += data2;
+    data0 += data3;
+    {
+        uae_u32 data = SBASEVAL8(2) + data0;
+        FINISH_DATA (data, 8, 2);
+        PUT_SOUND_BYTE (data);
+    }
+    check_sound_buffers ();
+}
+#endif
+
 #ifdef HAVE_STEREO_SUPPORT
 
 STATIC_INLINE void make6ch (uae_s32 d0, uae_s32 d1, uae_s32 d2, uae_s32 d3)
@@ -1027,7 +1054,46 @@ static void sample16si_rh_handler (void)
 	check_sound_buffers ();
 }
 
+#ifdef HAVE_8BIT_AUDIO_SUPPORT
+void sample8s_handler (void)
+{
+    uae_u32 data0 = audio_channel[0].current_sample;
+    uae_u32 data1 = audio_channel[1].current_sample;
+    uae_u32 data2 = audio_channel[2].current_sample;
+    uae_u32 data3 = audio_channel[3].current_sample;
+    DO_CHANNEL_1 (data0, 0);
+    DO_CHANNEL_1 (data1, 1);
+    DO_CHANNEL_1 (data2, 2);
+    DO_CHANNEL_1 (data3, 3);
+
+    data0 &= audio_channel[0].adk_mask;
+    data1 &= audio_channel[1].adk_mask;
+    data2 &= audio_channel[2].adk_mask;
+    data3 &= audio_channel[3].adk_mask;
+
+    data0 += data3;
+    {
+        uae_u32 data = SBASEVAL8(1) + data0;
+        FINISH_DATA (data, 8, 1);
+        PUT_SOUND_BYTE_RIGHT (data);
+    }
+    data1 += data2;
+    {
+        uae_u32 data = SBASEVAL8(1) + data1;
+        FINISH_DATA (data, 8, 1);
+        PUT_SOUND_BYTE_LEFT (data);
+    }
+    check_sound_buffers ();
+}
+#endif
 #else
+#ifdef HAVE_8BIT_AUDIO_SUPPORT
+void sample8s_handler (void)
+{
+    sample8_handler();
+}
+#endif
+
 void sample16s_handler (void)
 {
 	sample16_handler ();
