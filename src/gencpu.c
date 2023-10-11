@@ -2194,7 +2194,7 @@ static void gen_opcode (unsigned long int opcode)
 			printf ("\tif (pc & 1)\n");
 			printf ("\t\texception3 (0x%04X, m68k_getpc (regs), pc);\n", (uae_u32) opcode);
 			printf ("\telse\n");
-			printf ("\t\tm68k_setpc (regs, pc);\n");
+			setpc ("pc");
 		}
 	/* PC is set and prefetch filled. */
 	m68k_pc_offset = 0;
@@ -2288,7 +2288,7 @@ static void gen_opcode (unsigned long int opcode)
 		} else {
 		if (curi->smode == Ad16 || curi->smode == absw || curi->smode == PC16)
 			addcycles000 (2);
-		printf ("\tm68k_setpc (regs, srca);\n");
+		setpc ("srca");
 		m68k_pc_offset = 0;
 		fill_prefetch_1 (0);
 		if (curi->smode == Ad8r || curi->smode == PC8r)
@@ -2315,7 +2315,7 @@ static void gen_opcode (unsigned long int opcode)
 		}
 		if (curi->smode == Ad16 || curi->smode == Ad8r || curi->smode == absw || curi->smode == PC16 || curi->smode == PC8r)
 			addcycles000 (2);
-		printf ("\tm68k_setpc (regs, srca);\n");
+		setpc ("srca");
 		m68k_pc_offset = 0;
 		fill_prefetch_full ();
     	break;
@@ -2455,7 +2455,7 @@ static void gen_opcode (unsigned long int opcode)
 		addcycles000_2 ("\t\t", 2);
 		addcycles_ce020 (4);
 		printf ("\t}\n");
-	printf ("\tm68k_setpc (regs, oldpc + %d);\n", m68k_pc_offset);
+		setpc ("oldpc + %d", m68k_pc_offset);
 		m68k_pc_offset = 0;
 		fill_prefetch_full ();
 		insn_n_cycles = 12;
@@ -3122,6 +3122,7 @@ static void gen_opcode (unsigned long int opcode)
     break;
     case i_CAS2:
 		genamode (curi->smode, "srcreg", curi->size, "extra", 1, 0, 0);
+/* note */
 		printf ("\tuae_u32 rn1 = regs->regs[(extra >> 28) & 15];\n");
 		printf ("\tuae_u32 rn2 = regs->regs[(extra >> 12) & 15];\n");
 	if (curi->size == sz_word) {
