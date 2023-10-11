@@ -484,10 +484,9 @@ void init_m68k (void)
 }
 
 struct regstruct regs, mmu_backup_regs;
-struct flag_struct regflags;
 static struct regstruct regs_backup[16];
 static int backup_pointer = 0;
-static long int m68kpc_offset;
+static uae_s32 m68kpc_offset;
 
 #define get_ibyte_1(regs, o) get_byte((regs)->pc + ((regs)->pc_p - (regs)->pc_oldp) + (o) + 1)
 #define get_iword_1(regs, o) get_word((regs)->pc + ((regs)->pc_p - (regs)->pc_oldp) + (o))
