@@ -7,6 +7,7 @@ echo .
 aclocal -I m4 \
 && automake --foreign --add-missing \
 && autoconf
+&& autoupdate
 echo ..almost over..
 echo .
 cd src/tools
