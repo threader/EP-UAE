@@ -241,7 +241,7 @@ static uae_u16 sprdata[MAX_SPRITES][1], sprdatb[MAX_SPRITES][1];
 static unsigned int sprite_last_drawn_at[MAX_SPRITES];
 static unsigned int last_sprite_point, nr_armed;
 static unsigned int sprite_width, sprres;
-static int unsigned sprite_buffer_res;
+
 
 #ifdef CPUEMU_12
 uae_u8 cycle_line[256];
@@ -4652,6 +4652,17 @@ static void compute_spcflag_copper (unsigned int hpos)
 	}
 	copper_enabled_thisline = 1;
 	set_special (&regs, SPCFLAG_COPPER);
+}
+
+void copper_handler (void)
+{
+    /* This will take effect immediately, within the same cycle.  */
+    set_special (&regs, SPCFLAG_COPPER);
+
+    if (! copper_enabled_thisline)
+	uae_abort ("copper_handler");
+
+    eventtab[ev_copper].active = 0;
 }
 
 /*
