@@ -5648,7 +5648,7 @@ void event2_remevent (int no)
 {
 	eventtab2[no].active = 0;
 }
-
+#if 0
 void init_eventtab (void)
 {
 	int i;
@@ -5675,7 +5675,7 @@ void init_eventtab (void)
 
 	events_schedule ();
 }
-
+#endif
 void customreset (int hardreset)
 {
 	unsigned int i;

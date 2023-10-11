@@ -81,7 +81,7 @@ STATIC_INLINE unsigned long get_cycles (void)
     return currcycle;
 }
 
-extern void init_eventtab (void);
+// extern void init_eventtab (void);
 
 #if /* M68K_SPEED == 1 */  0
 #define do_cycles do_cycles_fast
