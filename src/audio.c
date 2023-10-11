@@ -303,6 +303,7 @@ void init_sound_table16 (void)
 #ifdef MULTIPLICATION_PROFITABLE
 typedef uae_s8 sample8_t;
 #define DO_CHANNEL_1(v, c) do { (v) *= audio_channel[c].vol; } while (0)
+#define SBASEVAL8(logn) ((logn) == 1 ? SOUND8_BASE_VAL << 7 : SOUND8_BASE_VAL << 8)
 #define SBASEVAL16(logn) ((logn) == 1 ? SOUND16_BASE_VAL >> 1 : SOUND16_BASE_VAL)
 
 STATIC_INLINE int FINISH_DATA (int data, int bits, int logn)
@@ -320,6 +321,7 @@ STATIC_INLINE int FINISH_DATA (int data, int bits, int logn)
 #else
 typedef uae_u8 sample8_t;
 #define DO_CHANNEL_1(v, c) do { (v) = audio_channel[c].voltbl[(v)]; } while (0)
+#define SBASEVAL8(logn) SOUND8_BASE_VAL
 #define SBASEVAL16(logn) SOUND16_BASE_VAL
 #define FINISH_DATA(data, bits, logn)
 #endif
