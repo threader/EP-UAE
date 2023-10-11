@@ -245,14 +245,14 @@ void serial_check_irq (void)
         if (data_in_serdatr)
                 INTREQ_0 (0x8000 | 0x0800);
 }
-
+# if 0
 void serial_uartbreak (int v)
 {
 #ifdef SERIAL_PORT
         serialuartbreak (v);
 #endif
 }
-
+#endif
 void serial_hsynchandler (void)
 {
 #ifdef AHI
