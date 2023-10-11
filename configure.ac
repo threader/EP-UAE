@@ -1339,13 +1339,11 @@ typedef int BOOL;
       LIBSCG_LIBS="-L$srcdir/src $OLDLIBS $SCGLIBS"
       CPPFLAGS="$LIBSCG_CPPFLAGS"
       LIBS="$LIBSCG_LIBS"
-      AC_TRY_LINK([
+      AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 typedef int BOOL;
 #include "scg/scgcmd.h"
 #include "scg/scsitransp.h"
-#include "scg/scsireg.h"],
-[{SCSI *scgp = scg_open (0, 0, 0, 0, 0);}],
-      [
+#include "scg/scsireg.h"]], [[{SCSI *scgp = scg_open (0, 0, 0, 0, 0);}]])],[
         AC_MSG_RESULT(yes)
         SCSIOBJS='scsiemul.$(OBJEXT) blkdev.$(OBJEXT) blkdev-libscg.$(OBJEXT) scsi.$(OBJEXT) a2091.$(OBJEXT)'
         UAE_DEFINES="$UAE_DEFINES -DSCSIEMU"
@@ -1358,8 +1356,7 @@ typedef int BOOL;
         else
           UAE_LIBS="$UAE_LIBS -L. $SCGLIBS"
         fi
-      ],
-      [
+      ],[
         AC_MSG_RESULT(no)
 
 	AC_MSG_CHECKING([for Linux cdrom support via ioctl])
