@@ -502,32 +502,4 @@ void scsi_log_after (uae_u8 *data, int datalen, uae_u8 *sense, int senselen)
 	}
 }
 
-#ifdef SAVESTATE
-uae_u8 *save_cd (int num, int *len)
-{
-	uae_u8 *dstbak, *dst;
 
-	if (num != 0)
-		return NULL;
-	if (!currprefs.cdimagefile[0])
-		return NULL;
-
-	dstbak = dst = xmalloc (uae_u8, 4 + 256);
-	save_u32 (4);
-	save_string (currprefs.cdimagefile);
-	*len = dst - dstbak;
-	return dstbak;
-}
-
-uae_u8 *restore_cd (int unit, uae_u8 *src)
-{
-	uae_u32 flags;
-	TCHAR *s;
-
-	flags = restore_u32 ();
-	s = restore_string ();
-	if ((flags & 4) && unit == 0)
-		_tcscpy (changed_prefs.cdimagefile, s);
-	return src;
-}
-#endif
