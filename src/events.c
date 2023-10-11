@@ -33,8 +33,6 @@ unsigned long nextevent;
 signed long pissoff = 0;
 #endif
 
-struct ev eventtab[ev_max];
-
 
 void init_eventtab (void)
 {

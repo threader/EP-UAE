@@ -133,7 +133,7 @@ STATIC_INLINE void sync_copper (unsigned int hpos);
 
 /* Events */
 
-unsigned long int event_cycles, nextevent, is_lastline;
+unsigned long int event_cycles, is_lastline;
 long cycles_to_next_event;
 long max_cycles_to_next_event;
 long cycles_to_hsync_event;
