@@ -2194,7 +2194,7 @@ static void gen_opcode (unsigned long int opcode)
 			printf ("\tif (pc & 1)\n");
 			printf ("\t\texception3 (0x%04X, m68k_getpc (regs), pc);\n", (uae_u32) opcode);
 			printf ("\telse\n");
-			setpc ("pc");
+			printf ("\t\tm68k_setpc (regs, pc);\n");
 		}
 	/* PC is set and prefetch filled. */
 	m68k_pc_offset = 0;
@@ -2288,7 +2288,7 @@ static void gen_opcode (unsigned long int opcode)
 		} else {
 		if (curi->smode == Ad16 || curi->smode == absw || curi->smode == PC16)
 			addcycles000 (2);
-		setpc ("srca");
+		printf ("\tm68k_setpc (regs, srca);\n");
 		m68k_pc_offset = 0;
 		fill_prefetch_1 (0);
 		if (curi->smode == Ad8r || curi->smode == PC8r)
@@ -2315,7 +2315,7 @@ static void gen_opcode (unsigned long int opcode)
 		}
 		if (curi->smode == Ad16 || curi->smode == Ad8r || curi->smode == absw || curi->smode == PC16 || curi->smode == PC8r)
 			addcycles000 (2);
-		setpc ("srca");
+		printf ("\tm68k_setpc (regs, srca);\n");
 		m68k_pc_offset = 0;
 		fill_prefetch_full ();
     	break;
@@ -2455,7 +2455,7 @@ static void gen_opcode (unsigned long int opcode)
 		addcycles000_2 ("\t\t", 2);
 		addcycles_ce020 (4);
 		printf ("\t}\n");
-	printf ("\tsetpc (regs, oldpc + %d);\n", m68k_pc_offset);
+	printf ("\tm68k_setpc (regs, oldpc + %d);\n", m68k_pc_offset);
 		m68k_pc_offset = 0;
 		fill_prefetch_full ();
 		insn_n_cycles = 12;
@@ -3269,7 +3269,7 @@ static void gen_opcode (unsigned long int opcode)
 				printf ("\tdsta += offset >> 3;\n");
 				printf ("\ttmp = %s (dsta, bdata, offset, width);\n", getb);
 			}
-	printf ("\tSET_NFLG_ALWAYS (&regs->ccrflags, (uae_s32)tmp & (1 << (width-1)) ? 1 : 0);\n");
+	printf ("\tSET_NFLG_ALWAYS (&regs->ccrflags, ((uae_s32)tmp) & (1 << (width-1)) ? 1 : 0);\n");
 			if (curi->mnemo == i_BFEXTS)
 				printf ("\ttmp = (uae_s32)tmp >> (32 - width);\n");
 			else
@@ -3301,6 +3301,7 @@ static void gen_opcode (unsigned long int opcode)
 	    break;
 	case i_BFINS:
 	    printf ("\ttmp = m68k_dreg (regs, (extra >> 12) & 7);\n");
+		printf ("\ttmp = tmp & (0xffffffffu >> (32 - width));\n");
 	    printf ("\tSET_NFLG (&regs->ccrflags, tmp & (1 << (width - 1)) ? 1 : 0);\n");
 	    printf ("\tSET_ZFLG (&regs->ccrflags, (tmp == 0) ? 1 : 0);\n");
 	    break;
