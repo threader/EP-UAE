@@ -3269,7 +3269,7 @@ static void gen_opcode (unsigned long int opcode)
 				printf ("\tdsta += offset >> 3;\n");
 				printf ("\ttmp = %s (dsta, bdata, offset, width);\n", getb);
 			}
-	printf ("\tSET_NFLG_ALWAYS (&regs->ccrflags, tmp & (1 << (width-1)) ? 1 : 0);\n");
+	printf ("\tSET_NFLG_ALWAYS (&regs->ccrflags, (uae_s32)tmp & (1 << (width-1)) ? 1 : 0);\n");
 			if (curi->mnemo == i_BFEXTS)
 				printf ("\ttmp = (uae_s32)tmp >> (32 - width);\n");
 			else
