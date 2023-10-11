@@ -961,9 +961,9 @@ void uae_save_config (void)
 
     // FIXME  - either fix this nonsense, or only allow config to be saved when emulator is stopped.
     if (uae_get_state () == UAE_STATE_STOPPED)
-	save_options (f, &changed_prefs, 0);
+	cfgfile_save_options (f, &changed_prefs, 0);
     else
-	save_options (f, &currprefs, 0);
+	cfgfile_save_options (f, &currprefs, 0);
 
     fclose (f);
 }
@@ -972,6 +972,9 @@ void uae_save_config (void)
 /*
  * A first cut at better state management...
  */
+
+static int uae_state;
+static int uae_target_state;
 
 int uae_get_state (void)
 {
