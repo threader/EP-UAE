@@ -2007,8 +2007,9 @@ static void pfield_draw_line (int lineno, int gfx_ypos, int follow_ypos)
 
     dp_for_drawing = line_decisions + lineno;
     dip_for_drawing = curr_drawinfo + lineno;
-    mungedip (lineno); /* note */
-    switch (linestate[lineno]) {
+
+    switch (linestate[lineno])
+    {
     case LINE_REMEMBERED_AS_PREVIOUS:
 		if (!warned)
 			write_log ("Shouldn't get here... this is a bug.\n"), warned++;
