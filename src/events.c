@@ -23,7 +23,7 @@
 #include "hrtimer.h"
 
 /* Current time in cycles */
-unsigned long currcycle;
+unsigned long int currcycle;
 
 /* Cycles to next event pending */
 unsigned long nextevent;
