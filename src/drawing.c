@@ -1737,7 +1737,7 @@ static void init_aspect_maps (void)
     min_ypos_for_screen = minfirstline << (linedbl ? 1 : 0);
     max_drawn_amiga_line = -1;
     for (i = 0; i < maxl; i++) {
-		int v = i - min_ypos_for_screen;
+		int v = (int) (i - min_ypos_for_screen);
 		if (v >= gfxvidinfo.height && max_drawn_amiga_line == -1)
 		    max_drawn_amiga_line = i - min_ypos_for_screen;
 		if (i < min_ypos_for_screen || v >= gfxvidinfo.height)
