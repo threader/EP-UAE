@@ -72,7 +72,6 @@
 struct uae_prefs currprefs, changed_prefs;
 
 static int restart_program;
-int log_scsi;
 
 struct gui_info gui_data;
 
