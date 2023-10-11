@@ -35,8 +35,8 @@ static int tablet_x, tablet_y, tablet_z, tablet_pressure, tablet_buttons, tablet
 static int tablet_ax, tablet_ay, tablet_az, tablet_flags;
 
 unsigned int log_scsi = 1;
-int log_net, uaelib_debug;
-unsigned int flashscreen;
+int log_net;
+//unsigned int flashscreen;
 
 struct winuae_currentmode {
         unsigned int flags;
