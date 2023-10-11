@@ -29,6 +29,7 @@
 # include <winsock2.h>
 #endif
 
+struct socketbase *socketbases;
 static uae_u32 SockLibBase;
 
 #define SOCKPOOLSIZE 128
@@ -341,8 +342,8 @@ static struct socketbase *alloc_socketbase (TrapContext *context)
 
 	sb->dtablesize = DEFAULT_DTABLE_SIZE;
 	/* @@@ check malloc() result */
-	sb->dtable = malloc (sb->dtablesize * sizeof (*sb->dtable));
-	sb->ftable = malloc (sb->dtablesize * sizeof (*sb->ftable));
+	sb->dtable = (SOCKET*)malloc (sb->dtablesize * sizeof (*sb->dtable));
+	sb->ftable = (int*)malloc (sb->dtablesize * sizeof (*sb->ftable));
 
 	for (i = sb->dtablesize; i--;)
 	    sb->dtable[i] = -1;
