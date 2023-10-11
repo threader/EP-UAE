@@ -50,7 +50,7 @@
 #include "inputdevice.h"
 #include "debug.h"
 
-extern int sprite_buffer_res;
+extern unsigned int sprite_buffer_res;
 int lores_factor, lores_shift;
 
 int debug_bpl_mask = 0xff, debug_bpl_mask_one;

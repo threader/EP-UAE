@@ -17,6 +17,8 @@
 
 uae_u32 get_copper_address (int copno);
 
+static unsigned int sprite_buffer_res;
+
 extern int custom_init (void);
 extern void customreset (int hardreset);
 extern int intlev (void);
