@@ -108,6 +108,7 @@ void activate_debugger (void)
 	set_special (&regs, SPCFLAG_BRK);
 	debugging = 1;
 	mmu_triggered = 0;
+	}
 }
 
 
@@ -177,7 +178,7 @@ static const char help[] = {
 	"  q                     Quit the emulator. You don't want to use this command.\n\n"
 };
 
-static void debug_help (void)
+void debug_help (void)
 {
 	console_out (help);
 }
@@ -813,7 +814,7 @@ static void decode_dma_record (int hpos, int vpos, int toggle)
 	}
 }
 
-void record_copper (uaecptr addr, int hpos, int vpos)
+void record_copper (uaecptr addr, unsigned int hpos, unsigned int vpos)
 {
 	unsigned int t = nr_cop_records[curr_cop_set];
 	if (!cop_record[0]) {
@@ -1018,27 +1019,9 @@ static void cheatsearch (const char **c)
     }
 }
 
-#define BREAKPOINT_TOTAL 8
-struct breakpoint_node {
-    uaecptr addr;
-    int enabled;
-};
-static struct breakpoint_node bpnodes[BREAKPOINT_TOTAL];
-
+struct breakpoint_node bpnodes[BREAKPOINT_TOTAL];
 static addrbank **debug_mem_banks;
 static addrbank *debug_mem_area;
-
-#define MEMWATCH_TOTAL 4
-struct memwatch_node {
-    uaecptr addr;
-    unsigned int size;
-    int rw;
-    uae_u32 val;
-    int val_enabled;
-    uae_u32 modval;
-    int modval_written;
-};
-
 struct memwatch_node mwnodes[MEMWATCH_TOTAL];
 static struct memwatch_node mwhit;
 
@@ -1220,7 +1203,7 @@ static void smc_detector (uaecptr addr, int rwi, int size, uae_u32 *valp)
 	if (rwi == 2) {
 		for (i = 0; i < size; i++) {
 			if (smc_table[addr + i].cnt < SMC_MAXHITS) {
-				smc_table[addr + i].addr = m68k_getpc ();
+				smc_table[addr + i].addr = m68k_getpc (&regs);
 			}
 		}
 		return;
@@ -1361,7 +1344,7 @@ static int memwatch_func (uaecptr addr, int rwi, int size, uae_u32 *valp)
 			mwhit.val = val;
 		memwatch_triggered = i + 1;
 		debugging = 1;
-		set_special (SPCFLAG_BRK);
+		set_special (&regs, SPCFLAG_BRK);
 		return 1;
 	}
 	return 1;
@@ -1624,17 +1607,21 @@ static void initialize_memwatch (int mode)
 }
 
 int debug_bankchange (int mode)
-{/*
+{
+/*
 	if (mode == -1) {
 		int v = deinitialize_memwatch ();
 		if (v < 0)
 			return -2;
 		return v;
 	}
-	if (mode >= 0)
+	if (mode >= 0) {
 		initialize_memwatch (mode);
+		memwatch_setup ();
+	}
 	return -1;
-*/}
+*/
+}
 
 static void memwatch_dump (int num)
 {
@@ -1664,10 +1651,7 @@ static void memwatch (const char **c)
     char nc;
 
     if (!memwatch_enabled) {
-	if (!initialize_memwatch ()) {
-	    console_out ("Memwatch breakpoints require 24-bit address space\n");
-	    return;
-	}
+	initialize_memwatch (0);
 	console_out ("Memwatch breakpoints enabled\n");
     }
 
@@ -1947,7 +1931,7 @@ static struct regstruct trace_prev_regs;
 #endif
 static uaecptr nextpc;
 
-static int instruction_breakpoint (const char **c)
+int instruction_breakpoint (const char **c)
 {
 	struct breakpoint_node *bpn;
 	int i;
@@ -2062,7 +2046,7 @@ static void savemem (const char **cc)
     strncpy (name, start, name_len);
     name[name_len] = '\0';
 
-	**cc = '\0';
+	//**cc = '\0';
     (*cc)++;
     if (!more_params (cc))
 		goto S_argh;
@@ -2659,7 +2643,7 @@ void debug (void)
 	&& !currprefs.cachesize
 #endif
 #ifdef FILESYS
-		&& nr_units () == 0
+	&& nr_units (currprefs.mountinfo) == 0
 #endif
 	) {
 	savestate_capture (1);
@@ -2673,7 +2657,7 @@ void debug (void)
 	if (sr_bpmask || sr_bpvalue)
 		do_skip = 1;
 	if (do_skip) {
-		set_special (SPCFLAG_BRK);
+		set_special (&regs, SPCFLAG_BRK);
 		m68k_resumestopped ();
 		debugging = 1;
 	}
@@ -2737,51 +2721,51 @@ void mmu_do_hit (void)
 	uae_u32 pc;
 
 	mmu_triggered = 0;
-	pc = m68k_getpc ();
+	pc = m68k_getpc (&regs);
 	p = mmu_regs + 18 * 4;
 	put_long (p, pc);
 	//regs = mmu_backup_regs;
 	regs.intmask = 7;
 	regs.t0 = regs.t1 = 0;
 	if (!regs.s) {
-		regs.usp = m68k_areg (regs, 7);
+		regs.usp = m68k_areg (&regs, 7);
 		if (currprefs.cpu_model >= 68020)
-			m68k_areg (regs, 7) = regs.m ? regs.msp : regs.isp;
+			m68k_areg (&regs, 7) = regs.m ? regs.msp : regs.isp;
 		else
-			m68k_areg (regs, 7) = regs.isp;
+			m68k_areg (&regs, 7) = regs.isp;
 		regs.s = 1;
 	}
-	MakeSR ();
-	m68k_setpc (mmu_callback);
-	fill_prefetch_slow ();
+	MakeSR (&regs);
+	m68k_setpc (&regs, mmu_callback);
+	fill_prefetch_slow (&regs);
 
 	if (currprefs.cpu_model > 68000) {
 		for (i = 0 ; i < 9; i++) {
-			m68k_areg (regs, 7) -= 4;
-			put_long (m68k_areg (regs, 7), 0);
+			m68k_areg (&regs, 7) -= 4;
+			put_long (m68k_areg (&regs, 7), 0);
 		}
-		m68k_areg (regs, 7) -= 4;
-		put_long (m68k_areg (regs, 7), mmu_fault_addr);
-		m68k_areg (regs, 7) -= 2;
-		put_word (m68k_areg (regs, 7), 0); /* WB1S */
-		m68k_areg (regs, 7) -= 2;
-		put_word (m68k_areg (regs, 7), 0); /* WB2S */
-		m68k_areg (regs, 7) -= 2;
-		put_word (m68k_areg (regs, 7), 0); /* WB3S */
-		m68k_areg (regs, 7) -= 2;
-		put_word (m68k_areg (regs, 7),
+		m68k_areg (&regs, 7) -= 4;
+		put_long (m68k_areg (&regs, 7), mmu_fault_addr);
+		m68k_areg (&regs, 7) -= 2;
+		put_word (m68k_areg (&regs, 7), 0); /* WB1S */
+		m68k_areg (&regs, 7) -= 2;
+		put_word (m68k_areg (&regs, 7), 0); /* WB2S */
+		m68k_areg (&regs, 7) -= 2;
+		put_word (m68k_areg (&regs, 7), 0); /* WB3S */
+		m68k_areg (&regs, 7) -= 2;
+		put_word (m68k_areg (&regs, 7),
 			(mmu_fault_rw ? 0 : 0x100) | (mmu_fault_size << 5)); /* SSW */
-		m68k_areg (regs, 7) -= 4;
-		put_long (m68k_areg (regs, 7), mmu_fault_bank_addr);
-		m68k_areg (regs, 7) -= 2;
-		put_word (m68k_areg (regs, 7), 0x7002);
+		m68k_areg (&regs, 7) -= 4;
+		put_long (m68k_areg (&regs, 7), mmu_fault_bank_addr);
+		m68k_areg (&regs, 7) -= 2;
+		put_word (m68k_areg (&regs, 7), 0x7002);
 	}
-	m68k_areg (regs, 7) -= 4;
-	put_long (m68k_areg (regs, 7), get_long (p - 4));
-	m68k_areg (regs, 7) -= 2;
-	put_word (m68k_areg (regs, 7), mmur.sr);
+	m68k_areg (&regs, 7) -= 4;
+	put_long (m68k_areg (&regs, 7), get_long (p - 4));
+	m68k_areg (&regs, 7) -= 2;
+	put_word (m68k_areg (&regs, 7), mmur.sr);
 #ifdef JIT
-	set_special(SPCFLAG_END_COMPILE);
+	set_special(&regs, SPCFLAG_END_COMPILE);
 #endif
 }
 
@@ -2791,7 +2775,7 @@ static void mmu_do_hit_pre (struct mmudata *md, uaecptr addr, int size, int rwi,
 	int i;
 
 	mmur = regs;
-	pc = m68k_getpc ();
+	pc = m68k_getpc (&regs);
 	if (mmu_logging)
 		console_out ("MMU: hit %08X SZ=%d RW=%d V=%08X PC=%08X\n", addr, size, rwi, v, pc);
 
@@ -3044,6 +3028,6 @@ int mmu_init(int mode, uaecptr parm, uaecptr parm2)
 	initialize_memwatch (1);
 	console_out ("MMU: enabled, %d banks, CB=%08X S=%08X BNK=%08X SF=%08X, %d*%d\n",
 		size - 1, mmu_callback, parm, banks, mmu_regs, mmu_slots, 1 << MMU_PAGE_SHIFT);
-	set_special (SPCFLAG_BRK);
+	set_special (&regs, SPCFLAG_BRK);
 	return 1;
 }
