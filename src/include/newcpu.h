@@ -112,7 +112,7 @@ struct cache040
 	int count;
 };
 
-struct regstruct
+extern struct regstruct
 {
     uae_u32 regs[16];
     struct flag_struct ccrflags;
@@ -214,13 +214,13 @@ STATIC_INLINE void m68k_setpc (struct regstruct *regs, uaecptr newpc)
 
 STATIC_INLINE uaecptr m68k_getpc (struct regstruct *regs)
 {
-    return regs->pc + ((char *)regs->pc_p - (char *)regs->pc_oldp);
+	return (uaecptr)(regs->pc + ((uae_u8*)regs->pc_p - (uae_u8*)regs->pc_oldp));
 }
 #define M68K_GETPC m68k_getpc(&regs)
 
 STATIC_INLINE uaecptr m68k_getpc_p (struct regstruct *regs, uae_u8 *p)
 {
-    return regs->pc + ((char *)p - (char *)regs->pc_oldp);
+	return (uaecptr)(regs->pc + ((uae_u8*)p - (uae_u8*)regs->pc_oldp));
 }
 
 #define m68k_incpc(regs, o) ((regs)->pc_p += (regs, o))
@@ -278,7 +278,7 @@ STATIC_INLINE void m68k_do_jsr (struct regstruct *regs, uaecptr oldpc, uaecptr d
     m68k_setpc (regs, dest);
 }
 
-#define get_ibyte(regs, o) do_get_mem_byte((uae_u8 *)((regs)->pc_p + (o) + 1))
+#define get_ibyte(regs, o) do_get_mem_byte((uae_u8 *) ((regs)->pc_p + (o) + 1))
 #define get_iword(regs, o) do_get_mem_word((uae_u16 *)((regs)->pc_p + (o)))
 #define get_ilong(regs, o) do_get_mem_long((uae_u32 *)((regs)->pc_p + (o)))
 

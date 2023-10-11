@@ -1678,11 +1678,11 @@ static void newdir_ok (void)
 		/* Uh, no messageboxes in gtk?  */
     } else if (hd_change_mode) {
 	set_filesys_unit (currprefs.mountinfo, selected_hd_row, dirdlg_devname, dirdlg_volname, dirdlg_path,
-			  readonly, 0, 0, 0, 0, bootpri, 0, 0);
+			  readonly, secspertrack, surfaces, reserved, blocksize, bootpri, donotmount, autoboot, 0, hdc, flags);
 	set_hd_state ();
     } else {
 	add_filesys_unit (currprefs.mountinfo, dirdlg_devname, dirdlg_volname, dirdlg_path,
-			  readonly, 0, 0, 0, 0, bootpri, 0, 0);
+			  readonly, secspertrack, surfaces, reserved, blocksize, bootpri, donotmount, autoboot, 0, hdc, flags);
 	set_hd_state ();
     }
     gtk_widget_destroy (dirdlg);

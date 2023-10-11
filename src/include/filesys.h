@@ -131,21 +131,21 @@ extern void filesys_prepare_reset (void);
 extern void filesys_start_threads (void);
 extern void filesys_flush_cache (void);
 
-extern struct hardfiledata *get_hardfile_data (struct uaedev_mount_info *mountinfo,int nr);
+extern struct hardfiledata *get_hardfile_data (int nr);
 #define FILESYS_MAX_BLOCKSIZE 2048
-extern int hdf_open (struct hardfiledata *hfd, const TCHAR *name);
-extern int hdf_dup (struct hardfiledata *dhfd, const struct hardfiledata *shfd);
-extern void hdf_close (struct hardfiledata *hfd);
-extern int hdf_read (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
-extern int hdf_write (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
-extern int hdf_getnumharddrives (void);
-extern char *hdf_getnameharddrive (int index, int flags, int *sectorsize, int *dangerousdrive);
-extern int isspecialdrive (const char *name);
-extern void filesys_cleanup (void);
-extern int filesys_is_readonly (const char *path);
-extern int hdf_init (void);
-extern int get_native_path(struct uaedev_mount_info *mountinfo, uae_u32 lock, char *out);
-extern void hardfile_do_disk_change (struct uaedev_config_info *uci, int insert);
+ int hdf_open (struct hardfiledata *hfd, const TCHAR *name);
+ int hdf_dup (struct hardfiledata *dhfd, const struct hardfiledata *shfd);
+ void hdf_close (struct hardfiledata *hfd);
+ int hdf_read (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
+ int hdf_write (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
+ int hdf_getnumharddrives (void);
+ char *hdf_getnameharddrive (int index, int flags, int *sectorsize, int *dangerousdrive);
+ int isspecialdrive (const char *name);
+ void filesys_cleanup (void);
+ int filesys_is_readonly (const char *path);
+ int hdf_init (void);
+ int get_native_path(struct uaedev_mount_info *mountinfo, uae_u32 lock, char *out);
+ void hardfile_do_disk_change (struct uaedev_config_info *uci, int insert);
 
 void hdf_hd_close(struct hd_hardfiledata *hfd);
 int hdf_hd_open(struct hd_hardfiledata *hfd, const TCHAR *path, int blocksize, int readonly,
@@ -153,13 +153,13 @@ int hdf_hd_open(struct hd_hardfiledata *hfd, const TCHAR *path, int blocksize, i
 		       int bootpri, const TCHAR *filesys);
 
 
-extern int vhd_create (const TCHAR *name, uae_u64 size, uae_u32);
+ int vhd_create (const TCHAR *name, uae_u64 size, uae_u32);
 
-extern int hdf_init_target (void);
-extern int hdf_open_target (struct hardfiledata *hfd, const TCHAR *name);
-extern int hdf_dup_target (struct hardfiledata *dhfd, const struct hardfiledata *shfd);
-extern void hdf_close_target (struct hardfiledata *hfd);
-extern int hdf_read_target (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
-extern int hdf_write_target (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
-extern int hdf_resize_target (struct hardfiledata *hfd, uae_u64 newsize);
-extern void getchsgeometry (uae_u64 size, int *pcyl, int *phead, int *psectorspertrack);
+ int hdf_init_target (void);
+ int hdf_open_target (struct hardfiledata *hfd, const TCHAR *name);
+ int hdf_dup_target (struct hardfiledata *dhfd, const struct hardfiledata *shfd);
+ void hdf_close_target (struct hardfiledata *hfd);
+ int hdf_read_target (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
+ int hdf_write_target (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
+ int hdf_resize_target (struct hardfiledata *hfd, uae_u64 newsize);
+ void getchsgeometry (uae_u64 size, int *pcyl, int *phead, int *psectorspertrack);
