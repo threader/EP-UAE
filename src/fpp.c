@@ -350,6 +350,11 @@ uae_u32 get_fpsr (const struct regstruct *regs)
     return answer;
 }
 
+uae_u32 fpp_get_fpsr (const struct regstruct *regs)
+{
+    return get_fpsr (regs);
+}
+
 STATIC_INLINE void set_fpsr (struct regstruct *regs, uae_u32 x)
 {
 	regs->fpsr = x;
