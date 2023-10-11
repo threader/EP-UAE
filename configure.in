@@ -5,8 +5,8 @@ dnl Updated, re-written and generally mauled 2003 Richard Drummond
 dnl Updated and generally mauled 2008 Mustafa Tufan
 dnl
 
-AC_PREREQ(2.55)
-AC_INIT(EP-UAE, 0.0.0, ,ep-uae)
+AC_PREREQ([2.71])
+AC_INIT([EP-UAE],[0.0.0],[],[ep-uae])
 AC_CONFIG_SRCDIR([bootstrap.sh])
 AM_CONFIG_HEADER([src/sysconfig.h])
 AC_CANONICAL_TARGET
@@ -30,8 +30,8 @@ AC_PATH_PROG(FILEPRG, file, not-found)
 AC_PATH_PROG(WRCPRG, wrc, not-found)
 AC_PATH_PROG(RCLPRG, rcl, not-found)
 
-AC_AIX
-AC_ISC_POSIX
+AC_USE_SYSTEM_EXTENSIONS
+AC_SEARCH_LIBS([strerror],[cposix])
 
 NR_WARNINGS=0
 NR_ERRORS=0
@@ -65,7 +65,15 @@ dnl
 dnl  Checks for header files.
 dnl
 AC_HEADER_DIRENT
-AC_HEADER_STDC
+m4_warn([obsolete],
+[The preprocessor macro `STDC_HEADERS' is obsolete.
+  Except in unusual embedded environments, you can safely include all
+  ISO C90 headers unconditionally.])dnl
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 
 AC_CHECK_HEADERS([fcntl.h sys/ioctl.h sys/time.h utime.h])
 AC_CHECK_HEADERS([values.h ncurses.h curses.h sys/termios.h])
@@ -92,7 +100,20 @@ AC_TYPE_MODE_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AC_STRUCT_ST_BLOCKS
-AC_HEADER_TIME
+m4_warn([obsolete],
+[Update your code to rely only on HAVE_SYS_TIME_H,
+then remove this warning and the obsolete code below it.
+All current systems provide time.h; it need not be checked for.
+Not all systems provide sys/time.h, but those that do, all allow
+you to include it and time.h simultaneously.])dnl
+AC_CHECK_HEADERS_ONCE([sys/time.h])
+# Obsolete code to be removed.
+if test $ac_cv_header_sys_time_h = yes; then
+  AC_DEFINE([TIME_WITH_SYS_TIME],[1],[Define to 1 if you can safely include both <sys/time.h>
+	     and <time.h>.  This macro is obsolete.])
+fi
+# End of obsolete code.
+
 AC_STRUCT_TM
 AC_C_VOLATILE
 AC_C_BIGENDIAN
@@ -112,7 +133,19 @@ dnl  Checks for library functions.
 dnl
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
-AC_TYPE_SIGNAL
+m4_warn([obsolete],
+[your code may safely assume C89 semantics that RETSIGTYPE is void.
+Remove this warning and the `AC_CACHE_CHECK' when you adjust the code.])dnl
+AC_CACHE_CHECK([return type of signal handlers],[ac_cv_type_signal],[AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([#include <sys/types.h>
+#include <signal.h>
+],
+		 [return *(signal (0, 0)) (0) == 1;])],
+		   [ac_cv_type_signal=int],
+		   [ac_cv_type_signal=void])])
+AC_DEFINE_UNQUOTED([RETSIGTYPE],[$ac_cv_type_signal],[Define as the return type of signal handlers
+		    (`int' or `void').])
+
 AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(getcwd getopt strdup gettimeofday sigaction mkdir rmdir)
 AC_CHECK_FUNCS(select strerror strstr isnan isinf setitimer alarm sync)
@@ -129,26 +162,26 @@ AC_CHECK_FUNCS(localtime_r timegm gmtime_r)
 AC_SYS_LARGEFILE
 
 AC_MSG_CHECKING(for bswap_16)
-AC_TRY_LINK([
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
   #if HAVE_BYTESWAP_H
   # include <byteswap.h>
   #endif
-],[
+]], [[
   bswap_16 (0x12);
-],[
+]])],[
   AC_DEFINE(HAVE_BSWAP_16, 1, [Define to 1 if you have the 'bswap_16' function.])
   AC_MSG_RESULT(yes)
 ],[
   AC_MSG_RESULT(no)
 ])
 AC_MSG_CHECKING(for bswap_32)
-AC_TRY_LINK([
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
   #if HAVE_BYTESWAP_H
   # include <byteswap.h>
   #endif
-],[
+]], [[
   bswap_32 (0x1234);
-],[
+]])],[
   AC_DEFINE(HAVE_BSWAP_32, 1, [Define to 1 if you have the 'bswap_32' function.])
   AC_MSG_RESULT(yes)
 ],[
@@ -227,7 +260,7 @@ if [[ "x$ac_cv_header_sys_soundcard_h" = "xyes" -o "x$ac_cv_header_machine_sound
   fi
   dnl Avoid surprises
   AC_MSG_CHECKING(whether sys/soundcard.h or machine/soundcard.h works)
-  AC_TRY_LINK([
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include "confdefs.h"
 #ifdef HAVE_SYS_SOUNDCARD_H
 #include <sys/soundcard.h>
@@ -235,11 +268,8 @@ if [[ "x$ac_cv_header_sys_soundcard_h" = "xyes" -o "x$ac_cv_header_machine_sound
 #include <machine/soundcard.h>
 #endif
 #include <sys/ioctl.h>
-],
-[int soundfd; ioctl (soundfd, SNDCTL_DSP_GETFMTS, 0);],
-AC_MSG_RESULT(yes)
-HAVE_USS_SOUND=yes,
-AC_MSG_RESULT(no))
+]], [[int soundfd; ioctl (soundfd, SNDCTL_DSP_GETFMTS, 0);]])],[AC_MSG_RESULT(yes)
+HAVE_USS_SOUND=yes],[AC_MSG_RESULT(no)])
   if [[ "x$HAVE_LIBOSSAUDIO" = "xyes" ]]; then
     LIBS="$SAVE_LIBS"
   fi
@@ -368,7 +398,7 @@ if [[ "x$HAVE_GCC30" = "xyes" ]]; then
   ], [AC_MSG_RESULT(yes); HAVE_GCC40=yes], AC_MSG_RESULT(no))
 fi
 
-if test $ac_cv_prog_gcc = yes; then
+if test $ac_cv_c_compiler_gnu = yes; then
   if test $HAVE_GCC27 != yes; then
     AC_MSG_WARN([Version 2.7 or better of GCC is recommended])
     NR_WARNINGS=`expr $NR_WARNINGS + 1`
@@ -380,7 +410,7 @@ else
   fi
 fi
 
-if test $ac_cv_prog_gcc = yes; then
+if test $ac_cv_c_compiler_gnu = yes; then
   if [[ "$HOST_CPU" = i386 -o "$HOST_CPU" = ppc -o "$HOST_CPU" = amd64 ]]; then
     MACHDEP="$MACHDEP-gcc"
   fi
@@ -392,13 +422,13 @@ dnl
 if [[ "x$HAVEGCC27" = "xyes" -a "$HOST_CPU" = "i386" ]]; then
   SAVECFLAGS=$CFLAGS
   CFLAGS="$CFLAGS -mno-schedule-prologue"
-  AC_TRY_COMPILE(,int main(){return 0;}, OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -mno-schedule-prologue")
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[int main(){return 0;}]])],[OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -mno-schedule-prologue"],[])
   CFLAGS=$SAVECFLAGS
 fi
 if [[ "x$HAVEGCC27" = "xyes" -a "$HOST_CPU" = "i386" ]]; then
   SAVECFLAGS=$CFLAGS
   CFLAGS="$CFLAGS -mpreferred-stack-boundary=2"
-  AC_TRY_COMPILE(,int main(){return 0;}, OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -mpreferred-stack-boundary=2")
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[int main(){return 0;}]])],[OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -mpreferred-stack-boundary=2"],[])
   CFLAGS=$SAVECFLAGS
 fi
 dnl If GCC supports exceptions, we don't want them.
@@ -406,7 +436,7 @@ dnl
 if [[ "x$HAVEGCC27" = "xyes" -a "$HOST_CPU" = "i386" ]]; then
   SAVECFLAGS=$CFLAGS
   CFLAGS="$CFLAGS -fno-exceptions"
-  AC_TRY_COMPILE(,int main(){return 0;}, OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -fno-exceptions")
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[int main(){return 0;}]])],[OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -fno-exceptions"],[])
   CFLAGS=$SAVECFLAGS
 fi
 
@@ -710,20 +740,16 @@ if [[ "x$WANT_SDL" != "xno" ]]; then
     CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
     LIBS="$LIBS $SDL_LIBS"
 
-    AC_TRY_LINK(
-    [
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
       #include "confdefs.h"
       #include <SDL.h>
       #undef main
-    ],
-    [
+    ]], [[
       SDL_Init(SDL_INIT_VIDEO);
-    ],
-    AC_MSG_RESULT(yes)
+    ]])],[AC_MSG_RESULT(yes)
     HAVE_SDL=yes
-    WANT_COCOA_UI=yes,
-    AC_MSG_RESULT(no)
-    HAVE_SDL=no)
+    WANT_COCOA_UI=yes],[AC_MSG_RESULT(no)
+    HAVE_SDL=no])
 
     CPPFLAGS="$SAVE_CPPFLAGS"
     LIBS="$SAVE_LIBS"
@@ -739,7 +765,7 @@ if [[ "x$WANT_SDL" != "xno" ]]; then
 fi
 
 
-if test $ac_cv_prog_gcc = yes; then
+if test $ac_cv_c_compiler_gnu = yes; then
   WARNING_CFLAGS="$WARNING_CFLAGS -Wall -Wno-unused -Wno-format -W -Wmissing-prototypes -Wstrict-prototypes"
   OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -fomit-frame-pointer -ffast-math"
 dnl notes fast-math
@@ -877,11 +903,9 @@ dnl  fi
   AC_MSG_CHECKING([whether assembler supports --execstack option])
   SAVE_CFLAGS="$CFLAGS"
   CFLAGS="-Wa,--execstack $CFLAGS"
-  AC_TRY_COMPILE(, int main (void) {return 0;},
-    [AC_MSG_RESULT(yes)
-    UAE_CFLAGS="-Wa,--execstack $UAE_CFLAGS"],
-    AC_MSG_RESULT(no)
-  )
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[int main (void) {return 0;}]])],[AC_MSG_RESULT(yes)
+    UAE_CFLAGS="-Wa,--execstack $UAE_CFLAGS"],[AC_MSG_RESULT(no)
+  ])
   CFLAGS="$SAVE_CFLAGS"
 fi
 else
@@ -996,7 +1020,7 @@ if [[ "$GFX_DEP" = "gfx-x11" ]]; then
   TMP_SAVE_CFLAGS=$CFLAGS
   LIBS="$X_LIBS $LIBS -lxkbfile"
   CFLAGS="$CFLAGS $X_CFLAGS"
-  AC_TRY_LINK([
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
     #include "confdefs.h"
     #include <stdio.h>
     #ifdef HAVE_SYS_TYPES_H
@@ -1004,13 +1028,12 @@ if [[ "$GFX_DEP" = "gfx-x11" ]]; then
     #endif
     #include <X11/Xlib.h>
     #include <X11/XKBlib.h>
-    #include <X11/extensions/XKBrules.h>],[
+    #include <X11/extensions/XKBrules.h>]], [[
     int major, minor;
     XkbRF_RulesPtr rules;
     XkbLibraryVersion (&major, &minor);
     rules = XkbRF_Load ("dummy", "", True, True);
-  ],
-  AC_MSG_RESULT(yes)
+  ]])],[AC_MSG_RESULT(yes)
   X_CFLAGS="$X_CFLAGS -DUSE_XKB"
   X_EXTRA_LIBS="$X_EXTRA_LIBS -lxkbfile"
   xkb_rules_dir_found="no"
@@ -1023,10 +1046,9 @@ if [[ "$GFX_DEP" = "gfx-x11" ]]; then
 	fi
   done
   if test "x$xkb_rules_dir_found" = "xno" ; then
-  	AC_MSG_ERROR([[Could not find xkb path.]])
-  fi,
-  AC_MSG_RESULT(no)
-  )
+  	AC_MSG_ERROR([Could not find xkb path.])
+  fi],[AC_MSG_RESULT(no)
+  ])
   LIBS=$TMP_SAVE_LIBS
   CFLAGS=$TMP_SAVE_CFLAGS
 
@@ -1038,7 +1060,7 @@ dnl See if we can at least compile SHM support
     TMP_SAVE_LIBS=$LIBS
     CFLAGS="$CFLAGS $X_CFLAGS"
     LIBS="$X_LIBS $LIBS $X_PRE_LIBS -lX11 -lXext $X_EXTRA_LIBS"
-    AC_TRY_LINK([
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
   #include "confdefs.h"
   #ifdef HAVE_SYS_TYPES_H
   #include <sys/types.h>
@@ -1049,17 +1071,15 @@ dnl See if we can at least compile SHM support
   #include <X11/cursorfont.h>
   #include <sys/ipc.h>
   #include <sys/shm.h>
-  #include <X11/extensions/XShm.h>],[
+  #include <X11/extensions/XShm.h>]], [[
   static XShmSegmentInfo shminfo;
   static Display *display;
   XShmAttach(display, &shminfo);
   XSync(display,0);
   shmctl(shminfo.shmid, IPC_RMID, 0);
-  ],
-  SHM_SUPPORT_LINKS=1
-  AC_MSG_RESULT(yes),
-  SHM_SUPPORT_LINKS=0
-  AC_MSG_RESULT(no))
+  ]])],[SHM_SUPPORT_LINKS=1
+  AC_MSG_RESULT(yes)],[SHM_SUPPORT_LINKS=0
+  AC_MSG_RESULT(no)])
   fi
   CFLAGS=$TMP_SAVE_CFLAGS
   LIBS=$TMP_SAVE_LIBS
@@ -1297,13 +1317,13 @@ if [[ "x$WANT_SCSIEMU" = "xyes" ]]; then
     fi
     LIBS="$LIBS $LIBSCG_LIBS"
     CPPFLAGS="$CPPFLAGS $LIBSCG_CPPFLAGS"
-    AC_TRY_LINK([
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 typedef int BOOL;
 #include "scg/scgcmd.h"
 #include "scg/scsitransp.h"
-#include "scg/scsireg.h"],
-[{SCSI *scgp = scg_open (0, 0, 0, 0, 0);}],
-    [
+#include "scg/scsireg.h"]], 
+[[{SCSI *scgp = scg_open (0, 0, 0, 0, 0);}]])],
+[
       AC_MSG_RESULT(yes)
       SCSIOBJS='scsiemul.$(OBJEXT) blkdev.$(OBJEXT) blkdev-libscg.$(OBJEXT) scsi.$(OBJEXT) a2091.$(OBJEXT)'
       UAE_DEFINES="$UAE_DEFINES -DSCSIEMU"
