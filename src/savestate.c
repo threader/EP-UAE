@@ -629,6 +629,33 @@ static void save_rams (struct zfile *f, int comp)
 
 /* Save all subsystems */
 
+uae_u8 *save_cd (int num, int *len)
+{
+	uae_u8 *dstbak, *dst;
+
+	if (num != 0)
+		return NULL;
+	if (!currprefs.cdimagefile[0])
+		return NULL;
+
+	dstbak = dst = xmalloc (uae_u8, 4 + 256);
+	save_u32 (4);
+	save_string (currprefs.cdimagefile);
+	*len = dst - dstbak;
+	return dstbak;
+}
+
+uae_u8 *restore_cd (int unit, uae_u8 *src)
+{
+	uae_u32 flags;
+	TCHAR *s;
+
+	flags = restore_u32 ();
+	s = restore_string ();
+	if ((flags & 4) && unit == 0)
+		_tcscpy (changed_prefs.cdimagefile, s);
+	return src;
+}
 int save_state (const TCHAR *filename, const TCHAR *description)
 {
 	uae_u8 endhunk[] = { 'E', 'N', 'D', ' ', 0, 0, 0, 8 };
