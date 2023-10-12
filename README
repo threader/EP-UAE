@@ -1,4 +1,19 @@
-<<<<<<< HEAD
+EP-UAE 0.00
+=========================
+Crossover hybrid project merging the unreleased E-UAE 0.8.29 extracted from 
+E-UAE PPC JIT with P-UAE 2.10 ( so far ) with the goal gaining the features 
+for E-UAE PPC JIT, x86 is first our the door as this makes it easier to work
+with. 
+
+Status:
+Just got it compiling, a sea of compiler warnings to work trough before it 
+might run.
+
+Compiling:
+./bootstrap.sh
+./configure 
+make
+
 E-UAE PowerPC JIT project
 =========================
 
