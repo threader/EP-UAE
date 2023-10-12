@@ -30,6 +30,8 @@ struct flag_struct regflags;
 #include <signal.h>
 
 #ifdef __linux__
+frame_time_t linux_get_tsc_freq (void);
+
 /*
  * Extract x86/AMD64 timestamp counter frequency
  * from /proc/cpuinfo.
