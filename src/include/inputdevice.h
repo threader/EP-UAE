@@ -60,7 +60,7 @@ extern void inputdevice_copy_single_config (struct uae_prefs *p, int src, int ds
 extern void inputdevice_swap_ports (struct uae_prefs *p, int devnum);
 extern void inputdevice_config_change (void);
 extern int inputdevice_config_change_test (void);
-extern int inputdevice_get_device_index (int devnum);
+extern int inputdevice_get_device_index (unsigned int devnum);
 extern const char *inputdevice_get_device_name (int type, int devnum);
 extern const TCHAR *inputdevice_get_device_unique_name (int type, int devnum);
 extern int inputdevice_get_device_status (int devnum);

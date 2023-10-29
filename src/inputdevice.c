@@ -3732,7 +3732,7 @@ static int is_event_used (const struct inputdevice_functions *id, int devnum, un
     return 0;
 }
 
-int inputdevice_get_device_index (int devnum)
+int inputdevice_get_device_index (unsigned int devnum)
 {
 	if (devnum < idev[IDTYPE_JOYSTICK].get_num())
 		return devnum;

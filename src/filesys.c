@@ -28,6 +28,7 @@
 #include "threaddep/thread.h"
 #include "options.h"
 #include "uae.h"
+#include "misc.h"
 #include "memory.h"
 #include "custom.h"
 #include "events.h"
@@ -197,6 +198,8 @@ struct uaedev_mount_info options_mountinfo;
 
 int nr_units (struct uaedev_mount_info *mountinfo)
 {
+	if (!mountinfo)
+	mountinfo = &current_mountinfo;
 	int i, cnt = 0;
 	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
 		if (mountinfo->ui[i].open)
@@ -208,7 +211,7 @@ int nr_units (struct uaedev_mount_info *mountinfo)
 int nr_directory_units (struct uaedev_mount_info *mountinfo, struct uae_prefs *p)
 {
 	if (!mountinfo)
-	mountinfo = &current_mountinfo;
+	mountinfo = NULL;
 
 	int i, cnt = 0;
 	if (p) {
@@ -268,6 +271,9 @@ static void close_filesys_unit (UnitInfo *uip)
 
 static UnitInfo *getuip(struct uaedev_mount_info *mountinfo, struct uae_prefs *p, int index)
 {
+	if (!mountinfo)
+	mountinfo = &current_mountinfo;
+
 	if (index < 0)
 		return NULL;
 	index = p->mountconfig[index].configoffset;
@@ -278,7 +284,7 @@ static UnitInfo *getuip(struct uaedev_mount_info *mountinfo, struct uae_prefs *p
 
 int get_filesys_unitconfig (struct uae_prefs *p, int index, struct mountedinfo *mi)
 {
-	UnitInfo *ui = getuip(mi, p, index);
+	UnitInfo *ui = getuip(&current_mountinfo, p, index);
 	struct uaedev_config_info *uci = &p->mountconfig[index];
 	UnitInfo uitmp;
 
@@ -346,19 +352,19 @@ static void stripsemicolon (char *s)
 }
 static void stripspace (char *s)
 {
-	int i;
+	int i = 0;
 	if (!s)
 		return;
-	for (i = 0; i < _tcslen (s); i++) {
+	for ( ; i < _tcslen (s); i++) {
 		if (s[i] == ' ')
 			s[i] = '_';
 	}
 }
-static void striplength (char *s, int len)
+static void striplength (char *s, size_t len)
 {
 	if (!s)
 		return;
-	if (_tcslen (s) <= len)
+	if ((int)_tcslen (s) <= len)
 		return;
 	s[len] = 0;
 }
@@ -368,6 +374,7 @@ static void fixcharset (char *s)
 	if (!s)
 		return;
 	//ua_fs_copy (tmp, MAX_DPATH, s, '_');
+	strcpy (tmp, s);
 	au_fs_copy (s, strlen (tmp) + 1, tmp);
 }
 
@@ -405,7 +412,7 @@ char *filesys_createvolname (const char *volname, const char *rootdir, const cha
 		for (i = _tcslen (p) - 1; i >= 0; i--) {
 			TCHAR c = p[i];
 			if (c == ':' || c == '/' || c == '\\') {
-				if (i == _tcslen (p) - 1)
+				if (i == (int)_tcslen (p) - 1)
 					continue;
 				if (!_tcscmp (p + i, ":\\")) {
 					xfree (p);
@@ -607,6 +614,21 @@ int *add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname,
 	return ret;
 }
 
+int kill_filesys_unit (struct uaedev_mount_info *mountinfo, int nr)
+{
+    UnitInfo *uip = mountinfo->ui;
+    if (nr >= mountinfo->num_units || nr < 0)
+	return -1;
+
+    close_filesys_unit (mountinfo->ui + nr);
+
+    mountinfo->num_units--;
+    for (; nr < mountinfo->num_units; nr++) {
+	uip[nr] = uip[nr+1];
+    }
+    return 0;
+}
+
 int kill_filesys_unitconfig (struct uae_prefs *p, int nr)
 {
 	struct uaedev_config_info *uci;
@@ -722,7 +744,7 @@ void free_mountinfo (struct uaedev_mount_info *mountinfo)
 
 struct hardfiledata *get_hardfile_data (int nr)
 {
-    UnitInfo *uip = &current_mountinfo.ui;
+    UnitInfo *uip = current_mountinfo.ui;
 	if (nr < 0 || nr >= MAX_FILESYSTEM_UNITS || uip[nr].open == 0 || is_hardfile (&current_mountinfo, nr) == FILESYS_VIRTUAL)
 		return 0;
     return &uip[nr].hf;
