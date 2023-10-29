@@ -6,6 +6,7 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 
+#include "misc.h"
 #include "options.h"
 #include "memory.h"
 #include "custom.h"
@@ -173,7 +174,7 @@ int is_tablet (void)
         return tablet ? 1 : 0;
 }
 
-int vsync_switchmode (int hz, int oldhz)
+static int vsync_switchmode (int hz, int oldhz)
 {
         static int tempvsync;
         int w = currentmode->native_width;
