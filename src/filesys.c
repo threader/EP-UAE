@@ -211,7 +211,7 @@ int nr_units (struct uaedev_mount_info *mountinfo)
 int nr_directory_units (struct uaedev_mount_info *mountinfo, struct uae_prefs *p)
 {
 	if (!mountinfo)
-	mountinfo = NULL;
+	mountinfo = &current_mountinfo;
 
 	int i, cnt = 0;
 	if (p) {
