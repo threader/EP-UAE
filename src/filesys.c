@@ -5174,7 +5174,7 @@ void filesys_start_threads (void)
 {
     UnitInfo *uip;
     int i;
-
+	uip = current_mountinfo.ui;
 	filesys_in_interrupt = 0;
 	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
 		UnitInfo *ui = &uip[i];
