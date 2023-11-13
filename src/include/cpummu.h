@@ -40,7 +40,9 @@
 #endif
 #endif
 
+#ifndef bool
 #define bool int
+#endif
 #define DUNUSED(x)
 #define D
 #if DEBUG

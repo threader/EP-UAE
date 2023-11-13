@@ -502,8 +502,7 @@ static void sync_m68k_pc (void)
 {
     if (m68k_pc_offset == 0)
 	return;
-//	incpc ("%d", m68k_pc_offset);
-    printf ("\tm68k_incpc (regs, %d);\n", m68k_pc_offset);
+	incpc ("%d", m68k_pc_offset);
 	m68k_pc_offset = 0;
 }
 
@@ -758,6 +757,8 @@ static void genamode2 (amodes mode, const char *reg, wordsizes size, const char 
 			offset = m68k_pc_offset_last;
 		}
 	printf ("\tif (%sa & 1) {\n", name);
+		if (offset > 2)
+			incpc ("%d", offset - 2);
 	printf ("\t\texception3 (opcode, m68k_getpc (regs) + %d, %sa);\n",
 			offset, name);
 	printf ("\t\tgoto %s;\n", endlabelstr);
@@ -2432,9 +2433,9 @@ static void gen_opcode (unsigned long int opcode)
 		printf ("\tuaecptr oldpc = m68k_getpc (regs);\n");
 		addcycles000 (2);
 	printf ("\tif (!cctrue (&regs->ccrflags, %d)) {\n", curi->cc);
-	printf ("\t\tm68k_incpc (regs, (uae_s32)offs + 2);\n");
+		incpc ("(uae_s32)offs + 2");
 		printf ("\t"); fill_prefetch_1 (0);
-		printf ("\t"); genastore ("(src-1)", curi->smode, "srcreg", curi->size, "src");
+		printf ("\t"); genastore ("(src - 1)", curi->smode, "srcreg", curi->size, "src");
 
 		printf ("\t\tif (src) {\n");
 			addcycles_ce020 (4);
@@ -2490,8 +2491,8 @@ static void gen_opcode (unsigned long int opcode)
 	    printf("\t\tSET_VFLG (&regs->ccrflags, 1);\n");
 	    printf("\t\tif (dst < 0) SET_NFLG (&regs->ccrflags, 1);\n");
 	}
-	//	incpc ("%d", m68k_pc_offset);
-	printf ("\t\tm68k_incpc (regs, %d);\n", m68k_pc_offset);
+		incpc ("%d", m68k_pc_offset);
+	//printf ("\t\tm68k_incpc (regs, %d);\n", m68k_pc_offset);
 	printf ("\t\tException (5, regs, oldpc);\n");
 		printf ("\t\tgoto %s;\n", endlabelstr);
 		printf ("\t} else {\n");
@@ -2541,7 +2542,8 @@ static void gen_opcode (unsigned long int opcode)
 	    printf("\t\tSET_VFLG (&regs->ccrflags, 1);\n");
 	    printf("\t\tSET_ZFLG (&regs->ccrflags, 1);\n");
 	}
-	printf ("\t\tm68k_incpc (regs, %d);\n", m68k_pc_offset);
+//	printf ("\t\tm68k_incpc (regs, %d);\n", m68k_pc_offset);
+	incpc ("%d", m68k_pc_offset);
 	printf ("\t\tException (5, regs, oldpc);\n");
 		printf ("\t\tgoto %s;\n", endlabelstr);
 		printf ("\t} else {\n");
@@ -3286,15 +3288,15 @@ static void gen_opcode (unsigned long int opcode)
 	case i_BFCHG:
 				printf ("\ttmp = tmp ^ (0xffffffffu >> (32 - width));\n");
 	    break;
-	case i_BFEXTS:
-	    printf ("\tif (GET_NFLG (&regs->ccrflags)) tmp |= width == 32 ? 0 : (-1 << width);\n");
+	case i_BFEXTS: /* note */
+	   // printf ("\tif (GET_NFLG (&regs->ccrflags)) tmp |= width == 32 ? 0 : (-1 << width);\n");
 	    printf ("\tm68k_dreg (regs, (extra >> 12) & 7) = tmp;\n");
 	    break;
 	case i_BFCLR:
 	    printf ("\ttmp = 0;\n");
 	    break;
 	case i_BFFFO:
-	    printf ("\t{ uae_u32 mask = 1 << (width-1);\n");
+	    printf ("\t{ uae_u32 mask = 1 << (width - 1);\n");
 	    printf ("\twhile (mask) { if (tmp & mask) break; mask >>= 1; offset++; }}\n");
 	    printf ("\tm68k_dreg (regs, (extra >> 12) & 7) = offset;\n");
 	    break;
