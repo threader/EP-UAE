@@ -174,7 +174,8 @@ typedef struct {
     uae_thread_id tid;
     struct _unit *self;
     /* Reset handling */
-	uae_sem_t reset_sync_sem;
+/* note */
+    volatile uae_sem_t reset_sync_sem;
     volatile int reset_state;
 
     /* RDB stuff */
@@ -207,7 +208,7 @@ int nr_units (struct uaedev_mount_info *mountinfo)
 	}
 	return cnt;
 }
-
+/* note */
 int nr_directory_units (struct uaedev_mount_info *mountinfo, struct uae_prefs *p)
 {
 	if (!mountinfo)

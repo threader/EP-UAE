@@ -69,6 +69,10 @@ extern void wait_cpu_cycle_write_ce020 (uaecptr addr, int mode, uae_u32 v);
 #define a3000mem_start 0x07000000
 #define kickmem_start 0x00F80000
 
+
+#define ROM_SIZE_512 524288
+#define ROM_SIZE_256 262144
+
 extern int ersatzkickfile;
 extern int cloanto_rom;
 extern uae_u16 kickstart_version;
@@ -113,6 +117,10 @@ typedef struct {
     /* for instruction opcode/operand fetches */
     mem_get_func lgeti, wgeti;
     int flags;
+	uae_u32 mask;
+//FIXME: uae_u32 startmask;
+	uae_u32 start;
+	uae_u32 allocated;
 } addrbank;
 
 #define CE_MEMBANK_FAST 0

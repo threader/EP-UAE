@@ -2231,7 +2231,7 @@ end:
 		disk_debug_track);
 }
 
-static void find_ea (char **inptr)
+static void find_ea (const char **inptr)
 {
 	uae_u32 ea, sea, dea;
 	uaecptr addr, end;

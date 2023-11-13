@@ -1974,6 +1974,45 @@ static void patch_kick (void)
 		kickstart_fix_checksum (kickmemory, kickmem_size);
 }
 
+extern unsigned char arosrom[];
+extern unsigned int arosrom_len;
+
+static bool load_kickstart_replacement (void)
+{
+	struct zfile *f = NULL;
+
+	f = zfile_fopen_data (("aros.gz"), arosrom_len, arosrom);
+	if (!f) {
+		write_log ("kickstart replacement aros.gz not found.\n");
+		return false;
+	}
+	f = zfile_gunzip (f);
+	if (!f) {
+		write_log ("Can't extract kickstart replacement aros.gz\n");
+		return false;
+	}
+	write_log ("using kickstart replacement aros.gz\n");
+
+	extendedkickmem_bank.allocated = ROM_SIZE_512;
+	extendedkickmem_bank.mask = ROM_SIZE_512 - 1;
+	extendedkickmem_type = EXTENDED_ROM_KS;
+	extendedkickmem_bank.baseaddr = mapped_malloc (extendedkickmem_bank.allocated, ("rom_e0"));
+	read_kickstart (f, extendedkickmem_bank.baseaddr, ROM_SIZE_512, 0, 1);
+
+	kickmem_bank.allocated = ROM_SIZE_512;
+	kickmem_bank.mask = ROM_SIZE_512 - 1;
+	read_kickstart (f, kickmem_bank.baseaddr, ROM_SIZE_512, 1, 0);
+
+	zfile_fclose (f);
+
+	changed_prefs.custom_memory_addrs[0] = currprefs.custom_memory_addrs[0] = 0xa80000;
+	changed_prefs.custom_memory_sizes[0] = currprefs.custom_memory_sizes[0] = 512 * 1024;
+	changed_prefs.custom_memory_addrs[1] = currprefs.custom_memory_addrs[1] = 0xb00000;
+	changed_prefs.custom_memory_sizes[1] = currprefs.custom_memory_sizes[1] = 512 * 1024;
+
+	return true;
+}
+
 static int load_kickstart (void)
 {
 	struct zfile *f;
@@ -1981,6 +2020,8 @@ static int load_kickstart (void)
 	int patched = 0;
 
 	cloanto_rom = 0;
+	if (!_tcscmp (currprefs.romfile, (":AROS")))
+		return load_kickstart_replacement ();
 	f = read_rom_name (currprefs.romfile);
 	_tcscpy (tmprom, currprefs.romfile);
 	if (f == NULL) {

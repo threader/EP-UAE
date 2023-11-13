@@ -100,7 +100,20 @@ AC_TYPE_MODE_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AC_STRUCT_ST_BLOCKS
-AC_HEADER_TIME
+m4_warn([obsolete],
+[Update your code to rely only on HAVE_SYS_TIME_H,
+then remove this warning and the obsolete code below it.
+All current systems provide time.h; it need not be checked for.
+Not all systems provide sys/time.h, but those that do, all allow
+you to include it and time.h simultaneously.])dnl
+AC_CHECK_HEADERS_ONCE([sys/time.h])
+# Obsolete code to be removed.
+if test $ac_cv_header_sys_time_h = yes; then
+  AC_DEFINE([TIME_WITH_SYS_TIME],[1],[Define to 1 if you can safely include both <sys/time.h>
+	     and <time.h>.  This macro is obsolete.])
+fi
+# End of obsolete code.
+
 AC_STRUCT_TM
 AC_C_VOLATILE
 AC_C_BIGENDIAN
@@ -124,7 +137,19 @@ dnl  Checks for library functions.
 dnl
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
-AC_TYPE_SIGNAL
+m4_warn([obsolete],
+[your code may safely assume C89 semantics that RETSIGTYPE is void.
+Remove this warning and the `AC_CACHE_CHECK' when you adjust the code.])dnl
+AC_CACHE_CHECK([return type of signal handlers],[ac_cv_type_signal],[AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([#include <sys/types.h>
+#include <signal.h>
+],
+		 [return *(signal (0, 0)) (0) == 1;])],
+		   [ac_cv_type_signal=int],
+		   [ac_cv_type_signal=void])])
+AC_DEFINE_UNQUOTED([RETSIGTYPE],[$ac_cv_type_signal],[Define as the return type of signal handlers
+		    (`int' or `void').])
+
 AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(getcwd getopt strdup gettimeofday sigaction mkdir rmdir)
 AC_CHECK_FUNCS(select strerror strstr isnan isinf setitimer alarm sync)
@@ -1339,17 +1364,14 @@ typedef int BOOL;
 	AC_MSG_CHECKING([for Linux cdrom support via ioctl])
 	LIBS="$OLDLIBS"
 	CPPFLAGS="$OLDCPPFLAGS"
-	AC_TRY_LINK([
-#include <linux/cdrom.h>],
-[{struct cdrom_generic_command cmd; ioctl (0, CDROM_SEND_PACKET, &cmd);}],
-	[
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <linux/cdrom.h>]], [[{struct cdrom_generic_command cmd; ioctl (0, CDROM_SEND_PACKET, &cmd);}]])],[
 	   AC_MSG_RESULT(yes)
 	   SCSIOBJS='scsiemul.$(OBJEXT) blkdev.$(OBJEXT) scsi.$(OBJEXT) a2091.$(OBJEXT)'
 	   UAE_DEFINES="$UAE_DEFINES -DSCSIEMU -DSCSIEMU_LINUX_IOCTL"
   UAE_DEFINES="$UAE_DEFINES -DA2091"
 	   NEED_THREAD_SUPPORT=yes
-	],
-	[
+	],[
 
 	AC_MSG_RESULT(no)
         NR_WARNINGS=`expr $NR_WARNINGS + 1`
@@ -1597,7 +1619,17 @@ fi
 
 LIBS="$LIBS $UAE_LIBS $GUI_LIBS $GFX_LIBS $SND_LIBS $JOY_LIBS $MATHLIB"
 CPPFLAGS="$CPPFLAGS $UAE_DEFINES $UAE_CPPFLAGS $GFX_CPPFLAGS"
-CFLAGS="$CFLAGS $UAE_CFLAGS $GUI_CFLAGS $GFX_CFLAGS $SND_CFLAGS $JOY_CFLAGS"
+CFLAGS="$CFLAGS $UAE_CFLAGS $GUI_CFLAGS $GFX_CFLAGS $SND_CFLAGS $JOY_CFLAGS -std=gnu99"
+
+AC_MSG_WARN(
+	------------------------
+	Compiling with:
+		CFLAGS:[$CFLAGS]
+		CXXFLAGS:[$CXXFLAGS]
+		CPPFLAGS:[$CPPFLAGS]
+		LDFLAGS:[$LDFLAGS]
+		LIBS:[$UAE_LIBS]
+	         ------------------------)
 
 dnl
 dnl  Include keymapping for X-Arcade joysticks

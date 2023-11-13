@@ -17,6 +17,28 @@
 
 #define ECS_DENISE
 
+#if defined(__cplusplus)
+#include <cstddef>
+#include <cstdbool>
+#else
+#include <stddef.h>
+/* Note: stdbool.h has a __cplusplus section, but as it is stated in
+ * GNU gcc stdbool.h:
+ * "Supporting <stdbool.h> in C++ is a GCC extension."
+ */
+#if defined(HAVE_STDBOOL_H)
+#    include <stdbool.h>
+#  else
+#    ifndef HAVE__BOOL
+#      define _Bool signed char
+#    endif
+#    define bool _Bool
+#    define false 0
+#    define true 1
+#    define __bool_true_false_are_defined 1
+#  endif // HAVE_STDBOOL_H
+#endif // __cplusplus
+
 #ifdef JIT
 #define NATMEM_OFFSET natmem_offset
 #else

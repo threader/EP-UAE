@@ -1448,9 +1448,9 @@ extern int cdtv_enabled;
 void expamem_reset (void)
 {
     int do_mount = 1;
-
+    int cardno = 0;
     ecard = 0;
-	cardno = 0;
+	
 
 	if (currprefs.uae_hide)
 		uae_id = commodore;

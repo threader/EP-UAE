@@ -320,7 +320,7 @@ static void enter_dga_mode (void)
     switch_to_best_mode ();
 
     gfxvidinfo.rowbytes = fb_width*gfxvidinfo.pixbytes;
-    gfxvidinfo.bufmem = fb_addr;
+    gfxvidinfo.bufmem = (unsigned char*)fb_addr;
     gfxvidinfo.linemem = 0;
     gfxvidinfo.emergmem = malloc (gfxvidinfo.rowbytes);
     gfxvidinfo.maxblocklines = MAXBLOCKLINES_MAX;
@@ -1466,7 +1466,7 @@ void gfx_set_picasso_state (int on)
     /* We can get called by drawing_init() when there's
      * no window opened yet... */
     if (mywin == 0)
-	return
+	return;
 
     write_log ("set_picasso_state:%d\n", on);
     graphics_subshutdown ();
@@ -1489,7 +1489,7 @@ uae_u8 *gfx_lock_picasso (void)
 {
 #ifdef USE_DGA_EXTENSION
     if (dgamode)
-	return fb_addr;
+		return (uae_u8 *)fb_addr;
     else
 #endif
 	return (uae_u8 *)pic_dinfo.ximg->data;
@@ -1584,9 +1584,14 @@ static unsigned int get_mouse_num (void)
     return 1;
 }
 
-static const char *get_mouse_name (unsigned int mouse)
+static const char *get_mouse_friendlyname (unsigned int mouse)
 {
     return "Default mouse";
+}
+
+static const char *get_mouse_uniquename (unsigned int mouse)
+{
+	return "DEFMOUSE1";
 }
 
 static unsigned int get_mouse_widget_num (unsigned int mouse)
@@ -1631,7 +1636,8 @@ struct inputdevice_functions inputdevicefunc_mouse = {
     unacquire_mouse,
     read_mouse,
     get_mouse_num,
-    get_mouse_name,
+    get_mouse_friendlyname,
+    get_mouse_uniquename,
     get_mouse_widget_num,
     get_mouse_widget_type,
     get_mouse_widget_first
