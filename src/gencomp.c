@@ -1488,7 +1488,7 @@ gen_opcode (unsigned long int opcode)
 	    comprintf("\tand_l_ri(s,31);\n");
 
 	{
-	    const char *op;
+	    const char *op = NULL;
 	    int need_write=1;
 
 	    switch(curi->mnemo) {

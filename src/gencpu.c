@@ -344,10 +344,10 @@ static const char *gen_nextibyte (int flags)
 				count_read++;
 			}
 		} else if (using_indirect)  {
-			sprintf (buffer, "get_ibytei (regs, %d)");
+			sprintf (buffer, "get_ibytei (regs, %d)", r);
 			insn_n_cycles += 4;
 		} else if (using_mmu)  {
-			sprintf (buffer, "get_ibyte_mmu (regs, %d)");
+			sprintf (buffer, "get_ibyte_mmu (regs, %d)", r);
 			insn_n_cycles += 4;
 		} else {
 			sprintf (buffer, "get_ibyte (regs, %d)", r);
@@ -502,7 +502,8 @@ static void sync_m68k_pc (void)
 {
     if (m68k_pc_offset == 0)
 	return;
-	incpc ("%d", m68k_pc_offset);
+//	incpc ("%d", m68k_pc_offset);
+    printf ("\tm68k_incpc (regs, %d);\n", m68k_pc_offset);
 	m68k_pc_offset = 0;
 }
 
