@@ -13,20 +13,6 @@ extern void akiko_entergui (void);
 extern void akiko_exitgui (void);
 extern void AKIKO_hsync_handler (void);
 
-
-extern uae_u32 akiko_lget (uaecptr addr) REGPARAM;
-extern uae_u32 akiko_wget (uaecptr addr) REGPARAM;
-extern uae_u32 akiko_bget (uaecptr addr) REGPARAM;
-extern void akiko_bput (uaecptr addr, uae_u32 value) REGPARAM;
-extern void akiko_wput (uaecptr addr, uae_u32 value) REGPARAM;
-extern void akiko_lput (uaecptr addr, uae_u32 value) REGPARAM;
-
-
-extern const uae_u8 *restore_akiko (const uae_u8 *src);
-extern       uae_u8 *save_akiko    (uae_u32 *len);
-
-extern void restore_akiko_finish(void);
-
 extern void akiko_mute (int);
 
 extern uae_u8 *extendedkickmemory;

@@ -179,7 +179,7 @@ static int start_thread (struct devstruct *dev)
         return 1;
     init_comm_pipe (&dev->requests, 100, 1);
     uae_sem_init (&dev->sync_sem, 0, 0);
-	uae_start_thread ("uaescsi", dev_thread, dev, &dev->tid)
+	uae_start_thread ("uaescsi", dev_thread, dev, &dev->tid);
     uae_sem_wait (&dev->sync_sem);
     return dev->thread_running;
 }
@@ -286,7 +286,7 @@ static uae_u32 REGPARAM2 dev_open_2 (TrapContext *context, int type)
     }
     dev->opencnt++;
 
-	put_word (m68k_areg (regs, 6) + 32, get_word (m68k_areg (regs, 6) + 32) + 1);
+    put_word (m68k_areg (&context->regs, 6) + 32, get_word (m68k_areg (&context->regs, 6) + 32) + 1);
     put_byte (ioreq + 31, 0);
     put_byte (ioreq + 8, 7);
     return 0;
@@ -625,7 +625,6 @@ static int dev_do_io (struct devstruct *dev, uaecptr request)
 		break;
 
 	case CMD_WRITE:
-	case CMD_FORMAT:
 		if (!dev->di.media_inserted)
 			goto no_media;
 		if (dev->di.write_protected || dev->drivetype == INQ_ROMD) {
@@ -736,7 +735,7 @@ static int dev_do_io (struct devstruct *dev, uaecptr request)
 		break;
 	case CMD_REMCHANGEINT:
 		release_async_request (dev, request);
-		break; 28: /* HD_SCSICMD */
+		break;
 	case HD_SCSICMD:
 		if (dev->allow_scsi && pdev->scsi) {
 		    uae_u32 sdd = get_long (request + 40);
@@ -802,13 +801,14 @@ static uae_u32 REGPARAM2 dev_beginio (TrapContext *context)
     uae_u8 flags = get_byte (request + 30);
     int command = get_word (request + 28);
     struct priv_devstruct *pdev = getpdevstruct (request);
-    struct devstruct *dev = getdevstruct (pdev->unit);
+	struct devstruct *dev;
 
     put_byte (request+8, NT_MESSAGE);
 	if (!pdev) {
 		put_byte (request + 31, 32);
 		return get_byte (request + 31);
 	}
+	dev = getdevstruct (pdev->unit);
 	if (!dev) {
 		put_byte (request + 31, 32);
 		return get_byte (request + 31);

@@ -192,13 +192,13 @@ extern uae_u8 *baseaddr[MEMORY_BANKS];
 #define get_mem_bank(addr) (*mem_banks[bankindex(addr)])
 
 #ifdef JIT
-#define put_mem_bank(addr, b, realstart) do { \
-    (mem_banks[bankindex(addr)] = (b)); \
-    if ((b)->baseaddr) \
+#define put_mem_bank(addr, b, realstart) { \
+	(mem_banks[bankindex(addr)] = (b)); \
+	if ((b)->baseaddr) \
 	baseaddr[bankindex(addr)] = (b)->baseaddr - (realstart); \
-    else \
-        baseaddr[bankindex(addr)] = (uae_u8*)(((long)b)+1); \
-} while (0)
+	else \
+	baseaddr[bankindex(addr)] = (uae_u8*)(((uae_u8*)b)+1); \
+}
 #else
 #define put_mem_bank(addr, b, realstart) \
     (mem_banks[bankindex(addr)] = (b));
@@ -341,53 +341,40 @@ STATIC_INLINE int valid_address(uaecptr addr, uae_u32 size)
     return get_mem_bank(addr).check(addr, size);
 }
 
-/* For faster access in custom chip emulation.  */
-extern uae_u32 chipmem_lget (uaecptr) REGPARAM;
-extern uae_u32 chipmem_wget (uaecptr) REGPARAM;
-extern uae_u32 chipmem_bget (uaecptr) REGPARAM;
-extern void chipmem_lput (uaecptr, uae_u32) REGPARAM;
-extern void chipmem_wput (uaecptr, uae_u32) REGPARAM;
-extern void chipmem_bput (uaecptr, uae_u32) REGPARAM;
-
-extern uae_u32 chipmem_mask, kickmem_mask;
-extern uae_u8 *kickmemory;
-extern unsigned int kickmem_size;
-extern addrbank dummy_bank;
-
-/* 68020+ Chip RAM DMA contention emulation */
-extern uae_u32 chipmem_lget_ce2 (uaecptr) REGPARAM;
-extern uae_u32 chipmem_wget_ce2 (uaecptr) REGPARAM;
-extern uae_u32 chipmem_bget_ce2 (uaecptr) REGPARAM;
-extern void chipmem_lput_ce2 (uaecptr, uae_u32) REGPARAM;
-extern void chipmem_wput_ce2 (uaecptr, uae_u32) REGPARAM;
-extern void chipmem_bput_ce2 (uaecptr, uae_u32) REGPARAM;
-
-extern int addr_valid (TCHAR*, uaecptr,uae_u32);
+extern int addr_valid (const TCHAR*, uaecptr,uae_u32);
 
 /* For faster access in custom chip emulation.  */
-extern uae_u32 REGPARAM3 chipmem_lget (uaecptr) REGPARAM;
-extern uae_u32 REGPARAM3 chipmem_wget (uaecptr) REGPARAM;
-extern uae_u32 REGPARAM3 chipmem_bget (uaecptr) REGPARAM;
 extern void REGPARAM3 chipmem_lput (uaecptr, uae_u32) REGPARAM;
 extern void REGPARAM3 chipmem_wput (uaecptr, uae_u32) REGPARAM;
 extern void REGPARAM3 chipmem_bput (uaecptr, uae_u32) REGPARAM;
 
-extern uae_u32 REGPARAM3 chipmem_agnus_lget (uaecptr) REGPARAM;
+extern uae_u32 chipmem_mask, kickmem_mask;
+extern uae_u8 *kickmemory;
+extern unsigned int kickmem_size;
 extern uae_u32 REGPARAM3 chipmem_agnus_wget (uaecptr) REGPARAM;
-extern uae_u32 REGPARAM3 chipmem_agnus_bget (uaecptr) REGPARAM;
-extern void REGPARAM3 chipmem_agnus_lput (uaecptr, uae_u32) REGPARAM;
 extern void REGPARAM3 chipmem_agnus_wput (uaecptr, uae_u32) REGPARAM;
-extern void REGPARAM3 chipmem_agnus_bput (uaecptr, uae_u32) REGPARAM;
+extern addrbank dummy_bank;
 
 /* 68020+ Chip RAM DMA contention emulation */
-extern uae_u32 REGPARAM3 chipmem_lget_ce2 (uaecptr) REGPARAM;
-extern uae_u32 REGPARAM3 chipmem_wget_ce2 (uaecptr) REGPARAM;
-extern uae_u32 REGPARAM3 chipmem_bget_ce2 (uaecptr) REGPARAM;
-extern void REGPARAM3 chipmem_lput_ce2 (uaecptr, uae_u32) REGPARAM;
-extern void REGPARAM3 chipmem_wput_ce2 (uaecptr, uae_u32) REGPARAM;
-extern void REGPARAM3 chipmem_bput_ce2 (uaecptr, uae_u32) REGPARAM;
+extern void REGPARAM3 chipmem_bput_c2 (uaecptr, uae_u32) REGPARAM;
+
+extern uae_u32 (REGPARAM3 *chipmem_lget_indirect)(uaecptr) REGPARAM;
+extern uae_u32 (REGPARAM3 *chipmem_wget_indirect)(uaecptr) REGPARAM;
+extern uae_u32 (REGPARAM3 *chipmem_bget_indirect)(uaecptr) REGPARAM;
+extern void (REGPARAM3 *chipmem_lput_indirect)(uaecptr, uae_u32) REGPARAM;
+extern void (REGPARAM3 *chipmem_wput_indirect)(uaecptr, uae_u32) REGPARAM;
+extern void (REGPARAM3 *chipmem_bput_indirect)(uaecptr, uae_u32) REGPARAM;
+extern int (REGPARAM3 *chipmem_check_indirect)(uaecptr, uae_u32) REGPARAM;
+extern uae_u8 *(REGPARAM3 *chipmem_xlate_indirect)(uaecptr) REGPARAM;
 
 #ifdef NATMEM_OFFSET
+
+#ifdef HAVE_SYS_TYPES_H
+#  include <sys/types.h>
+#endif // HAVE_SYS_TYPES_H
+#ifndef __key_t_defined
+  typedef int key_t;
+#endif // __key_t_defined
 
 typedef struct shmpiece_reg {
     uae_u8 *native_address;

@@ -299,6 +299,17 @@ struct uae_prefs {
     TCHAR path_hardfile[256];
     TCHAR path_rom[256];
 
+	TCHAR a2091romfile[MAX_DPATH];
+	TCHAR a2091romident[256];
+	TCHAR a2091romfile2[MAX_DPATH];
+	TCHAR a2091romident2[256];
+	bool a2091;
+	TCHAR a4091romfile[MAX_DPATH];
+	TCHAR a4091romident[256];
+	TCHAR a4091romfile2[MAX_DPATH];
+	TCHAR a4091romident2[256];
+	bool a4091;
+
     int m68k_speed;
     int cpu_level;
     int cpu_model;

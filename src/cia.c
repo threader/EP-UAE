@@ -1299,6 +1299,10 @@ static uae_u32 REGPARAM2 cia_bget (uaecptr addr)
 #ifdef JIT
 	special_mem |= S_READ;
 #endif
+#ifdef CD32
+    if (cd32_enabled && addr >= AKIKO_BASE && addr < AKIKO_BASE_END)
+	return akiko_wget (addr);
+#endif
 	cia_wait_pre ();
 	v = 0xff;
 	switch ((addr >> 12) & 3) {
@@ -1332,6 +1336,10 @@ static uae_u32 REGPARAM2 cia_wget (uaecptr addr)
 
 #ifdef JIT
 	special_mem |= S_READ;
+#endif
+#ifdef CD32
+    if (cd32_enabled && addr >= AKIKO_BASE && addr < AKIKO_BASE_END)
+	return akiko_wget (addr);
 #endif
 	cia_wait_pre ();
 	v = 0xffff;
@@ -1468,7 +1476,7 @@ int cdtv_enabled;
 
 static void cdtv_battram_reset (void)
 {
-    struct zfile *f = zfile_fopen (currprefs.flashfile,"rb");
+    struct zfile *f = zfile_fopen (currprefs.flashfile,"rb", ZFD_NORMAL);
     if (!f)
 	return;
     zfile_fread (cdtv_battram, CDTV_NVRAM_SIZE,1 ,f);
@@ -1484,7 +1492,7 @@ static void cdtv_battram_write (int addr, int v)
     if (cdtv_battram[offset] == v)
 	return;
     cdtv_battram[offset] = v;
-    f = zfile_fopen (currprefs.flashfile,"rb+");
+    f = zfile_fopen (currprefs.flashfile,"rb+", ZFD_NORMAL);
     if (!f)
 	return;
     zfile_fseek (f, offset, SEEK_SET);

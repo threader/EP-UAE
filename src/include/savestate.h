@@ -87,12 +87,27 @@ extern       uae_u8 *save_cia    (unsigned int num, uae_u32 *len, uae_u8 *dstptr
 extern const uae_u8 *restore_expansion (const uae_u8 *src);
 extern       uae_u8 *save_expansion    (uae_u32 *len, uae_u8 *dstptr);
 
-extern uae_u8 *restore_p96 (uae_u8 *);
+extern const uae_u8 *restore_p96 (uae_u8 *);
 extern uae_u8 *save_p96 (int *, uae_u8 *);
 extern void restore_p96_finish (void);
 
 extern const uae_u8 *restore_keyboard (const uae_u8 *src);
 extern       uae_u8 *save_keyboard    (uae_u32 *len);
+
+extern uae_u8 *restore_cdtv (uae_u8 *src);
+extern uae_u8 *save_cdtv (int *len, uae_u8*);
+extern void restore_cdtv_finish (void);
+
+extern uae_u8 *restore_cdtv_dmac (uae_u8 *src);
+extern uae_u8 *save_cdtv_dmac (int *len, uae_u8*);
+extern uae_u8 *restore_scsi_dmac (int wdtype, uae_u8 *src);
+extern uae_u8 *save_scsi_dmac (int wdtype, int *len, uae_u8*);
+
+extern uae_u8 *save_scsi_device (int wdtype, int num, int *len, uae_u8 *dstptr);
+extern uae_u8 *restore_scsi_device (int wdtype, uae_u8 *src);
+
+extern uae_u8 *save_scsidev (int num, int *len, uae_u8 *dstptr);
+extern uae_u8 *restore_scsidev (uae_u8 *src);
 
 extern uae_u8 *restore_filesys (struct uaedev_mount_info *mountinfo, uae_u8 *src);
 extern uae_u8 *save_filesys (int num, int *len);
@@ -105,8 +120,9 @@ extern uae_u8 *save_gayle (int *len);
 extern uae_u8 *restore_ide (uae_u8 *src);
 extern uae_u8 *save_ide (int num, int *len);
 
-//extern uae_u8 *save_cd (int num, int *len);
-//extern uae_u8 *restore_cd (int, uae_u8 *src);
+extern uae_u8 *save_cd (int num, int *len);
+extern uae_u8 *restore_cd (int, uae_u8 *src);
+extern void restore_cd_finish (void);
 
 extern uae_u8 *save_configuration (int *len);
 extern uae_u8 *restore_configuration (uae_u8 *src);

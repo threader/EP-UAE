@@ -1407,9 +1407,9 @@ static int cfgfile_parse_host (struct uae_prefs *p, char *option, char *value)
     return 0;
 }
 
-static void decode_rom_ident (char *romfile, int maxlen, char *ident)
+static void decode_rom_ident (TCHAR *romfile, int maxlen, const TCHAR *ident, int romflags)
 {
-	char *p;
+	const TCHAR *p;
 	int ver, rev, subver, subrev, round, i;
 	char model[64], *modelp;
 	struct romlist **rl;
@@ -1433,8 +1433,8 @@ static void decode_rom_ident (char *romfile, int maxlen, char *ident)
 			} else if (toupper(c) == 'R' && _istdigit(*p)) {
 				pp1 = &subver;
 				pp2 = &subrev;
-			} else if (!_istdigit(c) && c != ' ') {
-				_tcsncpy (model, p - 1, (sizeof model) - 1);
+			} else if (!_istdigit (c) && c != ' ') {
+				_tcsncpy (model, p - 1, (sizeof model) / sizeof (TCHAR) - 1);
 				p += _tcslen (model);
 				modelp = model;
 			}
@@ -1449,7 +1449,7 @@ static void decode_rom_ident (char *romfile, int maxlen, char *ident)
 				}
 			}
 			if (*p == 0 || *p == ';') {
-				rl = getromlistbyident (ver, rev, subver, subrev, modelp, round);
+				rl = getromlistbyident (ver, rev, subver, subrev, modelp, romflags, round > 0);
 				if (rl) {
 					for (i = 0; rl[i]; i++) {
 						if (round) {
@@ -1727,16 +1727,32 @@ static int cfgfile_parse_hardware (struct uae_prefs *p, char *option, char *valu
 		}
 		return 1;
 	}
-	if (cfgfile_string (option, value, "kickstart_rom", p->romident, sizeof p->romident / sizeof (char))) {
-		decode_rom_ident (p->romfile, sizeof p->romfile / sizeof (char), p->romident);
+	if (cfgfile_string (option, value, _T("kickstart_rom"), p->romident, sizeof p->romident / sizeof (TCHAR))) {
+		decode_rom_ident (p->romfile, sizeof p->romfile / sizeof (TCHAR), p->romident, ROMTYPE_ALL_KICK);
 		return 1;
 	}
-	if (cfgfile_string (option, value, "kickstart_ext_rom", p->romextident, sizeof p->romextident / sizeof (char))) {
-		decode_rom_ident (p->romextfile, sizeof p->romextfile / sizeof (char), p->romextident);
+	if (cfgfile_string (option, value, _T("kickstart_ext_rom"), p->romextident, sizeof p->romextident / sizeof (TCHAR))) {
+		decode_rom_ident (p->romextfile, sizeof p->romextfile / sizeof (TCHAR), p->romextident, ROMTYPE_ALL_EXT);
 		return 1;
 	}
-	if (cfgfile_string (option, value, "cart", p->cartident, sizeof p->cartident / sizeof (char))) {
-		decode_rom_ident (p->cartfile, sizeof p->cartfile / sizeof (char), p->cartident);
+	if (cfgfile_string (option, value, _T("a2091_rom"), p->a2091romident, sizeof p->a2091romident / sizeof (TCHAR))) {
+		decode_rom_ident (p->a2091romident, sizeof p->a2091romident / sizeof (TCHAR), p->a2091romident, ROMTYPE_A2091BOOT);
+		return 1;
+	}
+	if (cfgfile_string (option, value, _T("a2091_2_rom"), p->a2091romident2, sizeof p->a2091romident2 / sizeof (TCHAR))) {
+		decode_rom_ident (p->a2091romident2, sizeof p->a2091romident2 / sizeof (TCHAR), p->a2091romident2, ROMTYPE_A2091BOOT);
+		return 1;
+	}
+	if (cfgfile_string (option, value, _T("a4091_rom"), p->a4091romident, sizeof p->a4091romident / sizeof (TCHAR))) {
+		decode_rom_ident (p->a4091romident, sizeof p->a4091romident / sizeof (TCHAR), p->a4091romident, ROMTYPE_A4091BOOT);
+		return 1;
+	}
+	if (cfgfile_string (option, value, _T("a4091_2_rom"), p->a4091romident2, sizeof p->a4091romident2 / sizeof (TCHAR))) {
+		decode_rom_ident (p->a4091romident2, sizeof p->a4091romident2 / sizeof (TCHAR), p->a4091romident2, ROMTYPE_A4091BOOT);
+		return 1;
+	}
+	if (cfgfile_string (option, value, _T("cart"), p->cartident, sizeof p->cartident / sizeof (TCHAR))) {
+		decode_rom_ident (p->cartfile, sizeof p->cartfile / sizeof (TCHAR), p->cartident, ROMTYPE_ALL_CART);
 		return 1;
 	}
 
@@ -1817,16 +1833,16 @@ static int cfgfile_parse_hardware (struct uae_prefs *p, char *option, char *valu
 		return 1;
 	}
 
-    if (p->config_version < (21 << 16)) {
-		if (cfgfile_strval (option, value, "cpu_speed", &p->m68k_speed, speedmode, 1)
-		    /* Broken earlier versions used to write this out as a string.  */
-			|| cfgfile_strval (option, value, "finegraincpu_speed", &p->m68k_speed, speedmode, 1))
-		{
-		    p->m68k_speed--;
-		    return 1;
-		}
-    }
+	/* Broken earlier versions used to write this out as a string.  */
+	if (cfgfile_strval (option, value, "finegraincpu_speed", &p->m68k_speed, speedmode, 1)) {
+		p->m68k_speed--;
+		return 1;
+	}
 
+	if (cfgfile_strval (option, value, "cpu_speed", &p->m68k_speed, speedmode, 1)) {
+		p->m68k_speed--;
+		return 1;
+	}
 	if (cfgfile_intval (option, value, "cpu_speed", &p->m68k_speed, 1)) {
 		p->m68k_speed *= CYCLE_UNIT;
 		return 1;

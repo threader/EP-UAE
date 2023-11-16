@@ -14,7 +14,7 @@
 #include "scsidev.h"
 #include "savestate.h"
 
-static struct device_functions *device_func[2];
+struct device_functions *device_func[2];
 static int have_ioctl;
 
 #ifdef _WIN32
@@ -402,12 +402,12 @@ void scsi_atapi_fixup_post (uae_u8 *scsi_cmd, int len, uae_u8 *olddata, uae_u8 *
 		*datalenp = datalen;
 	}
 }
-/* note */
-static void scsi_atapi_fixup_inquiry (uaecptr *as)
+
+static void scsi_atapi_fixup_inquiry (struct amigascsi *as)
 {
-	uaecptr *scsi_data = as->data;
+	uae_u8 *scsi_data = as->data;
 	uae_u32 scsi_len = as->len;
-	uaecptr *scsi_cmd = as->cmd;
+	uae_u8 *scsi_cmd = as->cmd;
 	uae_u8 cmd;
 
 	cmd = scsi_cmd[0];
@@ -469,8 +469,9 @@ int sys_command_scsi_direct (int unitnum, uaecptr acmd)
 	return ret;
 }
 
-void scsi_log_before (uae_u8 *cdb, int cdblen, uae_u8 *data, int datalen)
+void scsi_log_before (const uae_u8 *cdb, int cdblen, const uae_u8 *data, int datalen)
 {
+
 	int i;
 	for (i = 0; i < cdblen; i++) {
 		write_log ("%s%02X", i > 0 ? "." : "", cdb[i]);
@@ -485,7 +486,7 @@ void scsi_log_before (uae_u8 *cdb, int cdblen, uae_u8 *data, int datalen)
 	}
 }
 
-void scsi_log_after (uae_u8 *data, int datalen, uae_u8 *sense, int senselen)
+void scsi_log_after (const uae_u8 *data, int datalen, const uae_u8 *sense, int senselen)
 {
 	int i;
 	write_log ("DATAIN: %d\n", datalen);

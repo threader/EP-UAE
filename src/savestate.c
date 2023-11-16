@@ -849,7 +849,7 @@ int save_state (const TCHAR *filename, const TCHAR *description)
     } while ((dst = save_rom (0, &len, 0)));
 
 #ifdef CD32
-	dst = save_akiko (&len);
+	dst = save_akiko (&len, NULL);
 	save_chunk (f, dst, len, "CD32", 0);
 	xfree (dst);
 #endif

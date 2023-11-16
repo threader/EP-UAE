@@ -91,7 +91,7 @@ static void ersatz_failed (void)
 		return;
     already_failed = 1;
     gui_message ("Diskfile in DF0: is not compatible with Kickstart replacement.\n");
-    uae_restart (-1, NULL);
+    //uae_restart (-1, NULL);
 }
 
 static void ersatz_doio (void)
@@ -133,7 +133,7 @@ static void ersatz_init (void)
     if (disk_empty (0)) {
 		already_failed = 1;
 		gui_message ("You need to have a diskfile in DF0 to use the Kickstart replacement!\n");
-		uae_restart (-1, NULL);
+		//uae_restart (-1, NULL);
 		return;
     }
 

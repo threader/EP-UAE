@@ -31,6 +31,8 @@
 #define AKIKO_DEBUG_IO 0
 #define AKIKO_DEBUG_IO_CMD 0
 
+int cd32_enabled;
+
 // 43 48 49 4E 4F 4E 20 20 4F 2D 36 35 38 2D 32 20 32 34
 #define FIRMWAREVERSION "CHINON  O-658-2 24"
 
@@ -386,6 +388,7 @@ static uae_u32 cdrom_pbx;
 static uae_u8 cdcomtxinx; /* 0x19 */
 static uae_u8 cdcomrxinx; /* 0x1a */
 static uae_u8 cdcomtxcmp; /* 0x1d */
+static uae_u8 cdcomrxcmp; /* 0x1f */
 static uae_u8 cdrom_result_buffer[32];
 static uae_u8 cdrom_command_buffer[32];
 static uae_u8 cdrom_command;
@@ -750,6 +753,9 @@ static void cdrom_return_data (void)
 		return;
 	if (!(cdrom_flags & CDFLAG_RXD))
 		return;
+	if (cdcomrxinx == cdcomrxcmp)
+		return;
+
 #if AKIKO_DEBUG_IO_CMD
 	write_log ("OUT:");
 #endif
@@ -1159,6 +1165,9 @@ static void do_hunt (void)
 	}
 }
 
+
+extern int cd32_enabled;
+
 void AKIKO_hsync_handler (void)
 {
     static int framecounter;
@@ -1346,8 +1355,8 @@ STATIC_INLINE void akiko_put_long (uae_u32 *p, int offset, int v)
 static uae_u32 REGPARAM3 akiko_lget (uaecptr) REGPARAM;
 static uae_u32 REGPARAM3 akiko_wget (uaecptr) REGPARAM;
 static uae_u32 REGPARAM3 akiko_bget (uaecptr) REGPARAM;
-static uae_u32 REGPARAM3 akiko_lgeti (uaecptr) REGPARAM;
-static uae_u32 REGPARAM3 akiko_wgeti (uaecptr) REGPARAM;
+// REMOVEME: static uae_u32 REGPARAM3 akiko_lgeti (uaecptr) REGPARAM;
+// REMOVEME: static uae_u32 REGPARAM3 akiko_wgeti (uaecptr) REGPARAM;
 static void REGPARAM3 akiko_lput (uaecptr, uae_u32) REGPARAM;
 static void REGPARAM3 akiko_wput (uaecptr, uae_u32) REGPARAM;
 static void REGPARAM3 akiko_bput (uaecptr, uae_u32) REGPARAM;
@@ -1424,6 +1433,9 @@ static uae_u32 akiko_bget2 (uaecptr addr, int msg)
 	case 0x1a:
 		v = cdcomrxinx;
 		break;
+	case 0x1f:
+		v = cdcomrxcmp;
+		break;
 	case 0x20:
 	case 0x21:
 		v = akiko_get_long (cdrom_pbx, addr - 0x20 + 2);
@@ -1472,7 +1484,7 @@ static uae_u32 REGPARAM2 akiko_wget (uaecptr addr)
     return v;
 }
 
-uae_u32 REGPARAM2 akiko_lget (uaecptr addr)
+static uae_u32 REGPARAM2 akiko_lget (uaecptr addr)
 {
     uae_u32 v;
 
@@ -1489,7 +1501,7 @@ uae_u32 REGPARAM2 akiko_lget (uaecptr addr)
     return v;
 }
 
-STATIC_INLINE void REGPARAM2 akiko_bput2 (uaecptr addr, uae_u32 v, int msg)
+static void akiko_bput2 (uaecptr addr, uae_u32 v, int msg)
 {
     uae_u32 tmp;
 
@@ -1562,6 +1574,7 @@ STATIC_INLINE void REGPARAM2 akiko_bput2 (uaecptr addr, uae_u32 v, int msg)
 		break;
 	case 0x1f:
 		cdrom_intreq &= ~CDINTERRUPT_RXDMADONE;
+		cdcomrxcmp = v;
 		break;
 	case 0x20:
 	case 0x21:
@@ -1602,7 +1615,7 @@ static void REGPARAM2 akiko_bput (uaecptr addr, uae_u32 v)
     akiko_bput2 (addr, v, 1);
 }
 
-void REGPARAM2 akiko_wput (uaecptr addr, uae_u32 v)
+static void REGPARAM2 akiko_wput (uaecptr addr, uae_u32 v)
 {
 #ifdef JIT
 	special_mem |= S_WRITE;
@@ -1614,7 +1627,7 @@ void REGPARAM2 akiko_wput (uaecptr addr, uae_u32 v)
     akiko_bput2 (addr + 0, v >> 8, 0);
 }
 
-void REGPARAM2 akiko_lput (uaecptr addr, uae_u32 v)
+static void REGPARAM2 akiko_lput (uaecptr addr, uae_u32 v)
 {
 #ifdef JIT
 	special_mem |= S_WRITE;
@@ -1720,7 +1733,7 @@ int akiko_init (void)
 
 #ifdef SAVESTATE
 
-uae_u8 *save_akiko(int *len)
+uae_u8 *save_akiko (int *len, uae_u8 *dstptr)
 {
     uae_u8 *dstbak, *dst;
 	unsigned int i;
@@ -1728,22 +1741,25 @@ uae_u8 *save_akiko(int *len)
 	if (!currprefs.cs_cd32cd)
 		return NULL;
 
-	dstbak = dst = xmalloc (uae_u8, 1000);
-    save_u16 (0);
-    save_u16 (0xCAFE);
+	if (dstptr)
+		dstbak = dst = dstptr;
+	else
+		dstbak = dst = xmalloc (uae_u8, 1000);
+	save_u16 (0);
+	save_u16 (0xCAFE);
 	save_u32 (cdrom_intreq);
 	save_u32 (cdrom_intena);
     save_u32 (0);
 	save_u32 (cdrom_addressdata);
 	save_u32 (cdrom_addressmisc);
 	save_u8 (cdrom_subcodeoffset);
-	save_u8 (cdcomrxinx);
+	save_u8 (cdcomtxinx);
 	save_u8 (cdcomrxinx);
     save_u8 (0);
     save_u8 (0);
 	save_u8 (cdcomtxcmp);
-    save_u8 (0);
 	save_u8 (0);
+	save_u8 (cdcomrxcmp);
 	save_u16 ((uae_u16)cdrom_pbx);
     save_u16 (0);
 	save_u32 (cdrom_flags);
@@ -1781,6 +1797,7 @@ const uae_u8 *restore_akiko (const uae_u8 *src)
     uae_u32 v;
 	unsigned int i;
 
+	akiko_free ();
 	if (!currprefs.cs_cd32cd) {
 		changed_prefs.cs_cd32c2p = changed_prefs.cs_cd32cd = changed_prefs.cs_cd32nvram = 1;
 		currprefs.cs_cd32c2p = currprefs.cs_cd32cd = currprefs.cs_cd32nvram = 1;
@@ -1803,8 +1820,8 @@ const uae_u8 *restore_akiko (const uae_u8 *src)
     restore_u8 ();
     restore_u8 ();
 	cdcomtxcmp = restore_u8 ();
-    restore_u8 ();
 	restore_u8 ();
+	cdcomrxcmp = restore_u8 ();
 	cdrom_pbx = restore_u16 ();
     restore_u16 ();
 	cdrom_flags = restore_u32 ();

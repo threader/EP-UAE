@@ -1890,7 +1890,7 @@ static a_inode *new_child_aino (Unit *unit, a_inode *base, char *rel)
 
 static a_inode *create_child_aino (Unit *unit, a_inode *base, char *rel, int isdir)
 {
-    a_inode *aino = (a_inode *) xcalloc (sizeof (a_inode), 1);
+	a_inode *aino = xcalloc (a_inode, 1);
     if (aino == 0)
 		return 0;
 
@@ -2094,7 +2094,7 @@ static Unit *startup_create_unit (UnitInfo *uinfo, int num)
     int i;
 	Unit *unit, *u;
 
-    unit = (Unit *) xcalloc (sizeof (Unit), 1);
+	unit = xcalloc (Unit, 1);
 	/* keep list in insertion order */
 	u = units;
 	if (u) {

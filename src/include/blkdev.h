@@ -109,6 +109,9 @@ struct device_functions {
 
     isatapi_func isatapi;
 
+    open_device_func  opendevthread;
+    close_device_func closedevthread;
+
     scsiinfo_func scsiinfo;
 
     ismedia_func ismedia;
