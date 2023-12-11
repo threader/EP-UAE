@@ -76,7 +76,7 @@ void romlist_add (const TCHAR *path, struct romdata *rd)
 }
 
 
-struct romdata *getromdatabypath (const TCHAR *path)
+struct romdata *getromdatabypath(TCHAR *path)
 {
 	int i;
 	for (i = 0; i < romlist_cnt; i++) {
@@ -917,7 +917,7 @@ struct romdata *getromdatabydata (uae_u8 *rom, int size)
 	return ret;
 }
 
-static struct romdata *getromdatabyzfile (struct zfile *f)
+struct romdata *getromdatabyzfile (struct zfile *f)
 {
 	int pos, size;
 	uae_u8 *p;

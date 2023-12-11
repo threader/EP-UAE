@@ -732,22 +732,22 @@ static void REGPARAM2 dmac_bput (uaecptr addr, uae_u32 b)
     }
 #endif
 }
-
+#if 0
 addrbank dmac_bank = {
     dmac_lget, dmac_wget, dmac_bget,
     dmac_lput, dmac_wput, dmac_bput,
     default_xlate, default_check, NULL
 };
-
+#endif 
 #endif
+
+#ifdef FILESYS
 
 /*
  * Filesystem device ROM
  * This is very simple, the Amiga shouldn't be doing things with it.
  */
-
-#ifdef FILESYS
-
+/* note */
 static uae_u32 filesys_lget (uaecptr) REGPARAM;
 static uae_u32 filesys_wget (uaecptr) REGPARAM;
 static uae_u32 filesys_bget (uaecptr) REGPARAM;

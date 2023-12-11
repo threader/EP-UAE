@@ -59,9 +59,6 @@ static void REGPARAM2 chipmem_lput_ce2 (uaecptr addr, uae_u32 l);
 static void REGPARAM2 chipmem_wput_ce2 (uaecptr addr, uae_u32 w);
 static void REGPARAM2 chipmem_bput_ce2 (uaecptr addr, uae_u32 b);
 #endif
-static uae_u32 REGPARAM2 chipmem_lget (uaecptr addr);
-static uae_u32 REGPARAM2 chipmem_wget (uaecptr addr);
-static uae_u32 REGPARAM2 chipmem_bget (uaecptr addr);
 static void REGPARAM2 chipmem_dummy_bput (uaecptr addr, uae_u32 b);
 static void REGPARAM2 chipmem_dummy_wput (uaecptr addr, uae_u32 b);
 static void REGPARAM2 chipmem_dummy_lput (uaecptr addr, uae_u32 b);
@@ -565,7 +562,7 @@ static void ce2_timeout (void)
     wait_cpu_cycle_read (0, -1);
 }
 
-static uae_u32 REGPARAM2 chipmem_lget_ce2 (uaecptr addr)
+uae_u32 REGPARAM2 chipmem_lget_ce2 (uaecptr addr)
 {
     uae_u32 *m;
 
@@ -579,7 +576,7 @@ static uae_u32 REGPARAM2 chipmem_lget_ce2 (uaecptr addr)
     return do_get_mem_long (m);
 }
 
-static uae_u32 REGPARAM2 chipmem_wget_ce2 (uaecptr addr)
+uae_u32 REGPARAM2 chipmem_wget_ce2 (uaecptr addr)
 {
     uae_u16 *m, v;
 
@@ -595,7 +592,7 @@ static uae_u32 REGPARAM2 chipmem_wget_ce2 (uaecptr addr)
     return v;
 }
 
-static uae_u32 REGPARAM2 chipmem_bget_ce2 (uaecptr addr)
+uae_u32 REGPARAM2 chipmem_bget_ce2 (uaecptr addr)
 {
 #ifdef JIT
 	special_mem |= S_READ;
@@ -606,7 +603,7 @@ static uae_u32 REGPARAM2 chipmem_bget_ce2 (uaecptr addr)
     return chipmemory[addr];
 }
 
-static void REGPARAM2 chipmem_lput_ce2 (uaecptr addr, uae_u32 l)
+void REGPARAM2 chipmem_lput_ce2 (uaecptr addr, uae_u32 l)
 {
     uae_u32 *m;
 
@@ -620,7 +617,7 @@ static void REGPARAM2 chipmem_lput_ce2 (uaecptr addr, uae_u32 l)
     do_put_mem_long (m, l);
 }
 
-static void REGPARAM2 chipmem_wput_ce2 (uaecptr addr, uae_u32 w)
+void REGPARAM2 chipmem_wput_ce2 (uaecptr addr, uae_u32 w)
 {
     uae_u16 *m;
 
@@ -635,7 +632,7 @@ static void REGPARAM2 chipmem_wput_ce2 (uaecptr addr, uae_u32 w)
     do_put_mem_word (m, w);
 }
 
-static void REGPARAM2 chipmem_bput_ce2 (uaecptr addr, uae_u32 b)
+void REGPARAM2 chipmem_bput_ce2 (uaecptr addr, uae_u32 b)
 {
 #ifdef JIT
 	special_mem |= S_WRITE;
@@ -658,7 +655,7 @@ uae_u32 REGPARAM2 chipmem_lget (uaecptr addr)
     return do_get_mem_long (m);
 }
 
-static uae_u32 REGPARAM2 chipmem_wget (uaecptr addr)
+uae_u32 REGPARAM2 chipmem_wget (uaecptr addr)
 {
     uae_u16 *m, v;
 
@@ -670,7 +667,7 @@ static uae_u32 REGPARAM2 chipmem_wget (uaecptr addr)
     return v;
 }
 
-static uae_u32 REGPARAM2 chipmem_bget (uaecptr addr)
+uae_u32 REGPARAM2 chipmem_bget (uaecptr addr)
 {
     uae_u8 v;
     addr -= chipmem_start & chipmem_mask;

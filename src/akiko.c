@@ -1352,14 +1352,10 @@ STATIC_INLINE void akiko_put_long (uae_u32 *p, int offset, int v)
     *p |= v << ((3 - offset) * 8);
 }
 
-static uae_u32 REGPARAM3 akiko_lget (uaecptr) REGPARAM;
-static uae_u32 REGPARAM3 akiko_wget (uaecptr) REGPARAM;
+
 static uae_u32 REGPARAM3 akiko_bget (uaecptr) REGPARAM;
-// REMOVEME: static uae_u32 REGPARAM3 akiko_lgeti (uaecptr) REGPARAM;
-// REMOVEME: static uae_u32 REGPARAM3 akiko_wgeti (uaecptr) REGPARAM;
-static void REGPARAM3 akiko_lput (uaecptr, uae_u32) REGPARAM;
-static void REGPARAM3 akiko_wput (uaecptr, uae_u32) REGPARAM;
-static void REGPARAM3 akiko_bput (uaecptr, uae_u32) REGPARAM;
+static uae_u32 REGPARAM3 akiko_lgeti (uaecptr) REGPARAM;
+static uae_u32 REGPARAM3 akiko_wgeti (uaecptr) REGPARAM;
 
 static uae_u32 akiko_bget2 (uaecptr addr, int msg)
 {
@@ -1470,7 +1466,7 @@ static uae_u32 REGPARAM2 akiko_bget (uaecptr addr)
     return akiko_bget2 (addr, 1);
 }
 
-static uae_u32 REGPARAM2 akiko_wget (uaecptr addr)
+uae_u32 REGPARAM2 akiko_wget (uaecptr addr)
 {
     uae_u16 v;
 #ifdef JIT
@@ -1484,7 +1480,7 @@ static uae_u32 REGPARAM2 akiko_wget (uaecptr addr)
     return v;
 }
 
-static uae_u32 REGPARAM2 akiko_lget (uaecptr addr)
+uae_u32 REGPARAM2 akiko_lget (uaecptr addr)
 {
     uae_u32 v;
 
@@ -1501,7 +1497,7 @@ static uae_u32 REGPARAM2 akiko_lget (uaecptr addr)
     return v;
 }
 
-static void akiko_bput2 (uaecptr addr, uae_u32 v, int msg)
+void akiko_bput2 (uaecptr addr, uae_u32 v, int msg)
 {
     uae_u32 tmp;
 
@@ -1607,7 +1603,7 @@ static void akiko_bput2 (uaecptr addr, uae_u32 v, int msg)
 	uae_sem_post (&akiko_sem);
 }
 
-static void REGPARAM2 akiko_bput (uaecptr addr, uae_u32 v)
+void REGPARAM2 akiko_bput (uaecptr addr, uae_u32 v)
 {
 #ifdef JIT
 	special_mem |= S_WRITE;
@@ -1615,7 +1611,7 @@ static void REGPARAM2 akiko_bput (uaecptr addr, uae_u32 v)
     akiko_bput2 (addr, v, 1);
 }
 
-static void REGPARAM2 akiko_wput (uaecptr addr, uae_u32 v)
+void REGPARAM2 akiko_wput (uaecptr addr, uae_u32 v)
 {
 #ifdef JIT
 	special_mem |= S_WRITE;
@@ -1627,7 +1623,7 @@ static void REGPARAM2 akiko_wput (uaecptr addr, uae_u32 v)
     akiko_bput2 (addr + 0, v >> 8, 0);
 }
 
-static void REGPARAM2 akiko_lput (uaecptr addr, uae_u32 v)
+void REGPARAM2 akiko_lput (uaecptr addr, uae_u32 v)
 {
 #ifdef JIT
 	special_mem |= S_WRITE;
