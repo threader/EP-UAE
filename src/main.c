@@ -61,15 +61,8 @@
 #include "version.h"
 
 #ifdef USE_SDL
-#include "SDL.h"
+#include <SDL/SDL.h>
 #endif
-
-#ifdef WIN32
-//FIXME: This shouldn't be necessary
-#include "windows.h"
-#endif
-
-struct uae_prefs currprefs, changed_prefs;
 
 static int restart_program;
 
@@ -329,8 +322,6 @@ static void show_version_full (void)
 	hr ();
     write_log ("Copyright 1995-2002 Bernd Schmidt\n");
     write_log ("          1999-2010 Toni Wilen\n");
-    write_log ("          TODO n");
-
     write_log ("          2003-2007 Richard Drummond\n");
     write_log ("          2006-2010 Mustafa Tufan\n\n");
     write_log ("See the source for a full list of contributors.\n");
@@ -693,16 +684,6 @@ static int uae_target_state;
 
 void uae_reset (int hardreset)
 {
-    switch (uae_target_state) {
-	case UAE_STATE_QUITTING:
-	case UAE_STATE_STOPPED:
-	case UAE_STATE_COLD_START:
-	case UAE_STATE_WARM_START:
-	    /* Do nothing */
-	    break;
-	default:
-	    uae_target_state = hardreset ? UAE_STATE_COLD_START : UAE_STATE_WARM_START;
-    }
 	if (quit_program == 0) {
 		quit_program = -2;
 		if (hardreset)
@@ -800,50 +781,6 @@ static void parse_cmdline (int argc, char **argv)
     int i;
 
     for (i = 1; i < argc; i++) {
-	if (strcmp (argv[i], "-cfgparam") == 0) {
-	    if (i + 1 < argc)
-		i++;
-	} else if (strncmp (argv[i], "-config=", 8) == 0) {
-#ifdef FILESYS
-	    free_mountinfo (currprefs.mountinfo);
-#endif
-	    if (target_cfgfile_load (&currprefs, argv[i] + 8, 0))
-		strcpy (optionsfile, argv[i] + 8);
-	}
-	/* Check for new-style "-f xxx" argument, where xxx is config-file */
-	else if (strcmp (argv[i], "-f") == 0) {
-	    if (i + 1 == argc) {
-		write_log ("Missing argument for '-f' option.\n");
-	    } else {
-#ifdef FILESYS
-		free_mountinfo (currprefs.mountinfo);
-#endif
-		if (target_cfgfile_load (&currprefs, argv[++i], 0))
-		    strcpy (optionsfile, argv[i]);
-	    }
-	} else if (strcmp (argv[i], "-s") == 0) {
-	    if (i + 1 == argc)
-		write_log ("Missing argument for '-s' option.\n");
-	    else
-		cfgfile_parse_line (&currprefs, argv[++i], 0);
-	} else if (strcmp (argv[i], "-h") == 0 || strcmp (argv[i], "-help") == 0) {
-	    usage ();
-	    exit (0);
-	} else if (strcmp (argv[i], "-version") == 0) {
-	    show_version_full ();
-	    exit (0);
-	} else if (strcmp (argv[i], "-scsilog") == 0) {
-	    log_scsi = 1;
-	} else {
-	    if (argv[i][0] == '-' && argv[i][1] != '\0') {
-		const char *arg = argv[i] + 2;
-		int extra_arg = *arg == '\0';
-		if (extra_arg)
-		    arg = i + 1 < argc ? argv[i + 1] : 0;
-		if (parse_cmdline_option (&currprefs, argv[i][1], (char*)arg) && extra_arg)
-		    i++;
-	    }
-	}
 		if (!_tcsncmp (argv[i], "-diskswapper=", 13)) {
 			char *txt = parsetext (argv[i] + 13);
 			parse_diskswapper (txt);
@@ -899,6 +836,7 @@ static void parse_cmdline (int argc, char **argv)
 
 static void parse_cmdline_and_init_file (int argc, char **argv)
 {
+    char *home;
 
 	strcpy (optionsfile, "");
 
@@ -936,7 +874,7 @@ static void parse_cmdline_and_init_file (int argc, char **argv)
     parse_cmdline (argc, argv);
     fixup_prefs (&currprefs);
 }
-
+#if 0
 /*
  * Save the currently loaded configuration.
  */
@@ -974,12 +912,13 @@ void uae_save_config (void)
 
 static int uae_state;
 static int uae_target_state;
+#endif 
 
 int uae_get_state (void)
 {
     return uae_state;
 }
-
+#if 0
 static void set_state (int state)
 {
     uae_state = state;
@@ -996,6 +935,7 @@ void uae_start (void)
 {
     uae_target_state = UAE_STATE_COLD_START;
 }
+#endif 
 
 void uae_pause (void)
 {
@@ -1008,7 +948,14 @@ void uae_resume (void)
     if (uae_target_state == UAE_STATE_PAUSED)
 	uae_target_state = UAE_STATE_RUNNING;
 }
-
+#if 0
+void uae_quit (void)
+{
+    if (uae_target_state != UAE_STATE_QUITTING) {
+	uae_target_state = UAE_STATE_QUITTING;
+    }
+}
+#endif 
 void uae_stop (void)
 {
     if (uae_target_state != UAE_STATE_QUITTING && uae_target_state != UAE_STATE_STOPPED) {
@@ -1016,7 +963,7 @@ void uae_stop (void)
 	restart_config[0] = 0;
     }
 }
-
+#if 0
 
 /*
  * Early initialization of emulator, parsing of command-line options,
@@ -1381,6 +1328,7 @@ void real_main (int argc, char **argv)
     zfile_exit ();
 }
 #endif
+#endif 
 #ifdef USE_SDL
 int init_sdl (void)
 {
@@ -1460,7 +1408,9 @@ void do_start_program (void)
 	inputdevice_updateconfig (&currprefs);
 	if (quit_program >= 0)
 		quit_program = 2;
-	m68k_go (1);
+	{
+		m68k_go (1);
+	}
 }
 
 void do_leave_program (void)
@@ -1717,8 +1667,6 @@ void real_main (int argc, char **argv)
 #ifndef NO_MAIN_IN_MAIN_C
 int main (int argc, char **argv)
 {
-    init_sdl ();
-    gui_init ();
 	show_version_full ();
     real_main (argc, argv);
     return 0;
