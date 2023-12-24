@@ -41,6 +41,7 @@
 #include "audio.h"
 #include "savestate.h"
 #include "dongle.h"
+#include "misc.h"
 
 #include <ctype.h>
 
@@ -152,7 +153,7 @@ static int isdevice (const struct uae_input_device *id)
     return 0;
 }
 
-int inputdevice_uaelib (TCHAR *s, TCHAR *parm)
+int inputdevice_uaelib (const char *s, const char *parm)
 {
     int i;
 
@@ -232,7 +233,7 @@ static void write_config2 (FILE *f, int idnum, int i, int offset, const TCHAR *t
 {
 	TCHAR tmp2[200], tmp3[200], *p;
 	int evt, got, j, k;
-	TCHAR *custom;
+	const TCHAR *custom;
 
     p = tmp2;
     got = 0;
@@ -266,7 +267,7 @@ static void write_config2 (FILE *f, int idnum, int i, int offset, const TCHAR *t
 
 static struct inputdevice_functions *getidf (int devnum);
 
-static void write_config (FILE *f, int idnum, int devnum, const char *name, const struct uae_input_device *id, const struct uae_input_device2 *id2, struct inputdevice_functions *idf)
+static void write_config (FILE *f, int idnum, unsigned int devnum, const char *name, const struct uae_input_device *id, const struct uae_input_device2 *id2, const struct inputdevice_functions *idf)
 {
 	TCHAR tmp1[MAX_DPATH], tmp2[MAX_DPATH], *s;
     int i;
@@ -674,14 +675,18 @@ static uaecptr get_base (const uae_char *name)
 			return 0;
 		p = b->xlateaddr (v2);
 		if (!memcmp (p, name, strlen (name) + 1)) {
-			write_log ("get_base('%s')=%08x\n", name, v);
+			TCHAR *s = au (name);
+			write_log (_T("get_base('%s')=%08x\n"), s, v);
+			xfree (s);
 			return v;
 		}
 	}
 	return 0;
 fail:
 	{
-		write_log ("get_base('%s') failed, invalid library list\n", name);
+		TCHAR *s = au (name);
+		write_log (_T("get_base('%s') failed, invalid library list\n"), s);
+		xfree (s);
 	}
 	return 0xffffffff;
 }
@@ -2133,24 +2138,27 @@ void inputdevice_handle_inputcode (void)
 
 static int handle_custom_event (TCHAR *custom)
 {
-	TCHAR *p, *buf, *nextp;
+	TCHAR *p = NULL, *buf = NULL, *nextp = NULL;
+	bool noquot = false;
 
 	if (custom == NULL)
 		return 0;
 	p = buf = my_strdup (custom);
 	while (p && *p) {
 		TCHAR *p2;
-		if (*p != '\"')
-			break;
-		p++;
-		p2 = p;
-		while (*p2 != '\"' && *p2 != 0)
-			p2++;
-		if (*p2 == '\"') {
-			*p2++ = 0;
-			nextp = p2 + 1;
-			while (*nextp == ' ')
-				nextp++;
+		if (!noquot) {
+			if (*p != '\"')
+				break;
+			p++;
+			p2 = p;
+			while (*p2 != '\"' && *p2 != 0)
+				p2++;
+			if (*p2 == '\"') {
+				*p2++ = 0;
+				nextp = p2 + 1;
+				while (*nextp == ' ')
+					nextp++;
+			}
 		}
 		cfgfile_parse_line (&changed_prefs, p, 0);
 		p = nextp;
@@ -3220,7 +3228,8 @@ static void compatibility_mode (struct uae_prefs *prefs)
 
 static void matchdevices (struct inputdevice_functions *inf, struct uae_input_device *uid)
 {
-	int i, j;
+	unsigned int i;
+	int j;
 
 	for (i = 0; i < inf->get_num (); i++) {
 		TCHAR *aname1 = inf->get_friendlyname (i);
@@ -3434,7 +3443,8 @@ void inputdevice_devicechange (struct uae_prefs *prefs)
 
 static void set_kbr_default (struct uae_prefs *p, int index)
 {
-	int i, j, k, l;
+	unsigned int i;
+	int j, k, l;
     struct uae_input_device_kbr_default *trans = keyboard_default;
     struct uae_input_device *kbr;
     struct inputdevice_functions *id = &idev[IDTYPE_KEYBOARD];
@@ -3684,7 +3694,7 @@ static int get_event_data (const struct inputdevice_functions *id, int devnum, i
     return -1;
 }
 
-static int put_event_data (const struct inputdevice_functions *id, int devnum, int num, int eventid, TCHAR *custom, int flags, int sub)
+static int put_event_data (const struct inputdevice_functions *id, int devnum, int num, int eventid, const char *custom, int flags, int sub)
 {
     struct uae_input_device *uid = get_uid (id, devnum);
     int type = id->get_widget_type (devnum, num, 0, 0);
@@ -3744,7 +3754,7 @@ int inputdevice_get_device_index (unsigned int devnum)
 		return -1;
 }
 
-static int gettype (int devnum)
+static int gettype (unsigned int devnum)
 {
 	if (devnum < idev[IDTYPE_JOYSTICK].get_num())
 		return IDTYPE_JOYSTICK;
@@ -4397,7 +4407,7 @@ int inputdevice_joyport_config (struct uae_prefs *p, TCHAR *value, int portnum, 
 				struct inputdevice_functions *idf;
 				int type = IDTYPE_MOUSE;
 				int idnum = JSEM_MICE;
-				if (j == 0) {
+				if (j > 0) {
 					type = IDTYPE_JOYSTICK;
 					idnum = JSEM_JOYS;
 				}

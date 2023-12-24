@@ -721,6 +721,13 @@ int target_cfgfile_load (struct uae_prefs *p, char *filename, int type, int isde
 	v = 1;
 	return v;
 }
+
+TCHAR *au (const char *s)
+{
+	return strdup(s);
+}
+
+
 // --- win32gfx.c
 int screen_is_picasso = 0;
 struct uae_filter *usedfilter;

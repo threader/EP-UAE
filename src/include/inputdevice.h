@@ -196,7 +196,7 @@ extern int jsem_ismouse  (int port, const struct uae_prefs *p);
 extern int jsem_iskbdjoy (int port, const struct uae_prefs *p);
 extern void do_fake_joystick (int nr, int *fake);
 
-extern int inputdevice_uaelib (TCHAR *, TCHAR *);
+extern int inputdevice_uaelib (const TCHAR *, const TCHAR *);
 
 #define INPREC_JOYPORT 1
 #define INPREC_JOYBUTTON 2
