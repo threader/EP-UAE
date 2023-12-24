@@ -133,7 +133,7 @@ extern struct regstruct
     flagtype x;
     flagtype stopped;
     unsigned int intmask;
-	int ipl, ipl_pin;
+	unsigned int ipl, ipl_pin;
 
     uae_u32 vbr, sfc, dfc;
 
@@ -209,7 +209,7 @@ STATIC_INLINE void unset_special (struct regstruct *regs, uae_u32 x)
 STATIC_INLINE void m68k_setpc (struct regstruct *regs, uaecptr newpc)
 {
     regs->pc_p = regs->pc_oldp = get_real_address (newpc);
-    regs->pc   = newpc;
+	regs->fault_pc = regs->pc = newpc;
 }
 
 STATIC_INLINE uaecptr m68k_getpc (struct regstruct *regs)
@@ -378,6 +378,7 @@ extern void init_m68k_full (void);
 extern void m68k_go (int);
 extern void m68k_dumpstate (void *, uaecptr *);
 extern void m68k_disasm (void *, uaecptr, uaecptr *, int);
+extern void m68k_disasm_2  (char *, int,  uaecptr,  uaecptr *, int,  uae_u32 *, uae_u32 *, int);
 extern void m68k_disasm_ea (void *f, uaecptr addr, uaecptr *nextpc, int cnt, uae_u32 *seaddr, uae_u32 *deaddr);
 extern void sm68k_disasm(char *, char *, uaecptr addr, uaecptr *nextpc);
 extern void m68k_reset (int);

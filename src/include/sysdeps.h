@@ -40,6 +40,8 @@
 #  endif // HAVE_STDBOOL_H
 #endif // __cplusplus
 
+#define UAE_RAND_MAX RAND_MAX
+
 #ifdef JIT
 #define NATMEM_OFFSET natmem_offset
 #else

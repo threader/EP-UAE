@@ -303,6 +303,7 @@ void cia_diskindex (void)
 	ciabicr |= 0x10;
 	RethinkICRB ();
 }
+
 void cia_parallelack (void)
 {
 	ciaaicr |= 0x10;

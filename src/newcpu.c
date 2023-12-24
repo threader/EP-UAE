@@ -74,6 +74,7 @@ cpuop_func *cpufunctbl[65536];
 
 struct mmufixup mmufixup[2];
 
+
 #define COUNT_INSTRS 0
 #define MC68060_PCR   0x04300000
 #define MC68EC060_PCR 0x04310000
@@ -484,6 +485,7 @@ void init_m68k (void)
 }
 
 struct regstruct regs, mmu_backup_regs;
+//struct flag_struct regflags;
 static struct regstruct regs_backup[16];
 static int backup_pointer = 0;
 static uae_s32 m68kpc_offset;
@@ -2620,7 +2622,8 @@ STATIC_INLINE int do_specialties (int cycles, struct regstruct *regs)
 		if (currprefs.cpu_idle && currprefs.m68k_speed != 0 && ((regs->spcflags & SPCFLAG_STOP)) == SPCFLAG_STOP) {
 			/* sleep 1ms if STOP-instruction is executed */
 			if (1) {
-				static int sleepcnt, lvpos, zerocnt;
+				static int sleepcnt, zerocnt;
+	    static unsigned int lvpos;
 				if (vpos != lvpos) {
 					sleepcnt--;
 #ifdef JIT

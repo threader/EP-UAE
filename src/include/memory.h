@@ -119,7 +119,7 @@ typedef struct {
     int flags;
 	uae_u32 mask;
 //FIXME: uae_u32 startmask;
-	uae_u32 start;
+//	uae_u32 start;
 	uae_u32 allocated;
 } addrbank;
 

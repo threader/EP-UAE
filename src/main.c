@@ -85,7 +85,6 @@ static void fixup_prefs_joysticks (struct uae_prefs *prefs)
 	    prefs->jport1 = (prefs->jport0 != JSEM_KBDLAYOUT) ? JSEM_KBDLAYOUT : JSEM_NONE;
     }
 }
-#endif 
 static void fix_options (void)
 {
     int err = 0;
@@ -280,6 +279,8 @@ static void fix_options (void)
     if (err)
 	write_log ("Please use \"uae -h\" to get usage information.\n");
 }
+
+#endif 
 
 struct uae_prefs currprefs, changed_prefs;
 int config_changed;
@@ -910,9 +911,9 @@ void uae_save_config (void)
  * A first cut at better state management...
  */
 
+#endif 
 static int uae_state;
 static int uae_target_state;
-#endif 
 
 int uae_get_state (void)
 {
@@ -1667,6 +1668,7 @@ void real_main (int argc, char **argv)
 #ifndef NO_MAIN_IN_MAIN_C
 int main (int argc, char **argv)
 {
+    init_sdl ();
 	show_version_full ();
     real_main (argc, argv);
     return 0;

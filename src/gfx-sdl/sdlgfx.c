@@ -20,12 +20,14 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 
-#include <SDL.h>
-#include <SDL_endian.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_endian.h>
+
+/* internal members */
 unsigned int shading_enabled = 0;
 #ifdef USE_GL
 #define NO_SDL_GLEXT
-# include <SDL_opengl.h>
+# include <SDL/SDL_opengl.h>
 /* These are not defined in the current version of SDL_opengl.h. */
 # ifndef GL_TEXTURE_STORAGE_HINT_APPLE
 #  define GL_TEXTURE_STORAGE_HINT_APPLE 0x85BC
@@ -41,16 +43,16 @@ unsigned int shading_enabled = 0;
 #elifdef __APPLE__
   #include <OpenGL/glu.h>
   #include <OpenGL/glext.h>
-  void setupExtensions()
-  { shading_enabled = 1; }; // OS X already has these extensions
+  void setupExtensions(void)
+  { shading_enabled = 1; } // OS X already has these extensions
 #elifdef __X11__
   #include <GL/glx.h>
   #include <GL/glxext.h>
   #define uglGetProcAddress(x) (*glXGetProcAddressARB)((const GLubyte*)(x))
-  #define WIN32_OR_X11
+  #define X11_GL
 #else
-  void setupExtensions()
-  { shading_enabled = 0; }; // just fail otherwise?
+  void setupExtensions(void)
+  { shading_enabled = 0; } // just fail otherwise?
 #endif
 #endif
 #endif /* USE_GL */
@@ -74,11 +76,11 @@ unsigned int shading_enabled = 0;
 #ifdef DEBUG
 #define DEBUG_LOG write_log
 #else
-#define DEBUG_LOG(...) do ; while(0)
+#define DEBUG_LOG(...) { }
 #endif
 
-static SDL_Surface *display;
-static SDL_Surface *screen;
+SDL_Surface *display = NULL;
+SDL_Surface *screen = NULL;
 
 /* Standard P96 screen modes */
 #define MAX_SCREEN_MODES 12
@@ -143,7 +145,7 @@ static void set_window_title (void)
     SDL_WM_SetCaption (title, title);
 }
 
-#ifdef WIN32_OR_X11 && GL_SHADER
+#if defined(X11_GL)
 PFNGLCREATEPROGRAMOBJECTARBPROC     glCreateProgramObjectARB = NULL;
 PFNGLDELETEOBJECTARBPROC            glDeleteObjectARB = NULL;
 PFNGLCREATESHADEROBJECTARBPROC      glCreateShaderObjectARB = NULL;
@@ -174,7 +176,7 @@ unsigned int findString(char* in, char* list)
   return 0;
 }
 
-void setupExtensions()
+void setupExtensions(void)
 {
   char* extensionList = (char*)glGetString(GL_EXTENSIONS);
 
@@ -232,7 +234,7 @@ void setupExtensions()
   } else
     shading_enabled = 0;
 }
-#endif
+#endif /* defined(X11_GL) */
 
 /*
  * What graphics platform are we running on . . .?

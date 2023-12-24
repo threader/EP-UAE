@@ -813,7 +813,7 @@ static int REGPARAM2 chipmem_check (uaecptr addr, uae_u32 size)
 	return (addr + size) <= chipmem_full_size;
 }
 
-static uae_u8 *REGPARAM2 chipmem_xlate (uaecptr addr)
+static uae_u8 REGPARAM2 *chipmem_xlate (uaecptr addr)
 {
     addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
@@ -891,7 +891,7 @@ static int REGPARAM2 bogomem_check (uaecptr addr, uae_u32 size)
     return (addr + size) <= allocated_bogomem;
 }
 
-static uae_u8 *REGPARAM2 bogomem_xlate (uaecptr addr)
+static uae_u8 REGPARAM2 *bogomem_xlate (uaecptr addr)
 {
     addr -= bogomem_start & bogomem_mask;
     addr &= bogomem_mask;
@@ -961,7 +961,7 @@ static int REGPARAM2 cardmem_check (uaecptr addr, uae_u32 size)
 	return (addr + size) <= allocated_cardmem;
 }
 
-static uae_u8 *REGPARAM2 cardmem_xlate (uaecptr addr)
+static uae_u8 REGPARAM2 *cardmem_xlate (uaecptr addr)
 {
 	addr &= cardmem_mask;
 	return cardmemory + addr;
@@ -1030,7 +1030,7 @@ static int REGPARAM2 a3000lmem_check (uaecptr addr, uae_u32 size)
 	return (addr + size) <= allocated_a3000lmem;
 }
 
-static uae_u8 *REGPARAM2 a3000lmem_xlate (uaecptr addr)
+static uae_u8 REGPARAM2 *a3000lmem_xlate (uaecptr addr)
 {
 	addr &= a3000lmem_mask;
 	return a3000lmemory + addr;
@@ -1095,7 +1095,7 @@ static int REGPARAM2 a3000hmem_check (uaecptr addr, uae_u32 size)
 	return (addr + size) <= allocated_a3000hmem;
 }
 
-static uae_u8 *REGPARAM2 a3000hmem_xlate (uaecptr addr)
+static uae_u8 REGPARAM2 *a3000hmem_xlate (uaecptr addr)
 {
 	addr &= a3000hmem_mask;
 	return a3000hmemory + addr;
@@ -1275,7 +1275,7 @@ int REGPARAM2 kickmem_check (uaecptr addr, uae_u32 size)
     return (addr + size) <= kickmem_size;
 }
 
-uae_u8 *REGPARAM2 kickmem_xlate (uaecptr addr)
+uae_u8 REGPARAM2 *kickmem_xlate (uaecptr addr)
 {
     addr -= kickmem_start & kickmem_mask;
     addr &= kickmem_mask;
@@ -1441,7 +1441,7 @@ static int REGPARAM2 extendedkickmem2_check (uaecptr addr, uae_u32 size)
 	addr &= extendedkickmem2_mask;
 	return (addr + size) <= extendedkickmem2_size;
 }
-static uae_u8 *REGPARAM2 extendedkickmem2_xlate (uaecptr addr)
+static uae_u8 REGPARAM2 *extendedkickmem2_xlate (uaecptr addr)
 {
 	addr -= extendedkickmem2_start & extendedkickmem2_mask;
 	addr &= extendedkickmem2_mask;
@@ -1657,7 +1657,7 @@ static int REGPARAM2 custmem1_check (uaecptr addr, uae_u32 size)
 	addr &= custmem1_mask;
 	return (addr + size) <= currprefs.custom_memory_sizes[0];
 }
-static uae_u8 *REGPARAM2 custmem1_xlate (uaecptr addr)
+static uae_u8 REGPARAM2 *custmem1_xlate (uaecptr addr)
 {
 	addr -= currprefs.custom_memory_addrs[0] & custmem1_mask;
 	addr &= custmem1_mask;
@@ -1723,7 +1723,7 @@ static int REGPARAM2 custmem2_check (uaecptr addr, uae_u32 size)
 	addr &= custmem2_mask;
 	return (addr + size) <= currprefs.custom_memory_sizes[1];
 }
-static uae_u8 *REGPARAM2 custmem2_xlate (uaecptr addr)
+static uae_u8 REGPARAM2 *custmem2_xlate (uaecptr addr)
 {
 	addr -= currprefs.custom_memory_addrs[1] & custmem2_mask;
 	addr &= custmem2_mask;

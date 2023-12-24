@@ -50,7 +50,7 @@
 #ifdef  GUI_DEBUG
 #define DEBUG_LOG write_log ( "%s: ", __func__); write_log
 #else
-#define DEBUG_LOG(...) do ; while(0)
+#define DEBUG_LOG(...) { }
 #endif
 
 static int gui_active;
@@ -217,7 +217,6 @@ static void do_message_box (const gchar *title, const gchar *message, gboolean m
 static void handle_message_box_request (smp_comm_pipe *msg_pipe);
 static GtkWidget *make_message_box (const gchar *title, const gchar *message, int modal, uae_sem_t *sem);
 void on_message_box_quit (GtkWidget *w, gpointer user_data);
-
 
 static void set_mem32_widgets_state (void)
 {
@@ -445,12 +444,12 @@ static void set_hd_state (void)
 	    gtk_clist_freeze (GTK_CLIST (hdlist_widget));
 	    gtk_clist_clear (GTK_CLIST (hdlist_widget));
 
-	    for (i = 0; i < nr; i++) {
-			int     secspertrack, surfaces, reserved, blocksize, bootpri;
-			uae_u64 size;
-			int     cylinders, readonly, flags;
-			char   	*devname, *volname, *rootdir, *filesysdir;
-			int		*ret;
+		for (i = 0; i < nr; i++) {
+			int     secspertrack=0, surfaces=0, reserved=0, blocksize=0, bootpri=0;
+			uae_u64 size = 0;
+			int     cylinders=0, readonly=0, flags=0;
+			char   	*devname=NULL, *volname=NULL, *rootdir=NULL, *filesysdir=NULL;
+			int	ret = 0;
 
 		/* We always use currprefs.mountinfo for the GUI.  The filesystem
 		   code makes a private copy which is updated every reset.  */
@@ -626,11 +625,11 @@ static int my_idle (void)
 
 static int leds_callback (void)
 {
-    unsigned int leds; //= gui_ledstate;
-    unsigned int i;
+    unsigned int leds = 0; //= gui_ledstate;
+    unsigned int i = 0;
 
     if (!quit_gui) {
-	for (i = 0; i < 5; i++) {
+	for ( ; i < 5; i++) {
 	    GtkWidget *widget = i ? floppy_widget[i-1] : power_led;
 	    unsigned int mask = 1 << i;
 	    unsigned int on = leds & mask;
@@ -1856,10 +1855,10 @@ static void did_newhdf (void)
 
 static void did_hdchange (void)
 {
-    int secspertrack, surfaces, reserved, blocksize, bootpri;
-    uae_u64 size;
-    int cylinders, readonly, flags;
-    char *devname, *volname, *rootdir, *filesysdir;
+    int secspertrack=0, surfaces=0, reserved=0, blocksize=0, bootpri=0;
+    uae_u64 size=0;
+    int cylinders=0, readonly=0, flags=0;
+    char *devname=NULL, *volname=NULL, *rootdir=NULL, *filesysdir=NULL;
     const char *failure;
 
 /*    failure = get_filesys_unit (selected_hd_row,
@@ -2421,8 +2420,8 @@ static void gui_shutdown (void)
 static void gui_flicker_led2 (int led, int unitnum, int status)
 {
         static int resetcounter[LED_MAX];
-        uae_u8 old;
-        uae_u8 *p;
+        uae_s8 old;
+        uae_s8 *p;
 
         if (led == LED_HD)
                 p = &gui_data.hd;
@@ -2525,7 +2524,7 @@ void gui_notify_state (int state)
  */
 static void do_message_box (const gchar *title, const gchar *message, gboolean modal, gboolean wait )
 {
-    uae_sem_t msg_quit_sem;
+    uae_sem_t msg_quit_sem = {0};
 
     // If we a need reply, then this semaphore which will be used
     // to signal us when the dialog has been exited.
