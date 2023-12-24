@@ -19,13 +19,12 @@ struct inputdevice_functions {
     void          (*unacquire)        (unsigned int);
     void          (*read)             (void);
     unsigned int  (*get_num)          (void);
-    char* (*get_friendlyname)(int);
-    char* (*get_uniquename)(int);
-    const char   *(*get_name)         (unsigned int);
+    const char* (*get_friendlyname)(unsigned int);
+    const char* (*get_uniquename)(unsigned int);
     unsigned int  (*get_widget_num)   (unsigned int);
     int           (*get_widget_type)  (unsigned int, unsigned int, char *, uae_u32 *);
     int           (*get_widget_first) (unsigned int, int);
-    int (*get_flags)(unsigned int);
+    unsigned int (*get_flags)(unsigned int);
 };
 extern struct inputdevice_functions idev[3];
 extern struct inputdevice_functions inputdevicefunc_joystick;

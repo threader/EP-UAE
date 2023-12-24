@@ -72,7 +72,7 @@ typedef struct device_info * (*info_device_func)        (int, struct device_info
 typedef struct device_scsi_info* (*scsiinfo_func)(int, struct device_scsi_info*);
 typedef const uae_u8 *       (*execscsicmd_out_func)    (int, const uae_u8 *, int);
 typedef const uae_u8 *       (*execscsicmd_in_func)     (int, const uae_u8 *, int, int *);
-typedef int                  (*execscsicmd_direct_func) (int, struct amigascsi*);
+typedef int                  (*execscsicmd_direct_func) (int, uaecptr);
 
 typedef int                  (*pause_func)              (int, int);
 typedef int                  (*stop_func)               (int);
@@ -109,8 +109,8 @@ struct device_functions {
 
     isatapi_func isatapi;
 
-    open_device_func  opendevthread;
-    close_device_func closedevthread;
+   // open_device_func  opendevthread;
+   // close_device_func closedevthread;
 
     scsiinfo_func scsiinfo;
 

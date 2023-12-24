@@ -13,8 +13,15 @@
 
 #include "options.h"
 #include "inputdevice.h"
-#include <SDL.h>
+#include <SDL/SDL.h>
 
+#define MAX_MAPPINGS 256
+
+/* external prototypes */
+extern void setid    (struct uae_input_device *uid, int i, int slot, int sub, int port, int evt);
+extern void setid_af (struct uae_input_device *uid, int i, int slot, int sub, int port, int evt, int af);
+
+/* internal members */
 static unsigned int nr_joysticks;
 static int initialized;
 
@@ -87,18 +94,18 @@ static int get_joystick_widget_first (unsigned int joy, int type)
 
 static const char *get_joystick_friendlyname (unsigned int joy)
 {
-    return SDL_JoystickName (joy);
+    return (TCHAR*)SDL_JoystickName (joy);
 }
 
 static const char *get_joystick_uniquename (unsigned int joy)
 {
-    return SDL_JoystickName (joy);
+    return (TCHAR*)SDL_JoystickName (joy);
 }
 
 static void read_joysticks (void)
 {
     if (get_joystick_num ()) {
-		unsigned int i;
+		unsigned int i = 0;
 		SDL_JoystickUpdate ();
 		for (i = 0; i < get_joystick_num (); i++)
 		    read_joy (i);
@@ -111,7 +118,7 @@ static int init_joysticks (void)
 
     if (!initialized) {
 		if (SDL_InitSubSystem (SDL_INIT_JOYSTICK) == 0) {
-		    unsigned int i;
+		    unsigned int i = 0;
 
 		    nr_joysticks = SDL_NumJoysticks ();
 		    write_log ("Found %d joystick(s)\n", nr_joysticks);
@@ -156,6 +163,11 @@ static void unacquire_joy (unsigned int num)
 {
 }
 
+static int get_joystick_flags (unsigned int num)
+{
+	return 0;
+}
+
 struct inputdevice_functions inputdevicefunc_joystick = {
     init_joysticks,
     close_joysticks,
@@ -167,7 +179,8 @@ struct inputdevice_functions inputdevicefunc_joystick = {
     get_joystick_uniquename,
     get_joystick_widget_num,
     get_joystick_widget_type,
-    get_joystick_widget_first
+    get_joystick_widget_first,
+	get_joystick_flags
 };
 
 /*
