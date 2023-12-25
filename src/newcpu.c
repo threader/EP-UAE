@@ -179,9 +179,7 @@ STATIC_INLINE void count_instr (unsigned int opcode)
 {
 }
 
-static unsigned long op_illg_1 (uae_u32 opcode, struct regstruct *regs) REGPARAM;
-
-static unsigned long REGPARAM2 op_illg_1 (uae_u32 opcode, struct regstruct *regs)
+static uae_u32 REGPARAM2 op_illg_1 (uae_u32 opcode, struct regstruct *regs)
 {
 	op_illg (opcode, regs);
     return 4;
@@ -2202,7 +2200,7 @@ void m68k_reset (int hardreset)
     fill_prefetch_slow (&regs);
 }
 
-unsigned long REGPARAM2 op_illg (uae_u32 opcode, struct regstruct *regs)
+uae_u32 REGPARAM2 op_illg (uae_u32 opcode, struct regstruct *regs)
 {
     uaecptr pc = m68k_getpc (regs);
     static int warned;

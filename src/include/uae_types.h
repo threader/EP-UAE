@@ -11,6 +11,27 @@
 
 #ifndef UAE_TYPES_H
 #define UAE_TYPES_H
+/* Update:
+ * configure and autoconf define HAVE_STDINT_H in sysconfig.h if stdint.h is
+ * available. Since we are using C99 standard, those types should be used
+ * instead of hacking away this (rather incomplete) detection of bit sizes.
+ * - 2012-12-19 - Sven
+*/
+#include "sysconfig.h"
+
+#if (SIZEOF_VOID_P != 8) && (SIZEOF_VOID_P != 4)
+# error "Unknown/unsupported pointer size"
+#endif
+
+#if SIZEOF_LONG_LONG == 8
+typedef long long uae_s64;
+typedef unsigned long long uae_u64;
+# define VAL64(a)  (a ## LL)
+# define UVAL64(a) (a ## uLL)
+#else
+# error "unsupported length of long long!"
+#endif
+
 
 /* If char has more then 8 bits, good night. */
 typedef unsigned char  uae_u8;

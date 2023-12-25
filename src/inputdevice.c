@@ -24,6 +24,7 @@
 #include "options.h"
 #include "keyboard.h"
 #include "inputdevice.h"
+#include "cia.h"
 #include "keybuf.h"
 #include "custom.h"
 #include "xwin.h"
@@ -2476,7 +2477,7 @@ static int switchdevice (struct uae_input_device *id, int num, int button)
 	int ismouse = 0;
 	int newport = 0;
 	int flags = 0;
-	TCHAR *name = NULL;
+	const TCHAR *name = NULL;
 	int otherbuttonpressed = 0;
 
 	if (num >= 4)
@@ -2749,10 +2750,11 @@ static int isdigitalbutton (int ei)
 
 static void scanevents (struct uae_prefs *p)
 {
-	int i, j, k, ei;
-	const struct inputevent *e;
-	int n_joy = idev[IDTYPE_JOYSTICK].get_num();
-	int n_mouse = idev[IDTYPE_MOUSE].get_num();
+    unsigned int i;
+    int j, k, ei;
+    const struct inputevent *e;
+    unsigned int n_joy = idev[IDTYPE_JOYSTICK].get_num();
+    unsigned int n_mouse = idev[IDTYPE_MOUSE].get_num();
 
 	cd32_pad_enabled[0] = cd32_pad_enabled[1] = 0;
 	parport_joystick_enabled = 0;
@@ -3443,8 +3445,8 @@ void inputdevice_devicechange (struct uae_prefs *prefs)
 
 static void set_kbr_default (struct uae_prefs *p, int index)
 {
-	unsigned int i;
-	int j, k, l;
+    int k, l;
+    unsigned int i, j;
     struct uae_input_device_kbr_default *trans = keyboard_default;
     struct uae_input_device *kbr;
     struct inputdevice_functions *id = &idev[IDTYPE_KEYBOARD];
@@ -4402,7 +4404,8 @@ int inputdevice_joyport_config (struct uae_prefs *p, TCHAR *value, int portnum, 
 	case 1:
 	case 2:
 		{
-			int i, j;
+			unsigned int i; 
+			int j;
 			for (j = 0; j < MAX_JPORTS; j++) {
 				struct inputdevice_functions *idf;
 				int type = IDTYPE_MOUSE;

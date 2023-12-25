@@ -49,7 +49,7 @@ extern int fpp_movem_next[256];
 
 struct regstruct;
 
-typedef unsigned long cpuop_func (uae_u32, struct regstruct *regs) REGPARAM;
+typedef uae_u32 cpuop_func (uae_u32, struct regstruct *regs) REGPARAM;
 typedef  void cpuop_func_ce (uae_u32, struct regstruct *regs) REGPARAM;
 
 struct cputbl {
@@ -58,7 +58,7 @@ struct cputbl {
 };
 
 #ifdef JIT
-typedef unsigned long REGPARAM3 compop_func (uae_u32) REGPARAM;
+typedef uae_u32 REGPARAM3 compop_func (uae_u32) REGPARAM;
 
 struct comptbl {
     compop_func *handler;
@@ -67,7 +67,7 @@ struct comptbl {
 };
 #endif
 
-extern unsigned long op_illg (uae_u32, struct regstruct *regs) REGPARAM;
+extern uae_u32 REGPARAM3 op_illg (uae_u32, struct regstruct *regs) REGPARAM;
 
 typedef uae_u8 flagtype;
 
@@ -112,7 +112,7 @@ struct cache040
 	int count;
 };
 
-extern struct regstruct
+struct regstruct
 {
     uae_u32 regs[16];
     struct flag_struct ccrflags;
@@ -166,7 +166,7 @@ extern struct regstruct
 	uae_u32 prefetch020data;
 	uae_u32 prefetch020addr;
 	int ce020memcycles;
-} regs, lastint_regs;
+};
 
 typedef struct {
   uae_u16* location;
@@ -183,7 +183,7 @@ typedef union {
     struct blockinfo_t* bi;
 } cacheline;
 
-
+extern struct regstruct regs;
 STATIC_INLINE uae_u32 munge24 (uae_u32 x)
 {
     return x & regs.address_space_mask;
