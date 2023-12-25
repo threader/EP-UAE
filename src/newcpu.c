@@ -179,6 +179,8 @@ STATIC_INLINE void count_instr (unsigned int opcode)
 {
 }
 
+static uae_u32 op_illg_1 (uae_u32 opcode, struct regstruct *regs) REGPARAM;
+
 static uae_u32 REGPARAM2 op_illg_1 (uae_u32 opcode, struct regstruct *regs)
 {
 	op_illg (opcode, regs);

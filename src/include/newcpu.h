@@ -49,8 +49,8 @@ extern int fpp_movem_next[256];
 
 struct regstruct;
 
-typedef uae_u32 cpuop_func (uae_u32, struct regstruct *regs) REGPARAM;
-typedef  void cpuop_func_ce (uae_u32, struct regstruct *regs) REGPARAM;
+typedef uae_u32 cpuop_func REGPARAM3  (uae_u32,   struct regstruct *regs) REGPARAM;
+typedef  void cpuop_func_ce REGPARAM3  (uae_u32, struct regstruct *regs) REGPARAM;
 
 struct cputbl {
     cpuop_func *handler;
@@ -167,6 +167,7 @@ struct regstruct
 	uae_u32 prefetch020addr;
 	int ce020memcycles;
 };
+extern struct regstruct regs;
 
 typedef struct {
   uae_u16* location;
@@ -183,7 +184,7 @@ typedef union {
     struct blockinfo_t* bi;
 } cacheline;
 
-extern struct regstruct regs;
+
 STATIC_INLINE uae_u32 munge24 (uae_u32 x)
 {
     return x & regs.address_space_mask;

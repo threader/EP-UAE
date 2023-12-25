@@ -1472,6 +1472,7 @@ uae_u8 REGPARAM2 *default_xlate (uaecptr a)
 				uaecptr a2 = a - 32;
 		uaecptr a3 = m68k_getpc (&regs) - 32;
 		write_log ("Your Amiga program just did something terribly stupid %p PC=%p\n", a, m68k_getpc (&regs));
+				m68k_dumpstate (0, 0);
 				for (i = 0; i < 10; i++) {
 					write_log ("%08X ", i >= 5 ? a3 : a2);
 					for (j = 0; j < 16; j += 2) {

@@ -1495,6 +1495,7 @@ gen_opcode (unsigned long int opcode)
 	     case i_BCHG: op="btc"; break;
 	     case i_BCLR: op="btr"; break;
 	     case i_BSET: op="bts"; break;
+	     default:
 	     case i_BTST: op="bt"; need_write=0; break;
 	    }
 	    comprintf("\t%s_l_rr(dst,s);\n"  /* Answer now in C */
@@ -1790,7 +1791,7 @@ gen_opcode (unsigned long int opcode)
 	comprintf("\tcomp_pc_p=(uae_u8*)get_const(PC_P);\n");
 	break;
      case i_Bcc:
-	comprintf("\tuae_u32 v1,v2;\n");
+	comprintf("\tuae_u32 v,v1,v2;\n");
 	genamode (curi->smode, "srcreg", curi->size, "src", 1, 0);
 	/* That source is an immediate, so we can clobber it with abandon */
 	switch(curi->size) {
@@ -1824,7 +1825,7 @@ gen_opcode (unsigned long int opcode)
 	switch(curi->cc) {
 	 case 0:  /* Unconditional jump */
 	    comprintf("\tmov_l_rr(PC_P,src);\n");
-	    comprintf("\tcomp_pc_p=(uae_u8*)get_const(PC_P);\n");
+	    comprintf("\tcomp_pc_p=(void*)get_const(PC_P);\n");
 	    break;
 	 case 1: break; /* This is silly! */
 	 case 8: failure; break;  /* Work out details! FIXME */
@@ -1904,7 +1905,7 @@ gen_opcode (unsigned long int opcode)
 	    comprintf("\tsub_w_ri(src,1);\n");
 	    comprintf("\t end_needflags();\n");
 	    start_brace();
-	    comprintf("\tuae_u32 v2;\n"
+	    comprintf("\tuae_u32 v2,v;\n"
 		      "\tuae_u32 v1=get_const(PC_P);\n");
 	    comprintf("\tv2=get_const(offs);\n"
 		      "\tregister_branch(v1,v2,3);\n");
@@ -3025,15 +3026,14 @@ generate_one_opcode (int rp, int noflags)
 	    fprintf (stblfile, "{ NULL, %ld, 0x%08x }, /* %s */\n", opcode, flags, lookuptab[i].name);
 	    com_discard();
 	} else {
-	//	printf ("/* %s */\n", outopcode (opcode));
-		if (noflags) {
-			fprintf (stblfile, "{ op_%lx_%d_comp_nf, %ld, 0x%08x }, /* %s */\n", opcode, postfix, opcode, flags, lookuptab[i].name);
-			fprintf (headerfile, "extern compop_func op_%lx_%d_comp_nf;\n", opcode, postfix);
-			printf ("uae_u32 REGPARAM2 op_%lx_%d_comp_nf(uae_u32 opcode) /* %s */\n{\n", opcode, postfix, lookuptab[i].name);
+	    if (noflags) {
+		fprintf (stblfile, "{ op_%lx_%d_comp_nf, %ld, 0x%08x }, /* %s */\n", opcode, postfix, opcode, flags, lookuptab[i].name);
+		fprintf (headerfile, "extern compop_func op_%lx_%d_comp_nf;\n", opcode, postfix);
+		printf ("unsigned long REGPARAM2 op_%lx_%d_comp_nf(uae_u32 opcode) /* %s */\n{\n", opcode, postfix, lookuptab[i].name);
 	    } else {
-			fprintf (stblfile, "{ op_%lx_%d_comp_ff, %ld, 0x%08x }, /* %s */\n", opcode, postfix, opcode, flags, lookuptab[i].name);
-			fprintf (headerfile, "extern compop_func op_%lx_%d_comp_ff;\n", opcode, postfix);
-			printf ("uae_u32 REGPARAM2 op_%lx_%d_comp_ff(uae_u32 opcode) /* %s */\n{\n", opcode, postfix, lookuptab[i].name);
+		fprintf (stblfile, "{ op_%lx_%d_comp_ff, %ld, 0x%08x }, /* %s */\n", opcode, postfix, opcode, flags, lookuptab[i].name);
+		fprintf (headerfile, "extern compop_func op_%lx_%d_comp_ff;\n", opcode, postfix);
+		printf ("unsigned long REGPARAM2 op_%lx_%d_comp_ff(uae_u32 opcode) /* %s */\n{\n", opcode, postfix, lookuptab[i].name);
 	    }
 	    com_flush();
 	}

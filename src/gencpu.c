@@ -80,7 +80,7 @@ static int fixupcnt;
 static void read_counts (void)
 {
     FILE *file;
-    unsigned long opcode, count, total;
+    unsigned int opcode, count, total;
     char name[20];
     int nr = 0;
     memset (counts, 0, 65536 * sizeof *counts);
@@ -1092,7 +1092,7 @@ static void genmovemel_ce (uae_u16 opcode)
 {
     int size = table68k[opcode].size == sz_long ? 4 : 2;
     printf ("\tuae_u16 mask = %s;\n", gen_nextiword (0));
-    printf ("\tunsigned int dmask = mask & 0xff, amask = (mask >> 8) & 0xff;\n");
+    printf ("\tuae_u32 dmask = mask & 0xff, amask = (mask >> 8) & 0xff;\n");
     printf ("\tuae_u32 v;\n");
     genamode (table68k[opcode].dmode, "dstreg", table68k[opcode].size, "src", 2, 1, GF_AA);
     if (table68k[opcode].dmode == Ad8r || table68k[opcode].dmode == PC8r)
@@ -2143,9 +2143,9 @@ static void gen_opcode (unsigned long int opcode)
 				printf ("\tdo_cycles_ce (6 * CYCLE_UNIT);\n");
 			printf ("\tfor (;;) {\n");
 			printf ("\t\tuaecptr a = m68k_areg (regs, 7);\n");
-			printf ("\t\tuae_s16 sr = %s (a);\n", srcw);
-			printf ("\t\tuae_s32 pc = %s (a + 2);\n", srcl);
-			printf ("\t\tuae_s16 format = %s (a + 2 + 4);\n", srcw);
+			printf ("\t\tuae_u16 sr = %s (a);\n", srcw);
+			printf ("\t\tuae_u32 pc = %s (a + 2);\n", srcl);
+			printf ("\t\tuae_u16 format = %s (a + 2 + 4);\n", srcw);
 			printf ("\t\tint offset = 8;\n");
 #if 0
 		    genamode (Aipi, "7", sz_word, "sr", 1, 0, 0);
@@ -2352,6 +2352,7 @@ static void gen_opcode (unsigned long int opcode)
 				printf ("\t\tgoto %s;\n", endlabelstr);
 				printf ("\t}\n");
 				sync_m68k_pc ();
+				addcycles000 (2);
 				irc2ir ();
 				fill_prefetch_2 ();
 				printf ("\tgoto %s;\n", endlabelstr);
@@ -2573,7 +2574,6 @@ static void gen_opcode (unsigned long int opcode)
 		fill_prefetch_next();
 		start_brace ();
 		printf ("\tuae_u32 newv = (uae_u32)(uae_u16)dst * (uae_u32)(uae_u16)src;\n");
-/* note */
 		if (using_ce)
 			printf ("\tint cycles = 38 - 4, bits;\n");
 		genflags (flag_logical, sz_long, "newv", "", "");
@@ -3268,17 +3268,16 @@ static void gen_opcode (unsigned long int opcode)
 	printf ("\tSET_ZFLG (&regs->ccrflags, (tmp == 0)); SET_VFLG (&regs->ccrflags, 0); SET_CFLG (&regs->ccrflags, 0);\n");
 			switch (curi->mnemo) {
 	case i_BFTST:
-	    break;
+			    break;
 	case i_BFEXTU:
 	    printf ("\tm68k_dreg (regs, (extra >> 12) & 7) = tmp;\n");
 	    break;
-	case i_BFCHG:
+		case i_BFEXTS:
+			    printf ("\tm68k_dreg (regs, (extra >> 12) & 7) = tmp;\n");
+				break;
+			case i_BFCHG:
 				printf ("\ttmp = tmp ^ (0xffffffffu >> (32 - width));\n");
-	    break;
-	case i_BFEXTS:
-	    printf ("\tif (GET_NFLG (&regs->ccrflags)) tmp |= width == 32 ? 0 : (-1 << width);\n");
-	    printf ("\tm68k_dreg (regs, (extra >> 12) & 7) = tmp;\n");
-	    break;
+			    break;
 	case i_BFCLR:
 	    printf ("\ttmp = 0;\n");
 	    break;
@@ -3647,7 +3646,7 @@ static void generate_one_opcode (int rp)
 {
 	int idx;
     uae_u16 smsk, dmsk;
-    long int opcode = opcode_map[rp];
+    unsigned int opcode = opcode_map[rp];
     int i68000 = table68k[opcode].clev > 0;
 
     if (table68k[opcode].mnemo == i_ILLG
@@ -3677,7 +3676,7 @@ static void generate_one_opcode (int rp)
     printf ("/* %s */\n", outopcode (opcode));
     if (i68000)
 		printf("#ifndef CPUEMU_68000_ONLY\n");
-	printf ("%s REGPARAM2 CPUFUNC(op_%04lx_%d)(uae_u32 opcode, struct regstruct *regs)\n{\n", (using_ce || using_ce020) ? "void" : "unsigned long", opcode, postfix);
+	printf ("%s REGPARAM2 CPUFUNC(op_%04lx_%d)(uae_u32 opcode, struct regstruct *regs)\n{\n", (using_ce || using_ce020) ? "void" : "uae_u32", opcode, postfix);
 
     switch (table68k[opcode].stype) {
     case 0: smsk = 7; break;
@@ -3900,6 +3899,10 @@ int main (int argc, char **argv)
 		postfix2 = -1;
     }
 
-    free (table68k);
+	xfree (opcode_map);
+	xfree (opcode_last_postfix);
+	xfree (opcode_next_clev);
+	xfree (counts);
+	xfree (table68k);
     return 0;
 }
