@@ -1290,11 +1290,11 @@ static int getvelocity (int num, int subnum, int pct)
 	val = mouse_delta[num][subnum];
 	v = val * pct / 1000;
 	if (!v) {
-		if (val < -maxvpos / 2)
+		if (val < -(int)maxvpos / 2)
 			v = -2;
 		else if (val < 0)
 			v = -1;
-		else if (val > maxvpos / 2)
+		else if (val > (int)maxvpos / 2)
 			v = 2;
 		else if (val > 0)
 			v = 1;
@@ -3234,8 +3234,8 @@ static void matchdevices (struct inputdevice_functions *inf, struct uae_input_de
 	int j;
 
 	for (i = 0; i < inf->get_num (); i++) {
-		TCHAR *aname1 = inf->get_friendlyname (i);
-		TCHAR *aname2 = inf->get_uniquename (i);
+		const TCHAR *aname1 = inf->get_friendlyname (i);
+		const TCHAR *aname2 = inf->get_uniquename (i);
 		int match = -1;
 		for (j = 0; j < MAX_INPUT_DEVICES; j++) {
 			if (aname2 && uid[j].configname) {
@@ -3277,7 +3277,7 @@ static void matchdevices (struct inputdevice_functions *inf, struct uae_input_de
 		}
 		if (match >= 0) {
 			j = match;
-			if (j != i) {
+			if (j != (int)i) {
 				struct uae_input_device *tmp = xmalloc (struct uae_input_device, 1);
 				memcpy (tmp, &uid[j], sizeof (struct uae_input_device));
 				memcpy (&uid[j], &uid[i], sizeof (struct uae_input_device));
@@ -4416,8 +4416,8 @@ int inputdevice_joyport_config (struct uae_prefs *p, TCHAR *value, int portnum, 
 				}
 				idf = &idev[type];
 				for (i = 0; i < idf->get_num (); i++) {
-					TCHAR *name1 = idf->get_friendlyname (i);
-					TCHAR *name2 = idf->get_uniquename (i);
+					const TCHAR *name1 = idf->get_friendlyname (i);
+					const TCHAR *name2 = idf->get_uniquename (i);
 					if ((name1 && !_tcscmp (name1, value)) || (name2 && !_tcscmp (name2, value))) {
 						p->jports[portnum].id = idnum + i;
 						if (mode >= 0)
