@@ -15,13 +15,16 @@
 
 STATIC_INLINE uae_s64 read_processor_time (void)
 {
-    uae_s64 foo1, foo2;
-    uae_s64 tsc;
+#ifndef __x86_64__
+	uae_u32 foo1, foo2;
+#else
+	uae_s64 foo1, foo2;
+#endif
+	uae_s64 tsc;
 
-
-    /* Don't assume the assembler knows rdtsc */
-    __asm__ __volatile__ (".byte 0x0f,0x31" : "=a" (foo1), "=d" (foo2) :);
-    tsc = foo2 << 32 | foo1;
+	/* Don't assume the assembler knows rdtsc */
+	__asm__ __volatile__ (".byte 0x0f,0x31" : "=a" (foo1), "=d" (foo2) :);
+	tsc = (((uae_u64) foo2) << 32ULL) | (uae_u64) foo1;
 
 #ifdef __linux__
     /* Hack to synchronize syncbase and re-compute
