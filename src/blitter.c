@@ -256,7 +256,7 @@ STATIC_INLINE const int *get_ch (void)
 STATIC_INLINE int channel_state (unsigned int cycles)
 {
 	const int *diag;
-	if (cycles < 0)
+	if ((int)cycles < 0)
 		return 0;
 	diag = get_ch ();
 	if ((int)cycles < diag[0])
@@ -268,10 +268,10 @@ STATIC_INLINE int channel_state (unsigned int cycles)
 STATIC_INLINE int channel_pos (unsigned int cycles)
 {
 	const int *diag;
-	if (cycles < 0)
+	if ((int)cycles < 0)
 		return 0;
 	diag =  get_ch ();
-	if (cycles < diag[0])
+	if ((int)cycles < diag[0])
 		return cycles;
 	cycles -= diag[0];
 	cycles %= diag[0];
@@ -652,7 +652,7 @@ static void decide_blitter_line (unsigned int hsync, unsigned int hpos)
 {
 	if (blit_final && vblitsize)
 		blit_final = 0;
-	while (last_blitter_hpos < hpos) {
+	while (last_blitter_hpos < (int)hpos) {
 		int c = channel_state (blit_cyclecounter);
 
 		for (;;) {
@@ -968,7 +968,7 @@ static void do_startcycles (unsigned int hpos)
 
 void decide_blitter (unsigned int hpos)
 {
-	unsigned int hsync = hpos < 0;
+	int hsync = (int)hpos < 0;
 
 	if (blit_startcycles > 0)
 		do_startcycles (hpos);
@@ -990,7 +990,7 @@ void decide_blitter (unsigned int hpos)
 	if (!blitter_cycle_exact)
 		return;
 
-	if (hpos < 0)
+	if ((int)hpos < 0)
 		hpos = maxhpos;
 
 	if (blitline) {
@@ -999,7 +999,7 @@ void decide_blitter (unsigned int hpos)
 		return;
 	}
 
-	while (last_blitter_hpos < hpos) {
+	while (last_blitter_hpos < (int)hpos) {
 		int c;
 
 		c = channel_state (blit_cyclecounter);

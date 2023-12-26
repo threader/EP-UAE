@@ -9,14 +9,6 @@
 * Copyright 2000-2010 Toni Wilen
 */
 
-//#define CUSTOM_DEBUG
-#define SPRITE_DEBUG 0
-#define SPRITE_DEBUG_MINY 0x6a
-#define SPRITE_DEBUG_MAXY 0x70
-#define SPR0_HPOS 0x15
-#define MAX_SPRITES 8
-#define SPRITE_COLLISIONS
-#define SPEEDUP
 
 #include "sysconfig.h"
 #include "sysdeps.h"
@@ -133,7 +125,7 @@ STATIC_INLINE void sync_copper (unsigned int hpos);
 
 /* Events */
 
-unsigned long int event_cycles, is_lastline;
+unsigned long int event_cycles, nextevent, is_lastline, currcycle;
 long cycles_to_next_event;
 long max_cycles_to_next_event;
 long cycles_to_hsync_event;
@@ -680,7 +672,7 @@ static void add_modulos (void)
 static void finish_playfield_line (void)
 {
 	/* The latter condition might be able to happen in interlaced frames. */
-	if (vpos >= minfirstline && (thisframe_first_drawn_line == -1 || vpos < thisframe_first_drawn_line))
+	if (vpos >= minfirstline && (thisframe_first_drawn_line == -1 || (int)vpos < thisframe_first_drawn_line))
 		thisframe_first_drawn_line = vpos;
 	thisframe_last_drawn_line = vpos;
 
@@ -897,9 +889,9 @@ STATIC_INLINE int isocs7planes (void)
 
 int is_bitplane_dma (unsigned int hpos)
 {
-	if (fetch_state == fetch_not_started || hpos < plfstrt)
+	if (fetch_state == fetch_not_started || (int)hpos < plfstrt)
 		return 0;
-	if ((plf_state == plf_end && hpos >= thisline_decision.plfright)
+	if ((plf_state == plf_end && (int)hpos >= thisline_decision.plfright)
 		|| hpos >= estimated_last_fetch_cycle)
 		return 0;
 	return curr_diagram[(hpos - cycle_diagram_shift) & fetchstart_mask];
@@ -907,9 +899,9 @@ int is_bitplane_dma (unsigned int hpos)
 
 STATIC_INLINE int is_bitplane_dma_inline (unsigned int hpos)
 {
-	if (fetch_state == fetch_not_started || hpos < plfstrt)
+	if (fetch_state == fetch_not_started || (int)hpos < plfstrt)
 		return 0;
-	if ((plf_state == plf_end && hpos >= thisline_decision.plfright)
+	if ((plf_state == plf_end && (int)hpos >= thisline_decision.plfright)
 		|| hpos >= estimated_last_fetch_cycle)
 		return 0;
 	return curr_diagram[(hpos - cycle_diagram_shift) & fetchstart_mask];
@@ -1001,7 +993,7 @@ static void maybe_setup_fmodes (unsigned int hpos)
 
 STATIC_INLINE void maybe_check (unsigned int hpos)
 {
-	if (bpldmasetuphpos > 0 && hpos >= bpldmasetuphpos)
+	if (bpldmasetuphpos > 0 && (int)hpos >= bpldmasetuphpos)
 		maybe_setup_fmodes (hpos);
 }
 
@@ -2260,10 +2252,11 @@ superhires pixels (if AGA).  */
 static void record_sprite (int line, int num, int sprxp, uae_u16 *data, uae_u16 *datb, unsigned int ctl)
 {
 	struct sprite_entry *e = curr_sprite_entries + next_sprite_entry;
-	int i;
+    unsigned int i;
 	int word_offs;
 	uae_u32 collision_mask;
-	int width, dbl, half;
+	int width; 
+    int dbl = 0, half = 0;
 	unsigned int mask = 0;
 	int attachment;
 
@@ -3532,7 +3525,7 @@ void INTREQ (uae_u16 data)
 #endif
 }
 
-static void ADKCON (unsigned int hpos, uae_u16 v)
+static void ADKCON (int hpos, uae_u16 v)
 {
 	if (currprefs.produce_sound > 0)
 		update_audio ();
@@ -3788,7 +3781,7 @@ static void DIWSTOP (unsigned int hpos, uae_u16 v)
 	calcdiw ();
 }
 
-static void DIWHIGH (unsigned int hpos, uae_u16 v)
+static void DIWHIGH (int hpos, uae_u16 v)
 {
 	if (!(currprefs.chipset_mask & (CSMASK_ECS_DENISE | CSMASK_ECS_AGNUS)))
 		return;
@@ -4700,7 +4693,7 @@ void blitter_done_notify (unsigned int hpos)
 
 void do_copper (void)
 {
-	int hpos = current_hpos ();
+	unsigned int hpos = current_hpos ();
 	update_copper (hpos);
 }
 
@@ -5351,7 +5344,7 @@ static void hsync_scandoubler (void)
 
 void hsync_handler (void)
 {
-	int hpos = current_hpos ();
+	unsigned int hpos = current_hpos ();
 
 	if (!nocustom ()) {
 		sync_copper_with_cpu (maxhpos, 0);
@@ -5648,7 +5641,7 @@ void event2_remevent (int no)
 {
 	eventtab2[no].active = 0;
 }
-#if 0
+
 void init_eventtab (void)
 {
 	int i;
@@ -5675,7 +5668,7 @@ void init_eventtab (void)
 
 	events_schedule ();
 }
-#endif
+
 void customreset (int hardreset)
 {
 	unsigned int i;
@@ -6343,7 +6336,7 @@ static int REGPARAM2 custom_wput_1 (unsigned int hpos, uaecptr addr, uae_u32 val
 
 void REGPARAM2 custom_wput (uaecptr addr, uae_u32 value)
 {
-	int hpos = current_hpos ();
+    unsigned int hpos = current_hpos ();
 #ifdef JIT
 	special_mem |= S_WRITE;
 #endif
@@ -7093,7 +7086,7 @@ void do_cycles_ce (long cycles)
 
 int is_cycle_ce (void)
 {
-	int hpos = current_hpos ();
+	unsigned int hpos = current_hpos ();
 	return cycle_line[hpos];
 }
 

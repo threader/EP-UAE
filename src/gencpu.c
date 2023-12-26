@@ -88,8 +88,8 @@ static void read_counts (void)
 	count = 0;
     file = fopen ("frequent.68k", "r");
     if (file) {
-	fscanf (file, "Total: %lu\n", &total);
-	while (fscanf (file, "%lx: %lu %s\n", &opcode, &count, name) == 3) {
+	fscanf (file, "Total: %u\n", &total);
+	while (fscanf (file, "%x: %u %s\n", &opcode, &count, name) == 3) {
 			opcode_next_clev[nr] = 5;
 	    opcode_last_postfix[nr] = -1;
 	    opcode_map[nr++] = opcode;
@@ -296,7 +296,7 @@ static const char *gen_nextiword (int flags)
     } else {
 	if (using_prefetch) {
 		if (flags & GF_NOREFILL) {
-				sprintf (buffer, "regs->irc", r);
+				strcpy (buffer, "regs->irc");
 	    } else {
 			sprintf (buffer, "get_word_prefetch (regs, %d)", r + 2);
 				count_read++;
@@ -336,7 +336,7 @@ static const char *gen_nextibyte (int flags)
 	insn_n_cycles += 4;
 	if (using_prefetch) {
 		if (flags & GF_NOREFILL) {
-				sprintf (buffer, "(uae_u8)regs->irc", r);
+				strcpy (buffer, "(uae_u8)regs->irc");
 	    } else {
 		sprintf (buffer, "(uae_u8)get_word_prefetch (regs, %d)", r + 2);
 		insn_n_cycles += 4;
@@ -3663,20 +3663,20 @@ static void generate_one_opcode (int rp)
 /* note */
     if (opcode_next_clev[rp] != cpu_level) {
 		if (generate_stbl)
-			fprintf (stblfile, "{ %sCPUFUNC(op_%04lx_%d), %ld }, /* %s */\n",
+			fprintf (stblfile, "{ %sCPUFUNC(op_%04x_%d), %d }, /* %s */\n",
 			(using_ce || using_ce020) ? "(cpuop_func*)" : "",
 			opcode, opcode_last_postfix[rp],
 			opcode, lookuptab[idx].name);
 		return;
     }
-    fprintf (headerfile, "extern %s op_%04lx_%d_nf;\n",
+    fprintf (headerfile, "extern %s op_%04x_%d_nf;\n",
 		(using_ce || using_ce020) ? "cpuop_func_ce" : "cpuop_func", opcode, postfix);
-    fprintf (headerfile, "extern %s op_%04lx_%d_ff;\n",
+    fprintf (headerfile, "extern %s op_%04x_%d_ff;\n",
 		(using_ce || using_ce020) ? "cpuop_func_ce" : "cpuop_func", opcode, postfix);
     printf ("/* %s */\n", outopcode (opcode));
     if (i68000)
 		printf("#ifndef CPUEMU_68000_ONLY\n");
-	printf ("%s REGPARAM2 CPUFUNC(op_%04lx_%d)(uae_u32 opcode, struct regstruct *regs)\n{\n", (using_ce || using_ce020) ? "void" : "uae_u32", opcode, postfix);
+	printf ("%s REGPARAM2 CPUFUNC(op_%04x_%d)(uae_u32 opcode, struct regstruct *regs)\n{\n", (using_ce || using_ce020) ? "void" : "uae_u32", opcode, postfix);
 
     switch (table68k[opcode].stype) {
     case 0: smsk = 7; break;
@@ -3767,7 +3767,7 @@ static void generate_one_opcode (int rp)
 	if (generate_stbl) {
 		if (i68000)
 			fprintf (stblfile, "#ifndef CPUEMU_68000_ONLY\n");
-		fprintf (stblfile, "{ %sCPUFUNC(op_%04lx_%d), %ld }, /* %s */\n",
+		fprintf (stblfile, "{ %sCPUFUNC(op_%04x_%d), %d }, /* %s */\n",
 			(using_ce || using_ce020) ? "(cpuop_func*)" : "",
 			opcode, postfix, opcode, lookuptab[idx].name);
 		if (i68000)

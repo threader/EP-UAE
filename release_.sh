@@ -1,4 +1,4 @@
-make clean
+make distclean
 
 rm -rf ./df0.adz
 rm -rf ./kick.rom

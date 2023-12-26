@@ -23,17 +23,19 @@
 #include "hrtimer.h"
 
 /* Current time in cycles */
-unsigned long int currcycle;
+//unsigned long int currcycle;
 
 /* Cycles to next event pending */
-unsigned long nextevent;
+//unsigned long nextevent;
 
 #ifdef JIT
 /* For faster cycles handling */
 signed long pissoff = 0;
 #endif
 
+//struct ev eventtab[ev_max];
 
+#if 0
 void init_eventtab (void)
 {
     int i;
@@ -61,7 +63,7 @@ void init_eventtab (void)
 
     events_schedule ();
 }
-#if 0
+
 /*
  * Determine next event pending
  */
