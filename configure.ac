@@ -1,4 +1,4 @@
-dnl Process this file with autoconf to produce a configure script.
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooodnl Process this file with autoconf to produce a configure script.
 dnl Written 1996, 1997, 1998 Bernd Schmidt
 dnl
 dnl Updated, re-written and generally mauled 2003 Richard Drummond
@@ -636,6 +636,7 @@ AC_ARG_ENABLE(gayle,           AS_HELP_STRING([--enable-gayle],           [Enabl
 AC_ARG_ENABLE(gccopt,	       AS_HELP_STRING([--enable-gccopt],          [Enable CPU Specific Optimizations (default no)]),	      [WANT_OPT=$enableval],[])
 AC_ARG_ENABLE(fpu,             AS_HELP_STRING([--enable-fpu],             [Enable FPU emulation (default yes)]),                      [WANT_FPU=$enableval],[])
 AC_ARG_ENABLE(fdi,	       AS_HELP_STRING([--enable-fdi],             [Enable FDI support (default yes)]),                        [WANT_FDI=$enableval],[])
+AC_ARG_ENABLE(m32,             AS_HELP_STRING([--enable-m32],             [Build 32bit executable, for JIT]),                [WANT_32=$enableval],[])
 AC_ARG_ENABLE(jit,             AS_HELP_STRING([--enable-jit],             [Enable JIT compiler (currently x86 only)]),                [WANT_JIT=$enableval],[])
 AC_ARG_ENABLE(natmem,          AS_HELP_STRING([--enable-natmem],          [Enable JIT direct memory support (default auto)]),         [NATMEM=$enableval],[])
 AC_ARG_ENABLE(noflags,	       AS_HELP_STRING([--enable-noflags],         [Enable noflags support in JIT (default no)]),              [NOFLAGS=$enableval],[])
@@ -771,7 +772,7 @@ fi
 
 if test $ac_cv_c_compiler_gnu = yes; then
   WARNING_CFLAGS="$WARNING_CFLAGS -Wall -Wno-unused -Wno-format -W -Wmissing-prototypes -Wstrict-prototypes"
-  OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -fomit-frame-pointer -ffast-math"
+  OPTIMIZE_CFLAGS="$OPTIMIZE_CFLAGS -fomit-frame-pointer "
 dnl notes fast-math
 fi
 
@@ -875,6 +876,16 @@ if [[ "x$HAVE_GCC27" = "xyes" ]]; then
     GENCPUOPTS="--optimized-flags"
   fi
 fi
+
+dnl
+dnl  Check whether to build 32bit executable
+dnl
+AC_MSG_CHECKING([whether to build 32bit executable to enable JIT])
+JITOBJS=""
+if [[ "x$WANT_32" != "xno" ]]; then
+  SAVE_CFLAGS="$CFLAGS"
+  CFLAGS="-m32 $CFLAGS"
+fi 
 
 
 dnl
@@ -1741,9 +1752,9 @@ dnl while in gcc 3.x, -O3 creates faster executable, this is no longer the case 
 dnl (using -O3 is not recommended for gcc 4.x, so we don't)
 dnl
 if [[ "x$HAVE_GCC40" = "xyes" ]]; then
-OPTIMIZED_FLAGS="-O2 -ffast-math"
+OPTIMIZED_FLAGS="-O2"
 else
-OPTIMIZED_FLAGS="-O3 -ffast-math"
+OPTIMIZED_FLAGS="-O3"
 fi
 
 dnl INTEL
