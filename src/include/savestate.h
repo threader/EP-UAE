@@ -150,6 +150,8 @@ extern uae_u8 *save_a3000hram (uae_u32 *);
 extern const uae_u8 *restore_rom (const uae_u8 *src);
 extern       uae_u8 *save_rom    (int first, uae_u32 *len, uae_u8 *dstptr);
 
+extern void restore_bootrom (uae_u32, size_t);
+
 extern const uae_u8 *restore_action_replay (const uae_u8 *);
 extern       uae_u8 *save_action_replay    (uae_u32 *, uae_u8 *);
 extern uae_u8 *restore_hrtmon (uae_u8 *);

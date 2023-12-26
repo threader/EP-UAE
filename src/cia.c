@@ -377,7 +377,7 @@ static void do_tod_hack (int dotod)
 	}
 
 	if (currprefs.cs_ciaatod == 0)
-		rate = vblank_hz;
+		rate = (int)(vblank_hz + 0.5);
 	else if (currprefs.cs_ciaatod == 1)
 		rate = 50;
 	else
@@ -396,8 +396,8 @@ static void do_tod_hack (int dotod)
 		return;
 	gettimeofday (&tv, NULL);
 	t = (uae_u64)tv.tv_sec * 1000000 + tv.tv_usec;
-	if (t - tod_hack_tv >= 1000000 / rate) {
-		tod_hack_tv += 1000000 / rate;
+	if (t - tod_hack_tv >= (uae_u64)(1000000 / rate) ) {
+		tod_hack_tv += (uae_u64)(1000000 / rate);
 		docount = 1;
 	}
 	if (docount) {

@@ -415,7 +415,7 @@ STATIC_INLINE int nodraw (void)
 
 static int doflickerfix (void)
 {
-	return currprefs.gfx_linedbl && doublescan < 0 && vpos < MAXVPOS;
+	return currprefs.gfx_linedbl && doublescan < 0 && (int)vpos < MAXVPOS;
 }
 
 uae_u32 get_copper_address (int copno)
@@ -1892,11 +1892,11 @@ STATIC_INLINE void decide_line (unsigned int hpos)
 
 	if (fetch_state == fetch_not_started && diwstate == DIW_waiting_stop) {
 		int ok = 0;
-		if (last_decide_line_hpos < plfstrt_start && hpos >= plfstrt_start) {
+		if (last_decide_line_hpos < plfstrt_start && (int)hpos >= plfstrt_start) {
 			if (plf_state == plf_idle)
 				plf_state = plf_start;
 		}
-		if (last_decide_line_hpos < plfstrt && hpos >= plfstrt) {
+		if (last_decide_line_hpos < plfstrt && (int)hpos >= plfstrt) {
 			if (plf_state == plf_start)
 				plf_state = plf_active;
 			if (plf_state == plf_active)

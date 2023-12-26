@@ -39,6 +39,7 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 #include "zfile.h"
+#include "crc32.h"
 /* ELSE	*/
 //#include "types.h"
 

@@ -996,7 +996,7 @@ static int drive_insert (drive * drv, struct uae_prefs *p, int dnum, const char 
 		}
 
     } else if (memcmp (exeheader, buffer, sizeof (exeheader)) == 0) {
-		unsigned int i;
+		int i;
 		struct zfile *z = zfile_fopen_empty (NULL, "", 512 * 1760);
 		createimagefromexe (drv->diskfile, z);
 		drv->filetype = ADF_NORMAL;
@@ -1068,7 +1068,7 @@ static int drive_insert (drive * drv, struct uae_prefs *p, int dnum, const char 
 				drv->num_tracks *= 2;
 
     } else {
-		unsigned int i;
+	 int i;
 		int ds;
 
 		ds = 0;

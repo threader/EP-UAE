@@ -56,6 +56,7 @@
 #include "gfxfilter.h"
 #include "uaeresource.h"
 #include "dongle.h"
+#include "misc.h"
 #include "sleep.h"
 #include "consolehook.h"
 #include "version.h"
@@ -765,7 +766,7 @@ static char *parsetext (const char *s)
 		char c = *s++;
 		int i;
 		d = my_strdup (s);
-		for (i = 0; i < _tcslen (d); i++) {
+		for (i = 0; i < (int)_tcslen (d); i++) {
 			if (d[i] == c) {
 				d[i] = 0;
 				break;
@@ -862,7 +863,7 @@ static void parse_cmdline_and_init_file (int argc, char **argv)
 	/* sam: if not found in $HOME then look in current directory */
 	char *saved_path = strdup (optionsfile);
 	strcpy (optionsfile, OPTIONSFILENAME);
-	if (! target_cfgfile_load (&currprefs, optionsfile, 0) ) {
+	if (! target_cfgfile_load (&currprefs, optionsfile, 0, default_config) ) {
 	    /* If not in current dir either, change path back to home
 	     * directory - so that a GUI can save a new config file there */
 	    strcpy (optionsfile, saved_path);

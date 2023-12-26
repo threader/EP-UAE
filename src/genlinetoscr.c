@@ -458,7 +458,7 @@ int main (int argc, char *argv[])
    DEPTH_T bpp;
    int aga, spr;
    HMODE_T hmode;
-   unsigned int i;
+	int i = 1;
 
     do_bigendian = 0;
 

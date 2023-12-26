@@ -31,10 +31,7 @@
 #include "misc.h"
 
 #undef DEBUGME
-#define hf_log
-#define hf_log2
-#define scsi_log
-#define hf_log3
+
 
 //#define DEBUGME
 #ifdef DEBUGME
@@ -418,7 +415,7 @@ static int hdf_open2 (struct hardfiledata *hfd, const TCHAR *pname)
 		hfd->vhd_bamsize = (((hfd->virtsize + hfd->vhd_blocksize - 1) / hfd->vhd_blocksize) * 4 + 511) & ~511;
 		size = hfd->vhd_bamoffset + hfd->vhd_bamsize;
 		hfd->vhd_header = xmalloc (uae_u8, size);
-		if (hdf_read_target (hfd, hfd->vhd_header, 0, size) != size)
+		if ((uae_u32)hdf_read_target (hfd, hfd->vhd_header, 0, size) != size)
 			goto end;
 		hfd->vhd_sectormap = xmalloc (uae_u8, 512);
 		hfd->vhd_sectormapblock = -1;
@@ -486,19 +483,19 @@ static uae_u64 vhd_read (struct hardfiledata *hfd, void *v, uae_u64 offset, uae_
 	if (len & 511)
 		return read;
 	while (len > 0) {
-		bamoffset = (offset / hfd->vhd_blocksize) * 4 + hfd->vhd_bamoffset;
-		sectoroffset = gl (hfd->vhd_header + bamoffset);
+		uae_u32 bamoffset = (offset / hfd->vhd_blocksize) * 4 + hfd->vhd_bamoffset;
+		uae_u32 sectoroffset = gl (hfd->vhd_header + bamoffset);
 		if (sectoroffset == 0xffffffff) {
 			memset (dataptr, 0, 512);
 			read += 512;
 		} else {
 			int bitmapoffsetbits;
 			int bitmapoffsetbytes;
-			int sectormapblock;
+			uae_u64 sectormapblock;
 
 			bitmapoffsetbits = (offset / 512) % (hfd->vhd_blocksize / 512);
 			bitmapoffsetbytes = bitmapoffsetbits / 8;
-			sectormapblock = sectoroffset * 512 + (bitmapoffsetbytes & ~511);
+			sectormapblock = sectoroffset * (uae_u64)512 + (bitmapoffsetbytes & ~511);
 			if (hfd->vhd_sectormapblock != sectormapblock) {
 				// read sector bitmap
 				//write_log ("BM %08x\n", sectormapblock);
@@ -511,8 +508,8 @@ static uae_u64 vhd_read (struct hardfiledata *hfd, void *v, uae_u64 offset, uae_
 			// block allocated in bitmap?
 			if (hfd->vhd_sectormap[bitmapoffsetbytes & 511] & (1 << (7 - (bitmapoffsetbits & 7)))) {
 				// read data block
-				int block = sectoroffset * 512 + hfd->vhd_bitmapsize + bitmapoffsetbits * 512;
-				//write_log ("DB %08x\n", block);
+				uae_u64 block = sectoroffset * (uae_u64)512 + hfd->vhd_bitmapsize + bitmapoffsetbits * 512;
+				//write_log (_T("DB %08x\n"), block);
 				if (hdf_read_target (hfd, dataptr, block, 512) != 512) {
 					write_log ("vhd_read: data read error\n");
 					return read;
@@ -558,8 +555,8 @@ static int vhd_write_enlarge (struct hardfiledata *hfd, uae_u32 bamoffset)
 	p[2] = block >>  8;
 	p[3] = block >>  0;
 	// write to disk
-	if (hdf_write_target (hfd, hfd->vhd_header + hfd->vhd_bamoffset, hfd->vhd_bamoffset, hfd->vhd_bamsize) != hfd->vhd_bamsize) {
-		write_log ("vhd_enlarge: bam write error\n");
+	if ((uae_u32)hdf_write_target (hfd, hfd->vhd_header + hfd->vhd_bamoffset, hfd->vhd_bamoffset, hfd->vhd_bamsize) != hfd->vhd_bamsize) {
+		write_log (_T("vhd_enlarge: bam write error\n"));
 		return 0;
 	}
 	hfd->vhd_footerblock += len - 512;
@@ -580,8 +577,8 @@ static uae_u64 vhd_write (struct hardfiledata *hfd, void *v, uae_u64 offset, uae
 	if (len & 511)
 		return written;
 	while (len > 0) {
-		bamoffset = (offset / hfd->vhd_blocksize) * 4 + hfd->vhd_bamoffset;
-		sectoroffset = gl (hfd->vhd_header + bamoffset);
+		uae_u32 bamoffset = (offset / hfd->vhd_blocksize) * 4 + hfd->vhd_bamoffset;
+		uae_u32 sectoroffset = gl (hfd->vhd_header + bamoffset);
 		if (sectoroffset == 0xffffffff) {
 			if (!vhd_write_enlarge (hfd, bamoffset))
 				return written;
@@ -589,11 +586,10 @@ static uae_u64 vhd_write (struct hardfiledata *hfd, void *v, uae_u64 offset, uae
 		} else {
 			int bitmapoffsetbits;
 			int bitmapoffsetbytes;
-			int sectormapblock;
 
 			bitmapoffsetbits = (offset / 512) % (hfd->vhd_blocksize / 512);
 			bitmapoffsetbytes = bitmapoffsetbits / 8;
-			sectormapblock = sectoroffset * 512 + (bitmapoffsetbytes & ~511);
+			uae_u64 sectormapblock = sectoroffset * (uae_u64)512 + (bitmapoffsetbytes & ~511);
 			if (hfd->vhd_sectormapblock != sectormapblock) {
 				// read sector bitmap
 				if (hdf_read_target (hfd, hfd->vhd_sectormap, sectormapblock, 512) != 512) {
@@ -603,8 +599,8 @@ static uae_u64 vhd_write (struct hardfiledata *hfd, void *v, uae_u64 offset, uae
 				hfd->vhd_sectormapblock = sectormapblock;
 			}
 			// write data
-			if (hdf_write_target (hfd, dataptr, sectoroffset * 512 + hfd->vhd_bitmapsize + bitmapoffsetbits * 512, 512) != 512) {
-				write_log ("vhd_write: data write error\n");
+			if (hdf_write_target (hfd, dataptr, sectoroffset * (uae_u64)512 + hfd->vhd_bitmapsize + bitmapoffsetbits * 512, 512) != 512) {
+				write_log (_T("vhd_write: data write error\n"));
 				return written;
 			}
 			// block already allocated in bitmap?

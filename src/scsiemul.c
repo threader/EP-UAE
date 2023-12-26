@@ -321,7 +321,7 @@ static int is_async_request (struct devstruct *dev, uaecptr request)
 }
 
 
-int scsiemul_switchscsi (TCHAR *name)
+static int scsiemul_switchscsi (TCHAR *name)
 {
 	struct devstruct *dev = NULL;
 	struct device_info *discsi, discsi2;

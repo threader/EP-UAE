@@ -129,3 +129,5 @@ extern int dos_errno (void);
 #define MYVOLUMEINFO_STREAMS 2
 #define MYVOLUMEINFO_ARCHIVE 4
 #define MYVOLUMEINFO_REUSABLE 8
+
+extern int my_getvolumeinfo (const TCHAR *root);

@@ -39,6 +39,7 @@ char *ua_fs (const char *s, int defchar);
 void close_console (void);
 bool console_isch (void);
 TCHAR console_getch (void);
+//int target_cfgfile_load (struct uae_prefs *p, char *filename, int type, int isdefault);
 //int vsync_switchmode (int hz);
 bool vsync_busywait_do (int *freetime, bool lace, bool oddeven);
 void doflashscreen (void);

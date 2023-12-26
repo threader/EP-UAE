@@ -28,6 +28,8 @@
 #include "picasso96.h"
 #include "version.h"
 #include "filesys.h"
+#include "misc.h"
+
 /*
  * Returns UAE Version
  */
@@ -287,29 +289,6 @@ static uae_u32 emulib_Debug (void)
 #endif
 }
 
-/* We simply find the first "text" hunk, get the offset of its actual code segment (20 bytes away)
- * and add that offset to the base address of the object.  Now we've got code to execute.
- *
- * @@@ Brian: does anything actually use this yet?
- * @@@ Bernd: Not yet.  It needs to get much better.  Should spawn off a seperate task to handle the
- *            function, and then somehow "signal" the Amiga caller that completion or error has
- *            occurred.  I don't know how to do that, so right now it is a synchronous call.  Yuck!
- *            Would be nice to implement jpg decompression functionality for the Amiga which used
- *            the UAE Host to do all the work, for example.
- * @@@ Brian: I disabled it to prevent people from starting to use it - if that happens, we're
- *            stuck with this.
- */
-static uae_u32 FindFunctionInObject (uae_u8 *objectptr)
-{
-    uae_u8 *text_hdr;
-    uae_u8 offset;
-    text_hdr = (uae_u8 *)strstr ("text", (char *)objectptr);
-    if (text_hdr != 0) {
-	offset = *(text_hdr + 19);
-	return (uae_u32)(objectptr + offset);
-    }
-    return 0;
-}
 
 #define CREATE_NATIVE_FUNC_PTR uae_u32 (* native_func)( uae_u32, uae_u32, uae_u32, uae_u32, uae_u32, uae_u32, uae_u32, \
 						 uae_u32, uae_u32, uae_u32, uae_u32, uae_u32, uae_u32)
@@ -358,7 +337,8 @@ static uae_u32 emulib_Minimize (void)
 static int native_dos_op (struct uaedev_mount_info *mountinfo, uae_u32 mode, uae_u32 p1, uae_u32 p2, uae_u32 p3)
 {
 	TCHAR tmp[MAX_DPATH];
-	int v, i;
+	int v;
+	uae_u32 i = 0;
 
 	if (mode)
 		return -1;

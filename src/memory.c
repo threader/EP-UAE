@@ -30,6 +30,7 @@
 #include "a2091.h"
 #include "gayle.h"
 #include "debug.h"
+#include "misc.h"
 
 extern uae_u8 *natmem_offset, *natmem_offset_end;
 
@@ -189,8 +190,8 @@ __inline__ void byteput (uaecptr addr, uae_u32 b)
 int addr_valid (const TCHAR *txt, uaecptr addr, uae_u32 len)
 {
 	addrbank *ab = &get_mem_bank(addr);
-	if (ab == 0 || !(ab->flags & (ABFLAG_RAM | ABFLAG_ROM)) || addr < 0x100 || len < 0 || len > 16777215 || !valid_address (addr, len)) {
-		write_log (("corrupt %s pointer %x (%d) detected!\n"), txt, addr, len);
+	if (ab == 0 || !(ab->flags & (ABFLAG_RAM | ABFLAG_ROM)) || addr < 0x100 || len > 16777215 || !valid_address (addr, len)) {
+		write_log (_T("corrupt %s pointer %x (%d) detected!\n"), txt, addr, len);
 		return 0;
 	}
 	return 1;
@@ -2442,7 +2443,7 @@ static void allocate_memory (void)
 		    allocated_chipmem = 0;
 		} else {
 			need_hardreset = 1;
-			if (memsize > allocated_chipmem)
+			if ((uae_u32)memsize > allocated_chipmem)
 				memset (chipmemory + allocated_chipmem, 0xff, memsize - allocated_chipmem);
 		}
 		currprefs.chipset_mask = changed_prefs.chipset_mask;
@@ -2510,7 +2511,7 @@ static void allocate_memory (void)
 		need_hardreset = 1;
 	}
 //#if defined CDTV || defined CD32
-	if (allocated_cardmem != currprefs.cs_cdtvcard * 1024) {
+	if ((int)allocated_cardmem != currprefs.cs_cdtvcard * 1024) {
 		if (cardmemory)
 			mapped_free (cardmemory);
 		cardmemory = 0;
@@ -2788,7 +2789,7 @@ void memory_reset (void)
 
 	/* map "nothing" to 0x200000 - 0x9FFFFF (0xBEFFFF if Gayle) */
     bnk = allocated_chipmem >> 16;
-    if (bnk < 0x20 + (currprefs.fastmem_size >> 16))
+    if ((uae_u32)bnk < 0x20 + (currprefs.fastmem_size >> 16))
 		bnk = 0x20 + (currprefs.fastmem_size >> 16);
 	bnk_end = gayle ? 0xBF : 0xA0;
 	map_banks (&dummy_bank, bnk, bnk_end - bnk, 0);
