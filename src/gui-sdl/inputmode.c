@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include "gp2x.h"
 #include "inputmode.h"
 
@@ -36,7 +36,7 @@ int inputmode_init(void) {
 
 void inputmode_redraw(void) {
 	SDL_Rect r;
-	SDL_Surface* surface;
+	SDL_Surface* surface = NULL;
 
 	r.x=80;
 	r.y=60;

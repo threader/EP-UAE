@@ -1,6 +1,11 @@
 #include <stdio.h>
-#include <SDL.h>
-#include "SDL_ttf.h"
+#include <SDL/SDL.h>
+#ifdef __APPLE__
+#include <SDL_ttf.h>
+#else
+#include <SDL/SDL_ttf.h>
+#endif
+
 #include "gp2x.h"
 
 #define iconsizex 50
