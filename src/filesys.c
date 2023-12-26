@@ -63,7 +63,7 @@
 #define my_close fclose
 #define my_lseek fseek
 #define my_strdup strdup
-#define _stat64 stat
+//#define _stat64 stat
 
 #define TRUE 1
 #define FALSE 0

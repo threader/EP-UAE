@@ -427,13 +427,13 @@ STATIC_INLINE void rem_rect(struct RectList *rl, int num)
 
 static void free_rectlist(struct RectList *rl)
 {
-    free(rl->rects);
+    xfree(rl->rects);
 }
 
 static void free_bandlist(struct BandList *bl)
 {
-    free(bl->miny);
-    free(bl->maxy);
+    xfree(bl->miny);
+    xfree(bl->maxy);
 }
 
 static int regionrect_cmpfn(const void *a, const void *b)

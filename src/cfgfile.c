@@ -34,6 +34,7 @@
 #include "disk.h"
 #include "version.h"
 #include "statusline.h"
+#include "misc.h"
 
 static int config_newfilesystem;
 static struct strlist *temp_lines;
@@ -323,17 +324,19 @@ static int isdefault (const char *s)
 	return 0;
 }
 
-static size_t cfg_write (void *b, struct zfile *z)
+static size_t cfg_write (const void *b, struct zfile *z)
 {
 	size_t v;
 	if (unicode_config) {
-		char lf = 10;
-		v = zfile_fwrite (b, _tcslen ((char*)b), sizeof (char), z);
+		TCHAR lf = 10;
+		v = zfile_fwrite (b, _tcslen ((TCHAR*)b), sizeof (TCHAR), z);
 		zfile_fwrite (&lf, 1, 1, z);
 	} else {
 		char lf = 10;
-		v = zfile_fwrite (((char)b), strlen (((char)b)), 1, z);
+		char *s = ua ((TCHAR*)b);
+		v = zfile_fwrite (s, strlen (s), 1, z);
 		zfile_fwrite (&lf, 1, 1, z);
+		xfree (s);
 	}
 	return v;
 }
@@ -378,7 +381,7 @@ void cfgfile_subst_home (char *path, unsigned int maxlen)
     subst_home (path, maxlen);
 }
 
-void do_cfgfile_write (FILE *f, const char *format,...)
+static void do_cfgfile_write (FILE *f, const char *format,...)
 {
     va_list parms;
     char tmp[CONFIG_BLEN];
@@ -433,11 +436,11 @@ static void write_compatibility_cpu (struct zfile *f, struct uae_prefs *p)
 	else
 		_stprintf (tmp, "%d", model);
 	if (model == 68020 && (p->fpu_model == 68881 || p->fpu_model == 68882))
-		_tcscat (tmp, "/68881");
-	cfgfile_write (f, "cpu_type=%s\n", tmp);
+		_tcscat (tmp, _T("/68881"));
+	cfgfile_write (f, _T("cpu_type"), tmp);
 }
 
-void cfgfile_save_options (FILE *f, const struct uae_prefs *p, int type)
+static void cfgfile_save_options (FILE *f, const struct uae_prefs *p, int type)
 {
     struct strlist *sl;
 	char *str, tmp[MAX_DPATH];
@@ -580,8 +583,8 @@ void cfgfile_save_options (FILE *f, const struct uae_prefs *p, int type)
 		}
 	}
 	if (p->dongle) {
-		if (p->dongle + 1 >= sizeof (dongles) / sizeof (char*))
-			cfgfile_write (f, "dongle=%d", p->dongle);
+		if (p->dongle + 1 >= sizeof (dongles) / sizeof (TCHAR*))
+			cfgfile_write (f, _T("dongle"), _T("%d"), p->dongle);
 		else
 			cfgfile_write_str (f, "dongle", dongles[p->dongle]);
 	}
