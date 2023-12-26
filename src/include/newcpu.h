@@ -337,7 +337,7 @@ extern void put_bitfield_040mmu (uae_u32 dst, uae_u32 bdata[2], uae_u32 val, uae
 
 extern int get_cpu_model(void);
 
-
+#if 0
 STATIC_INLINE void m68k_setstopped (struct regstruct *regs, int stop)
 {
     regs->stopped = stop;
@@ -349,6 +349,7 @@ STATIC_INLINE void m68k_setstopped (struct regstruct *regs, int stop)
 
 extern uae_u32 get_disp_ea_020 (struct regstruct *regs, uae_u32 base, uae_u32 dp) REGPARAM;
 extern uae_u32 get_disp_ea_000 (struct regstruct *regs, uae_u32 base, uae_u32 dp) REGPARAM;
+#endif
 
 /* Hack to stop conflict with AROS Exception function */
 #ifdef __AROS__

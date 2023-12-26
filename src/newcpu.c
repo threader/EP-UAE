@@ -3952,18 +3952,18 @@ void cpureset (void)
 	m68k_setpc (&regs, ksboot);
 }
 
-#if 0
-void m68k_setstopped (void)
+
+void m68k_setstopped (struct regstruct *regs, int stop)
 {
-	regs.stopped = 1;
+	regs->stopped = stop;
 	/* A traced STOP instruction drops through immediately without
 	actually stopping.  */
-	if ((regs.spcflags & SPCFLAG_DOTRACE) == 0)
+	if ((regs->spcflags & SPCFLAG_DOTRACE) == 0)
 		set_special (&regs, SPCFLAG_STOP);
 	else
 		m68k_resumestopped ();
 }
-#endif 
+
 void m68k_resumestopped (void)
 {
 	if (!regs.stopped)
