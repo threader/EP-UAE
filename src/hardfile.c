@@ -28,6 +28,7 @@
 #include "execio.h"
 #include "zfile.h"
 #include "sleep.h"
+#include "misc.h"
 
 #undef DEBUGME
 #define hf_log
@@ -46,18 +47,10 @@
 #undef scsi_log
 #define scsi_log write_log
 #else
-# ifdef __GCC__
-#  define hf_log(x...)    do { ; } while (0)
-#  define hf_log2(x...)  do { ; } while (0)
-#  define hf_log3(x...)  do { ; } while (0)
-#  define scsi_log(x...) do { ; } while (0)
-# else
-/* C99 vararg macros */
-#  define hf_log(x,...)    do { ; } while (0)
-#  define hf_log2(x,...)  do { ; } while (0)
-#  define hf_log3(x,...)  do { ; } while (0)
-#  define scsi_log(x,...) do { ; } while (0)
-# endif
+# define hf_log(...)  { }
+# define hf_log2(...)  { }
+# define hf_log3(...)  { }
+# define scsi_log(...) { }
 #endif
 
 //#define hf_log write_log

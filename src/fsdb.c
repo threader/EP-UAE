@@ -20,6 +20,7 @@
 #include "fsusage.h"
 #include "scsidev.h"
 #include "fsdb.h"
+#include "misc.h"
 
 /* The on-disk format is as follows:
  * Offset 0, 1 byte, valid
@@ -89,14 +90,15 @@ static void kill_fsdb (a_inode *dir)
     xfree (n);
 }
 
-static void fsdb_fixup (FILE *f, char *buf, int size, a_inode *base)
+static void fsdb_fixup (FILE *f, uae_u8 *buf, int size, a_inode *base)
 {
 	char *nname;
     int ret;
 
     if (buf[0] == 0)
 	return;
-    nname = build_nname (base->nname, buf + 5 + 257);
+/* note*/
+    nname = build_nname (base->nname, (char*)buf + 5 + 257);
     ret = fsdb_exists (nname);
     if (ret) {
 		xfree (nname);
@@ -111,10 +113,11 @@ static void fsdb_fixup (FILE *f, char *buf, int size, a_inode *base)
 /* Prune the db file the first time this directory is opened in a session.  */
 void fsdb_clean_dir (a_inode *dir)
 {
-    char buf[1 + 4 + 257 + 257 + 81];
+    uae_u8 buf[1 + 4 + 257 + 257 + 81];
+	TCHAR *n;
     off_t pos1 = 0, pos2;
 
-    char *n = build_nname (dir->nname, FSDB_FILE);
+    n = build_nname (dir->nname, FSDB_FILE);
     FILE *f = fopen (n, "r+b");
     if (f == 0) {
 		xfree (n);
@@ -139,18 +142,18 @@ void fsdb_clean_dir (a_inode *dir)
     xfree (n);
 }
 
-static a_inode *aino_from_buf (a_inode *base, char *buf, long off)
+static a_inode *aino_from_buf (a_inode *base, uae_u8 *buf, long off)
 {
     uae_u32 mode;
 	a_inode *aino = xcalloc (a_inode, 1);
 
     mode = do_get_mem_long ((uae_u32 *)(buf + 1));
     buf += 5;
-    aino->aname = my_strdup (buf);
+    aino->aname = my_strdup ((char*)buf);
     buf += 257;
-    aino->nname = build_nname (base->nname, buf);
+    aino->nname = build_nname (base->nname, (char*)buf);
     buf += 257;
-    aino->comment = *buf != '\0' ? my_strdup (buf) : 0;
+    aino->comment = *buf != '\0' ? my_strdup ((char*)buf) : 0;
     fsdb_fill_file_attrs (base, aino);
     aino->amigaos_mode = mode;
     aino->has_dbentry = 1;
@@ -169,10 +172,10 @@ a_inode *fsdb_lookup_aino_aname (a_inode *base, const char *aname)
 		return 0;
 	}
     for (;;) {
-		char buf[1 + 4 + 257 + 257 + 81];
+		uae_u8 buf[1 + 4 + 257 + 257 + 81];
 		if (fread (buf, 1, sizeof buf, f) < sizeof buf)
 		    break;
-		if (buf[0] != 0 && same_aname (buf + 5, aname)) {
+		if (buf[0] != 0 && same_aname ((char*)buf + 5, aname)) {
 		    long pos = ftell (f) - sizeof buf;
 		    fclose (f);
 		    return aino_from_buf (base, buf, pos);
@@ -193,10 +196,10 @@ a_inode *fsdb_lookup_aino_nname (a_inode *base, const char *nname)
 	}
 
     for (;;) {
-		char buf[1 + 4 + 257 + 257 + 81];
+		uae_u8 buf[1 + 4 + 257 + 257 + 81];
 		if (fread (buf, 1, sizeof buf, f) < sizeof buf)
 		    break;
-		if (buf[0] != 0 && strcmp (buf + 5 + 257, nname) == 0) {
+		if (buf[0] != 0 && strcmp ((char*)buf + 5 + 257, nname) == 0) {
 		    long pos = ftell (f) - sizeof buf;
 		    fclose (f);
 		    return aino_from_buf (base, buf, pos);
@@ -208,7 +211,7 @@ a_inode *fsdb_lookup_aino_nname (a_inode *base, const char *nname)
 
 int fsdb_used_as_nname (a_inode *base, const char *nname)
 {
-    char buf[1 + 4 + 257 + 257 + 81];
+    uae_u8 buf[1 + 4 + 257 + 257 + 81];
 
     FILE *f = get_fsdb (base, "r+b");
 	if (f == 0) {
@@ -221,7 +224,7 @@ int fsdb_used_as_nname (a_inode *base, const char *nname)
 		    break;
 		if (buf[0] == 0)
 		    continue;
-		if (strcmp (buf + 5 + 257, nname) == 0) {
+		if (strcmp ((char*)buf + 5 + 257, nname) == 0) {
 		    fclose (f);
 		    return 1;
 		}
@@ -248,7 +251,7 @@ static void write_aino (FILE *f, a_inode *aino)
 {
 	uae_u8 buf[1 + 4 + 257 + 257 + 81] = { 0 };
 
-    buf[0] = aino->needs_dbentry;
+	buf[0] = aino->needs_dbentry ? 1 : 0;
     do_put_mem_long ((uae_u32 *)(buf + 1), aino->amigaos_mode);
 	ua_copy ((char*)buf + 5, 256, aino->aname);
     buf[5 + 256] = '\0';
@@ -326,7 +329,7 @@ void fsdb_dir_writeback (a_inode *dir)
     fseek (f, 0, SEEK_SET);
     tmpbuf = 0;
     if (size > 0) {
-		tmpbuf = malloc (size);
+		tmpbuf = (uae_u8*)malloc (size);
 		fread (tmpbuf, 1, size, f);
     }
     TRACE (("**** updating '%s' %d\n", dir->aname, size));
@@ -338,7 +341,7 @@ void fsdb_dir_writeback (a_inode *dir)
 
 	i = 0;
 	while (!aino->has_dbentry && i < size) {
-	    if (!strcmp (tmpbuf + i + 5, aino->aname)) {
+	    if (!strcmp ((char*)tmpbuf + i + 5, aino->aname)) {
 		aino->has_dbentry = 1;
 		aino->db_offset = i;
 	    }
