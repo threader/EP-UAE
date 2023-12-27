@@ -293,6 +293,7 @@ case $host_os in
     linux*)
       HOST_OS=linux
       OSDEP=od-linux
+      CFLAGS="$CFLAGS -D_LINUX_"
       ;;
     darwin*)
       HOST_OS=darwin
@@ -636,7 +637,7 @@ AC_ARG_ENABLE(gayle,           AS_HELP_STRING([--enable-gayle],           [Enabl
 AC_ARG_ENABLE(gccopt,	       AS_HELP_STRING([--enable-gccopt],          [Enable CPU Specific Optimizations (default no)]),	      [WANT_OPT=$enableval],[])
 AC_ARG_ENABLE(fpu,             AS_HELP_STRING([--enable-fpu],             [Enable FPU emulation (default yes)]),                      [WANT_FPU=$enableval],[])
 AC_ARG_ENABLE(fdi,	       AS_HELP_STRING([--enable-fdi],             [Enable FDI support (default yes)]),                        [WANT_FDI=$enableval],[])
-AC_ARG_ENABLE(m32,             AS_HELP_STRING([--enable-m32],             [Build 32bit executable, for JIT]),                [WANT_32=$enableval],[])
+AC_ARG_ENABLE(m32,             AS_HELP_STRING([--enable-m32],             [Build 32bit executable to enable JIT] (default no)),                [WANT_32=$enableval],[])
 AC_ARG_ENABLE(jit,             AS_HELP_STRING([--enable-jit],             [Enable JIT compiler (currently x86 only)]),                [WANT_JIT=$enableval],[])
 AC_ARG_ENABLE(natmem,          AS_HELP_STRING([--enable-natmem],          [Enable JIT direct memory support (default auto)]),         [NATMEM=$enableval],[])
 AC_ARG_ENABLE(noflags,	       AS_HELP_STRING([--enable-noflags],         [Enable noflags support in JIT (default no)]),              [NOFLAGS=$enableval],[])
@@ -882,7 +883,7 @@ dnl  Check whether to build 32bit executable
 dnl
 AC_MSG_CHECKING([whether to build 32bit executable to enable JIT])
 JITOBJS=""
-if [[ "x$WANT_32" != "xno" ]]; then
+if [[ "x$WANT_32" = "xyes" ]]; then
   SAVE_CFLAGS="$CFLAGS"
   CFLAGS="-m32 $CFLAGS"
 fi 
