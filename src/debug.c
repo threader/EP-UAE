@@ -24,6 +24,7 @@
 #include "cia.h"
 #include "xwin.h"
 #include "identify.h"
+#include "audio.h"
 #include "disk.h"
 #include "savestate.h"
 #include "autoconf.h"
@@ -33,6 +34,7 @@
 #include "crc32.h"
 #include "cpummu.h"
 #include "rommgr.h"
+#include "misc.h"
 
 int debugger_active;
 static uaecptr skipaddr_start, skipaddr_end;
@@ -68,8 +70,6 @@ static FILE *logfile;
 #define console_get( input, len ) fgets( input, len, stdin )
 #endif
 
-
-#define MAX_HIST 100
 
 unsigned int firsthist = 0;
 unsigned int lasthist = 0;
@@ -352,7 +352,7 @@ static uaecptr nextaddr2 (uaecptr addr, int *next)
 	sizex = size;
 	prevx = prev;
 	size = currprefs.chipmem_size;
-	if (addr == size) {
+	if (addr == (uaecptr)size) {
 		*next = prevx + sizex;
 		return prevx;
 	}
@@ -651,7 +651,7 @@ void debug_draw_cycles (uae_u8 *buf, int bpp, int line, int width, int height, u
 
 	if (y < 0)
 		return;
-	if (y > maxvpos)
+	if (y > (int)maxvpos)
 		return;
 	if (y >= height)
 		return;
@@ -669,7 +669,7 @@ void debug_draw_cycles (uae_u8 *buf, int bpp, int line, int width, int height, u
 	cc[DMARECORD_SPRITE] = lc(0xff00ff);
 	cc[DMARECORD_DISK] = lc(0xffffff);
 
-	for (x = 0; x < maxhpos; x++) {
+	for (x = 0; x < (int)maxhpos; x++) {
 		uae_u32 c = cc[0];
 		xx = x * xplus + dx;
 		dr = &dma_record[t][y * NR_DMA_REC_HPOS + x];
@@ -733,7 +733,7 @@ static void decode_dma_record (int hpos, int vpos, int toggle)
 	h = hpos;
 	dr += hpos;
 	maxh = hpos + 80;
-	if (maxh > maxhpos)
+	if (maxh > (int)maxhpos)
 		maxh = maxhpos;
 	while (h < maxh) {
 		int col = 9;
@@ -1044,9 +1044,9 @@ static void illg_init (void)
 	uaecptr addr, end;
 
 
-    free (illgdebug);
-	illgdebug = xmalloc (uae_u8, 0x01000000);
-	illghdebug = xmalloc (uae_u8, 65536);
+    xfree (illgdebug);
+	illgdebug = xcalloc (uae_u8, 0x01000000);
+	illghdebug = xcalloc (uae_u8, 65536);
 	if (!illgdebug || !illghdebug) {
 		illg_free();
 		return;
@@ -1198,7 +1198,7 @@ static void smc_detector (uaecptr addr, int rwi, int size, uae_u32 *valp)
 
 	if (!smc_table)
 		return;
-	if (addr >= smc_size)
+	if (addr >= (uaecptr)smc_size)
 		return;
 	if (rwi == 2) {
 		for (i = 0; i < size; i++) {
@@ -1213,7 +1213,7 @@ static void smc_detector (uaecptr addr, int rwi, int size, uae_u32 *valp)
 		return;
 	hitaddr = addr;
 	hitcnt = 0;
-	while (addr < smc_size && smc_table[addr].addr != 0xffffffff) {
+	while (addr < (uaecptr)smc_size && smc_table[addr].addr != 0xffffffff) {
 		smc_table[addr++].addr = 0xffffffff;
 		hitcnt++;
 	}
@@ -1493,7 +1493,7 @@ void debug_wgetpeekdma (uaecptr addr, uae_u32 v)
 	memwatch_func (addr, 1, 2, &vv);
 }
 
-void debug_putlpeek (uaecptr addr, uae_u32 v)
+static void debug_putlpeek (uaecptr addr, uae_u32 v)
 {
 	if (!memwatch_enabled)
 		return;
@@ -1572,7 +1572,7 @@ static void initialize_memwatch (int mode)
 	debug_mem_area = xmalloc (addrbank, as);
 	membank_stores = xcalloc (struct membank_store, 32);
 	oa = NULL;
-	for (i = 0; i < as; i++) {
+	for (i = 0; (int)i < as; i++) {
 		a1 = debug_mem_banks[i] = debug_mem_area + i;
 		a2 = mem_banks[i];
 		if (a2 != oa) {
@@ -1587,7 +1587,7 @@ static void initialize_memwatch (int mode)
 		}
 		memcpy (a1, a2, sizeof (addrbank));
 	}
-	for (i = 0; i < as; i++) {
+	for (i = 0; (int)i < as; i++) {
 		a2 = mem_banks[i];
 		a2->bget = mode ? mmu_bget : debug_bget;
 		a2->wget = mode ? mmu_wget : debug_wget;
