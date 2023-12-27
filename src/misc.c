@@ -492,7 +492,7 @@ char *au_fs_copy (char *dst, int maxlen, const char *src)
         dst[i] = 0;
         return dst;
 }
-
+#if 0
 int my_existsfile (const char *name)
 {
 		struct stat sonuc;
@@ -530,7 +530,7 @@ int my_getvolumeinfo (const char *root)
 //------------
         return ret;
 }
-
+#endif 
 // --- clipboard.c --- temporary here ---
 static uaecptr clipboard_data;
 static int vdelay, signaling, initialized;

@@ -300,6 +300,12 @@ char warning_buffer[256];
 
 char optionsfile[256];
 
+// Prototype in sysdeps.h
+DWORD GetLastError(void)
+{
+	return errno;
+}
+
 static void hr (void)
 {
     write_log ("------------------------------------------------------------------------------------\n");

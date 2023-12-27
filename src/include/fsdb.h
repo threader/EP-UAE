@@ -15,6 +15,9 @@
 #define FSDB_DIR_SEPARATOR '/'
 #endif
 
+#include "sysconfig.h"
+#include "sysdeps.h"
+
 /* AmigaOS errors */
 #define ERROR_BAD_NUMBER		  6
 #define ERROR_NO_FREE_STORE		103
@@ -96,6 +99,28 @@ typedef struct a_inode_struct {
 #endif
 } a_inode;
 
+struct mytimeval
+{
+	uae_s64 tv_sec;
+	uae_s32 tv_usec;
+};
+
+struct mystat
+{
+	uae_s64 size;
+	uae_u32 mode;
+	struct mytimeval mtime;
+};
+
+struct my_opendir_s {
+	DIR *h;
+	int first;
+};
+
+struct my_openfile_s {
+	HANDLE h;
+};
+
 extern char *nname_begin (char *);
 
 extern char *build_nname (const char *d, const char *n);
@@ -123,7 +148,46 @@ extern int fsdb_mode_representable_p (const a_inode *, int);
 extern int fsdb_mode_supported (const a_inode *);
 extern char *fsdb_create_unique_nname (a_inode *base, const char *);
 
+struct my_opendir_s;
+struct my_openfile_s;
+
+extern struct my_opendir_s *my_opendir (const TCHAR*);
+extern void my_closedir (struct my_opendir_s*);
+extern struct dirent* my_readdir (struct my_opendir_s*, TCHAR*);
+
+extern int my_rmdir (const TCHAR*);
+extern int my_mkdir (const TCHAR*);
+extern int my_unlink (const TCHAR*);
+extern int my_rename (const TCHAR*, const TCHAR*);
+extern int my_setcurrentdir (const TCHAR *curdir, TCHAR *oldcur);
+/*
+bool my_isfilehidden (const TCHAR *path);
+void my_setfilehidden (const TCHAR *path, bool hidden);
+*/
+#define my_isfilehidden(S) false
+#define my_setfilehidden(A, B) do{}while(0)
+
+extern struct my_openfile_s *my_open (const TCHAR*, int);
+extern void my_close (struct my_openfile_s*);
+extern uae_s64 my_lseek (struct my_openfile_s*, uae_s64, int);
+extern uae_s64 my_fsize (struct my_openfile_s*);
+extern int my_read (struct my_openfile_s*, void*, unsigned int);
+extern int my_write (struct my_openfile_s*, void*, unsigned int);
+extern int my_truncate (const TCHAR *name, uae_u64 len);
 extern int dos_errno (void);
+extern int my_existsfile (const TCHAR *name);
+extern int my_existsdir (const TCHAR *name);
+extern FILE *my_opentext (const TCHAR*);
+
+extern bool my_stat (const TCHAR *name, struct mystat *ms);
+extern bool my_utime (const TCHAR *name, struct mytimeval *tv);
+extern bool my_chmod (const TCHAR *name, uae_u32 mode);
+extern bool my_resolveshortcut(TCHAR *linkfile, int size);
+extern bool my_resolvessymboliclink(TCHAR *linkfile, int size);
+extern bool my_resolvesoftlink(TCHAR *linkfile, int size);
+extern bool my_issamevolume(const TCHAR *path1, const TCHAR *path2, TCHAR *path);
+extern bool my_issamepath(const TCHAR *path1, const TCHAR *path2);
+extern bool my_createsoftlink(const TCHAR *path, const TCHAR *target);
 
 #define MYVOLUMEINFO_READONLY 1
 #define MYVOLUMEINFO_STREAMS 2

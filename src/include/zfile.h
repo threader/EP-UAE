@@ -129,3 +129,6 @@ extern unsigned int zfile_read_archive (void *d, void *b, unsigned int size);
 extern void zfile_close_archive (void *d);
 extern void *zfile_open_archive (const TCHAR *path, int flags);
 extern int zfile_exists_archive(const TCHAR *path, const TCHAR *rel);
+
+extern void timeval_to_amiga (struct mytimeval *tv, int* days, int* mins, int* ticks);
+extern void amiga_to_timeval (struct mytimeval *tv, int days, int mins, int ticks);

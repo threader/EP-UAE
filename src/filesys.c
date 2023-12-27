@@ -52,7 +52,7 @@
 # include <proto/dos.h>
 # include <dos/obsolete.h>
 #endif
-
+#if 0
 #define my_rmdir rmdir
 #define my_unlink unlink
 #define my_rename rename
@@ -62,9 +62,9 @@
 #define my_open fopen
 #define my_close fclose
 #define my_lseek fseek
-#define my_strdup strdup
+//#define my_strdup strdup
 //#define _stat64 stat
-
+#endif 
 #define TRUE 1
 #define FALSE 0
 //FIXME: ---end
@@ -356,7 +356,7 @@ static void stripspace (char *s)
 	int i = 0;
 	if (!s)
 		return;
-	for ( ; i < _tcslen (s); i++) {
+	for ( ; i < (int)_tcslen (s); i++) {
 		if (s[i] == ' ')
 			s[i] = '_';
 	}
@@ -365,7 +365,7 @@ static void striplength (char *s, size_t len)
 {
 	if (!s)
 		return;
-	if ((int)_tcslen (s) <= len)
+	if (_tcslen (s) <= len)
 		return;
 	s[len] = 0;
 }
@@ -1031,6 +1031,50 @@ static char *bstr_cut (Unit *unit, uaecptr addr)
 	buf[i] = 0;
 	au_fs_copy (unit->tmpbuf3, sizeof (unit->tmpbuf3) / sizeof (TCHAR), buf);
 	return &p[off];
+}
+
+/* convert time_t to/from AmigaDOS time */
+static const uae_s64 msecs_per_day = 24 * 60 * 60 * 1000;
+static const uae_s64 diff = ((8 * 365 + 2) * (24 * 60 * 60)) * (uae_u64)1000;
+
+void timeval_to_amiga (struct mytimeval *tv, int *days, int *mins, int *ticks)
+{
+	/* tv.tv_sec is secs since 1-1-1970 */
+	/* days since 1-1-1978 */
+	/* mins since midnight */
+	/* ticks past minute @ 50Hz */
+
+	uae_s64 t = tv->tv_sec * 1000 + tv->tv_usec / 1000;
+	t -= diff;
+	if (t < 0)
+		t = 0;
+	*days = t / msecs_per_day;
+	t -= *days * msecs_per_day;
+	*mins = t / (60 * 1000);
+	t -= *mins * (60 * 1000);
+	*ticks = t / (1000 / 50);
+}
+
+void amiga_to_timeval (struct mytimeval *tv, int days, int mins, int ticks)
+{
+	uae_s64 t;
+
+	if (days < 0)
+		days = 0;
+	if (days > 9900 * 365)
+		days = 9900 * 365; // in future far enough?
+	if (mins < 0 || mins >= 24 * 60)
+		mins = 0;
+	if (ticks < 0 || ticks >= 60 * 50)
+		ticks = 0;
+
+	t = ticks * 20;
+	t += mins * (60 * 1000);
+	t += ((uae_u64)days) * msecs_per_day;
+	t += diff;
+
+	tv->tv_sec = t / 1000;
+	tv->tv_usec = (t % 1000) * 1000;
 }
 
 static Unit *units = 0;
@@ -2725,7 +2769,7 @@ static void
 #if !defined TARGET_AMIGAOS || !defined WORDS_BIGENDIAN
 /* convert time_t to/from AmigaDOS time */
 const int secs_per_day = 24 * 60 * 60;
-const int diff = (8 * 365 + 2) * (24 * 60 * 60);
+//const int diff = (8 * 365 + 2) * (24 * 60 * 60);
 
 static void
 get_time (time_t t, long* days, long* mins, long* ticks)
@@ -3163,8 +3207,8 @@ end:
 
 static int action_examine_all_do (Unit *unit, uaecptr lock, ExAllKey *eak, uaecptr exalldata, uae_u32 exalldatasize, uae_u32 type, uaecptr control)
 {
-	a_inode *aino, *base;
-    struct dirent *ok;
+	a_inode *aino, *base = NULL;
+    struct dirent *ok = NULL;
 	uae_u32 err;
 	struct fs_dirhandle *d;
 	char fn[MAX_DPATH];

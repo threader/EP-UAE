@@ -45,6 +45,9 @@ char *nname_begin (char *nname)
     return nname;
 }
 
+#include "filesys_linux.c"
+
+
 #ifndef _WIN32
 /* Find the name REL in directory DIRNAME.  If we find a file that
  * has exactly the same name, return REL.  If we find a file that
