@@ -52,6 +52,19 @@
 # include <proto/dos.h>
 # include <dos/obsolete.h>
 #endif
+
+#if !defined(_LINUX_)
+#define my_rmdir rmdir
+#define my_unlink unlink
+#define my_rename rename
+#define my_truncate truncate
+#define my_opendir opendir
+#define my_closedir closedir
+#define my_open fopen
+#define my_close fclose
+#define my_lseek fseek
+#endif
+
 #if 0
 #define my_rmdir rmdir
 #define my_unlink unlink

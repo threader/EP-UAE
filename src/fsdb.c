@@ -45,7 +45,9 @@ char *nname_begin (char *nname)
     return nname;
 }
 
+#if defined(_LINUX_)
 #include "filesys_linux.c"
+#endif
 
 
 #ifndef _WIN32

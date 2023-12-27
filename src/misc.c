@@ -492,7 +492,8 @@ char *au_fs_copy (char *dst, int maxlen, const char *src)
         dst[i] = 0;
         return dst;
 }
-#if 0
+
+#if !defined(_LINUX_)
 int my_existsfile (const char *name)
 {
 		struct stat sonuc;
