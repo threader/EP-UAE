@@ -22,7 +22,7 @@
 #include "threaddep/thread.h"
 #include <SDL_audio.h>
 
-static int have_sound = 0;
+int have_sound = 0;
 static int statuscnt;
 
 uae_u16 paula_sndbuffer[44100];

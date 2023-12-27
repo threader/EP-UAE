@@ -149,3 +149,4 @@ STATIC_INLINE void clear_sound_buffers (void)
 
 #define FILTER_SOUND_TYPE_A500 0
 #define FILTER_SOUND_TYPE_A1200 1
+#define HAVE_8BIT_AUDIO_SUPPORT
