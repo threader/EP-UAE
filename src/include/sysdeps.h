@@ -21,7 +21,15 @@
 #if defined(__cplusplus)
 #include <cstddef>
 #include <cstdbool>
+
+#include <string>
+using namespace std;
+
 #else
+
+#include <string.h>
+#include <ctype.h>
+
 #include <stddef.h>
 /* Note: stdbool.h has a __cplusplus section, but as it is stated in
  * GNU gcc stdbool.h:
@@ -139,6 +147,13 @@
 
 #ifdef HAVE_VALUES_H
 #include <values.h>
+#endif
+
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>
 #endif
 
 #include "uae_string.h"
@@ -299,6 +314,7 @@ static uae_u32 jit_debug_to_uae_u32(uaecptr ptr, const char* macro, const char* 
 #define FILEFLAG_PURE    0x40
 
 #define strcasecmp stricmp
+
 
 
 #  if defined(__cplusplus)
