@@ -376,7 +376,7 @@ int scsi_do_disk_change (int device_id, int insert)
 	int i, j, ret;
 
 	ret = -1;
-	if (!change_sem)
+	if (!change_sem.sem)
 		return ret;
     uae_sem_wait (&change_sem);
 	if (device_id < 0 && insert) {
