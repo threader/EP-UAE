@@ -186,12 +186,13 @@ unsigned int maxhpos_short = MAXHPOS_PAL;
 unsigned int maxvpos = MAXVPOS_PAL;
 unsigned int maxvpos_nom = MAXVPOS_PAL; // nominal value (same as maxvpos but "faked" maxvpos in fake 60hz modes)
 static int maxvpos_total = 511;
-unsigned  int minfirstline = VBLANK_ENDLINE_PAL;
-unsigned int equ_vblank_endline = EQU_ENDLINE_PAL;
-unsigned int vblank_hz = VBLANK_HZ_PAL, fake_vblank_hz, vblank_skip, doublescan;
+unsigned int minfirstline = VBLANK_ENDLINE_PAL;
+static int equ_vblank_endline = EQU_ENDLINE_PAL;
+double vblank_hz = VBLANK_HZ_PAL, fake_vblank_hz;
 frame_time_t syncbase;
+int vblank_skip, doublescan;
 static int fmode;
-uae_u32 beamcon0, new_beamcon0;
+uae_u16 beamcon0, new_beamcon0;
 uae_u16 vtotal = MAXVPOS_PAL, htotal = MAXHPOS_PAL;
 static int maxvpos_stored, maxhpos_stored, vblank_hz_stored;
 static uae_u16 hsstop, hbstrt, hbstop, vsstop, vbstrt, vbstop, hsstrt, vsstrt, hcenter;
@@ -275,13 +276,13 @@ int diwfirstword, diwlastword;
 static int plfleft_real;
 static int last_hdiw;
 static enum diw_states diwstate, hdiwstate, ddfstate;
-unsigned int first_planes_vpos, last_planes_vpos;
-unsigned int diwfirstword_total, diwlastword_total;
-unsigned int ddffirstword_total, ddflastword_total;
-unsigned int firstword_bplcon1;
+ int first_planes_vpos, last_planes_vpos;
+ int diwfirstword_total, diwlastword_total;
+ int ddffirstword_total, ddflastword_total;
+ int firstword_bplcon1;
 
-static unsigned int last_copper_hpos;
-static unsigned int copper_access;
+static int last_copper_hpos;
+static int copper_access;
 
 /* Sprite collisions */
 static unsigned int clxdat, clxcon, clxcon2, clxcon_bpl_enable, clxcon_bpl_match;
@@ -1967,9 +1968,9 @@ static void record_color_change (unsigned int hpos, unsigned int regno, unsigned
 
 	if (regno == 0 && value != 0 && vpos >= 32) {
 		// autoscale if COLOR00 changes in top or bottom of screen
-		if (vpos < first_planes_vpos || vpos < plffirstline_total)
+		if ((int)vpos < first_planes_vpos || vpos < plffirstline_total)
 			plffirstline_total = first_planes_vpos = vpos - 2;
-		if (vpos > last_planes_vpos || vpos > plflastline_total)
+		if ((int)vpos > last_planes_vpos || vpos > plflastline_total)
 			plflastline_total = last_planes_vpos = vpos + 3;
 	}
 }
@@ -2255,10 +2256,10 @@ static void record_sprite (int line, int num, int sprxp, uae_u16 *data, uae_u16 
     unsigned int i;
 	int word_offs;
 	uae_u32 collision_mask;
-	int width; 
+	unsigned int width; 
     int dbl = 0, half = 0;
 	unsigned int mask = 0;
-	int attachment;
+	unsigned int attachment;
 
 #ifdef OS_WITHOUT_MEMORY_MANAGEMENT
     if (e >= &curr_sprite_entries[max_sprite_entry-1]) {
@@ -2388,16 +2389,16 @@ static void calcsprite (void)
 	}
 }
 
-static void decide_sprites (int hpos)
+static void decide_sprites (unsigned int hpos)
 {
-	int nrs[MAX_SPRITES * 2], posns[MAX_SPRITES * 2];
-	int count, i;
+	unsigned int nrs[MAX_SPRITES * 2], posns[MAX_SPRITES * 2];
+	unsigned int count, i;
 	/* apparantly writes to custom registers happen in the 3/4th of cycle
 	* and sprite xpos comparator sees it immediately */
-	int point = hpos * 2 - 3;
-	int width = sprite_width;
-	int sscanmask = 0x100 << sprite_buffer_res;
-	int gotdata = 0;
+	unsigned int point = hpos * 2 - 3;
+	unsigned int width = sprite_width;
+	unsigned int sscanmask = 0x100 << sprite_buffer_res;
+	unsigned int gotdata = 0;
 
 	if (thisline_decision.plfleft == -1 && !(bplcon3 & 2))
 		return;
@@ -6449,7 +6450,7 @@ const uae_u8 *restore_custom (const uae_u8 *src)
 	COPCON (RW);			/* 02E COPCON */
 	RW;						/* 030 SERDAT* */
 	RW;						/* 032 SERPER* */
-	POTGO (RW);				/* 034 POTGO */
+	potgo_value = 0; POTGO (RW); /* 034 POTGO */
 	RW;						/* 036 JOYTEST* */
 	RW;						/* 038 STREQU */
 	RW;						/* 03A STRVHBL */

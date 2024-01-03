@@ -124,7 +124,8 @@ extern uae_u16 INTREQR (void);
 extern unsigned int maxhpos, maxhpos_short;
 extern unsigned int maxvpos, maxvpos_nom;
 extern unsigned int minfirstline, vblank_endline, numscrlines;
-extern unsigned int vblank_hz, fake_vblank_hz, vblank_skip, doublescan;
+extern double vblank_hz, fake_vblank_hz;
+extern int vblank_skip, doublescan;
 extern frame_time_t syncbase;
 #define NUMSCRLINES (maxvpos + 1 - minfirstline + 1)
 
@@ -164,8 +165,7 @@ extern unsigned long timeframes;
 extern unsigned int plfstrt;
 extern unsigned int plfstop;
 extern unsigned int plffirstline, plflastline;
-extern uae_u16 htotal, vtotal;
-extern uae_u32 beamcon0;
+extern uae_u16 htotal,  beamcon0, vtotal;
 
 /* 100 words give you 1600 horizontal pixels. Should be more than enough for
  * superhires. Don't forget to update the definition in genp2c.c as well.

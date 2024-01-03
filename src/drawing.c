@@ -379,7 +379,7 @@ int get_custom_limits (int *pw, int *ph, int *pdx, int *pdy)
     y1 = plffirstline_total;
     if (first_planes_vpos > y1)
 		y1 = first_planes_vpos;
-    if (minfirstline > y1)
+    if ((int)minfirstline > y1)
 		y1 = minfirstline;
 
     dbl2 = dbl1 = currprefs.gfx_linedbl ? 1 : 0;
@@ -471,7 +471,7 @@ void get_custom_mouse_limits (int *pw, int *ph, int *pdx, int *pdy, int dbl)
     y1 = plffirstline_total;
     if (first_planes_vpos > y1)
 		y1 = first_planes_vpos;
-    if (minfirstline > y1)
+    if ((int)minfirstline > y1)
 	y1 = minfirstline;
 
     h = y2 - y1;
@@ -2272,16 +2272,16 @@ static void center_image (void)
 		    thisframe_y_adjust += diff >> 1;
 		}
 #endif
-		if (thisframe_y_adjust + max_drawn_amiga_line > 2 * maxvpos_nom)
+		if (thisframe_y_adjust + max_drawn_amiga_line > 2 * (int)maxvpos_nom)
 			thisframe_y_adjust = 2 * maxvpos_nom - max_drawn_amiga_line;
 		if (thisframe_y_adjust < 0)
 		    thisframe_y_adjust = 0;
     } else {
 		/* Make sure the value makes sense */
-		if (thisframe_y_adjust + max_drawn_amiga_line > maxvpos_nom)
-			thisframe_y_adjust = maxvpos_nom - max_drawn_amiga_line;
-		if (thisframe_y_adjust < minfirstline)
-		    thisframe_y_adjust = minfirstline;
+		if (thisframe_y_adjust + max_drawn_amiga_line > (int)maxvpos_nom)
+			thisframe_y_adjust = (int)maxvpos_nom - max_drawn_amiga_line;
+		if (thisframe_y_adjust < (int)minfirstline)
+		    thisframe_y_adjust = (int)minfirstline;
     }
     thisframe_y_adjust_real = thisframe_y_adjust << (linedbl ? 1 : 0);
 	tmp = (maxvpos_nom - thisframe_y_adjust) << (linedbl ? 1 : 0);
@@ -2728,12 +2728,12 @@ static void lightpen_update (void)
 
     if (lightpen_cx < 0x18)
 	lightpen_cx = 0x18;
-    if (lightpen_cx >= maxhpos)
-	lightpen_cx -= maxhpos;
-    if (lightpen_cy < minfirstline)
-	lightpen_cy = minfirstline;
-	if (lightpen_cy >= maxvpos)
-		lightpen_cy = maxvpos - 1;
+    if (lightpen_cx >= (int)maxhpos)
+	lightpen_cx -= (int)maxhpos;
+    if (lightpen_cy < (int)minfirstline)
+	lightpen_cy = (int)minfirstline;
+	if (lightpen_cy >= (int)maxvpos)
+		lightpen_cy = (int)maxvpos - 1;
 
     for (i = 0; i < LIGHTPEN_HEIGHT; i++) {
 	int line = lightpen_y + i - LIGHTPEN_HEIGHT / 2;

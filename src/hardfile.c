@@ -1336,9 +1336,10 @@ static int handle_scsi (uaecptr request, struct hardfiledata *hfd)
 	if (reply_len > 0) {
 		scsi_log ("RD:");
 		i = 0;
-		while (i < reply_len) {
-			if (i < 24)
-				scsi_log ("%02X%c", reply[i], i < reply_len - 1 ? '.' : ' ');
+		while (i < (uae_u32)reply_len) {
+			if (i < 24) {
+				scsi_log (_T("%02X%c"), reply[i], i < reply_len - 1 ? '.' : ' ');
+			}
 			put_byte (scsi_data + i, reply[i]);
 			i++;
 		}
@@ -1346,7 +1347,7 @@ static int handle_scsi (uaecptr request, struct hardfiledata *hfd)
 	}
 	i = 0;
 	if (scsi_sense) {
-		while (i < sense_len && i < scsi_sense_len) {
+		while (i < (uae_u32)sense_len && i < (uae_u32)scsi_sense_len) {
 			put_byte (scsi_sense + i, sense[i]);
 			i++;
 		}

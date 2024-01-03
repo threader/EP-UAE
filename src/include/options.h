@@ -491,6 +491,8 @@ extern int cfgfile_strval (const TCHAR *option, const TCHAR *value, const TCHAR 
 extern int cfgfile_string (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz);
 extern TCHAR *cfgfile_subst_path (const TCHAR *path, const TCHAR *subst, const TCHAR *file);
 
+extern int target_cfgfile_load (struct uae_prefs *, const TCHAR *filename, int type, int isdefault);
+
 int parse_cmdline_option (struct uae_prefs *, char, char *);
 
 extern int cfgfile_yesno  (const char *option, const char *value, const char *name, int *location);
@@ -528,7 +530,7 @@ extern uae_u32 cfgfile_modify (uae_u32 index, char *parms, uae_u32 size, char *o
 extern void cfgfile_addcfgparam (char *);
 extern unsigned int cmdlineparser (const char *s, char *outp[], unsigned int max);
 extern int cfgfile_configuration_change(int);
-
+extern int built_in_chipset_prefs (struct uae_prefs *p);
 extern void fixup_prefs_dimensions (struct uae_prefs *prefs);
 extern void fixup_prefs (struct uae_prefs *prefs);
 extern void fixup_cpu (struct uae_prefs *prefs);

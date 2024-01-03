@@ -559,7 +559,7 @@ static int command_cd_read (int mode, struct devstruct *dev, uaecptr data, uae_u
 			data += len;
 			startoffset = 0;
 			*io_actual += len;
-		} else if (length >= dev->di.bytespersector) {
+		} else if (length >= (uae_u32)dev->di.bytespersector) {
 			len = dev->di.bytespersector;
 			memcpyha_safe (data, temp, len);
 			length -= len;

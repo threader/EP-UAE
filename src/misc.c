@@ -668,7 +668,7 @@ char *ua_copy (char *dst, int maxlen, const char *src)
 // --- win32gui.cpp ---
 static int qs_override;
 
-int target_cfgfile_load (struct uae_prefs *p, char *filename, int type, int isdefault)
+int target_cfgfile_load (struct uae_prefs *p, const char *filename, int type, int isdefault)
 {
 	int v, i, type2;
 	int ct, ct2 = 0, size;
