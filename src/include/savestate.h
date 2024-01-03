@@ -94,6 +94,10 @@ extern void restore_p96_finish (void);
 extern const uae_u8 *restore_keyboard (const uae_u8 *src);
 extern       uae_u8 *save_keyboard    (uae_u32 *len);
 
+extern const uae_u8 *restore_akiko (const uae_u8 *src);
+extern uae_u8 *save_akiko (int *len, uae_u8*);
+extern void restore_akiko_finish (void);
+
 extern uae_u8 *restore_cdtv (uae_u8 *src);
 extern uae_u8 *save_cdtv (int *len, uae_u8*);
 extern void restore_cdtv_finish (void);

@@ -23,6 +23,7 @@
 #include "threaddep/thread.h"
 #include "akiko.h"
 #include "gui.h"
+#include "crc32.h"
 #include "sleep.h"
 #include "custom.h"
 #include "newcpu.h"
@@ -518,7 +519,7 @@ static int cd_play_audio (uae_u32 startmsf, uae_u32 endmsf, int scan)
 {
 #if 1
 	uae_u8 *buf = cdrom_toc_cd_buffer;
-	uae_u8 *s;
+	uae_u8 *s = NULL;
 	uae_u32 addr;
 	int i;
 
@@ -1497,7 +1498,7 @@ uae_u32 REGPARAM2 akiko_lget (uaecptr addr)
     return v;
 }
 
-void akiko_bput2 (uaecptr addr, uae_u32 v, int msg)
+static void akiko_bput2 (uaecptr addr, uae_u32 v, int msg)
 {
     uae_u32 tmp;
 
