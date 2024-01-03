@@ -3252,7 +3252,7 @@ static int action_examine_all_do (Unit *unit, uaecptr lock, ExAllKey *eak, uaecp
 		eak->id = unit->exallid++;
 		put_long (control + 4, eak->id);
 		if (!exalldo (exalldata, exalldatasize, type, control, unit, aino)) {
-			eak->fn = my_strdup (fn); /* no space in exallstruct, save current entry */
+			eak->fn = my_strdup (ok->d_name); /* no space in exallstruct, save current entry */
 			break;
 		}
 	}

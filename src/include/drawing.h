@@ -284,6 +284,7 @@ extern void notice_interlace_seen (void);
 extern void frame_drawn (void);
 extern void redraw_frame (void);
 extern int get_custom_limits (int *pw, int *ph, int *pdx, int *pdy);
+void get_custom_mouse_limits (int *pw, int *ph, int *pdx, int *pdy, int dbl);
 
 /* Finally, stuff that shouldn't really be shared.  */
 

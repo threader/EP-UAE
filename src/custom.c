@@ -1897,7 +1897,7 @@ STATIC_INLINE void decide_line (unsigned int hpos)
 			if (plf_state == plf_idle)
 				plf_state = plf_start;
 		}
-		if (last_decide_line_hpos < plfstrt && (int)hpos >= plfstrt) {
+		if (last_decide_line_hpos < (int)plfstrt && hpos >= plfstrt) {
 			if (plf_state == plf_start)
 				plf_state = plf_active;
 			if (plf_state == plf_active)
@@ -4345,8 +4345,8 @@ static void update_copper (unsigned int until_hpos)
 		until_hpos = maxhpos & ~1;
 
 	for (;;) {
-		int old_hpos = c_hpos;
-		int hp;
+		unsigned int old_hpos = c_hpos;
+		unsigned int hp;
 
 		if (c_hpos >= until_hpos)
 			break;

@@ -487,8 +487,8 @@ void get_custom_mouse_limits (int *pw, int *ph, int *pdx, int *pdy, int dbl)
     
     delay1 = (firstword_bplcon1 & 0x0f) | ((firstword_bplcon1 & 0x0c00) >> 6);
     delay2 = ((firstword_bplcon1 >> 4) & 0x0f) | (((firstword_bplcon1 >> 4) & 0x0c00) >> 6);
-    if (delay1 == delay2)
-		;//dx += delay1;
+   // if (delay1 == delay2)
+	//	;//dx += delay1;
 
     dx = xshift (dx, res_shift);
 
