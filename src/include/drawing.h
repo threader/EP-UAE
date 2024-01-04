@@ -257,7 +257,7 @@ extern uae_u8 line_data[(MAXVPOS + 1) * 2][MAX_PLANES * MAX_WORDS_PER_LINE * 2];
 extern int coord_native_to_amiga_y (int);
 extern int coord_native_to_amiga_x (int);
 
-extern void record_diw_line (int plfstrt, int first, int last);
+extern void record_diw_line (unsigned int plfstrt, int first, int last);
 extern void hardware_line_completed (int lineno);
 
 /* Determine how to draw a scan line.  */

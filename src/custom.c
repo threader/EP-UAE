@@ -600,7 +600,7 @@ static void decide_diw (unsigned int hpos)
 	*/
 
 	int hdiw = hpos >= maxhpos ? maxhpos * 2 + 1 : hpos * 2 + 2;
-	if (!(currprefs.chipset_mask & CSMASK_ECS_DENISE) && vpos <= equ_vblank_endline) {
+	if (!(currprefs.chipset_mask & CSMASK_ECS_DENISE) && (int)vpos <= equ_vblank_endline) {
 		hdiw = diw_hcounter;
 		hdiw &= 511;
 	}
@@ -890,7 +890,7 @@ STATIC_INLINE int isocs7planes (void)
 
 int is_bitplane_dma (unsigned int hpos)
 {
-	if (fetch_state == fetch_not_started || (int)hpos < plfstrt)
+	if (fetch_state == fetch_not_started || hpos < plfstrt)
 		return 0;
 	if ((plf_state == plf_end && (int)hpos >= thisline_decision.plfright)
 		|| hpos >= estimated_last_fetch_cycle)
@@ -900,7 +900,7 @@ int is_bitplane_dma (unsigned int hpos)
 
 STATIC_INLINE int is_bitplane_dma_inline (unsigned int hpos)
 {
-	if (fetch_state == fetch_not_started || (int)hpos < plfstrt)
+	if (fetch_state == fetch_not_started || hpos < plfstrt)
 		return 0;
 	if ((plf_state == plf_end && (int)hpos >= thisline_decision.plfright)
 		|| hpos >= estimated_last_fetch_cycle)
@@ -1694,7 +1694,7 @@ STATIC_INLINE void update_fetch (unsigned int until, int fm)
 	programs that move the DDFSTOP before our current position before we
 	reach it.  */
 	ddfstop_to_test = HARD_DDF_STOP;
-    if ((int)ddfstop >= last_fetch_hpos && plfstop < ddfstop_to_test)
+    if (ddfstop >= last_fetch_hpos && plfstop < ddfstop_to_test)
 		ddfstop_to_test = plfstop;
 
 	update_toscr_planes ();
@@ -1797,7 +1797,7 @@ static void update_fetch_2 (int hpos) { update_fetch (hpos, 2); }
 /* note */
 STATIC_INLINE void decide_fetch (int hpos)
 {
-	if (hpos > last_fetch_hpos) {
+	if (hpos > (int)last_fetch_hpos) {
 		if (fetch_state != fetch_not_started) {
 			switch (fetchmode) {
 			case 0: update_fetch_0 (hpos); break;
@@ -1893,7 +1893,7 @@ STATIC_INLINE void decide_line (unsigned int hpos)
 
 	if (fetch_state == fetch_not_started && diwstate == DIW_waiting_stop) {
 		int ok = 0;
-		if (last_decide_line_hpos < plfstrt_start && (int)hpos >= plfstrt_start) {
+		if (last_decide_line_hpos < (int)plfstrt_start && hpos >= plfstrt_start) {
 			if (plf_state == plf_idle)
 				plf_state = plf_start;
 		}
@@ -2281,7 +2281,7 @@ static void record_sprite (int line, int num, int sprxp, uae_u16 *data, uae_u16 
 	attachment = sprctl[num | 1] & 0x80;
 
 	/* Try to coalesce entries if they aren't too far apart  */
-	if (!next_sprite_forced && e[-1].max + sprite_width >= sprxp) {
+	if (!next_sprite_forced && e[-1].max + (int)sprite_width >= sprxp) {
 		e--;
 	} else {
 		next_sprite_entry++;
@@ -2334,10 +2334,10 @@ static void record_sprite (int line, int num, int sprxp, uae_u16 *data, uae_u16 
 	}
 }
 
-static void add_sprite (int *countp, int num, int sprxp, int posns[], int nrs[])
+static void add_sprite (unsigned int *countp, unsigned int num, unsigned int sprxp, unsigned int posns[], unsigned int nrs[])
 {
-	int count = *countp;
-	int j, bestp;
+	unsigned int count = *countp;
+	unsigned int j, bestp;
 
 	/* Sort the sprites in order of ascending X position before recording them.  */
 	for (bestp = 0; bestp < count; bestp++) {
@@ -2412,8 +2412,8 @@ static void decide_sprites (unsigned int hpos)
 
 	count = 0;
 	for (i = 0; i < MAX_SPRITES; i++) {
-		int sprxp = (fmode & 0x8000) ? (spr[i].xpos & ~sscanmask) : spr[i].xpos;
-		int hw_xp = sprxp >> sprite_buffer_res;
+		unsigned int sprxp = (fmode & 0x8000) ? (spr[i].xpos & ~sscanmask) : spr[i].xpos;
+		unsigned int hw_xp = sprxp >> sprite_buffer_res;
 
 		if (spr[i].xpos < 0)
 			continue;
@@ -2437,13 +2437,13 @@ static void decide_sprites (unsigned int hpos)
 	}
 
 	for (i = 0; i < count; i++) {
-		int nr = nrs[i] & (MAX_SPRITES - 1);
+		unsigned int nr = nrs[i] & (MAX_SPRITES - 1);
 		record_sprite (next_lineno, nr, posns[i], sprdata[nr], sprdatb[nr], sprctl[nr]);
 		/* get left and right sprite edge if brdsprt enabled */
 #if AUTOSCALE_SPRITES
 		if (dmaen (DMA_SPRITE) && (bplcon0 & 1) && (bplcon3 & 0x02) && !(bplcon3 & 0x20)) {
 			int j, jj;
-			for (j = 0, jj = 0; j < sprite_width; j+= 16, jj++) {
+			for (j = 0, jj = 0; j < (int)sprite_width; j+= 16, jj++) {
 				int nx = fromspritexdiw (posns[i] + j);
 				if (sprdata[nr][jj] || sprdatb[nr][jj]) {
 					if (diwfirstword_total > nx && nx >= (48 << currprefs.gfx_resolution))
@@ -3967,7 +3967,7 @@ STATIC_INLINE void sprstartstop (struct sprite *s)
 		s->dmastate = 0;
 }
 
-STATIC_INLINE void SPRxCTLPOS (int num)
+STATIC_INLINE void SPRxCTLPOS (unsigned int num)
 {
 	unsigned int sprxp;
 	struct sprite *s = &spr[num];

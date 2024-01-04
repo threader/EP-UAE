@@ -520,7 +520,7 @@ static struct decision *dp_for_drawing;
 static struct draw_info *dip_for_drawing;
 
 /* Record DIW of the current line for use by centering code.  */
-void record_diw_line (int plfstrt, int first, int last)
+void record_diw_line (unsigned int plfstrt, int first, int last)
 {
     if (last > max_diwstop)
 		max_diwstop = last;
