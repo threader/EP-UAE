@@ -947,7 +947,7 @@ static void dev_reset (void)
 		if (dev->opencnt > 0) {
 			for (j = 0; j < MAX_ASYNC_REQUESTS; j++) {
 				uaecptr request;
-				if (request = dev->d_request[i])
+				if ((request = dev->d_request[i]))
 					abort_async (dev, request, 0, 0);
 			}
 			dev->opencnt = 1;

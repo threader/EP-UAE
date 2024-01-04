@@ -862,7 +862,7 @@ STATIC_INLINE void compute_delay_offset (void)
 #endif
 }
 
-static void record_color_change2 (int hpos, int regno, unsigned long value)
+static void record_color_change2 (unsigned int hpos, int regno, unsigned long value)
 {
 	curr_color_changes[next_color_change].linepos = hpos * 2;
 	curr_color_changes[next_color_change].regno = regno;
@@ -2759,8 +2759,9 @@ static void dumpsync (void)
 void init_hz (void)
 {
 	int isntsc;
-	int odbl = doublescan, omaxvpos = maxvpos;
-	int ovblank = vblank_hz;
+	int odbl = doublescan; 
+	unsigned int omaxvpos = maxvpos;
+	double ovblank = vblank_hz;
 	int hzc = 0;
 
 	if (vsync_switchmode (-1, 0) > 0)
@@ -2829,7 +2830,7 @@ void init_hz (void)
 	}
 	if (currprefs.gfx_scandoubler && doublescan == 0)
 		doublescan = -1;
-	if (doublescan != odbl || maxvpos != omaxvpos)
+	if (doublescan != odbl || (int)maxvpos != (int)omaxvpos)
 		hzc = 1;
 	/* limit to sane values */
 	if (vblank_hz < 10)
@@ -2981,7 +2982,7 @@ STATIC_INLINE uae_u16 DENISEID (void)
 		return 0xFFFC;
 	return 0xFFFF;
 }
-STATIC_INLINE uae_u16 DMACONR (int hpos)
+STATIC_INLINE uae_u16 DMACONR (unsigned int hpos)
 {
 	decide_line (hpos);
 	decide_fetch (hpos);
@@ -3575,7 +3576,7 @@ void set_picasso_hack_rate (int hz)
 	if (!picasso_on)
 		return;
 	vpos_count = 0;
-	p96refresh_active = maxvpos_stored * vblank_hz_stored / hz;
+	p96refresh_active = (int)(maxvpos_stored * vblank_hz_stored / hz);
 	if (!currprefs.cs_ciaatod)
 		changed_prefs.cs_ciaatod = currprefs.cs_ciaatod = currprefs.ntscmode ? 2 : 1;
 	if (p96refresh_active > 0) {
@@ -5094,7 +5095,7 @@ static void fpscounter (void)
 	}
 }
 
-static void vsync_handler (struct uaedev_mount_info *mountinfo)
+static void vsync_handler (void)
 {
 	fpscounter ();
 
@@ -5437,7 +5438,7 @@ void hsync_handler (void)
 			lightpen_triggered = 1;
 		}
 		vpos = 0;
-		vsync_handler (currprefs.mountinfo);
+		vsync_handler ();
 		vpos_count = 0;
 #if 0
 		if (input_recording > 0) {
@@ -5672,7 +5673,7 @@ void init_eventtab (void)
 
 void customreset (int hardreset)
 {
-	unsigned int i;
+	int i;
 	int zero = 0;
 
 	//target_reset ();
@@ -5797,7 +5798,6 @@ void customreset (int hardreset)
 	if (savestate_state == STATE_RESTORE) {
 		uae_u16 v;
 		uae_u32 vv;
-        unsigned int i;
 
 		audio_update_adkmasks ();
 		INTENA (0);
@@ -6039,7 +6039,6 @@ STATIC_INLINE uae_u32 REGPARAM2 custom_wget_1 (unsigned int hpos, uaecptr addr, 
 		v = last_custom_value1;
 		if (!noput) {
 			int r;
-	    unsigned int hpos = current_hpos ();
 			uae_u16 old = last_custom_value1;
 			uae_u16 l = currprefs.cpu_compatible && currprefs.cpu_model == 68000 ? regs.irc : 0xffff;//last_custom_value;
 			decide_line (hpos);
@@ -6419,7 +6418,7 @@ const uae_u8 *restore_custom (const uae_u8 *src)
 {
 	uae_u16 dsklen, dskbytr;
 	int dskpt;
-	int i;
+	unsigned int i;
 
 	audio_reset ();
 

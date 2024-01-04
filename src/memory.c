@@ -2758,7 +2758,7 @@ void memory_reset (void)
 				if (rd->cloanto)
 					cloanto_rom = 1;
 				kickstart_rom = 0;
-				if ((rd->type & ROMTYPE_SPECIALKICK | ROMTYPE_KICK) == ROMTYPE_KICK)
+				if ((rd->type & (ROMTYPE_SPECIALKICK | ROMTYPE_KICK)) == ROMTYPE_KICK)
 					kickstart_rom = 1;
 				if ((rd->cpu & 4) && currprefs.cs_compatible) {
 					/* A4000 ROM = need ramsey, gary and ide */
