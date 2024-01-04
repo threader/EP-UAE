@@ -1,3 +1,4 @@
+
  /*
   * UAE - The Un*x Amiga Emulator
   *
@@ -1677,7 +1678,7 @@ void REGPARAM2 Exception (int nr, struct regstruct *regs, uaecptr oldpc)
 #endif
 }
 
-STATIC_INLINE void do_interrupt (int nr, struct regstruct *regs)
+STATIC_INLINE void do_interrupt (unsigned int nr, struct regstruct *regs)
 {
 #ifdef DEBUG
 	if (debug_dma)
@@ -2607,7 +2608,7 @@ STATIC_INLINE int do_specialties (int cycles, struct regstruct *regs)
 			if (regs->spcflags & (SPCFLAG_INT | SPCFLAG_DOINT)) {
 				int intr = intlev ();
 				unset_special (regs, SPCFLAG_INT | SPCFLAG_DOINT);
-				if (intr > 0 && intr > regs->intmask)
+				if (intr > 0 && (unsigned int)intr > regs->intmask)
 					do_interrupt (intr, regs);
 			}
 		}
@@ -2653,7 +2654,7 @@ STATIC_INLINE int do_specialties (int cycles, struct regstruct *regs)
 		if (regs->spcflags & SPCFLAG_INT) {
 			int intr = intlev ();
 			unset_special (regs, SPCFLAG_INT | SPCFLAG_DOINT);
-			if (intr > 0 && (intr > regs->intmask || intr == 7))
+			if (intr > 0 && ((unsigned int)intr > regs->intmask || intr == 7))
 				do_interrupt (intr, regs);
 	}
     }
@@ -3194,7 +3195,7 @@ void m68k_go (int may_quit)
 				eventtab[ev_audio].active = 0;
 		    handle_active_events ();
 		    if (regs.spcflags)
-				do_specialties (&regs, 0);
+				do_specialties (0, &regs);
 		    m68k_setpc (&regs, regs.pc);
 		}
 
@@ -3222,7 +3223,7 @@ void m68k_go (int may_quit)
 		if (regs.spcflags) {
 			uae_u32 of = regs.spcflags;
 			regs.spcflags &= ~(regs, SPCFLAG_BRK | SPCFLAG_MODE_CHANGE);
-			do_specialties (regs, 0);
+			do_specialties (0, regs);
 			regs.spcflags |= of & (regs, SPCFLAG_BRK | SPCFLAG_MODE_CHANGE);
 		}
 #endif
