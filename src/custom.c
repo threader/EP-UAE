@@ -2782,6 +2782,17 @@ void init_hz (void)
 	isntsc = (beamcon0 & 0x20) ? 0 : 1;
 	if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
 		isntsc = currprefs.ntscmode ? 1 : 0;
+    if (hack_vpos > 0) {
+	if ((int)maxvpos == hack_vpos)
+	    return;
+	maxvpos = hack_vpos;
+	vblank_hz = 15600 / hack_vpos;
+	hack_vpos = -1;
+    } else if (hack_vpos < 0) {
+	hack_vpos = 0;
+    }
+    if (hack_vpos == 0) {
+
 	if (!isntsc) {
 		maxvpos = MAXVPOS_PAL;
 		maxhpos = MAXHPOS_PAL;
@@ -2796,6 +2807,7 @@ void init_hz (void)
 		vblank_hz = VBLANK_HZ_NTSC;
 		sprite_vblank_endline = VBLANK_SPRITE_NTSC;
 		equ_vblank_endline = EQU_ENDLINE_NTSC;
+	}
 	}
 	maxvpos_nom = maxvpos;
 	if (vpos_count > 0) {
@@ -2867,13 +2879,13 @@ void init_hz (void)
 //	if (vblank_hz != ovblank)
 //		updatedisplayarea ();
     //inputdevice_tablet_strobe ();
-	write_log ("%s mode%s%s V=%dHz H=%dHz (%dx%d)\n",
+	write_log ("%s mode%s%s V=%lfHz H=%lfHz (%dx%d)\n",
 		isntsc ? "NTSC" : "PAL",
 		(bplcon0 & 4) ? " interlaced" : "",
 		doublescan > 0 ? " dblscan" : "",
 		vblank_hz, vblank_hz * maxvpos_nom,
 		maxhpos, maxvpos);
-	config_changed = 1;
+	//config_changed = 1;
 }
 
 static void calcdiw (void)
@@ -3079,10 +3091,14 @@ static void VPOSW (uae_u16 v)
 		lof_changed = 1;
 		lof_current = (v & 0x8000) ? 1 : 0;
 	}
+
+
 	if (currprefs.chipset_mask & CSMASK_ECS_AGNUS)
 		lol = (v & 0x0080) ? 1 : 0;
 	if (lof_changed)
 		return;
+    if ( (v & 1) && vpos > 0)
+	hack_vpos = vpos;
 	vpos &= 0x00ff;
 	v &= 7;
 	if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
@@ -3566,6 +3582,7 @@ static void varsync (void)
 	if (!(beamcon0 & 0x80))
 		return;
 	vpos_count = 0;
+    hack_vpos = -1;
 	dumpsync ();
 }
 
@@ -5170,7 +5187,7 @@ static void vsync_handler (void)
 		vpos_count = p96refresh_active;
 		vtotal = vpos_count;
 	}
-	if ((beamcon0 & (0x20 | 0x80)) != (new_beamcon0 & (0x20 | 0x80)) || (abs (vpos_count - vpos_count_prev) > 1))
+	if ((beamcon0 & (0x20 | 0x80)) != (new_beamcon0 & (0x20 | 0x80)) || hack_vpos ||(abs (vpos_count - vpos_count_prev) > 1))
 		init_hz ();
 	if (lof_changed)
 		compute_vsynctime ();
@@ -5774,6 +5791,7 @@ void customreset (int hardreset)
 	set_cycles (0);
 
 	vpos_count = vpos_count_prev = 0;
+    hack_vpos = 0;
 	init_hz ();
 	vpos_lpen = -1;
 
@@ -5830,7 +5848,7 @@ void customreset (int hardreset)
 		CLXCON (clxcon);
 		CLXCON2 (clxcon2);
 		calcdiw ();
-		write_log (L"CPU=%d Chipset=%s %s\n",
+		write_log ("CPU=%d Chipset=%s %s\n",
 			currprefs.cpu_model,
 			(currprefs.chipset_mask & CSMASK_AGA) ? "AGA" :
 			(currprefs.chipset_mask & CSMASK_ECS_AGNUS | CSMASK_ECS_DENISE) == (CSMASK_ECS_AGNUS | CSMASK_ECS_DENISE) ? "Full ECS" :
