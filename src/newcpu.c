@@ -483,6 +483,7 @@ void init_m68k (void)
      * before starting the CPU */
     check_prefs_changed_comp ();
 #endif
+	update_68k_cycles ();
 }
 
 struct regstruct regs, mmu_backup_regs;
@@ -3006,7 +3007,8 @@ retry:
 		}
 		//activate_debugger ();
 		TRY (prb2) {
-			Exception (2, regs.fault_pc, addr);
+			//Exception (2, regs.fault_pc, addr);
+Exception (2, r, pc);
 		} CATCH (prb2) {
 			write_log ("MMU: double bus error, rebooting..\n");
 			uae_reset (1);
@@ -3144,7 +3146,7 @@ static void exception2_handle (uaecptr addr, uaecptr fault)
     last_fault_for_exception_3 = fault;
     last_writeaccess_for_exception_3 = 0;
     last_instructionaccess_for_exception_3 = 0;
-    Exception (2, &regs, addr);
+	Exception (2, &regs ,m68k_getpc (&regs));
 }
 
 void m68k_go (int may_quit)
@@ -3864,7 +3866,7 @@ uae_u8 *save_mmu (int *len, uae_u8 *dstptr)
 	return dstbak;
 }
 
-uae_u8 *restore_mmu (uae_u8 *src)
+uae_u8 *restore_mmu (const uae_u8 *src)
 {
 	int flags, model;
 

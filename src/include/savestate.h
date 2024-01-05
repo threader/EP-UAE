@@ -50,7 +50,7 @@ extern const uae_u8 *restore_cpu (const uae_u8 *src);
 extern       void    restore_cpu_finish (void);
 extern       uae_u8 *save_cpu    (uae_u32 *len, uae_u8 *dstpr);
 
-extern uae_u8 *restore_mmu (uae_u8 *);
+extern uae_u8 *restore_mmu (const uae_u8 *);
 extern uae_u8 *save_mmu (int *, uae_u8 *);
 
 extern const uae_u8 *restore_fpu (const uae_u8 *src);
