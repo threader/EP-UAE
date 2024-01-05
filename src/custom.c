@@ -1,4 +1,3 @@
-
 /*
 * UAE - The Un*x Amiga Emulator
 *
@@ -2461,11 +2460,11 @@ static void decide_sprites (unsigned int hpos)
 #if AUTOSCALE_SPRITES
 	/* get upper and lower sprite position if brdsprt enabled */
 	if (gotdata) {
-		if (vpos < first_planes_vpos)
+		if ((int)vpos < first_planes_vpos)
 			first_planes_vpos = vpos;
 		if (vpos < plffirstline_total)
 			plffirstline_total = vpos;
-		if (vpos > last_planes_vpos)
+		if ((int)vpos > last_planes_vpos)
 			last_planes_vpos = vpos;
 		if (vpos > plflastline_total)
 			plflastline_total = vpos;
@@ -2599,9 +2598,9 @@ static void finish_decisions (void)
 	next_color_change += (HBLANK_OFFSET + 1) / 2;
 
 	diw_hcounter += maxhpos * 2;
-	if (!(currprefs.chipset_mask & CSMASK_ECS_DENISE) && vpos == equ_vblank_endline - 1)
+	if (!(currprefs.chipset_mask & CSMASK_ECS_DENISE) && (int)vpos == equ_vblank_endline - 1)
 		diw_hcounter++;
-	if ((currprefs.chipset_mask & CSMASK_ECS_DENISE) || vpos > equ_vblank_endline || (currprefs.cs_dipagnus && vpos == 0)) {
+	if ((currprefs.chipset_mask & CSMASK_ECS_DENISE) || (int)vpos > equ_vblank_endline || (currprefs.cs_dipagnus && vpos == 0)) {
 		diw_hcounter = maxhpos * 2;
 		last_hdiw = 2 - 1;
 	}
@@ -3018,7 +3017,7 @@ STATIC_INLINE int issyncstopped (void)
 
 STATIC_INLINE int GETVPOS (void)
 {
-	return islightpentriggered () ? vpos_lpen : (issyncstopped () ? vpos_previous : vpos);
+	return islightpentriggered () ? vpos_lpen : (issyncstopped () ? vpos_previous : (int)vpos);
 }
 STATIC_INLINE int GETHPOS (void)
 {
@@ -3150,7 +3149,7 @@ static void immediate_copper (int num)
 	cop_state.hpos = current_hpos () & ~1;
 	cop_state.ip = num == 1 ? cop1lc : cop2lc;
 
-	while (pos < (maxvpos << 5)) {
+	while (pos < ((int)maxvpos << 5)) {
 		if (oldpos > pos)
 			pos = oldpos;
 		if (!dmaen(DMA_COPPER))
@@ -3967,9 +3966,9 @@ STATIC_INLINE void sprstartstop (struct sprite *s)
 		s->dmastate = 0;
 }
 
-STATIC_INLINE void SPRxCTLPOS (unsigned int num)
+STATIC_INLINE void SPRxCTLPOS (int num)
 {
-	unsigned int sprxp;
+	int sprxp;
 	struct sprite *s = &spr[num];
 
 	sprstartstop (s);
@@ -4065,7 +4064,7 @@ static void SPRxPOS (unsigned int hpos, uae_u16 v, unsigned int num) { decide_sp
 static void SPRxPTH (unsigned int hpos, uae_u16 v, unsigned int num)
 {
 	decide_sprites (hpos);
-	if (hpos - 1 != spr[num].ptxhpos) {
+	if ((int)hpos - 1 != spr[num].ptxhpos) {
 		spr[num].pt &= 0xffff;
 		spr[num].pt |= (uae_u32)v << 16;
 	}
@@ -4078,7 +4077,7 @@ static void SPRxPTH (unsigned int hpos, uae_u16 v, unsigned int num)
 static void SPRxPTL (unsigned int hpos, uae_u16 v, int num)
 {
 	decide_sprites (hpos);
-	if (hpos - 1 != spr[num].ptxhpos) {
+	if ((int)hpos - 1 != spr[num].ptxhpos) {
 		spr[num].pt &= ~0xffff;
 		spr[num].pt |= v & ~1;
 	}
@@ -4339,7 +4338,7 @@ static void update_copper (unsigned int until_hpos)
 		return;
 	}
 
-	if (until_hpos <= last_copper_hpos)
+	if ((int)until_hpos <= last_copper_hpos)
 		return;
 
 	if (until_hpos > (maxhpos & ~1))
@@ -4632,7 +4631,7 @@ static void compute_spcflag_copper (unsigned int hpos)
 		return;
 
 	if (cop_state.state == COP_wait) {
-		int vp = vpos & (((cop_state.saved_i2 >> 8) & 0x7F) | 0x80);
+		unsigned int vp = vpos & (((cop_state.saved_i2 >> 8) & 0x7F) | 0x80);
 
 		if (vp < cop_state.vcmp)
 			return;
@@ -4668,7 +4667,7 @@ BFD=0 wait: 1 cycle (or 2 if hpos is not aligned) delay before wait ends
 */
 void blitter_done_notify (unsigned int hpos)
 {
-	int vp = vpos;
+	unsigned int vp = vpos;
 
 	if (cop_state.state != COP_bltwait)
 		return;
@@ -5231,7 +5230,7 @@ static void frh_handler (void)
 static void copper_check (int n)
 {
 	if (cop_state.state == COP_wait) {
-		int vp = vpos & (((cop_state.saved_i2 >> 8) & 0x7F) | 0x80);
+		unsigned int vp = vpos & (((cop_state.saved_i2 >> 8) & 0x7F) | 0x80);
 		if (vp < cop_state.vcmp) {
 			if (copper_enabled_thisline)
 				write_log ("COPPER BUG %d: vp=%d vpos=%d vcmp=%d act=%d thisline=%d\n", n, vp, vpos, cop_state.vcmp, copper_enabled_thisline);
@@ -5364,7 +5363,7 @@ void hsync_handler (void)
 			lightpen_triggered = 0;
 			sprite_0 = 0;
 		}
-		if (lightpen_cx > 0 && (bplcon0 & 8) && !lightpen_triggered && lightpen_cy == vpos) {
+		if (lightpen_cx > 0 && (bplcon0 & 8) && !lightpen_triggered && lightpen_cy == (int)vpos) {
 			vpos_lpen = vpos;
 			hpos_lpen = lightpen_cx;
 			lightpen_triggered = 1;
@@ -5428,7 +5427,7 @@ void hsync_handler (void)
 	/* Agnus vpos counter keeps counting until it wraps around if VPOSW writes put it past maxvpos */
 	vpos++;
 	vpos_count++;
-	if (vpos >= maxvpos_total)
+	if ((int)vpos >= maxvpos_total)
 		vpos = 0;
 	if (vpos == maxvpos + lof_current || vpos == maxvpos + lof_current + 1 || vpos_count >= MAXVPOS) {
 		// vpos_count >= MAXVPOS just to not crash if VPOSW writes prevent vsync completely
@@ -5476,7 +5475,7 @@ void hsync_handler (void)
 #ifdef DEBUGGER
 			if (debug_dma) {
 				uae_u16 strobe = 0x3c;
-				if (vpos < equ_vblank_endline)
+				if ((int)vpos < equ_vblank_endline)
 					strobe = 0x38;
 				else if (vpos < minfirstline)
 					strobe = 0x3a;
@@ -5488,7 +5487,7 @@ void hsync_handler (void)
 			}
 #endif
 			hp += 2;
-			if (hp >= maxhpos)
+			if (hp >= (int)maxhpos)
 				hp -= maxhpos;
 		}
 	}
@@ -5587,7 +5586,7 @@ void hsync_handler (void)
 	//copper_check (2);
 
 	if (GET_PLANES (bplcon0) > 0 && dmaen (DMA_BITPLANE)) {
-		if (vpos > last_planes_vpos)
+		if ((int)vpos > last_planes_vpos)
 			last_planes_vpos = vpos;
 		if (vpos >= minfirstline && first_planes_vpos == 0) {
 			first_planes_vpos = vpos;
@@ -5596,7 +5595,7 @@ void hsync_handler (void)
 		}
 	}
 	if (diw_change == 0) {
-		if (vpos >= first_planes_vpos && vpos <= last_planes_vpos) {
+		if ((int)vpos >= first_planes_vpos && (int)vpos <= last_planes_vpos) {
 			if (diwlastword > diwlastword_total)
 				diwlastword_total = diwlastword;
 			if (diwfirstword < diwfirstword_total) {
@@ -5606,9 +5605,9 @@ void hsync_handler (void)
 		}
 		if (diwstate == DIW_waiting_stop) {
 			int f = 8 << fetchmode;
-			if (plfstrt + f < ddffirstword_total + f)
+			if ((int)plfstrt + f < ddffirstword_total + f)
 				ddffirstword_total = plfstrt + f;
-			if (plfstop + 2 * f > ddflastword_total + 2 * f)
+			if ((int)plfstop + 2 * f > ddflastword_total + 2 * f)
 				ddflastword_total = plfstop + 2 * f;
 		}
 		if ((plffirstline < plffirstline_total || (plffirstline_total == minfirstline && vpos > minfirstline)) && plffirstline < vpos / 2) {
@@ -6928,16 +6927,33 @@ STATIC_INLINE void checknasty (unsigned int hpos, int vpos)
 #endif
 }
 
+static void sync_ce020 (void)
+{
+	unsigned long c;
+	int extra;
+
+	c = get_cycles ();
+	extra = c & (CYCLE_UNIT - 1);
+	if (extra) {
+		extra = CYCLE_UNIT - extra;
+		do_cycles (extra);
+	}
+}
+
+#define SETIFCHIP \
+	if (addr < 0xd80000) \
+		last_custom_value1 = v;
+
 uae_u32 wait_cpu_cycle_read (uaecptr addr, int mode)
 {
 	uae_u32 v = 0;
 	int hpos;
-	struct dma_rec *dr;
 
 	hpos = dma_cycle ();
 	do_cycles_ce (CYCLE_UNIT);
 
 #ifdef DEBUGGER
+	struct dma_rec *dr = NULL;
 	if (debug_dma) {
 		int reg = 0x1000;
 		if (mode < 0)
@@ -6970,12 +6986,13 @@ uae_u32 wait_cpu_cycle_read_ce020 (uaecptr addr, int mode)
 {
 	uae_u32 v = 0;
 	int hpos;
-	struct dma_rec *dr;
 
+	sync_ce020 ();
 	hpos = dma_cycle ();
 	do_cycles_ce (CYCLE_UNIT);
 
 #ifdef DEBUGGER
+	struct dma_rec *dr = NULL;
 	if (debug_dma) {
 		int reg = 0x1000;
 		if (mode < 0)
@@ -7039,6 +7056,7 @@ void wait_cpu_cycle_write_ce020 (uaecptr addr, int mode, uae_u32 v)
 {
 	int hpos;
 
+	sync_ce020 ();
 	hpos = dma_cycle ();
 	do_cycles_ce (CYCLE_UNIT);
 
