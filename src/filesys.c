@@ -444,7 +444,6 @@ char *filesys_createvolname (const char *volname, const char *rootdir, const cha
 			nvol = my_strdup (p + i);
 	}
 	if (!nvol && archivehd >= 0) {
-		char *s = NULL;
 		if (volname && _tcslen (volname) > 0)
 			nvol = my_strdup (volname);
 		else
@@ -1274,7 +1273,7 @@ static void filesys_delayed_change (Unit *u, int frames, const TCHAR *rootdir, c
 	u->newrootdir = my_strdup (rootdir);
 	if (volume)
 		u->newvolume = my_strdup (volume);
-	filesys_eject(volume, u->unit);
+	filesys_eject(&current_mountinfo, u->unit);
 	if (!rootdir || _tcslen (rootdir) == 0)
 		u->reinsertdelay = 0;
 	if (u->reinsertdelay > 0)
@@ -1318,7 +1317,7 @@ int filesys_media_change (struct uaedev_mount_info *mountinfo, const char *rootd
 		return 0;
 	/* already mounted volume was ejected? */
 	if (nr >= 0 && !inserted)
-		return filesys_eject (volname, nr);
+		return filesys_eject (&current_mountinfo, nr);
 	if (inserted) {
 		if (uci) {
 			volptr = my_strdup (uci->volname);
