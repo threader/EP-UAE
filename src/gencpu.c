@@ -2562,8 +2562,8 @@ static void gen_opcode (unsigned long int opcode)
 		printf ("\t\t\tnewv = (newv & 0xffff) | ((uae_u32)rem << 16);\n");
 		printf ("\t\t"); genastore ("newv", curi->dmode, "dstreg", sz_long, "dst");
 		printf ("\t\t}\n");
-		sync_m68k_pc ();
 		printf ("\t}\n");
+		sync_m68k_pc ();
 		count_ncycles++;
 		insn_n_cycles += 156 - (156 - 120) / 2; /* average */
 		need_endlabel = 1;

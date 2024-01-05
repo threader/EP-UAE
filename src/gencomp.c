@@ -3134,6 +3134,10 @@ main (int argc, char **argv)
     noflags=0;
     generate_func (noflags);
 
+	xfree (opcode_map);
+	xfree (opcode_last_postfix);
+	xfree (opcode_next_clev);
+	xfree (counts);
 
     opcode_map = (int *) xmalloc (sizeof (int) * nr_cpuop_funcs);
     opcode_last_postfix = (int *) xmalloc (sizeof (int) * nr_cpuop_funcs);
@@ -3146,6 +3150,11 @@ main (int argc, char **argv)
     printf ("#endif\n");
     fprintf (stblfile, "#endif\n");
 
-    free (table68k);
+	xfree (opcode_map);
+	xfree (opcode_last_postfix);
+	xfree (opcode_next_clev);
+	xfree (counts);
+	xfree (table68k);
+
     return 0;
 }

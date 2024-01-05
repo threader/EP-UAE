@@ -739,7 +739,7 @@ static uae_u8 ReadCIAA (unsigned int addr)
 	case 15:
 		return ciaacrb;
 	}
-	return (uae_u8)(ciaatol >> 16);
+	return 0;
 }
 
 static uae_u8 ReadCIAB (unsigned int addr)
