@@ -788,7 +788,7 @@ struct hardfiledata *get_hardfile_data (int nr)
 #define dp64_Arg5 56
 
 /* result codes */
-#define DOS_TRUE ((unsigned long)-1L)
+#define DOS_TRUE ((unsigned int)-1L)
 #define DOS_FALSE (0L)
 
 #define MAXFILESIZE32 (0x7fffffff)
@@ -6102,7 +6102,7 @@ void filesys_install_code (void)
 
 #ifdef SAVESTATE
 
-static uae_u8 *restore_filesys_hardfile (UnitInfo *ui, uae_u8 *src)
+static uae_u8 *restore_filesys_hardfile (UnitInfo *ui, const uae_u8 *src)
 {
 	struct hardfiledata *hfd = &ui->hf;
 	TCHAR *s;
@@ -6248,7 +6248,7 @@ static TCHAR *makenativepath (UnitInfo *ui, TCHAR *apath)
 	return pn;
 }
 
-static uae_u8 *restore_aino (UnitInfo *ui, Unit *u, uae_u8 *src)
+static uae_u8 *restore_aino (UnitInfo *ui, Unit *u, const uae_u8 *src)
 {
 	TCHAR *p, *p2, *pn;
 	uae_u32 flags;
@@ -6322,7 +6322,7 @@ static uae_u8 *restore_aino (UnitInfo *ui, Unit *u, uae_u8 *src)
 	return src;
 }
 
-static uae_u8 *restore_key (UnitInfo *ui, Unit *u, uae_u8 *src)
+static uae_u8 *restore_key (UnitInfo *ui, Unit *u,const  uae_u8 *src)
 {
 	int savedsize, uniq;
 	TCHAR *p, *pn;
@@ -6401,7 +6401,7 @@ static uae_u8 *restore_key (UnitInfo *ui, Unit *u, uae_u8 *src)
 	return src;
 }
 
-static uae_u8 *restore_notify (UnitInfo *ui, Unit *u, uae_u8 *src)
+static uae_u8 *restore_notify (UnitInfo *ui, Unit *u,const  uae_u8 *src)
 {
 	Notify *n = xcalloc (Notify, 1);
 	uae_u32 hash;
@@ -6425,7 +6425,7 @@ static uae_u8 *restore_notify (UnitInfo *ui, Unit *u, uae_u8 *src)
 	return src;
 }
 
-static uae_u8 *restore_exkey (UnitInfo *ui, Unit *u, uae_u8 *src)
+static uae_u8 *restore_exkey (UnitInfo *ui, Unit *u,const  uae_u8 *src)
 {
 	restore_u64 ();
 	restore_u64 ();
@@ -6433,7 +6433,7 @@ static uae_u8 *restore_exkey (UnitInfo *ui, Unit *u, uae_u8 *src)
 	return src;
 }
 
-static uae_u8 *restore_filesys_virtual (UnitInfo *ui, uae_u8 *src, int num)
+static uae_u8 *restore_filesys_virtual (UnitInfo *ui, const uae_u8 *src, int num)
 {
 	Unit *u = startup_create_unit (ui, num);
 	int cnt;
@@ -6650,7 +6650,7 @@ uae_u8 *save_filesys_common (int *len)
 	return dstbak;
 }
 
-uae_u8 *restore_filesys_common (uae_u8 *src)
+uae_u8 *restore_filesys_common (const uae_u8 *src)
 {
 	if (restore_u32 () != 2)
 		return src;

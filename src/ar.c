@@ -2038,7 +2038,7 @@ uae_u8 *save_hrtmon (int *len, uae_u8 *dstptr)
 	return dstbak;
 }
 
-uae_u8 *restore_hrtmon (uae_u8 *src)
+uae_u8 *restore_hrtmon (const uae_u8 *src)
 {
 	uae_u32 size;
 	TCHAR *s;

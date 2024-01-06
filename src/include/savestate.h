@@ -113,25 +113,25 @@ extern uae_u8 *restore_scsi_device (int wdtype, uae_u8 *src);
 extern uae_u8 *save_scsidev (int num, int *len, uae_u8 *dstptr);
 extern uae_u8 *restore_scsidev (uae_u8 *src);
 
-extern uae_u8 *restore_filesys (struct uaedev_mount_info *mountinfo, uae_u8 *src);
+extern uae_u8 *restore_filesys (struct uaedev_mount_info *mountinfo, const uae_u8 *src);
 extern uae_u8 *save_filesys (int num, int *len);
-extern uae_u8 *restore_filesys_common (uae_u8 *src);
+extern uae_u8 *restore_filesys_common (const uae_u8 *src);
 extern uae_u8 *save_filesys_common (int *len);
 extern int save_filesys_cando(void);
 
-extern uae_u8 *restore_gayle(uae_u8 *src);
+extern uae_u8 *restore_gayle(const uae_u8 *src);
 extern uae_u8 *save_gayle (int *len);
-extern uae_u8 *restore_ide (uae_u8 *src);
+extern uae_u8 *restore_ide (const uae_u8 *src);
 extern uae_u8 *save_ide (int num, int *len);
 
 extern uae_u8 *save_cd (int num, int *len);
-extern uae_u8 *restore_cd (int, uae_u8 *src);
+extern uae_u8 *restore_cd (int, const uae_u8 *src);
 extern void restore_cd_finish (void);
 
 extern uae_u8 *save_configuration (int *len);
-extern uae_u8 *restore_configuration (uae_u8 *src);
+extern uae_u8 *restore_configuration (const uae_u8 *src);
 extern uae_u8 *save_log (int, int *len);
-extern uae_u8 *restore_log (uae_u8 *src);
+extern uae_u8 *restore_log (const uae_u8 *src);
 
 extern void restore_cram (uae_u32, size_t);
 extern void restore_bram (uae_u32, size_t);
@@ -158,7 +158,7 @@ extern void restore_bootrom (uae_u32, size_t);
 
 extern const uae_u8 *restore_action_replay (const uae_u8 *);
 extern       uae_u8 *save_action_replay    (uae_u32 *, uae_u8 *);
-extern uae_u8 *restore_hrtmon (uae_u8 *);
+extern uae_u8 *restore_hrtmon (const uae_u8 *);
 extern uae_u8 *save_hrtmon (int *, uae_u8 *);
 
 extern void savestate_initsave (const char *filename, int docompress, int nodialogs);
