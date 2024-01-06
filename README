@@ -1,18 +1,25 @@
 EP-UAE 0.00
 =========================
 Crossover hybrid project merging the unreleased E-UAE 0.8.29 extracted from 
-E-UAE PPC JIT with P-UAE 2.10 ( so far ) with the goal gaining the features 
+E-UAE PPC JIT, with P-UAE 2.10 ( so far ), with the goal gaining the features 
 for E-UAE PPC JIT, x86 is first our the door as this makes it easier to work
 with. 
 
 Status:
-Just got it compiling, a sea of compiler warnings to work trough before it 
-might run.
+Runs and executes code with a basic configuration of chipmem, adding fast
+memory chokes it, cannot use a500-a600-a2000-cdtv kickstart use 
+a1200/3000/4000
+
+Filesystem isn't fixed yet.
+Many many many warnings to fix yet.
+GTK-GUI is AWOL and i've not spotted why.
+It's a miracle it works at all.
 
 Compiling:
-./bootstrap.sh
-./configure 
-make
+sh bronx_.sh
+
+Cleaning (mostly):
+sh release.sh 
 
 E-UAE PowerPC JIT project
 =========================
