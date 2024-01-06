@@ -2885,7 +2885,7 @@ void init_hz (void)
 		doublescan > 0 ? " dblscan" : "",
 		vblank_hz, vblank_hz * maxvpos_nom,
 		maxhpos, maxvpos);
-	//config_changed = 1;
+	config_changed = 1;
 }
 
 static void calcdiw (void)
