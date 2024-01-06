@@ -6694,7 +6694,7 @@ uae_u8 *save_filesys (int num, int *len)
 	return dstbak;
 }
 
-uae_u8 *restore_filesys (struct uaedev_mount_info *mountinfo, uae_u8 *src)
+uae_u8 *restore_filesys (struct uaedev_mount_info *mountinfo, const uae_u8 *src)
 {
 	int type, devno;
 	UnitInfo *ui;
