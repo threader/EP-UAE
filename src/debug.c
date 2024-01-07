@@ -1165,7 +1165,7 @@ static void smc_free (void)
 }
 
 static void initialize_memwatch (int mode);
-static void smc_detect_init (TCHAR **c)
+static void smc_detect_init (const TCHAR **c)
 {
 	int v, i;
 
