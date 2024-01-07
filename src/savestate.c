@@ -338,7 +338,7 @@ void restore_ram (size_t filepos, uae_u8 *memory)
     }
 }
 
-uae_u8 *restore_log (uae_u8 *src)
+uae_u8 *restore_log (const uae_u8 *src)
 {
 #if OPEN_LOG > 0
 	TCHAR *s = utf8u (src);
@@ -349,7 +349,7 @@ uae_u8 *restore_log (uae_u8 *src)
 	return src;
 }
 
-static void restore_header (uae_u8 *src)
+static void restore_header (const uae_u8 *src)
 {
 	TCHAR *emuname, *emuversion, *description;
 
@@ -515,9 +515,8 @@ void restore_state (const TCHAR *filename)
 			end = restore_hrtmon (chunk);
 #endif
 #ifdef FILESYS
-/* note */
 		else if (!_tcscmp (name, "FSYS"))
-			end = restore_filesys (filename, chunk);
+			end = restore_filesys (chunk);
 		else if (!_tcscmp (name, "FSYC"))
 			end = restore_filesys_common (chunk);
 #endif
@@ -629,7 +628,7 @@ static void save_rams (struct zfile *f, int comp)
 
 /* Save all subsystems */
 
-uae_u8 *save_cd (int num, int *len)
+uae_u8 *save_cd (int num, uae_u32 *len)
 {
 	uae_u8 *dstbak, *dst;
 
@@ -645,7 +644,7 @@ uae_u8 *save_cd (int num, int *len)
 	return dstbak;
 }
 
-uae_u8 *restore_cd (int unit, uae_u8 *src)
+uae_u8 *restore_cd (int unit, const uae_u8 *src)
 {
 	uae_u32 flags;
 	TCHAR *s;
@@ -863,7 +862,7 @@ int save_state (const TCHAR *filename, const TCHAR *description)
 	dst = save_filesys_common (&len);
 	if (dst) {
 		save_chunk (f, dst, len, "FSYC", 0);
-		for (i = 0; i < nr_units (currprefs.mountinfo); i++) {
+		for (i = 0; i < (unsigned int)nr_units (currprefs.mountinfo); i++) {
 			dst = save_filesys (i, &len);
 			if (dst) {
 				save_chunk (f, dst, len, "FSYS", 0);
