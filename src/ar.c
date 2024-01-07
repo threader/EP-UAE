@@ -1997,7 +1997,7 @@ void action_replay_memory_reset (void)
 }
 
 #ifdef SAVESTATE
-uae_u8 *save_hrtmon (int *len, uae_u8 *dstptr)
+uae_u8 *save_hrtmon (uae_u32 *len, uae_u8 *dstptr)
 {
 	uae_u8 *dstbak, *dst;
 

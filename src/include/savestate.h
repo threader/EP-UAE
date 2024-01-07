@@ -50,7 +50,7 @@ extern const uae_u8 *restore_cpu (const uae_u8 *src);
 extern       void    restore_cpu_finish (void);
 extern       uae_u8 *save_cpu    (uae_u32 *len, uae_u8 *dstpr);
 
-extern uae_u8 *restore_mmu (uae_u8 *);
+extern uae_u8 *restore_mmu (const uae_u8 *);
 extern uae_u8 *save_mmu (uae_u32 *len, uae_u8 *);
 
 extern const uae_u8 *restore_fpu (const uae_u8 *src);
@@ -115,7 +115,7 @@ extern uae_u8 *restore_scsi_device (int wdtype, const uae_u8 *src);
 extern uae_u8 *save_scsidev (int num, uae_u32 *len, uae_u8 *dstptr);
 extern uae_u8 *restore_scsidev (const uae_u8 *src);
 
-extern uae_u8 *restore_filesys (const uae_u8 *src);
+extern uae_u8 *restore_filesys (struct uaedev_mount_info *mountinfo, const uae_u8 *src);
 extern uae_u8 *save_filesys (int num, uae_u32 *len);
 extern uae_u8 *restore_filesys_common (const uae_u8 *src);
 extern uae_u8 *save_filesys_common (uae_u32 *len);
@@ -160,7 +160,7 @@ extern void restore_bootrom (uae_u32, size_t);
 
 extern const uae_u8 *restore_action_replay (const uae_u8 *);
 extern       uae_u8 *save_action_replay    (uae_u32 *len, uae_u8 *);
-extern uae_u8 *restore_hrtmon (uae_u8 *);
+extern uae_u8 *restore_hrtmon (const uae_u8 *);
 extern uae_u8 *save_hrtmon (uae_u32 *len, uae_u8 *);
 
 extern void savestate_initsave (const char *filename, int docompress, int nodialogs);

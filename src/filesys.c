@@ -6637,7 +6637,7 @@ static uae_u8 *save_filesys_virtual (UnitInfo *ui, uae_u8 *dst)
 	return dst;
 }
 
-uae_u8 *save_filesys_common (int *len)
+uae_u8 *save_filesys_common (uae_u32 *len)
 {
 	uae_u8 *dstbak, *dst;
 	if (nr_units (currprefs.mountinfo) == 0)
@@ -6661,7 +6661,7 @@ uae_u8 *restore_filesys_common (const uae_u8 *src)
 	return src;
 }
 
-uae_u8 *save_filesys (int num, int *len)
+uae_u8 *save_filesys (int num, uae_u32 *len)
 {
 	uae_u8 *dstbak, *dst;
 	UnitInfo *ui;

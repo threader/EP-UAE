@@ -1730,7 +1730,7 @@ int akiko_init (void)
 
 #ifdef SAVESTATE
 
-uae_u8 *save_akiko (int *len, uae_u8 *dstptr)
+uae_u8 *save_akiko (uae_u32 *len, uae_u8 *dstptr)
 {
     uae_u8 *dstbak, *dst;
 	unsigned int i;

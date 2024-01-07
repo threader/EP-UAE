@@ -3091,7 +3091,7 @@ uae_u8 *restore_configuration (const uae_u8 *src)
 	return src;
 }
 
-uae_u8 *save_configuration (int *len)
+uae_u8 *save_configuration (uae_u32 *len)
 {
 	int tmpsize = 30000;
 	uae_u8 *dstbak, *dst, *p;
