@@ -34,10 +34,7 @@ typedef struct TrapContext
 /*
  * A function which handles a 68k trap
  */
-//typedef uae_u32 (*TrapHandler) (TrapContext *) REGPARAM;
-
-typedef uae_u32 (REGPARAM3 *TrapHandler) (TrapContext *) REGPARAM;
-
+typedef uae_u32 (*TrapHandler) (TrapContext *) REGPARAM;
 
 
 /*

@@ -47,3 +47,5 @@ extern int enet_readseravail (void);
 extern int enet_readser (uae_u16 *buffer);
 extern int enet_open (TCHAR *name);
 extern void enet_close (void);
+
+#define serial_check_irq() do{}while(0)

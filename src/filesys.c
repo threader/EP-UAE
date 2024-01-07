@@ -44,6 +44,7 @@
 #include "gui.h"
 #include "gayle.h"
 #include "savestate.h"
+#include "a2091.h"
 #include "consolehook.h"
 
 //FIXME: ---start
@@ -1374,7 +1375,8 @@ int filesys_media_change (struct uaedev_mount_info *mountinfo, const char *rootd
 	}
 	return 0;
 }
-
+// REMOVEME:
+#if 0
 int hardfile_remount (int nr)
 {
 	/* this does work but every media reinsert duplicates the device.. */
@@ -1386,6 +1388,7 @@ int hardfile_remount (int nr)
 #endif
 	return 1;
 }
+#endif // 0
 /* note */
 int filesys_insert (struct uaedev_mount_info *mountinfo, int nr, TCHAR *volume, const TCHAR *rootdir, int readonly, int flags)
 {
@@ -3103,11 +3106,11 @@ static int exalldo (uaecptr exalldata, uae_u32 exalldatasize, uae_u32 type, uaec
 {
 	uaecptr exp = exalldata;
 	int i;
-	int size, size2;
+	uae_u32 size, size2;
 	int entrytype;
 	TCHAR *xs = NULL, *commentx = NULL;
 	uae_u32 flags = 15;
-	long days, mins, ticks;
+	long days = 0, mins = 0, ticks = 0;
 	struct _stat64 statbuf;
 	int fsdb_can = fsdb_cando (unit);
 	uae_u16 uid = 0, gid = 0;
@@ -3181,7 +3184,7 @@ static int exalldo (uaecptr exalldata, uae_u32 exalldatasize, uae_u32 type, uaec
 	put_long (exp, exp + size + size2); /* ed_Next */
 	if (type >= 1) {
 		put_long (exp + 4, exp + size2);
-		for (i = 0; i <= strlen (x); i++) {
+		for (i = 0; i <= (int)strlen (x); i++) {
 			put_byte (exp + size2, x[i]);
 			size2++;
 		}
@@ -3200,7 +3203,7 @@ static int exalldo (uaecptr exalldata, uae_u32 exalldatasize, uae_u32 type, uaec
 	if (type >= 6) {
 		put_long (exp + 32, exp + size2);
 		put_byte (exp + size2, strlen (comment));
-		for (i = 0; i <= strlen (comment); i++) {
+		for (i = 0; i <= (int)strlen (comment); i++) {
 			put_byte (exp + size2, comment[i]);
 			size2++;
 		}
@@ -5995,7 +5998,7 @@ static uae_u32 REGPARAM2 mousehack_done (TrapContext *context)
 		uaecptr diminfo = m68k_areg (&context->regs, 2);
 		uaecptr dispinfo = m68k_areg (&context->regs, 3);
 		uaecptr vp = m68k_areg (&context->regs, 4);
-		input_mousehack_status (mode, diminfo, dispinfo, vp, m68k_dreg (&context->regs, 2));
+		return input_mousehack_status (mode, diminfo, dispinfo, vp, m68k_dreg (&context->regs, 2));
 	} else if (mode == 10) {
 		;//amiga_clipboard_die ();
 	} else if (mode == 11) {
@@ -6105,7 +6108,7 @@ void filesys_install_code (void)
 static uae_u8 *restore_filesys_hardfile (UnitInfo *ui, const uae_u8 *src)
 {
 	struct hardfiledata *hfd = &ui->hf;
-	TCHAR *s;
+	const TCHAR *s;
 
 	hfd->virtsize = restore_u64();
 	hfd->offset = restore_u64();
@@ -6159,7 +6162,7 @@ static uae_u8 *save_filesys_hardfile (UnitInfo *ui, uae_u8 *dst)
 
 static a_inode *restore_filesys_get_base (Unit *u, TCHAR *npath)
 {
-	TCHAR *path, *p, *p2;
+	const TCHAR *path, *p = 0, *p2 = 0;
 	a_inode *a;
 	int cnt, err, i;
 
@@ -6183,7 +6186,7 @@ static a_inode *restore_filesys_get_base (Unit *u, TCHAR *npath)
 				p++;
 		}
 		if (*p) {
-			*p = 0;
+			//*p = 0;
 			err = 0;
 			get_aino (u, &u->rootnode, path, &err);
 			if (err) {
@@ -6209,7 +6212,7 @@ static a_inode *restore_filesys_get_base (Unit *u, TCHAR *npath)
 		p2 = p;
 		while(*p2 != '/' && *p2 != '\\' && *p2 != 0)
 			p2++;
-		*p2 = 0;
+		//*p2 = 0;
 		while (a) {
 			if (!same_aname(p, a->aname)) {
 				a = a->sibling;
@@ -6234,13 +6237,13 @@ static a_inode *restore_filesys_get_base (Unit *u, TCHAR *npath)
 
 static TCHAR *makenativepath (UnitInfo *ui, TCHAR *apath)
 {
-	int i;
+	uae_u32 i = 0;
 	TCHAR *pn;
 	/* create native path. FIXME: handle 'illegal' characters */
 	pn = xcalloc (TCHAR, _tcslen (apath) + 1 + _tcslen (ui->rootdir) + 1);
 	_stprintf (pn, "%s/%s", ui->rootdir, apath);
 	if (FSDB_DIR_SEPARATOR != '/') {
-		for (i = 0; i < _tcslen (pn); i++) {
+		for ( ; i < _tcslen (pn); i++) {
 			if (pn[i] == '/')
 				pn[i] = FSDB_DIR_SEPARATOR;
 		}
@@ -6322,10 +6325,10 @@ static uae_u8 *restore_aino (UnitInfo *ui, Unit *u, const uae_u8 *src)
 	return src;
 }
 
-static uae_u8 *restore_key (UnitInfo *ui, Unit *u,const  uae_u8 *src)
+static uae_u8 *restore_key (UnitInfo *ui, Unit *u, const uae_u8 *src)
 {
 	int savedsize, uniq;
-	TCHAR *p, *pn;
+	const TCHAR *p, *pn;
 	mode_t openmode;
 	int err;
 	int missing;
@@ -6380,7 +6383,7 @@ static uae_u8 *restore_key (UnitInfo *ui, Unit *u,const  uae_u8 *src)
 			write_log ("*** FS: Open file '%s' failed to open!\n", p);
 			missing = 1;
 		} else {
-			uae_s64 s;
+			uae_u64 s;
 			s = fs_lseek64 (k->fd, 0, SEEK_END);
 			if (s != savedsize)
 				write_log ("FS: restored file '%s' size changed! orig=%d, now=%d!!\n", p, savedsize, s);
@@ -6401,11 +6404,11 @@ static uae_u8 *restore_key (UnitInfo *ui, Unit *u,const  uae_u8 *src)
 	return src;
 }
 
-static uae_u8 *restore_notify (UnitInfo *ui, Unit *u,const  uae_u8 *src)
+static uae_u8 *restore_notify (UnitInfo *ui, Unit *u, const uae_u8 *src)
 {
 	Notify *n = xcalloc (Notify, 1);
 	uae_u32 hash;
-	TCHAR *s;
+	const TCHAR *s;
 
 	n->notifyrequest = restore_u32 ();
 	s = restore_string ();
@@ -6425,7 +6428,7 @@ static uae_u8 *restore_notify (UnitInfo *ui, Unit *u,const  uae_u8 *src)
 	return src;
 }
 
-static uae_u8 *restore_exkey (UnitInfo *ui, Unit *u,const  uae_u8 *src)
+static uae_u8 *restore_exkey (UnitInfo *ui, Unit *u, const uae_u8 *src)
 {
 	restore_u64 ();
 	restore_u64 ();
@@ -6698,7 +6701,7 @@ uae_u8 *restore_filesys (struct uaedev_mount_info *mountinfo, const uae_u8 *src)
 {
 	int type, devno;
 	UnitInfo *ui;
-	TCHAR *devname = 0, *volname = 0, *rootdir = 0, *filesysdir = 0;
+	const TCHAR *devname = 0, *volname = 0, *rootdir = 0, *filesysdir = 0;
 	int bootpri, readonly;
 
 	if (restore_u32 () != 2)

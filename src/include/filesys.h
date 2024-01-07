@@ -163,3 +163,8 @@ int hdf_hd_open(struct hd_hardfiledata *hfd, const TCHAR *path, int blocksize, i
  int hdf_write_target (struct hardfiledata *hfd, void *buffer, uae_u64 offset, int len);
  int hdf_resize_target (struct hardfiledata *hfd, uae_u64 newsize);
  void getchsgeometry (uae_u64 size, int *pcyl, int *phead, int *psectorspertrack);
+
+// REMOVEME:
+#if 0
+int hardfile_remount (int nr);
+#endif // 0
