@@ -188,7 +188,7 @@ struct inputdevice_functions inputdevicefunc_joystick = {
  */
 int input_get_default_joystick (struct uae_input_device *uid, int num, int port, int cd32)
 {
-    unsigned int i, j;
+    unsigned int i = 0, j;
 	int h,v;
  
 	if (i >= get_joystick_num ())
