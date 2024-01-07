@@ -495,10 +495,6 @@ extern int target_cfgfile_load (struct uae_prefs *, const TCHAR *filename, int t
 
 int parse_cmdline_option (struct uae_prefs *, char, char *);
 
-extern int cfgfile_yesno  (const char *option, const char *value, const char *name, int *location);
-extern int cfgfile_intval (const char *option, const char *value, const char *name, int *location, int scale);
-extern int cfgfile_strval (const char *option, const char *value, const char *name, int *location, const char *table[], int more);
-extern int cfgfile_string (const char *option, const char *value, const char *name, char *location, int maxsz);
 extern char *cfgfile_subst_path (const char *path, const char *subst, const char *file);
 extern void cfgfile_subst_home (char *path, unsigned int maxlen);
 

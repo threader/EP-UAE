@@ -795,9 +795,9 @@ int cfgfile_intval (const char *option, const char *value, const char *name, int
     }
     return 1;
 }
-int cfgfile_intvalx (const char *option, const char *value, const char *name, uae_u32 *location, int scale)
+static int cfgfile_intvalx (const char *option, const char *value, const char *name, uae_u32 *location, int scale)
 {
-	unsigned int v = 0;
+	int v = 0;
 	int r = cfgfile_intval (option, value, name, &v, scale);
 	if (!r)
 		return 0;
