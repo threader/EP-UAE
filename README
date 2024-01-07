@@ -1,7 +1,7 @@
 EP-UAE 0.00
 =========================
 This project merges the unreleased E-UAE 0.8.29 used by E-UAE PPC JIT
-with P-UAE 2.10(so far), with the goal of gaining recent features fixes
+with P-UAE 2.10(so far), with the goal of gaining recent features, fixes
 and improvements, intended to replace and extend E-UAE PPC JIT, with an
 eye on the tickets on the sourceforge project page for that project.
 First comes x86/X86_64, PPC JIT likely comes after unless I need 
@@ -17,12 +17,12 @@ when you use the a500-a600-a2000 kickstart and add any fastmem, it
 strangely goes beyond the green screen you get to if you run the 
 configration that works with the a1200 kick and starts booting 
 Workbench, something the a1200 kick does not with fastmem..
-
+For some reason the mouse cursor is missing but you can click
+and select things if you figure out where you are, runs too fast
+for double clicking, but if you bog down your machine with say, 
+compiling something, it slows down enough for this.
 The Aros kickstart replacement is included/built in though I've not 
-taken this beyond the kickstart. For some reason the mouse cursor is
-missing but you can click and select things if you figure out where you 
-are, runs too fast for double clicking, but if you bog down your machine
-with say, compiling something, it slows down enough for this.
+taken this beyond the kickstart.
 
 Added the option --enable-m32 to the configure script to aid enabling JIT
 and building a 32bit version, does not enable JIT but --enable-jit will,
@@ -38,7 +38,7 @@ GTK-GUI initial configuration window is AWOL and I've not spotted why.
 Compiling:
 Either
 sh bronx_.sh
-or configure to your liking
+or configure to your liking:
 ./bootstrap.sh 
 ./configure; make
 
