@@ -7,6 +7,8 @@ eye on the tickets on the sourceforge project page for that project.
 First comes x86/X86_64, PPC JIT likely comes after unless I need 
 ARM/AARCH64 to continue debugging in the wild or so.
 
+Supported platforms ought remain: Amiga, *BSD, *nix and MacOSx.
+
 Status:
 Boots to Workbench, from floppy, with a basic configuration of chipmem,
 but runs waay too fast, one bottom screen LED, if enabled in config tops
@@ -37,13 +39,13 @@ GTK-GUI initial configuration window is AWOL and I've not spotted why.
 
 Compiling:
 Either
-sh bronx_.sh
+./bronx_.sh
 or configure to your liking:
 ./bootstrap.sh 
 ./configure; make
 
 Cleaning (mostly):
-sh release.sh 
+./release.sh 
 
 E-UAE PowerPC JIT project
 =========================
