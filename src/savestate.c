@@ -514,9 +514,11 @@ void restore_state (const TCHAR *filename)
 		else if (!_tcscmp (name, "HRTM"))
 			end = restore_hrtmon (chunk);
 #endif
+
 #ifdef FILESYS
+/* note */
 		else if (!_tcscmp (name, "FSYS"))
-			end = restore_filesys (chunk);
+			end = restore_filesys (filename, chunk);
 		else if (!_tcscmp (name, "FSYC"))
 			end = restore_filesys_common (chunk);
 #endif

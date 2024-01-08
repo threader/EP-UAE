@@ -3848,7 +3848,7 @@ uae_u8 *save_cpu (uae_u32 *len, uae_u8 *dstptr)
 }
 
 #ifdef MMU
-uae_u8 *save_mmu (int *len, uae_u8 *dstptr)
+uae_u8 *save_mmu (uae_u32 *len, uae_u8 *dstptr)
 {
 	uae_u8 *dstbak, *dst;
 	int model;

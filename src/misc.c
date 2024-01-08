@@ -18,6 +18,16 @@
 #include "enforcer.h"
 #include "picasso96.h"
 #include "driveclick.h"
+#include "inputdevice.h"
+#include "keymap/keymap.h"
+#include "keyboard.h"
+#include <stdarg.h>
+#include "clipboard.h"
+#include "fsdb.h"
+#include "debug.h"
+#include "hrtimer.h"
+#include "sleep.h"
+#include "zfile.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -728,6 +738,11 @@ TCHAR *au (const char *s)
 	return strdup(s);
 }
 
+// unicode
+char *ua (const TCHAR *s)
+{
+	return strdup(s);
+}
 
 // --- win32gfx.c
 int screen_is_picasso = 0;
