@@ -17,6 +17,7 @@
 #include "options.h"
 #include "uae.h"
 #include "audio.h"
+#include "autoconf.h"
 #include "filesys.h"
 #include "events.h"
 #include "custom.h"
@@ -421,7 +422,7 @@ static void cfgfile_write_file_option (FILE *f, const char *option, const char *
 	free (out_path);
 }
 
-static void write_compatibility_cpu (struct zfile *f, struct uae_prefs *p)
+static void write_compatibility_cpu (struct zfile *f, const struct uae_prefs *p)
 {
 	char tmp[100];
 	int model;
@@ -770,6 +771,46 @@ int cfgfile_yesno (const char *option, const char *value, const char *name, int 
     return 1;
 }
 
+static int cfgfile_intval_real (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, unsigned int *location, int scale)
+{
+	int base = 10;
+	TCHAR *endptr;
+	TCHAR tmp[MAX_DPATH];
+
+	if (name == NULL)
+		return 0;
+	if (nameext) {
+		_tcscpy (tmp, name);
+		_tcscat (tmp, nameext);
+		if (_tcscmp (tmp, option) != 0)
+			return 0;
+	} else {
+		if (_tcscmp (option, name) != 0)
+			return 0;
+	}
+	/* I guess octal isn't popular enough to worry about here...  */
+	if (value[0] == '0' && _totupper (value[1]) == 'X')
+		value += 2, base = 16;
+	*location = _tcstol (value, &endptr, base) * scale;
+
+	if (*endptr != '\0' || *value == '\0') {
+		if (strcasecmp (value, _T("false")) == 0 || strcasecmp (value, _T("no")) == 0) {
+			*location = 0;
+			return 1;
+		}
+		if (strcasecmp (value, _T("true")) == 0 || strcasecmp (value, _T("yes")) == 0) {
+			*location = 1;
+			return 1;
+		}
+		write_log (_T("Option '%s' requires a numeric argument but got '%s'\n"), nameext ? tmp : option, value);
+		return -1;
+	}
+	return 1;
+}
+static int cfgfile_intval_unsigned (const TCHAR *option, const TCHAR *value, const TCHAR *name, unsigned int *location, int scale)
+{
+	return cfgfile_intval_real (option, value, name, NULL, location, scale);
+}
 int cfgfile_intval (const char *option, const char *value, const char *name, int *location, int scale)
 {
     int base = 10;
@@ -1075,7 +1116,7 @@ static int cfgfile_parse_host (struct uae_prefs *p, char *option, char *value)
 		|| cfgfile_intval (option, value, "floppy3sound", &p->dfxclick[3], 1)
 		|| cfgfile_intval (option, value, "floppy_volume", &p->dfxclickvolume, 1)
 #endif
-		|| cfgfile_intval (option, value, "override_dga_address", &p->override_dga_address, 1))
+		|| cfgfile_intval_unsigned (option, value, "override_dga_address", &p->override_dga_address, 1))
 		return 1;
 
 	if (
@@ -1673,14 +1714,14 @@ static int cfgfile_parse_hardware (struct uae_prefs *p, char *option, char *valu
 		|| cfgfile_intval (option, value, "fatgary", &p->cs_fatgaryrev, 1)
 		|| cfgfile_intval (option, value, "ramsey", &p->cs_ramseyrev, 1)
 		|| cfgfile_intval (option, value, "chipset_refreshrate", &p->chipset_refreshrate, 1)
-		|| cfgfile_intval (option, value, "fastmem_size", &p->fastmem_size, 0x100000)
-		|| cfgfile_intval (option, value, "a3000mem_size", &p->mbresmem_low_size, 0x100000)
-		|| cfgfile_intval (option, value, "mbresmem_size", &p->mbresmem_high_size, 0x100000)
-		|| cfgfile_intval (option, value, "z3mem_size", &p->z3fastmem_size, 0x100000)
-		|| cfgfile_intval (option, value, "z3mem2_size", &p->z3fastmem2_size, 0x100000)
-		|| cfgfile_intval (option, value, "z3mem_start", &p->z3fastmem_start, 1)
-		|| cfgfile_intval (option, value, "bogomem_size", &p->bogomem_size, 0x40000)
-		|| cfgfile_intval (option, value, "gfxcard_size", &p->gfxmem_size, 0x100000)
+		|| cfgfile_intval_unsigned (option, value, "fastmem_size", &p->fastmem_size, 0x100000)
+		|| cfgfile_intval_unsigned (option, value, "a3000mem_size", &p->mbresmem_low_size, 0x100000)
+		|| cfgfile_intval_unsigned (option, value, "mbresmem_size", &p->mbresmem_high_size, 0x100000)
+		|| cfgfile_intval_unsigned (option, value, "z3mem_size", &p->z3fastmem_size, 0x100000)
+		|| cfgfile_intval_unsigned (option, value, "z3mem2_size", &p->z3fastmem2_size, 0x100000)
+		|| cfgfile_intval_unsigned (option, value, "z3mem_start", &p->z3fastmem_start, 1)
+		|| cfgfile_intval_unsigned (option, value, "bogomem_size", &p->bogomem_size, 0x40000)
+		|| cfgfile_intval_unsigned (option, value, "gfxcard_size", &p->gfxmem_size, 0x100000)
 		|| cfgfile_intval (option, value, "rtg_modes", &p->picasso96_modeflags, 1)
 		|| cfgfile_intval (option, value, "floppy_speed", &p->floppy_speed, 1)
 		|| cfgfile_intval (option, value, "floppy_write_length", &p->floppy_write_length, 1)
@@ -1689,7 +1730,7 @@ static int cfgfile_parse_hardware (struct uae_prefs *p, char *option, char *valu
 		|| cfgfile_intval (option, value, "floppy1type", &p->dfxtype[1], 1)
 		|| cfgfile_intval (option, value, "floppy2type", &p->dfxtype[2], 1)
 		|| cfgfile_intval (option, value, "floppy3type", &p->dfxtype[3], 1)
-		|| cfgfile_intval (option, value, "maprom", &p->maprom, 1)
+		|| cfgfile_intval_unsigned (option, value, "maprom", &p->maprom, 1)
 		|| cfgfile_intval (option, value, "parallel_autoflush", &p->parallel_autoflush_time, 1)
 		|| cfgfile_intval (option, value, "uae_hide", &p->uae_hide, 1)
 		|| cfgfile_intval (option, value, "cpu_frequency", &p->cpu_frequency, 1)
@@ -3893,8 +3934,8 @@ static int bip_super (struct uae_prefs *p, int config, int compa, int romcheck)
 	p->produce_sound = 2;
 #ifdef JIT
 	p->cachesize = 8192;
-
-#endif	p->dfxtype[0] = DRV_35_HD;
+	p->dfxtype[0] = DRV_35_HD;
+#endif	
 	p->dfxtype[1] = DRV_35_HD;
 	p->floppy_speed = 0;
 	p->cpu_idle = 150;
@@ -3951,7 +3992,7 @@ static int bip_arcadia (struct uae_prefs *p, int config, int compa, int romcheck
 	return 1;
 }
 
-int built_in_prefs (struct uae_prefs *p, int model, int config, int compa, int romcheck)
+static int built_in_prefs (struct uae_prefs *p, int model, int config, int compa, int romcheck)
 {
 	int v = 0, i;
 

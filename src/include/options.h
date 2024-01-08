@@ -479,6 +479,12 @@ extern void cfgfile_dwrite_str (FILE *f, const TCHAR *option, const TCHAR *value
 extern void cfgfile_target_write_str (FILE *f, const TCHAR *option, const TCHAR *value);
 extern void cfgfile_target_dwrite_str (FILE *f, const TCHAR *option, const TCHAR *value);
 
+//extern struct uaedev_config_data *add_filesys_config (struct uae_prefs *p, int index, struct uaedev_config_info*);
+extern struct uaedev_config_info *add_filesys_config (struct uae_prefs *p, int index,
+	char *devname, char *volname, char *rootdir, int readonly,
+	int secspertrack, int surfaces, int reserved,
+	int blocksize, int bootpri,
+	char *filesysdir, int hdc, int flags);
 extern void default_prefs (struct uae_prefs *, int);
 extern void discard_prefs (struct uae_prefs *, int);
 
