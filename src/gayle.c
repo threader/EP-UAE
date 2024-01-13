@@ -284,7 +284,7 @@ static void gayle_cs_change (uae_u8 mask, int onoff)
 			if (gayle_irq & GAYLE_IRQ_RESET)
 				uae_reset (0);
 			if (gayle_irq & GAYLE_IRQ_BERR)
-				Exception (2, 0);
+				Exception (2, &regs ,0);
 		}
 	}
 }
@@ -1484,9 +1484,9 @@ static void initsramattr (int size, int readonly)
 	*p++= 4; /* PCMCIA 2.1 */
 	*p++= 1;
 	if (real) {
-		strncpy ((char*)p, hfd->product_id, -1);
+		ua_copy ((char*)p, -1, hfd->product_id);
 		p += strlen ((char*)p) + 1;
-		strncpy ((char*)p, hfd->product_rev, -1);
+		ua_copy ((char*)p, -1, hfd->product_rev);
 	} else {
 		strcpy ((char*)p, "UAE");
 		p += strlen ((char*)p) + 1;
@@ -1495,9 +1495,9 @@ static void initsramattr (int size, int readonly)
 	p += strlen ((char*)p) + 1;
 	sprintf ((char*)p, "Generic Emulated %dKB PCMCIA SRAM Card", size >> 10);
 	p += strlen ((char*)p) + 1;
-	*p++= 0;
+	// *p++= 0;
 	*p++= 0xff;
-	*rp = p - rp; 
+	*rp = p - rp - 1;
 
 	/* CISTPL_FUNCID */
 	*p++ = 0x21;
@@ -1941,7 +1941,7 @@ void gayle_reset (int hardreset)
 }
 
 #ifdef SAVESTATE
-uae_u8 *restore_gayle (uae_u8 *src)
+uae_u8 *restore_gayle (const uae_u8 *src)
 {
 	changed_prefs.cs_ide = restore_u8 ();
 	gayle_int = restore_u8 ();
@@ -1953,7 +1953,7 @@ uae_u8 *restore_gayle (uae_u8 *src)
 	return src;
 }
 
-uae_u8 *save_gayle (int *len)
+uae_u8 *save_gayle (uae_u32 *len)
 {
 	uae_u8 *dstbak, *dst;
 
@@ -1970,7 +1970,7 @@ uae_u8 *save_gayle (int *len)
 	return dstbak;
 }
 
-uae_u8 *save_ide (int num, int *len)
+uae_u8 *save_ide (int num, uae_u32 *len)
 {
 	uae_u8 *dstbak, *dst;
 	struct ide_hdf *ide;
@@ -2014,7 +2014,7 @@ uae_u8 *save_ide (int num, int *len)
 	return dstbak;
 }
 
-uae_u8 *restore_ide (uae_u8 *src)
+uae_u8 *restore_ide (const uae_u8 *src)
 {
 	int num, readonly, blocksize;
 	uae_u64 size;
