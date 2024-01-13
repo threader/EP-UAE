@@ -34,6 +34,7 @@
 #endif
 #include "catweasel.h"
 #include "driveclick.h"
+#include "fsdb.h"
 #ifdef CAPS
 #ifdef _WIN32
 #include "caps/caps_win32.h"
@@ -218,29 +219,32 @@ static void writeimageblock (struct zfile *dst, uae_u8 *sector, int offset)
     zfile_fwrite (sector, FS_FLOPPY_BLOCKSIZE, 1, dst);
 }
 
-static void disk_checksum (const uae_u8 *p, uae_u8 *c)
+static uae_u32 disk_checksum (uae_u8 *p, uae_u8 *c)
 {
-    uae_u32 cs = 0;
-    int i;
-    for (i = 0; i < FS_FLOPPY_BLOCKSIZE; i+= 4)
-	cs += (p[i] << 24) | (p[i+1] << 16) | (p[i+2] << 8) | (p[i+3] << 0);
-    cs = -cs;
-    c[0] = cs >> 24; c[1] = cs >> 16; c[2] = cs >> 8; c[3] = cs >> 0;
+	uae_u32 cs = 0;
+	int i;
+	for (i = 0; i < FS_FLOPPY_BLOCKSIZE; i+= 4)
+		cs += (p[i] << 24) | (p[i+1] << 16) | (p[i+2] << 8) | (p[i+3] << 0);
+	cs = -cs;
+	if (c) {
+		c[0] = cs >> 24; c[1] = cs >> 16; c[2] = cs >> 8; c[3] = cs >> 0;
+	}
+	return cs;
 }
 
-static int dirhash (const char *name)
+static int dirhash (const uae_char *name)
 {
-    unsigned long hash;
-    unsigned int i;
+	unsigned long hash;
+	uae_u32 i = 0;
 
-    hash = strlen (name);
-    for (i = 0; i < strlen (name); i++) {
-	hash = hash * 13;
-	hash = hash + toupper (name[i]);
-	hash = hash & 0x7ff;
-    }
-    hash = hash % ((FS_FLOPPY_BLOCKSIZE / 4) - 56);
-    return hash;
+	hash = strlen (name);
+	for( ; i < strlen (name); i++) {
+		hash = hash * 13;
+		hash = hash + toupper (name[i]);
+		hash = hash & 0x7ff;
+	}
+	hash = hash % ((FS_FLOPPY_BLOCKSIZE / 4) - 56);
+	return hash;
 }
 
 static void disk_date (uae_u8 *p)
@@ -563,10 +567,8 @@ static void drive_image_free (drive *drv)
 		fdi2raw_header_free (drv->fdi);
 		drv->fdi = 0;
 #endif
-	break;
-	default:
-	    break;
-    }
+		break;
+	}
 	drv->filetype = ADF_NONE;
     zfile_fclose (drv->diskfile);
     drv->diskfile = 0;
@@ -788,7 +790,7 @@ static int iswritefileempty (const char *name)
     int wrprot;
     uae_u8 buffer[8];
     trackid td[MAX_TRACKS];
-    unsigned int tracks, i, ret;
+    int tracks, i, ret;
     int ddhd;
 
     zf = getwritefile (name, &wrprot);
@@ -874,9 +876,12 @@ static int diskfile_iswriteprotect (const char *fname, int *needwritefile, drive
 
 static int drive_insert (drive * drv, struct uae_prefs *p, int dnum, const char *fname)
 {
-    unsigned char buffer[2 + 2 + 4 + 4];
-    trackid *tid;
-	int num_tracks, size;
+	uae_u8 buffer[2 + 2 + 4 + 4];
+	trackid *tid;
+#if  defined(CAPS) || defined(SCP)
+	int num_tracks;
+#endif
+	int size;
 	int canauto;
 	char *ext;
 
@@ -942,7 +947,7 @@ static int drive_insert (drive * drv, struct uae_prefs *p, int dnum, const char 
 #ifdef CAPS
     } else if (strncmp ((char *) buffer, "CAPS", 4) == 0) {
 
-	unsigned int num_tracks;
+
 		drv->wrprot = 1;
 		if (!caps_loadimage (drv->diskfile, drv - floppy, &num_tracks)) {
 		    zfile_fclose (drv->diskfile);
@@ -996,7 +1001,7 @@ static int drive_insert (drive * drv, struct uae_prefs *p, int dnum, const char 
 		}
 
     } else if (memcmp (exeheader, buffer, sizeof (exeheader)) == 0) {
-		int i;
+		unsigned int i;
 		struct zfile *z = zfile_fopen_empty (NULL, "", 512 * 1760);
 		createimagefromexe (drv->diskfile, z);
 		drv->filetype = ADF_NORMAL;
@@ -1068,7 +1073,7 @@ static int drive_insert (drive * drv, struct uae_prefs *p, int dnum, const char 
 				drv->num_tracks *= 2;
 
     } else {
-	 int i;
+		unsigned int i;
 		int ds;
 
 		ds = 0;
@@ -1176,7 +1181,7 @@ static void drive_step (drive * drv)
 			write_log (" step ignored drive %d, %d",
 			drv - floppy, (get_cycles() - drv->steplimitcycle) / CYCLE_UNIT);
 		return;
-    } /* note /*
+    }
     /* A1200's floppy drive needs at least 30 raster lines between steps
      * but we'll use very small value for better compatibility with faster CPU emulation
      * (stupid trackloaders with CPU delay loops)
@@ -2520,7 +2525,7 @@ uae_u8 DISK_status (void)
     return st;
 }
 
-static int unformatted (drive *drv)
+STATIC_INLINE int unformatted (const drive *drv)
 {
     unsigned int tr = drv->cyl * 2 + side;
     if (tr >= drv->num_tracks)
@@ -3022,7 +3027,7 @@ void DISK_hsync (unsigned int tohpos)
 void DISK_update (unsigned int tohpos)
 {
 	unsigned int dr;
-	unsigned int cycles = (int)((tohpos << 8) - disk_hpos);
+	int cycles = (int)((tohpos << 8) - disk_hpos);
 	int startcycle = disk_hpos;
 	int didread;
 
@@ -3192,7 +3197,6 @@ void DSKLEN (uae_u16 v, unsigned int hpos)
 		for (dr = 0; dr < MAX_FLOPPY_DRIVES; dr++) {
 		    drive *drv = &floppy[dr];
 		    unsigned int pos;
-			int i;
 
 	    if (drv->motoroff)
 		continue;
@@ -3207,6 +3211,7 @@ void DSKLEN (uae_u16 v, unsigned int hpos)
 	    if (dskdmaen == 2) { /* TURBO read */
 
 		if (adkcon & 0x400) {
+		    unsigned int i;
 		    for (i = 0; i < drv->tracklen; i += 16) {
 			pos += 16;
 			pos %= drv->tracklen;
@@ -3231,6 +3236,7 @@ void DSKLEN (uae_u16 v, unsigned int hpos)
 
 	    } else if (dskdmaen == 3) { /* TURBO write */
 
+	        int i;
 		for (i = 0; i < dsklength; i++) {
 					uae_u16 w = get_word (dskpt + i * 2);
 					drv->bigmfmbuf[pos >> 4] = w;

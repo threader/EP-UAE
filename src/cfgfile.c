@@ -7,6 +7,7 @@
 * Copyright 1998 Brian King, Bernd Schmidt
 * Copyright 2006 Richard Drummond
 * Copyright 2008 Mustafa Tufan
+* fuck it, i need a pipe
 */
 
 #include "sysconfig.h"
@@ -355,7 +356,7 @@ void cfgfile_write (FILE *f, const char *format,...)
     va_end (parms);
 }
 
-void cfgfile_write_bool (FILE *f, const char *option, int b)
+void cfgfile_write_bool (FILE *f, const TCHAR *option, int b)
 {
 	cfgfile_write (f, "%s=%s\n", option, b ? "true" : "false");
 }
@@ -422,7 +423,7 @@ static void cfgfile_write_file_option (FILE *f, const char *option, const char *
 	free (out_path);
 }
 
-static void write_compatibility_cpu (struct zfile *f, const struct uae_prefs *p)
+static void write_compatibility_cpu (FILE *f, const struct uae_prefs *p)
 {
 	char tmp[100];
 	int model;

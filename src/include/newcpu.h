@@ -215,13 +215,13 @@ STATIC_INLINE void m68k_setpc (struct regstruct *regs, uaecptr newpc)
 
 STATIC_INLINE uaecptr m68k_getpc (struct regstruct *regs)
 {
-	return (uaecptr)(regs->pc + ((uae_u8*)regs->pc_p - (uae_u8*)regs->pc_oldp));
+    return regs->pc + ((char *)regs->pc_p - (char *)regs->pc_oldp);
 }
 #define M68K_GETPC m68k_getpc(&regs)
 
 STATIC_INLINE uaecptr m68k_getpc_p (struct regstruct *regs, uae_u8 *p)
 {
-	return (uaecptr)(regs->pc + ((uae_u8*)p - (uae_u8*)regs->pc_oldp));
+    return regs->pc + ((char *)p - (char *)regs->pc_oldp);
 }
 
 #define m68k_incpc(regs, o) ((regs)->pc_p += (regs, o))
@@ -420,18 +420,16 @@ extern void exception2 (uaecptr addr, uaecptr fault);
 extern void cpureset (void);
 
 extern void fill_prefetch_slow (struct regstruct *regs);
-
+#if 0 // UFO - It's Killing Me
 int notinrom (void)
 {
     if (munge24 (m68k_getpc (&regs)) < 0xe0000)
         return 1;
     return 0;
 }
+#endif 
 
 #define CPU_OP_NAME(a) op ## a
-
-extern cpuop_func *cpufunctbl[65536] ASM_SYM_FOR_FUNC ("cpufunctbl");
-
 
 /* Flags for Bernie during development/debugging. Should go away eventually */
 #define DISTRUST_CONSISTENT_MEM 0
