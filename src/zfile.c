@@ -433,7 +433,7 @@ static uae_u64 vhd_fread2 (struct zfile *zf, void *dataptrv, uae_u64 offset, uae
 		} else {
 			int bitmapoffsetbits;
 			int bitmapoffsetbytes;
-			int sectormapblock;
+			uae_u64 sectormapblock;
 
 			bitmapoffsetbits = (offset / 512) % (zvhd->vhd_blocksize / 512);
 			bitmapoffsetbytes = bitmapoffsetbits / 8;
@@ -791,14 +791,15 @@ end:
 #include "fdi2raw.h"
 static struct zfile *fdi (struct zfile *z, int index, int *retcode)
 {
-	int i, j, r;
+	unsigned int i, j, r;
 	struct zfile *zo;
 	TCHAR *orgname = zfile_getname (z);
 	TCHAR *ext = _tcsrchr (orgname, '.');
 	TCHAR newname[MAX_DPATH];
 	uae_u16 *amigamfmbuffer;
 	uae_u8 writebuffer_ok[32], *outbuf;
-	int tracks, len, outsize;
+	unsigned int tracks, len;
+	int outsize;
 	FDI *fdi;
 	int startpos = 0;
 	uae_u8 tmp[12];
@@ -886,7 +887,7 @@ static struct zfile *fdi (struct zfile *z, int index, int *retcode)
 			zfile_fwrite (outbuf, outsize, 1, zo);
 		} else {
 			int pos = zfile_ftell (zo);
-			int maxlen = len > 12798 ? len : 12798;
+			unsigned int maxlen = len > 12798 ? len : 12798;
 			int lenb = len * 8;
 
 			if (maxlen & 1)
@@ -1431,7 +1432,7 @@ static struct zfile *unzip (struct zfile *z)
 
 static struct zfile *zuncompress (struct zfile *z)
 {
-	int retcode, index;
+	int retcode = 0, index = 0;
     char *name = z->name;
     char *ext = strrchr (name, '.');
     uae_u8 header[4];
@@ -1696,7 +1697,7 @@ size_t zfile_fread  (void *b, size_t l1, size_t l2, struct zfile *z)
     if (z->data) {
 		if (z->seek + l1 * l2 > z->size) {
 			if (l1)
-				l2 = (z->size - z->seek) / l1;
+				l2 = (size_t)((z->size - z->seek) / (uae_s64)(l1));
 			else
 				l2 = 0;
 			if (l2 < 0)
@@ -1792,15 +1793,17 @@ TCHAR *zfile_fgets (TCHAR *s, int size, struct zfile *z)
 				break;
 			}
 			*p = z->data[z->seek++];
-			if (*p == '\n') {
+			if (*p == 0 && i == 0)
+				return NULL;
+			if (*p == '\n' || *p == 0) {
 				p++;
 				break;
 			}
 			p++;
 		}
 		*p = 0;
-		if (size > strlen (s2) + 1)
-			size = strlen (s2) + 1;
+		if (size > (int)strlen (s2) + 1)
+			size = (int)strlen (s2) + 1;
 		memcpy (s, s2, size);
 		return s + size;
 	} else {
@@ -1809,8 +1812,8 @@ TCHAR *zfile_fgets (TCHAR *s, int size, struct zfile *z)
 		s1 = fgets (s2, size, z->f);
 		if (!s1)
 			return NULL;
-		if (size > strlen (s2) + 1)
-			size = strlen (s2) + 1;
+		if (size > (int)strlen (s2) + 1)
+			size = (int)strlen (s2) + 1;
 		memcpy (s, s2, size);
 		return s + size;
 	}
@@ -1863,28 +1866,29 @@ uae_u8 *zfile_getdata (struct zfile *z, uae_s64 offset, int len)
 
 int zfile_zuncompress (void *dst, int dstsize, struct zfile *src, int srcsize)
 {
-    z_stream zs;
-    int v;
-    uae_u8 inbuf[4096];
-    int incnt;
+	z_stream zs;
+	int v;
+	uae_u8 inbuf[4096];
+	int incnt;
+	size_t left = 1;
 
     memset (&zs, 0, sizeof(zs));
 	if (inflateInit (&zs) != Z_OK)
 		return 0;
 	zs.next_out = (Bytef*)dst;
-    zs.avail_out = dstsize;
-    incnt = 0;
-    v = Z_OK;
-    while (v == Z_OK && zs.avail_out > 0) {
+	zs.avail_out = dstsize;
+	incnt = 0;
+	v = Z_OK;
+	while (left && (v == Z_OK) && (zs.avail_out > 0) ) {
 		if (zs.avail_in == 0) {
-		    int left = srcsize - incnt;
-		    if (left == 0)
-				break;
-			if (left > sizeof (inbuf))
-				left = sizeof (inbuf);
-		    zs.next_in = inbuf;
-		    zs.avail_in = zfile_fread (inbuf, 1, left, src);
-		    incnt += left;
+			left = (srcsize > incnt) ? srcsize - incnt : 0;
+			if (left > 0) {
+				if (left > sizeof (inbuf))
+					left = sizeof (inbuf);
+				zs.next_in = inbuf;
+				zs.avail_in = zfile_fread (inbuf, 1, left, src);
+				incnt += left;
+			}
 		}
 		v = inflate (&zs, 0);
     }
