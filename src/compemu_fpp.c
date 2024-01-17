@@ -564,7 +564,7 @@ void comp_fscc_opp (uae_u32 opcode, uae_u16 extra)
 	} else
 	    put_byte (ad, cc ? 0xff : 0x00);
     }
-#endif
+//#endif
 }
 
 void comp_ftrapcc_opp (uae_u32 opcode, uaecptr oldpc)
