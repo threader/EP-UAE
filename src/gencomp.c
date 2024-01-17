@@ -518,19 +518,28 @@ genastore (const char *from, amodes mode, const char *reg, wordsizes size, const
     switch (mode)
     {
      case Dreg:
+
+	/* The mov functions are defined as:
+	 * DECLARE(mov_b_rr(W1 d, R1 s));
+	 * DECLARE(mov_w_rr(W2 d, R2 s));
+	 * DECLARE(mov_l_rr(W4 d, R4 s));
+	 * Thus cast to ensure the correct type in
+	 * both comparison and call.
+	*/
+
 	switch (size)
 	{
 	 case sz_byte:
-	    comprintf("\tif((uae_u32)%s!=(uae_u32)%s)\n",reg,from);
-	    comprintf ("\t\tmov_b_rr(%s,%s);\n", reg, from);
+	    comprintf("\tif((W1)%s != (R1)%s)\n",reg,from);
+	    comprintf ("\t\tmov_b_rr((W1)%s, (R1)%s);\n", reg, from);
 	    break;
 	 case sz_word:
-	    comprintf("\tif((uae_u32)%s!=(uae_u32)%s)\n",reg,from);
-	    comprintf ("\t\tmov_w_rr(%s,%s);\n", reg, from);
+	    comprintf("\tif((W2)%s != (R2)%s)\n",reg,from);
+	    comprintf ("\t\tmov_w_rr((W2)%s, (R2)%s);\n", reg, from);
 	    break;
 	 case sz_long:
-	    comprintf("\tif((uae_u32)%s!=(uae_u32)%s)\n",reg,from);
-	    comprintf ("\t\tmov_l_rr(%s,%s);\n", reg, from);
+	    comprintf("\tif((W4)%s != (R4)%s)\n",reg,from);
+	    comprintf ("\t\tmov_l_rr((W4)%s, (R4)%s);\n", reg, from);
 	    break;
 	 default:
 	    abort ();
@@ -540,12 +549,12 @@ genastore (const char *from, amodes mode, const char *reg, wordsizes size, const
 	switch (size)
 	{
 	 case sz_word:
-	    comprintf("\tif((uae_u32)%s+8!=(uae_u32)%s)\n",reg,from);
-	    comprintf ("\t\tmov_w_rr(%s+8,%s);\n", reg, from);
+	    comprintf("\tif((W2)(%s+8) != (R2)%s)\n",reg,from);
+	    comprintf ("\t\tmov_w_rr((W2)(%s+8), (R2)%s);\n", reg, from);
 	    break;
 	 case sz_long:
-	    comprintf("\tif((uae_u32)%s+8!=(uae_u32)%s)\n",reg,from);
-	    comprintf ("\t\tmov_l_rr(%s+8,%s);\n", reg, from);
+	    comprintf("\tif((W4)(%s+8) != (R4)%s)\n",reg,from);
+	    comprintf ("\t\tmov_l_rr((W4)(%s+8), (R4)%s);\n", reg, from);
 	    break;
 	 default:
 	    abort ();
@@ -3026,14 +3035,15 @@ generate_one_opcode (int rp, int noflags)
 	    fprintf (stblfile, "{ NULL, %ld, 0x%08x }, /* %s */\n", opcode, flags, lookuptab[i].name);
 	    com_discard();
 	} else {
-	    if (noflags) {
-		fprintf (stblfile, "{ op_%lx_%d_comp_nf, %ld, 0x%08x }, /* %s */\n", opcode, postfix, opcode, flags, lookuptab[i].name);
-		fprintf (headerfile, "extern compop_func op_%lx_%d_comp_nf;\n", opcode, postfix);
-		printf ("unsigned long REGPARAM2 op_%lx_%d_comp_nf(uae_u32 opcode) /* %s */\n{\n", opcode, postfix, lookuptab[i].name);
+		//printf ("/* %s */\n", outopcode (opcode));
+		if (noflags) {
+			fprintf (stblfile, "{ op_%lx_%d_comp_nf, %ld, 0x%08x }, /* %s */\n", opcode, postfix, opcode, flags, lookuptab[i].name);
+			fprintf (headerfile, "extern compop_func op_%lx_%d_comp_nf;\n", opcode, postfix);
+			printf ("uae_u32 REGPARAM2 op_%lx_%d_comp_nf(uae_u32 opcode) /* %s */\n{\n", opcode, postfix, lookuptab[i].name);
 	    } else {
-		fprintf (stblfile, "{ op_%lx_%d_comp_ff, %ld, 0x%08x }, /* %s */\n", opcode, postfix, opcode, flags, lookuptab[i].name);
-		fprintf (headerfile, "extern compop_func op_%lx_%d_comp_ff;\n", opcode, postfix);
-		printf ("unsigned long REGPARAM2 op_%lx_%d_comp_ff(uae_u32 opcode) /* %s */\n{\n", opcode, postfix, lookuptab[i].name);
+			fprintf (stblfile, "{ op_%lx_%d_comp_ff, %ld, 0x%08x }, /* %s */\n", opcode, postfix, opcode, flags, lookuptab[i].name);
+			fprintf (headerfile, "extern compop_func op_%lx_%d_comp_ff;\n", opcode, postfix);
+			printf ("uae_u32 REGPARAM2 op_%lx_%d_comp_ff(uae_u32 opcode) /* %s */\n{\n", opcode, postfix, lookuptab[i].name);
 	    }
 	    com_flush();
 	}
@@ -3076,7 +3086,7 @@ generate_func (int noflags)
 		 "#define PART_7 1\n"
 		 "#define PART_8 1\n"
 		 "#endif\n\n"
-//		 "extern void setzflg_l();\n"
+		 "extern void setzflg_l(RW4 r);\n"
 		 "extern void comp_fpp_opp (uae_u32 opcode, uae_u16 extra);\n"
 		 "extern void comp_fscc_opp (uae_u32 opcode, uae_u16 extra);\n"
 		 "extern void comp_fbcc_opp (uae_u32 opcode);\n\n");

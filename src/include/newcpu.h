@@ -50,7 +50,7 @@ extern int fpp_movem_next[256];
 struct regstruct;
 
 typedef uae_u32 cpuop_func REGPARAM3  (uae_u32,   struct regstruct *regs) REGPARAM;
-typedef  void cpuop_func_ce REGPARAM3  (uae_u32, struct regstruct *regs) REGPARAM;
+typedef  void REGPARAM3 cpuop_func_ce   (uae_u32,    struct regstruct *regs) REGPARAM;
 
 struct cputbl {
     cpuop_func *handler;
@@ -68,6 +68,7 @@ struct comptbl {
 #endif
 
 extern uae_u32 REGPARAM3 op_illg (uae_u32, struct regstruct *regs) REGPARAM;
+extern void REGPARAM3 op_unimpl (uae_u16) REGPARAM;
 
 typedef uae_u8 flagtype;
 
@@ -151,7 +152,7 @@ struct regstruct
     uae_u32 mmu_fslw, mmu_fault_addr;
     uae_u16 mmu_ssw;
     uae_u32 wb3_data;
-    uae_u16 wb3_status;
+    uae_u32 wb3_status;
     int mmu_enabled;
     int mmu_pagesize_8k;
     uae_u32 fault_pc;

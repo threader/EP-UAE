@@ -507,6 +507,7 @@ static void REGPARAM2 dummy_lput (uaecptr addr, uae_u32 l)
 #endif
 	if (currprefs.illegal_mem)
 		dummylog (1, addr, 4, l, 0);
+	//dummy_put (addr, 4, l);
 }
 static void REGPARAM2 dummy_wput (uaecptr addr, uae_u32 w)
 {
@@ -515,6 +516,7 @@ static void REGPARAM2 dummy_wput (uaecptr addr, uae_u32 w)
 #endif
 	if (currprefs.illegal_mem)
 		dummylog (1, addr, 2, w, 0);
+	//dummy_put (addr, 2, w);
 }
 static void REGPARAM2 dummy_bput (uaecptr addr, uae_u32 b)
 {
@@ -523,6 +525,7 @@ static void REGPARAM2 dummy_bput (uaecptr addr, uae_u32 b)
 #endif
 	if (currprefs.illegal_mem)
 		dummylog (1, addr, 1, b, 0);
+	//dummy_put (addr, 1, b);
 }
 
 static int REGPARAM2 dummy_check (uaecptr addr, uae_u32 size)
@@ -584,7 +587,6 @@ uae_u32 REGPARAM2 chipmem_wget_ce2 (uaecptr addr)
 #ifdef JIT
 	special_mem |= S_READ;
 #endif
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     m = (uae_u16 *)(chipmemory + addr);
     ce2_timeout ();
@@ -598,7 +600,6 @@ uae_u32 REGPARAM2 chipmem_bget_ce2 (uaecptr addr)
 #ifdef JIT
 	special_mem |= S_READ;
 #endif
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     ce2_timeout ();
     return chipmemory[addr];
@@ -611,7 +612,6 @@ void REGPARAM2 chipmem_lput_ce2 (uaecptr addr, uae_u32 l)
 #ifdef JIT
 	special_mem |= S_WRITE;
 #endif
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     m = (uae_u32 *)(chipmemory + addr);
     ce2_timeout ();
@@ -625,7 +625,6 @@ void REGPARAM2 chipmem_wput_ce2 (uaecptr addr, uae_u32 w)
 #ifdef JIT
 	special_mem |= S_WRITE;
 #endif
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     m = (uae_u16 *)(chipmemory + addr);
     ce2_timeout ();
@@ -638,7 +637,6 @@ void REGPARAM2 chipmem_bput_ce2 (uaecptr addr, uae_u32 b)
 #ifdef JIT
 	special_mem |= S_WRITE;
 #endif
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     ce2_timeout ();
     chipmemory[addr] = b;
@@ -650,7 +648,6 @@ uae_u32 REGPARAM2 chipmem_lget (uaecptr addr)
 {
     uae_u32 *m;
 
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     m = (uae_u32 *)(chipmemory + addr);
     return do_get_mem_long (m);
@@ -660,7 +657,6 @@ uae_u32 REGPARAM2 chipmem_wget (uaecptr addr)
 {
     uae_u16 *m, v;
 
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     m = (uae_u16 *)(chipmemory + addr);
     v = do_get_mem_word (m);
@@ -671,7 +667,6 @@ uae_u32 REGPARAM2 chipmem_wget (uaecptr addr)
 uae_u32 REGPARAM2 chipmem_bget (uaecptr addr)
 {
     uae_u8 v;
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     v = chipmemory[addr];
 	//last_custom_value = (v << 8) | v;
@@ -682,7 +677,6 @@ void REGPARAM2 chipmem_lput (uaecptr addr, uae_u32 l)
 {
     uae_u32 *m;
 
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     m = (uae_u32 *)(chipmemory + addr);
     do_put_mem_long (m, l);
@@ -692,7 +686,6 @@ void REGPARAM2 chipmem_wput (uaecptr addr, uae_u32 w)
 {
     uae_u16 *m;
 
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     m = (uae_u16 *)(chipmemory + addr);
 	//last_custom_value = w;
@@ -701,7 +694,6 @@ void REGPARAM2 chipmem_wput (uaecptr addr, uae_u32 w)
 
 void REGPARAM2 chipmem_bput (uaecptr addr, uae_u32 b)
 {
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
 	//last_custom_value = (b << 8) | b;
 	chipmemory[addr] = b;
@@ -809,14 +801,12 @@ static void REGPARAM2 chipmem_agnus_bput (uaecptr addr, uae_u32 b)
 
 static int REGPARAM2 chipmem_check (uaecptr addr, uae_u32 size)
 {
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
 	return (addr + size) <= chipmem_full_size;
 }
 
 static uae_u8 REGPARAM2 *chipmem_xlate (uaecptr addr)
 {
-    addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     return chipmemory + addr;
 }
@@ -838,7 +828,6 @@ static uae_u8 *REGPARAM3 bogomem_xlate (uaecptr addr) REGPARAM;
 static uae_u32 REGPARAM2 bogomem_lget (uaecptr addr)
 {
     uae_u32 *m;
-    addr -= bogomem_start & bogomem_mask;
     addr &= bogomem_mask;
     m = (uae_u32 *)(bogomemory + addr);
     return do_get_mem_long (m);
@@ -847,7 +836,6 @@ static uae_u32 REGPARAM2 bogomem_lget (uaecptr addr)
 static uae_u32 REGPARAM2 bogomem_wget (uaecptr addr)
 {
     uae_u16 *m;
-    addr -= bogomem_start & bogomem_mask;
     addr &= bogomem_mask;
     m = (uae_u16 *)(bogomemory + addr);
     return do_get_mem_word (m);
@@ -855,7 +843,6 @@ static uae_u32 REGPARAM2 bogomem_wget (uaecptr addr)
 
 static uae_u32 REGPARAM2 bogomem_bget (uaecptr addr)
 {
-    addr -= bogomem_start & bogomem_mask;
     addr &= bogomem_mask;
     return bogomemory[addr];
 }
@@ -863,7 +850,6 @@ static uae_u32 REGPARAM2 bogomem_bget (uaecptr addr)
 static void REGPARAM2 bogomem_lput (uaecptr addr, uae_u32 l)
 {
     uae_u32 *m;
-    addr -= bogomem_start & bogomem_mask;
     addr &= bogomem_mask;
     m = (uae_u32 *)(bogomemory + addr);
     do_put_mem_long (m, l);
@@ -872,7 +858,6 @@ static void REGPARAM2 bogomem_lput (uaecptr addr, uae_u32 l)
 static void REGPARAM2 bogomem_wput (uaecptr addr, uae_u32 w)
 {
     uae_u16 *m;
-    addr -= bogomem_start & bogomem_mask;
     addr &= bogomem_mask;
     m = (uae_u16 *)(bogomemory + addr);
     do_put_mem_word (m, w);
@@ -880,21 +865,18 @@ static void REGPARAM2 bogomem_wput (uaecptr addr, uae_u32 w)
 
 static void REGPARAM2 bogomem_bput (uaecptr addr, uae_u32 b)
 {
-    addr -= bogomem_start & bogomem_mask;
     addr &= bogomem_mask;
     bogomemory[addr] = b;
 }
 
 static int REGPARAM2 bogomem_check (uaecptr addr, uae_u32 size)
 {
-    addr -= bogomem_start & bogomem_mask;
     addr &= bogomem_mask;
     return (addr + size) <= allocated_bogomem;
 }
 
 static uae_u8 REGPARAM2 *bogomem_xlate (uaecptr addr)
 {
-    addr -= bogomem_start & bogomem_mask;
     addr &= bogomem_mask;
     return bogomemory + addr;
 }
@@ -1159,7 +1141,6 @@ static uae_u8 *REGPARAM3 kickmem_xlate (uaecptr addr) REGPARAM;
 uae_u32 REGPARAM2 kickmem_lget (uaecptr addr)
 {
     uae_u32 *m;
-    addr -= kickmem_start & kickmem_mask;
     addr &= kickmem_mask;
     m = (uae_u32 *)(kickmemory + addr);
     return do_get_mem_long (m);
@@ -1168,7 +1149,6 @@ uae_u32 REGPARAM2 kickmem_lget (uaecptr addr)
 uae_u32 REGPARAM2 kickmem_wget (uaecptr addr)
 {
     uae_u16 *m;
-    addr -= kickmem_start & kickmem_mask;
     addr &= kickmem_mask;
     m = (uae_u16 *)(kickmemory + addr);
     return do_get_mem_word (m);
@@ -1176,7 +1156,6 @@ uae_u32 REGPARAM2 kickmem_wget (uaecptr addr)
 
 uae_u32 REGPARAM2 kickmem_bget (uaecptr addr)
 {
-    addr -= kickmem_start & kickmem_mask;
     addr &= kickmem_mask;
     return kickmemory[addr];
 }
@@ -1207,7 +1186,6 @@ void REGPARAM2 kickmem_wput (uaecptr addr, uae_u32 b)
 #endif
     if (a1000_kickstart_mode) {
 		if (addr >= 0xfc0000) {
-	    addr -= kickmem_start & kickmem_mask;
 	    	addr &= kickmem_mask;
 	    	m = (uae_u16 *)(kickmemory + addr);
 	    	do_put_mem_word (m, b);
@@ -1225,7 +1203,6 @@ void REGPARAM2 kickmem_bput (uaecptr addr, uae_u32 b)
 #endif
     if (a1000_kickstart_mode) {
 		if (addr >= 0xfc0000) {
-	    addr -= kickmem_start & kickmem_mask;
 		    addr &= kickmem_mask;
 		    kickmemory[addr] = b;
 		    return;
@@ -1241,7 +1218,6 @@ void REGPARAM2 kickmem2_lput (uaecptr addr, uae_u32 l)
 #ifdef JIT
 	special_mem |= S_WRITE;
 #endif
-    addr -= kickmem_start & kickmem_mask;
     addr &= kickmem_mask;
     m = (uae_u32 *)(kickmemory + addr);
     do_put_mem_long (m, l);
@@ -1253,7 +1229,6 @@ void REGPARAM2 kickmem2_wput (uaecptr addr, uae_u32 w)
 #ifdef JIT
 	special_mem |= S_WRITE;
 #endif
-    addr -= kickmem_start & kickmem_mask;
     addr &= kickmem_mask;
     m = (uae_u16 *)(kickmemory + addr);
     do_put_mem_word (m, w);
@@ -1264,21 +1239,18 @@ void REGPARAM2 kickmem2_bput (uaecptr addr, uae_u32 b)
 #ifdef JIT
 	special_mem |= S_WRITE;
 #endif
-    addr -= kickmem_start & kickmem_mask;
     addr &= kickmem_mask;
     kickmemory[addr] = b;
 }
 
 int REGPARAM2 kickmem_check (uaecptr addr, uae_u32 size)
 {
-    addr -= kickmem_start & kickmem_mask;
     addr &= kickmem_mask;
     return (addr + size) <= kickmem_size;
 }
 
 uae_u8 REGPARAM2 *kickmem_xlate (uaecptr addr)
 {
-    addr -= kickmem_start & kickmem_mask;
     addr &= kickmem_mask;
     return kickmemory + addr;
 }
@@ -1739,10 +1711,10 @@ addrbank custmem1_bank = {
 	custmem1_lget, custmem1_wget, ABFLAG_RAM
 };
 addrbank custmem2_bank = {
-	custmem1_lget, custmem1_wget, custmem1_bget,
-	custmem1_lput, custmem1_wput, custmem1_bput,
-	custmem1_xlate, custmem1_check, NULL, "Non-autoconfig RAM #2",
-	custmem1_lget, custmem1_wget, ABFLAG_RAM
+	custmem2_lget, custmem2_wget, custmem2_bget,
+	custmem2_lput, custmem2_wput, custmem2_bput,
+	custmem2_xlate, custmem2_check, NULL, _T("Non-autoconfig RAM #2"),
+	custmem2_lget, custmem2_wget, ABFLAG_RAM
 };
 
 #define fkickmem_size ROM_SIZE_512
@@ -1959,27 +1931,29 @@ static int patch_residents (uae_u8 *kickmemory, int size)
 	int i, j, patched = 0;
 	uae_char *residents[] = { "NCR scsi.device", 0 };
 	// "scsi.device", "carddisk.device", "card.resource" };
-	uaecptr base = size == 524288 ? 0xf80000 : 0xfc0000;
+	uaecptr base = size == ROM_SIZE_512 ? 0xf80000 : 0xfc0000;
 
-	if (currprefs.cs_mbdmac == 2)
-		residents[0] = NULL;
-	for (i = 0; i < size - 100; i++) {
-		if (kickmemory[i] == 0x4a && kickmemory[i + 1] == 0xfc) {
-			uaecptr addr;
-			addr = (kickmemory[i + 2] << 24) | (kickmemory[i + 3] << 16) | (kickmemory[i + 4] << 8) | (kickmemory[i + 5] << 0);
-			if (addr != i + base)
-				continue;
-			addr = (kickmemory[i + 14] << 24) | (kickmemory[i + 15] << 16) | (kickmemory[i + 16] << 8) | (kickmemory[i + 17] << 0);
-			if (addr >= base && addr < base + size) {
-				j = 0;
-				while (residents[j]) {
-					if (!memcmp (residents[j], kickmemory + addr - base, strlen (residents[j]) + 1)) {
-						write_log ("KSPatcher: '%s' at %08X disabled\n", residents[j], i + base);
-						kickmemory[i] = 0x4b; /* destroy RTC_MATCHWORD */
-						patched++;
-						break;
+	if (currprefs.cs_mbdmac != 2) {
+		for (i = 0; i < size - 100; i++) {
+			if (kickmemory[i] == 0x4a && kickmemory[i + 1] == 0xfc) {
+				uaecptr addr;
+				addr = (kickmemory[i + 2] << 24) | (kickmemory[i + 3] << 16) | (kickmemory[i + 4] << 8) | (kickmemory[i + 5] << 0);
+				if (addr != i + base)
+					continue;
+				addr = (kickmemory[i + 14] << 24) | (kickmemory[i + 15] << 16) | (kickmemory[i + 16] << 8) | (kickmemory[i + 17] << 0);
+				if (addr >= base && addr < base + size) {
+					j = 0;
+					while (residents[j]) {
+						if (!memcmp (residents[j], kickmemory + addr - base, strlen (residents[j]) + 1)) {
+							TCHAR *s = au (residents[j]);
+							write_log (_T("KSPatcher: '%s' at %08X disabled\n"), s, i + base);
+							xfree (s);
+							kickmemory[i] = 0x4b; /* destroy RTC_MATCHWORD */
+							patched++;
+							break;
+						}
+						j++;
 					}
-					j++;
 				}
 			}
 		}
@@ -2339,6 +2313,7 @@ uae_u8 *mapped_malloc (size_t s, const char *file)
     int id;
     void *answer;
     shmpiece *x;
+	static int recurse;
 
 	if (!canjit()) {
 		nocanbang ();
@@ -2349,7 +2324,6 @@ uae_u8 *mapped_malloc (size_t s, const char *file)
     if (id == -1) {
 		// Failed to allocate new shared mem segment, so turn
 		// off direct memory access and fall back on regular malloc()
-		static int recurse;
 		uae_u8 *p;
 		nocanbang ();
 		if (recurse)
@@ -2369,22 +2343,28 @@ uae_u8 *mapped_malloc (size_t s, const char *file)
 		x->native_address = (uae_u8*)answer;
 		x->id = id;
 		x->size = s;
+		x->name = file;
 		x->next = shm_start;
 		x->prev = NULL;
 		if (x->next)
 		    x->next->prev = x;
 		shm_start = x;
 		return (uae_u8*)answer;
-    }
+	}
+	if (recurse)
+		return NULL;
 	nocanbang ();
-	return mapped_malloc (s, file);
+	recurse++;
+	uae_u8 *r =  mapped_malloc (s, file);
+	recurse--;
+	return r;
 }
 
 #endif
 
 static void init_mem_banks (void)
 {
-    int i;
+	uae_u32 i;
 
     for (i = 0; i < MEMORY_BANKS; i++)
 		put_mem_bank (i << 16, &dummy_bank, 0);
@@ -2511,10 +2491,11 @@ static void allocate_memory (void)
 		need_hardreset = 1;
 	}
 //#if defined CDTV || defined CD32
+#ifdef CDTV
 	if ((int)allocated_cardmem != currprefs.cs_cdtvcard * 1024) {
 		if (cardmemory)
 			mapped_free (cardmemory);
-		cardmemory = 0;
+		cardmemory = NULL;
 
 		allocated_cardmem = currprefs.cs_cdtvcard * 1024;
 		cardmem_mask = allocated_cardmem - 1;
@@ -2525,7 +2506,7 @@ static void allocate_memory (void)
 				allocated_cardmem = 0;
 			}
 		}
-#ifdef CDTV
+
 		cdtv_loadcardmem(cardmemory, allocated_cardmem);
 #endif
 	}
@@ -2962,24 +2943,24 @@ void memory_init (void)
 {
     allocated_chipmem = 0;
     allocated_bogomem = 0;
-    kickmemory = 0;
-    extendedkickmemory = 0;
+    kickmemory = NULL;
+    extendedkickmemory = NULL;
     extendedkickmem_size = 0;
-	extendedkickmemory2 = 0;
+	extendedkickmemory2 = NULL;
 	extendedkickmem2_size = 0;
 	extendedkickmem_type = 0;
     chipmemory = 0;
 	allocated_a3000lmem = allocated_a3000hmem = 0;
-	a3000lmemory = a3000hmemory = 0;
-    bogomemory = 0;
-	cardmemory = 0;
-	custmem1 = 0;
-	custmem2 = 0;
+	a3000lmemory = a3000hmemory = NULL;
+    bogomemory = NULL;
+	cardmemory = NULL;
+	custmem1 = NULL;
+	custmem2 = NULL;
 
     init_mem_banks ();
 
-	kickmemory = mapped_malloc (0x80000, "kick");
-	memset (kickmemory, 0, 0x80000);
+	kickmemory = mapped_malloc (ROM_SIZE_512, "kick");
+	memset (kickmemory, 0, ROM_SIZE_512);
     kickmem_bank.baseaddr = kickmemory;
 	_tcscpy (currprefs.romfile, "<none>");
 	currprefs.romextfile[0] = 0;
@@ -3018,15 +2999,15 @@ void memory_cleanup (void)
 	if (custmem2)
 		mapped_free (custmem2);
 
-    bogomemory = 0;
-    kickmemory = 0;
-	a3000lmemory = a3000hmemory = 0;
-    a1000_bootrom = 0;
+    bogomemory = NULL;
+    kickmemory = NULL;
+	a3000lmemory = a3000hmemory = NULL;
+    a1000_bootrom = NULL;
 	a1000_kickstart_mode = 0;
-    chipmemory = 0;
-	cardmemory = 0;
-	custmem1 = 0;
-	custmem2 = 0;
+    chipmemory = NULL;
+	cardmemory = NULL;
+	custmem1 = NULL;
+	custmem2 = NULL;
  
 #ifdef ACTION_REPLAY
     action_replay_cleanup();
@@ -3348,16 +3329,16 @@ uae_char *strcpyah_safe (uae_char *dst, uaecptr src, int maxsize)
 {
 	uae_char *res = dst;
 	uae_u8 b;
+	dst[0] = 0;
 	do {
 		if (!addr_valid ("_tcscpyah", src, 1))
 			return res;
 		b = get_byte (src++);
 		*dst++ = b;
+		*dst = 0;
 		maxsize--;
-		if (maxsize <= 1) {
-			*dst++= 0;
+		if (maxsize <= 1)
 			break;
-		}
 	} while (b);
 	return res;
 }
