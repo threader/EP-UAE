@@ -46,6 +46,14 @@ extern void target_reset (void);
 extern void target_addtorecent (const char*, int);
 extern void target_run (void);
 extern void target_quit (void);
+extern void target_restart (void);
+extern bool get_plugin_path (TCHAR *out, int size, const TCHAR *path);
+extern void stripslashes (TCHAR *p);
+extern void fixtrailing (TCHAR *p);
+extern void fullpath (TCHAR *path, int size);
+extern void getpathpart (TCHAR *outpath, int size, const TCHAR *inpath);
+extern void getfilepart (TCHAR *out, int size, const TCHAR *path);
+extern uae_u32 getlocaltime (void);
 
 extern int quit_program;
 extern int console_emulation;

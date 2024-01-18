@@ -733,9 +733,61 @@ int target_cfgfile_load (struct uae_prefs *p, const char *filename, int type, in
 	return v;
 }
 
+
+void stripslashes (TCHAR *p)
+{
+	while (_tcslen (p) > 0 && (p[_tcslen (p) - 1] == '\\' || p[_tcslen (p) - 1] == '/'))
+		p[_tcslen (p) - 1] = 0;
+}
+
+void fixtrailing (TCHAR *p)
+{
+	if (_tcslen(p) == 0)
+		return;
+	if (p[_tcslen(p) - 1] == '/' || p[_tcslen(p) - 1] == '\\')
+		return;
+	_tcscat(p, "\\");
+}
+
+void getpathpart (TCHAR *outpath, int size, const TCHAR *inpath)
+{
+	_tcscpy (outpath, inpath);
+	TCHAR *p = _tcsrchr (outpath, '\\');
+	if (p)
+		p[0] = 0;
+	fixtrailing (outpath);
+}
+
+void getfilepart (TCHAR *out, int size, const TCHAR *path)
+{
+	out[0] = 0;
+	const TCHAR *p = _tcsrchr (path, '\\');
+	if (p)
+		_tcscpy (out, p + 1);
+	else
+		_tcscpy (out, path);
+}
+
+
+// convert path to absolute or relative
+void fullpath (TCHAR *path, int size)
+{
+	if (path[0] == 0 || (path[0] == '\\' && path[1] == '\\') || path[0] == ':')
+		return;
+        /* <drive letter>: is supposed to mean same as <drive letter>:\ */
+}
+
+
 TCHAR *au (const char *s)
 {
 	return strdup(s);
+}
+
+TCHAR *au_copy (TCHAR *dst, int maxlen, const char *src)
+{
+	dst[0] = 0;
+	memcpy (dst, src, maxlen);
+	return dst;
 }
 
 // unicode
@@ -743,6 +795,16 @@ char *ua (const TCHAR *s)
 {
 	return strdup(s);
 }
+char *uutf8 (const char *s)
+{
+	return strdup(s);
+}
+
+char *utf8u (const char *s)
+{
+	return strdup(s);
+}
+
 
 // --- win32gfx.c
 int screen_is_picasso = 0;

@@ -7,15 +7,34 @@
   * Copyright 1995-2001 Bernd Schmidt
   */
 
-typedef enum { KBD_LANG_US, KBD_LANG_DK, KBD_LANG_DE, KBD_LANG_SE, KBD_LANG_FR, KBD_LANG_IT, KBD_LANG_ES } KbdLang;
+#define UAEMAJOR 0
+#define UAEMINOR 0
+#define UAESUBREV 0
 
+#include "uae_types.h"
+
+typedef enum { KBD_LANG_US, KBD_LANG_DK, KBD_LANG_DE, KBD_LANG_SE, KBD_LANG_FR, KBD_LANG_IT, KBD_LANG_ES, KBD_LANG_FI, KBD_LANG_TR } KbdLang;
+
+extern long int version;
 struct uaedev_mount_info;
+struct zfile;
+
+#define MAX_PATHS 8
+#ifndef PATH_MAX
+#define PATH_MAX 256
+#endif
+
+struct multipath {
+	TCHAR path[MAX_PATHS][PATH_MAX];
+};
 
 struct strlist {
     struct strlist *next;
     char *option, *value;
     int unknown;
 };
+
+#define MAX_TOTAL_SCSI_DEVICES 8
 
 /* maximum number native input devices supported (single type) */
 #define MAX_INPUT_DEVICES 8
@@ -69,6 +88,18 @@ struct wh {
 };
 
 #define MOUNT_CONFIG_SIZE 30
+#define UAEDEV_DIR 0
+#define UAEDEV_HDF 1
+#define UAEDEV_CD 2
+#define UAEDEV_TAPE 3
+
+#define BOOTPRI_NOAUTOBOOT -128
+#define BOOTPRI_NOAUTOMOUNT -129
+#define ISAUTOBOOT(ci) ((ci)->bootpri > BOOTPRI_NOAUTOBOOT)
+#define ISAUTOMOUNT(ci) ((ci)->bootpri > BOOTPRI_NOAUTOMOUNT)
+#ifndef HAS_UAEDEV_CONFIG_INFO
+# define HAS_UAEDEV_CONFIG_INFO 1
+#endif // HAS_UAEDEV_CONFIG_INFO
 struct uaedev_config_info {
     char devname[MAX_DPATH];
     char volname[MAX_DPATH];
@@ -480,18 +511,17 @@ extern void cfgfile_target_write_str (FILE *f, const TCHAR *option, const TCHAR 
 extern void cfgfile_target_dwrite_str (FILE *f, const TCHAR *option, const TCHAR *value);
 
 //extern struct uaedev_config_data *add_filesys_config (struct uae_prefs *p, int index, struct uaedev_config_info*);
-extern struct uaedev_config_info *add_filesys_config (struct uae_prefs *p, int index,
-	char *devname, char *volname, char *rootdir, int readonly,
-	int secspertrack, int surfaces, int reserved,
-	int blocksize, int bootpri,
-	char *filesysdir, int hdc, int flags);
+ extern struct uaedev_config_info *add_filesys_config (struct uae_prefs *p, int index, char *devname, char *volname, char *rootdir, int readonly, int secspertrack, int surfaces, int reserved, 	int blocksize, int bootpri,char *filesysdir, int hdc, int flags);
+//extern struct uaedev_config_data *add_filesys_config (struct uae_prefs *p, int index, struct uaedev_config_info*);
 extern void default_prefs (struct uae_prefs *, int);
 extern void discard_prefs (struct uae_prefs *, int);
+extern bool get_hd_geometry (struct uaedev_config_info *);
+extern void uci_set_defaults (struct uaedev_config_info *uci, bool rdb);
 
 extern void prefs_set_attr (const char *key, const char *value);
 extern const char *prefs_get_attr (const char *key);
 
-extern int cfgfile_yesno (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location);
+//extern int cfgfile_yesno (const TCHAR *option, const TCHAR *value, const TCHAR *name, bool *location);
 extern int cfgfile_intval (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location, int scale);
 extern int cfgfile_strval (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location, const TCHAR *table[], int more);
 extern int cfgfile_string (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz);
@@ -501,7 +531,6 @@ extern int target_cfgfile_load (struct uae_prefs *, const TCHAR *filename, int t
 
 int parse_cmdline_option (struct uae_prefs *, char, char *);
 
-extern char *cfgfile_subst_path (const char *path, const char *subst, const char *file);
 extern void cfgfile_subst_home (char *path, unsigned int maxlen);
 
 extern int  machdep_parse_option (struct uae_prefs *, const char *option, const char *value);
@@ -520,19 +549,15 @@ extern void audio_default_options (struct uae_prefs *p);
 extern void audio_save_options (FILE *f, const struct uae_prefs *p);
 extern int  audio_parse_option (struct uae_prefs *p, const char *option, const char *value);
 
-extern int cfgfile_load (struct uae_prefs *p, const char *filename, int *type, int ignorelink, int userconfig);
-extern int cfgfile_save (const struct uae_prefs *, const char *filename, int);
-extern void cfgfile_parse_line (struct uae_prefs *p, char *, int);
-extern int cfgfile_parse_option (struct uae_prefs *p, char *option, char *value, int);
-extern int cfgfile_get_description (const char *filename, char *description, char *hostlink, char *hardwarelink, int *type);
 extern void cfgfile_show_usage (void);
 extern uae_u32 cfgfile_uaelib(int mode, uae_u32 name, uae_u32 dst, uae_u32 maxlen);
 extern uae_u32 cfgfile_uaelib_modify (uae_u32 mode, uae_u32 parms, uae_u32 size, uae_u32 out, uae_u32 outsize);
 extern uae_u32 cfgfile_modify (uae_u32 index, char *parms, uae_u32 size, char *out, uae_u32 outsize);
 extern void cfgfile_addcfgparam (char *);
-extern unsigned int cmdlineparser (const char *s, char *outp[], unsigned int max);
-extern int cfgfile_configuration_change(int);
-extern int built_in_chipset_prefs (struct uae_prefs *p);
+//extern int built_in_chipset_prefs (struct uae_prefs *p);
+//extern unsigned int cmdlineparser (const char *s, char *outp[], unsigned int max);
+extern int cmdlineparser (const TCHAR *s, TCHAR *outp[], int max);
+extern int cfgfile_configuration_change (int);
 extern void fixup_prefs_dimensions (struct uae_prefs *prefs);
 extern void fixup_prefs (struct uae_prefs *prefs);
 extern void fixup_cpu (struct uae_prefs *prefs);

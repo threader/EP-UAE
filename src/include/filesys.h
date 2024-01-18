@@ -7,6 +7,9 @@
   */
 
 struct hardfilehandle;
+struct mountedinfo;
+struct uaedev_config_info;
+struct uae_prefs;
 
 struct hardfiledata {
     uae_u64 size;
@@ -87,6 +90,26 @@ struct hd_hardfiledata {
 #define HD_CONTROLLER_PCMCIA_SRAM 12
 #define HD_CONTROLLER_PCMCIA_IDE 13
 
+#define HD_CONTROLLER_TYPE_UAE 0
+#define HD_CONTROLLER_TYPE_IDE_AUTO 1
+#define HD_CONTROLLER_TYPE_IDE_MB 1
+#define HD_CONTROLLER_TYPE_SCSI_AUTO 2
+#define HD_CONTROLLER_TYPE_SCSI_A2091 3
+#define HD_CONTROLLER_TYPE_SCSI_A2091_2 4
+#define HD_CONTROLLER_TYPE_SCSI_A4091 5
+#define HD_CONTROLLER_TYPE_SCSI_A4091_2 6
+#define HD_CONTROLLER_TYPE_SCSI_A3000 7
+#define HD_CONTROLLER_TYPE_SCSI_A4000T 8
+#define HD_CONTROLLER_TYPE_SCSI_CDTV 9
+#define HD_CONTROLLER_TYPE_PCMCIA_SRAM 10
+#define HD_CONTROLLER_TYPE_PCMCIA_IDE 11
+
+
+#define HD_CONTROLLER_TYPE_IDE_FIRST 1
+#define HD_CONTROLLER_TYPE_IDE_LAST 1
+#define HD_CONTROLLER_TYPE_SCSI_FIRST 2
+#define HD_CONTROLLER_TYPE_SCSI_LAST 9
+
 #define FILESYS_VIRTUAL 0
 #define FILESYS_HARDFILE 1
 #define FILESYS_HARDFILE_RDB 2
@@ -120,8 +143,8 @@ extern int *get_filesys_unit (struct uaedev_mount_info *mountinfo, int nr,
 extern int kill_filesys_unit (struct uaedev_mount_info *mountinfo, int);
 extern int move_filesys_unit (struct uaedev_mount_info *mountinfo, int nr, int to);
 extern int sprintf_filesys_unit (const struct uaedev_mount_info *mountinfo, char *buffer, int num);
-extern void write_filesys_config (const struct uaedev_mount_info *mountinfo, const char *unexpanded,
-				  const char *defaultpath, FILE *f);
+//extern void write_filesys_config (const struct uaedev_mount_info *mountinfo, const char *unexpanded,
+//				  const char *defaultpath, FILE *f);
 
 
 extern void filesys_init (void);

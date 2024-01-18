@@ -15,7 +15,7 @@
 
 #include <ctype.h>
 
-#include "options.h"
+#include "cfgfile.h"
 #include "uae.h"
 #include "audio.h"
 #include "autoconf.h"
@@ -31,7 +31,6 @@
 #include "rommgr.h"
 #include "gui.h"
 #include "newcpu.h"
-#include "zfile.h"
 #include "fsdb.h"
 #include "disk.h"
 #include "version.h"
@@ -422,6 +421,96 @@ static void cfgfile_write_file_option (FILE *f, const char *option, const char *
     if (out_path)
 	free (out_path);
 }
+#if 0
+//static void write_filesys_config (struct uae_prefs *p, struct zfile *f)
+static void write_filesys_config (struct uae_prefs *p, FILE *f)
+{
+	int i;
+	TCHAR tmp[MAX_DPATH], tmp2[MAX_DPATH], tmp3[MAX_DPATH];
+	TCHAR *hdcontrollers[] = { _T("uae"),
+		_T("ide0"), _T("ide1"), _T("ide2"), _T("ide3"),
+		_T("scsi0"), _T("scsi1"), _T("scsi2"), _T("scsi3"), _T("scsi4"), _T("scsi5"), _T("scsi6"),
+		_T("scsram"), _T("scide") }; /* scsram = smart card sram = pcmcia sram card */
+
+	for (i = 0; i < p->mountitems; i++) {
+		struct uaedev_config_data *uci = &p->mountconfig[i];
+		struct uaedev_config_info *ci = &uci->ci;
+		TCHAR *str1, *str2, *str1b, *str2b;
+		int bp = ci->bootpri;
+
+		str2 = _T("");
+		if (ci->rootdir[0] == ':') {
+			TCHAR *ptr;
+			// separate harddrive names
+			str1 = my_strdup (ci->rootdir);
+			ptr = _tcschr (str1 + 1, ':');
+			if (ptr) {
+				*ptr++ = 0;
+				str2 = ptr;
+				ptr = _tcschr (str2, ',');
+				if (ptr)
+					*ptr = 0;
+			}
+		} else {
+			str1 = cfgfile_put_multipath (&p->path_hardfile, ci->rootdir);
+		}
+		str1b = cfgfile_escape (str1, _T(":,"), true);
+		str2b = cfgfile_escape (str2, _T(":,"), true);
+		if (ci->type == UAEDEV_DIR) {
+			_stprintf (tmp, _T("%s,%s:%s:%s,%d"), ci->readonly ? _T("ro") : _T("rw"),
+				ci->devname ? ci->devname : _T(""), ci->volname, str1, bp);
+			cfgfile_write_str (f, _T("filesystem2"), tmp);
+			_tcscpy (tmp3, tmp);
+#if 0
+			_stprintf (tmp2, _T("filesystem=%s,%s:%s"), uci->readonly ? _T("ro") : _T("rw"),
+				uci->volname, str);
+			zfile_fputs (f, tmp2);
+#endif
+		} else if (ci->type == UAEDEV_HDF || ci->type == UAEDEV_CD || ci->type == UAEDEV_TAPE) {
+			_stprintf (tmp, _T("%s,%s:%s,%d,%d,%d,%d,%d,%s,%s"),
+				ci->readonly ? _T("ro") : _T("rw"),
+				ci->devname ? ci->devname : _T(""), str1,
+				ci->sectors, ci->surfaces, ci->reserved, ci->blocksize,
+				bp, ci->filesys ? ci->filesys : _T(""), hdcontrollers[ci->controller]);
+			_stprintf (tmp3, _T("%s,%s:%s%s%s,%d,%d,%d,%d,%d,%s,%s"),
+				ci->readonly ? _T("ro") : _T("rw"),
+				ci->devname ? ci->devname : _T(""), str1b, str2b[0] ? _T(":") : _T(""), str2b,
+				ci->sectors, ci->surfaces, ci->reserved, ci->blocksize,
+				bp, ci->filesys ? ci->filesys : _T(""), hdcontrollers[ci->controller]);
+			if (ci->highcyl) {
+				TCHAR *s = tmp + _tcslen (tmp);
+				TCHAR *s2 = s;
+				_stprintf (s2, _T(",%d"), ci->highcyl);
+				if (ci->pcyls && ci->pheads && ci->psecs) {
+					TCHAR *s = tmp + _tcslen (tmp);
+					_stprintf (s, _T(",%d/%d/%d"), ci->pcyls, ci->pheads, ci->psecs);
+				}
+				_tcscat (tmp3, s2);
+			}
+			if (ci->type == UAEDEV_HDF)
+				cfgfile_write_str (f, _T("hardfile2"), tmp);
+#if 0
+			_stprintf (tmp2, _T("hardfile=%s,%d,%d,%d,%d,%s"),
+				uci->readonly ? "ro" : "rw", uci->sectors,
+				uci->surfaces, uci->reserved, uci->blocksize, str);
+			zfile_fputs (f, tmp2);
+#endif
+		}
+		_stprintf (tmp2, _T("uaehf%d"), i);
+		if (ci->type == UAEDEV_CD) {
+			cfgfile_write (f, tmp2, _T("cd%d,%s"), ci->device_emu_unit, tmp);
+		} else if (ci->type == UAEDEV_TAPE) {
+			cfgfile_write (f, tmp2, _T("tape%d,%s"), ci->device_emu_unit, tmp);
+		} else {
+			cfgfile_write (f, tmp2, _T("%s,%s"), ci->type == UAEDEV_HDF ? _T("hdf") : _T("dir"), tmp3);
+		}
+		xfree (str1b);
+		xfree (str2b);
+		xfree (str1);
+		
+	}
+}
+#endif
 
 static void write_compatibility_cpu (FILE *f, const struct uae_prefs *p)
 {
@@ -746,33 +835,85 @@ static void cfgfile_save_options (FILE *f, const struct uae_prefs *p, int type)
 	cfgfile_write_bool (f, "warp", p->turbo_emulation);
 
 #ifdef FILESYS
-    //write_filesys_config (currprefs.mountinfo, UNEXPANDED, prefs_get_attr ("hardfile_path"), f);
-    if (p->filesys_no_uaefsdb)
-		cfgfile_write_bool (f, "filesys_no_fsdb", p->filesys_no_uaefsdb);
+//	write_filesys_config (p, f);
+//    write_filesys_config (currprefs.mountinfo, UNEXPANDED, prefs_get_attr ("hardfile_path"), f);
+	if (p->filesys_no_uaefsdb)
+		cfgfile_write_bool (f, _T("filesys_no_fsdb"), p->filesys_no_uaefsdb);
+	//cfgfile_dwrite (f, _T("filesys_max_size"), _T("%d"), p->filesys_limit);
+	//cfgfile_dwrite (f, _T("filesys_max_name_length"), _T("%d"), p->filesys_max_name);
+	//cfgfile_dwrite (f, _T("filesys_max_file_size"), _T("%d"), p->filesys_max_file_size);
 #endif
     write_inputdevice_config (p, f);
 
     /* Don't write gfxlib/gfx_test_speed options.  */
 }
 
-int cfgfile_yesno (const char *option, const char *value, const char *name, int *location)
+int cfgfile_yesno2 (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location)
 {
-	if (_tcscmp (option, name) != 0)
+	if (name != NULL && _tcscmp (option, name) != 0)
 		return 0;
-    if (strcasecmp (value, "yes") == 0 || strcasecmp (value, "y") == 0
-		|| strcasecmp (value, "true") == 0 || strcasecmp (value, "t") == 0)
+	if (strcasecmp (value, _T("yes")) == 0 || strcasecmp (value, _T("y")) == 0
+		|| strcasecmp (value, _T("true")) == 0 || strcasecmp (value, _T("t")) == 0)
 		*location = 1;
-    else if (strcasecmp (value, "no") == 0 || strcasecmp (value, "n") == 0
-		|| strcasecmp (value, "false") == 0 || strcasecmp (value, "f") == 0)
+	else if (strcasecmp (value, _T("no")) == 0 || strcasecmp (value, _T("n")) == 0
+		|| strcasecmp (value, _T("false")) == 0 || strcasecmp (value, _T("f")) == 0
+		|| strcasecmp (value, _T("0")) == 0)
 		*location = 0;
-    else {
-		write_log ("Option `%s' requires a value of either `yes' or `no'.\n", option);
+	else {
+		write_log (_T("Option `%s' requires a value of either `yes' or `no' (was '%s').\n"), option, value);
 		return -1;
-    }
-    return 1;
+	}
+	return 1;
+}
+//int cfgfile_yesno (const TCHAR *option, const TCHAR *value, const TCHAR *name, bool *location)
+int cfgfile_yesno (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location)
+{
+	int val;
+	int ret = cfgfile_yesno2 (option, value, name, &val);
+	if (ret == 0)
+		return 0;
+	if (ret < 0)
+		*location = false;
+	else
+		*location = val != 0;
+	return 1;
 }
 
-static int cfgfile_intval_real (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, unsigned int *location, int scale)
+int cfgfile_doubleval (const TCHAR *option, const TCHAR *value, const TCHAR *name, double *location)
+{
+	int base = 10;
+	TCHAR *endptr;
+	if (name != NULL && _tcscmp (option, name) != 0)
+		return 0;
+	*location = _tcstod (value, &endptr);
+	return 1;
+}
+
+static int cfgfile_floatval_ext (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, float *location)
+{
+	int base = 10;
+	TCHAR *endptr;
+	if (name == NULL)
+		return 0;
+	if (nameext) {
+		TCHAR tmp[MAX_DPATH];
+		_tcscpy (tmp, name);
+		_tcscat (tmp, nameext);
+		if (_tcscmp (tmp, option) != 0)
+			return 0;
+	} else {
+		if (_tcscmp (option, name) != 0)
+			return 0;
+	}
+	*location = (float)_tcstod (value, &endptr);
+	return 1;
+}
+static int cfgfile_floatval (const TCHAR *option, const TCHAR *value, const TCHAR *name, float *location)
+{
+	return cfgfile_floatval_ext (option, value, name, NULL, location);
+}
+
+int cfgfile_intval_real (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, unsigned int *location, int scale)
 {
 	int base = 10;
 	TCHAR *endptr;
@@ -808,46 +949,186 @@ static int cfgfile_intval_real (const TCHAR *option, const TCHAR *value, const T
 	}
 	return 1;
 }
-static int cfgfile_intval_unsigned (const TCHAR *option, const TCHAR *value, const TCHAR *name, unsigned int *location, int scale)
+int cfgfile_intval_unsigned (const TCHAR *option, const TCHAR *value, const TCHAR *name, unsigned int *location, int scale)
 {
 	return cfgfile_intval_real (option, value, name, NULL, location, scale);
 }
-int cfgfile_intval (const char *option, const char *value, const char *name, int *location, int scale)
+int cfgfile_intval (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location, int scale)
 {
-    int base = 10;
-    char *endptr;
-	if (_tcscmp (option, name) != 0)
+	unsigned int v = 0;
+	int r = cfgfile_intval_real (option, value, name, NULL, &v, scale);
+	if (!r)
 		return 0;
-    /* I guess octal isn't popular enough to worry about here...  */
-    if (value[0] == '0' && value[1] == 'x')
-		value += 2, base = 16;
-	*location = _tcstol (value, &endptr, base) * scale;
-
-    if (*endptr != '\0' || *value == '\0') {
-		if (strcasecmp (value, "false") == 0 || strcasecmp (value, "no") == 0) {
-			*location = 0;
-			return 1;
-		}
-		if (strcasecmp (value, "true") == 0 || strcasecmp (value, "yes") == 0) {
-			*location = 1;
-			return 1;
-		}
-		write_log ("Option '%s' requires a numeric argument but got '%s'\n", option, value);
-	return -1;
-    }
-    return 1;
+	*location = (int)v;
+	return r;
 }
-static int cfgfile_intvalx (const char *option, const char *value, const char *name, uae_u32 *location, int scale)
+static int cfgfile_intval_ext (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, int *location, int scale)
 {
-	int v = 0;
-	int r = cfgfile_intval (option, value, name, &v, scale);
+	unsigned int v = 0;
+	int r = cfgfile_intval_real (option, value, name, nameext, &v, scale);
 	if (!r)
 		return 0;
 	*location = (int)v;
 	return r;
 }
 
+static int cfgfile_strval_ext (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, int *location, const TCHAR *table[], int more)
+{
+	int val;
+	TCHAR tmp[MAX_DPATH];
+	if (name == NULL)
+		return 0;
+	if (nameext) {
+		_tcscpy (tmp, name);
+		_tcscat (tmp, nameext);
+		if (_tcscmp (tmp, option) != 0)
+			return 0;
+	} else {
+		if (_tcscmp (option, name) != 0)
+			return 0;
+	}
+	val = match_string (table, value);
+	if (val == -1) {
+		if (more)
+			return 0;
+		if (!strcasecmp (value, _T("yes")) || !strcasecmp (value, _T("true"))) {
+			val = 1;
+		} else if  (!strcasecmp (value, _T("no")) || !strcasecmp (value, _T("false"))) {
+			val = 0;
+		} else {
+			write_log (_T("Unknown value ('%s') for option '%s'.\n"), value, nameext ? tmp : option);
+			return -1;
+		}
+	}
+	*location = val;
+	return 1;
+}
+#if 0
+int cfgfile_strval (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location, const TCHAR *table[], int more)
+{
+	return cfgfile_strval_ext (option, value, name, NULL, location, table, more);
+}
+#endif
 
+int cfgfile_strboolval (const TCHAR *option, const TCHAR *value, const TCHAR *name, bool *location, const TCHAR *table[], int more)
+{
+	int locationint;
+	if (!cfgfile_strval (option, value, name, &locationint, table, more))
+		return 0;
+	*location = locationint != 0;
+	return 1;
+}
+
+int cfgfile_string (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz)
+{
+	if (_tcscmp (option, name) != 0)
+		return 0;
+	_tcsncpy (location, value, maxsz - 1);
+	location[maxsz - 1] = '\0';
+	return 1;
+}
+static int cfgfile_string_ext (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, TCHAR *location, int maxsz)
+{
+	if (nameext) {
+		TCHAR tmp[MAX_DPATH];
+		_tcscpy (tmp, name);
+		_tcscat (tmp, nameext);
+		if (_tcscmp (tmp, option) != 0)
+			return 0;
+	} else {
+		if (_tcscmp (option, name) != 0)
+			return 0;
+	}
+	_tcsncpy (location, value, maxsz - 1);
+	location[maxsz - 1] = '\0';
+	return 1;
+}
+
+
+int cfgfile_path_mp (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz, struct multipath *mp)
+{
+	if (!cfgfile_string (option, value, name, location, maxsz))
+		return 0;
+	//TCHAR *s = target_expand_environment (location);
+	_tcsncpy (location, location, maxsz - 1);
+	location[maxsz - 1] = 0;
+	if (mp) {
+		for (int i = 0; i < MAX_PATHS; i++) {
+			if (mp->path[i][0] && _tcscmp (mp->path[i], _T(".\\")) != 0 && _tcscmp (mp->path[i], _T("./")) != 0 && (location[0] != '/' && location[0] != '\\' && !_tcschr(location, ':'))) {
+				TCHAR np[MAX_DPATH];
+				_tcscpy (np, mp->path[i]);
+				fixtrailing (np);
+				_tcscat (np, location);
+				fullpath (np, sizeof np / sizeof (TCHAR));
+				if (zfile_exists (np)) {
+					_tcsncpy (location, np, maxsz - 1);
+					location[maxsz - 1] = 0;
+					break;
+				}
+			}
+		}
+	}
+	//xfree(s);
+	return 1;
+}
+#if 0 //not yet ...
+int cfgfile_path (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz)
+{
+	return cfgfile_path_mp (option, value, name, location, maxsz, NULL);
+}
+#endif 
+int cfgfile_multipath (const TCHAR *option, const TCHAR *value, const TCHAR *name, struct multipath *mp)
+{
+	TCHAR tmploc[MAX_DPATH];
+	if (!cfgfile_string (option, value, name, tmploc, 256))
+		return 0;
+	for (int i = 0; i < MAX_PATHS; i++) {
+		if (mp->path[i][0] == 0 || (i == 0 && (!_tcscmp (mp->path[i], _T(".\\")) || !_tcscmp (mp->path[i], _T("./"))))) {
+			//TCHAR *s = target_expand_environment (tmploc);
+			_tcsncpy (mp->path[i], tmploc, 256 - 1);
+			mp->path[i][256 - 1] = 0;
+			fixtrailing (mp->path[i]);
+			//xfree (s);
+			return 1;
+		}
+	}
+	return 1;
+}
+
+int cfgfile_rom (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz)
+{
+	TCHAR id[MAX_DPATH];
+	if (!cfgfile_string (option, value, name, id, sizeof id / sizeof (TCHAR)))
+		return 0;
+	TCHAR *p = _tcschr (id, ',');
+	if (p) {
+		TCHAR *endptr, tmp;
+		*p = 0;
+		tmp = id[4];
+		id[4] = 0;
+		uae_u32 crc32 = _tcstol (id, &endptr, 16) << 16;
+		id[4] = tmp;
+		crc32 |= _tcstol (id + 4, &endptr, 16);
+
+		struct romdata *rd = getromdatabycrc (crc32);
+//		struct romdata *rd = getromdatabycrc (crc32, true);
+		if (rd) {
+			struct romdata *rd2 = getromdatabyid (rd->id);
+			if (rd->group == 0 && rd2 == rd) {
+				if (zfile_exists (location))
+					return 1;
+			}
+			if (rd->group && rd2)
+				rd = rd2;
+			struct romlist *rl = getromlistbyromdata (rd);
+			if (rl) {
+				write_log (_T("%s: %s -> %s\n"), name, location, rl->path);
+				_tcsncpy (location, rl->path, maxsz);
+			}
+		}
+	}
+	return 1;
+}
 
 int cfgfile_strval (const char *option, const char *value, const char *name, int *location, const char *table[], int more)
 {
@@ -865,7 +1146,7 @@ int cfgfile_strval (const char *option, const char *value, const char *name, int
     *location = val;
     return 1;
 }
-
+#if 0
 int cfgfile_string (const char *option, const char *value, const char *name, char *location, int maxsz)
 {
 	if (_tcscmp (option, name) != 0)
@@ -874,7 +1155,7 @@ int cfgfile_string (const char *option, const char *value, const char *name, cha
     location[maxsz - 1] = '\0';
     return 1;
 }
-
+#endif 
 static int getintval (char **p, int *result, int delim)
 {
 	char *value = *p;
@@ -1515,7 +1796,7 @@ static void decode_rom_ident (TCHAR *romfile, int maxlen, const TCHAR *ident, in
 end:
 	if (round && romtxt[0]) {
         gui_message("One of the following system ROMs is required:\n\n%s\n\nCheck the System ROM path in the Paths panel and click Rescan ROMs.\n");
-		;//notify_user_parms (NUMSG_ROMNEED, romtxt, romtxt);
+		//notify_user_parms (NUMSG_ROMNEED, romtxt, romtxt);
 	}
 	xfree (romtxt);
 }
@@ -1547,6 +1828,7 @@ struct uaedev_config_info *add_filesys_config (struct uae_prefs *p, int index,
 	if (index < 0) {
 		uci = getuci(p);
 		uci->configoffset = -1;
+		//uci->unitnum = -1;
 	} else {
 		uci = &p->mountconfig[index];
 	}
@@ -1580,11 +1862,11 @@ struct uaedev_config_info *add_filesys_config (struct uae_prefs *p, int index,
 		if (uci->rootdir[0] == 0 && !uci->ishdf)
 			_tcscpy (base, "RDH");
 		else
-			_tcscpy (base, "DH");
+			_tcscpy (base, _T("DH"));
 		_tcscpy (base2, base);
 		for (i = 0; i < p->mountitems; i++) {
-			_stprintf (base2, "%s%d", base, num);
-			if (!_tcscmp(base2, p->mountconfig[i].devname)) {
+			_stprintf (base2, _T("%s%d"), base, num);
+			if (!_tcsicmp(base2, p->mountconfig[i].devname)) {
 				num++;
 				i = -1;
 				continue;
@@ -1614,6 +1896,261 @@ static void parse_addmem (struct uae_prefs *p, char *buf, int num)
 	p->custom_memory_addrs[num] = addr;
 	p->custom_memory_sizes[num] = size;
 }
+# if 0
+static int cfgfile_parse_newfilesys (struct uae_prefs *p, int nr, int type, TCHAR *value, int unit, bool uaehfentry)
+{
+	struct uaedev_config_info uci;
+	TCHAR *tmpp = _tcschr (value, ','), *tmpp2;
+	TCHAR *str = NULL;
+	TCHAR devname[MAX_DPATH], volname[MAX_DPATH];
+
+	devname[0] = volname[0] = 0;
+	uci_set_defaults (&uci, false);
+
+	config_newfilesystem = 1;
+	if (tmpp == 0)
+		goto invalid_fs;
+
+	*tmpp++ = '\0';
+	if (strcasecmp (value, _T("ro")) == 0)
+		uci.readonly = true;
+	else if (strcasecmp (value, _T("rw")) == 0)
+		uci.readonly = false;
+	else
+		goto invalid_fs;
+
+	value = tmpp;
+	if (type == 0) {
+		uci.type = UAEDEV_DIR;
+		tmpp = _tcschr (value, ':');
+		if (tmpp == 0)
+			goto empty_fs;
+		*tmpp++ = 0;
+		_tcscpy (devname, value);
+		tmpp2 = tmpp;
+		tmpp = _tcschr (tmpp, ':');
+		if (tmpp == 0)
+			goto empty_fs;
+		*tmpp++ = 0;
+		_tcscpy (volname, tmpp2);
+		tmpp2 = tmpp;
+		tmpp = _tcschr (tmpp, ',');
+		if (tmpp == 0)
+			goto empty_fs;
+		*tmpp++ = 0;
+		_tcscpy (uci.rootdir, tmpp2);
+		_tcscpy (uci.volname, volname);
+		_tcscpy (uci.devname, devname);
+		if (! getintval (&tmpp, &uci.bootpri, 0))
+			goto empty_fs;
+	} else if (type == 1 || ((type == 2 || type == 3) && uaehfentry)) {
+		tmpp = _tcschr (value, ':');
+		if (tmpp == 0)
+			goto invalid_fs;
+		*tmpp++ = '\0';
+		_tcscpy (devname, value);
+		tmpp2 = tmpp;
+		tmpp = _tcschr (tmpp, ',');
+		if (tmpp == 0)
+			goto invalid_fs;
+		*tmpp++ = 0;
+		_tcscpy (uci.rootdir, tmpp2);
+		if (uci.rootdir[0] != ':')
+			get_hd_geometry (&uci);
+		_tcscpy (uci.devname, devname);
+		if (! getintval (&tmpp, &uci.sectors, ',')
+			|| ! getintval (&tmpp, &uci.surfaces, ',')
+			|| ! getintval (&tmpp, &uci.reserved, ',')
+			|| ! getintval (&tmpp, &uci.blocksize, ','))
+			goto invalid_fs;
+		if (getintval2 (&tmpp, &uci.bootpri, ',')) {
+			tmpp2 = tmpp;
+			tmpp = _tcschr (tmpp, ',');
+			if (tmpp != 0) {
+				*tmpp++ = 0;
+				_tcscpy (uci.filesys, tmpp2);
+				TCHAR *tmpp2 = _tcschr (tmpp, ',');
+				if (tmpp2)
+					*tmpp2++ = 0;
+				get_filesys_controller (tmpp, &uci.controller_type, &uci.controller_unit);
+				if (tmpp2) {
+					if (getintval2 (&tmpp2, &uci.highcyl, ',')) {
+						getintval (&tmpp2, &uci.pcyls, '/');
+						getintval (&tmpp2, &uci.pheads, '/');
+						getintval2 (&tmpp2, &uci.psecs, '/');
+					}
+				}
+			}
+		}
+		if (type == 2) {
+			uci.device_emu_unit = unit;
+			uci.blocksize = 2048;
+			uci.readonly = true;
+			uci.type = UAEDEV_CD;
+		} else if (type == 3) {
+			uci.device_emu_unit = unit;
+			uci.blocksize = 512;
+			uci.type = UAEDEV_TAPE;
+		} else {
+			uci.type = UAEDEV_HDF;
+		}
+	} else {
+		goto invalid_fs;
+	}
+empty_fs:
+	if (uci.rootdir[0]) {
+		if (_tcslen (uci.rootdir) > 3 && uci.rootdir[0] == 'H' && uci.rootdir[1] == 'D' && uci.rootdir[2] == '_') {
+			memmove (uci.rootdir, uci.rootdir + 2, (_tcslen (uci.rootdir + 2) + 1) * sizeof (TCHAR));
+			uci.rootdir[0] = ':';
+		}
+		str = cfgfile_subst_path_load (UNEXPANDED, &p->path_hardfile, uci.rootdir, false);
+		_tcscpy (uci.rootdir, str);
+	}
+#ifdef FILESYS
+	add_filesys_config (p, nr, &uci);
+#endif
+	xfree (str);
+	return 1;
+
+invalid_fs:
+	write_log (_T("Invalid filesystem/hardfile/cd specification.\n"));
+	return 1;
+}
+
+
+static int cfgfile_parse_filesys (struct uae_prefs *p, const TCHAR *option, TCHAR *value)
+{
+	int i;
+
+	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
+		TCHAR tmp[100];
+		_stprintf (tmp, _T("uaehf%d"), i);
+		if (_tcscmp (option, tmp) == 0) {
+			for (;;) {
+				int  type = -1;
+				int unit = -1;
+				TCHAR *tmpp = _tcschr (value, ',');
+				if (tmpp == NULL)
+					return 1;
+				*tmpp++ = 0;
+				if (_tcsicmp (value, _T("hdf")) == 0) {
+					type = 1;
+					cfgfile_parse_partial_newfilesys (p, -1, type, tmpp, unit, true);
+					return 1;
+				} else if (_tcsnicmp (value, _T("cd"), 2) == 0 && (value[2] == 0 || value[3] == 0)) {
+					unit = 0;
+					if (value[2] > 0)
+						unit = value[2] - '0';
+					if (unit >= 0 && unit <= MAX_TOTAL_SCSI_DEVICES) {
+						type = 2;
+					}
+				} else if (_tcsnicmp (value, _T("tape"), 4) == 0 && (value[4] == 0 || value[5] == 0)) {
+					unit = 0;
+					if (value[4] > 0)
+						unit = value[4] - '0';
+					if (unit >= 0 && unit <= MAX_TOTAL_SCSI_DEVICES) {
+						type = 3;
+					}
+				} else if (_tcsicmp (value, _T("dir")) != 0) {
+					type = 0;
+					return 1;  /* ignore for now */
+				}
+				if (type >= 0)
+					cfgfile_parse_newfilesys (p, -1, type, tmpp, unit, true);
+				return 1;
+			}
+			return 1;
+		} else if (!_tcsncmp (option, tmp, _tcslen (tmp)) && option[_tcslen (tmp)] == '_') {
+			struct uaedev_config_info *uci = &currprefs.mountconfig[i].ci;
+			if (uci->devname) {
+				const TCHAR *s = &option[_tcslen (tmp) + 1];
+				if (!_tcscmp (s, _T("bootpri"))) {
+					getintval (&value, &uci->bootpri, 0);
+				} else if (!_tcscmp (s, _T("read-only"))) {
+					cfgfile_yesno (NULL, value, NULL, &uci->readonly);
+				} else if (!_tcscmp (s, _T("volumename"))) {
+					_tcscpy (uci->volname, value);
+				} else if (!_tcscmp (s, _T("devicename"))) {
+					_tcscpy (uci->devname, value);
+				} else if (!_tcscmp (s, _T("root"))) {
+					_tcscpy (uci->rootdir, value);
+				} else if (!_tcscmp (s, _T("filesys"))) {
+					_tcscpy (uci->filesys, value);
+				} else if (!_tcscmp (s, _T("controller"))) {
+					get_filesys_controller (value, &uci->controller_type, &uci->controller_unit);
+				}
+			}
+		}
+	}
+
+	if (_tcscmp (option, _T("filesystem")) == 0
+		|| _tcscmp (option, _T("hardfile")) == 0)
+	{
+		struct uaedev_config_info uci;
+		TCHAR *tmpp = _tcschr (value, ',');
+		TCHAR *str;
+		bool hdf;
+
+		uci_set_defaults (&uci, false);
+
+		if (config_newfilesystem)
+			return 1;
+
+		if (tmpp == 0)
+			goto invalid_fs;
+
+		*tmpp++ = '\0';
+		if (_tcscmp (value, _T("1")) == 0 || strcasecmp (value, _T("ro")) == 0
+			|| strcasecmp (value, _T("readonly")) == 0
+			|| strcasecmp (value, _T("read-only")) == 0)
+			uci.readonly = true;
+		else if (_tcscmp (value, _T("0")) == 0 || strcasecmp (value, _T("rw")) == 0
+			|| strcasecmp (value, _T("readwrite")) == 0
+			|| strcasecmp (value, _T("read-write")) == 0)
+			uci.readonly = false;
+		else
+			goto invalid_fs;
+
+		value = tmpp;
+		if (_tcscmp (option, _T("filesystem")) == 0) {
+			hdf = false;
+			tmpp = _tcschr (value, ':');
+			if (tmpp == 0)
+				goto invalid_fs;
+			*tmpp++ = '\0';
+			_tcscpy (uci.volname, value);
+			_tcscpy (uci.rootdir, tmpp);
+		} else {
+			hdf = true;
+			if (! getintval (&value, &uci.sectors, ',')
+				|| ! getintval (&value, &uci.surfaces, ',')
+				|| ! getintval (&value, &uci.reserved, ',')
+				|| ! getintval (&value, &uci.blocksize, ','))
+				goto invalid_fs;
+			_tcscpy (uci.rootdir, value);
+		}
+		str = cfgfile_subst_path_load (UNEXPANDED, &p->path_hardfile, uci.rootdir, true);
+#ifdef FILESYS
+		uci.type = hdf ? UAEDEV_HDF : UAEDEV_DIR;
+		add_filesys_config (p, -1, &uci);
+#endif
+		xfree (str);
+		return 1;
+invalid_fs:
+		write_log (_T("Invalid filesystem/hardfile specification.\n"));
+		return 1;
+
+	}
+
+	if (_tcscmp (option, _T("filesystem2")) == 0)
+		return cfgfile_parse_newfilesys (p, -1, 0, value, -1, false);
+	if (_tcscmp (option, _T("hardfile2")) == 0)
+		return cfgfile_parse_newfilesys (p, -1, 1, value, -1, false);
+
+	return 0;
+}
+
+#endif
 
 static int cfgfile_parse_hardware (struct uae_prefs *p, char *option, char *value)
 {
@@ -2374,11 +2911,52 @@ static int cfgfile_load_2 (struct uae_prefs *p, const char *filename, int real, 
     return 1;
 }
 
+int cfgfile_load (struct uae_prefs *p, const TCHAR *filename, int *type, int ignorelink, int userconfig)
+{
+	int v;
+	TCHAR tmp[MAX_DPATH];
+	int type2;
+	static int recursive;
+
+	if (recursive > 1)
+		return 0;
+	recursive++;
+	write_log (_T("load config '%s':%d\n"), filename, type ? *type : -1);
+	v = cfgfile_load_2 (p, filename, 1, type);
+	if (!v) {
+		write_log (_T("load failed\n"));
+		goto end;
+	}
+
+
+	if (!ignorelink) {
+		size_t rest_len = 0;
+		if (p->config_hardware_path[0]) {
+			fetch_configurationpath (tmp, MAX_DPATH - 1);
+			rest_len = MAX_DPATH - 1 - _tcslen(tmp);
+			_tcsncat (tmp, p->config_hardware_path, rest_len );
+			type2 = CONFIG_TYPE_HARDWARE;
+			cfgfile_load (p, tmp, &type2, 1, 0);
+		}
+		if (p->config_host_path[0]) {
+			fetch_configurationpath (tmp, MAX_DPATH - 1);
+			rest_len = MAX_DPATH - 1 - _tcslen(tmp);
+			_tcsncat (tmp, p->config_host_path, rest_len );
+			type2 = CONFIG_TYPE_HOST;
+			cfgfile_load (p, tmp, &type2, 1, 0);
+		}
+	}
+end:
+	recursive--;
+	fixup_prefs (p);
+	return v;
+}
+#if 0
 int cfgfile_load (struct uae_prefs *p, const char *filename, int *type, int ignorelink, int userconfig)
 {
     return cfgfile_load_2 (p, filename, 1, type);
 }
-
+#endif 
 int cfgfile_save (const struct uae_prefs *p, const char *filename, int type)
 {
     FILE *fh = fopen (filename, "w");
@@ -2594,11 +3172,13 @@ add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, cons
     }
 }
 
-static void parse_hardfile_spec (char *spec)
+static void parse_hardfile_spec (struct uae_prefs *p, const TCHAR *spec)
 {
-    char *x0 = my_strdup (spec);
-    char *x1, *x2, *x3, *x4;
+	//struct uaedev_config_info uci;
+	TCHAR *x0 = my_strdup (spec);
+	TCHAR *x1, *x2, *x3, *x4;
 
+	//uci_set_defaults (&uci, false);
 	x1 = _tcschr (x0, ':');
 	if (x1 == NULL)
 		goto argh;
@@ -2616,19 +3196,8 @@ static void parse_hardfile_spec (char *spec)
 		goto argh;
 	*x4++ = '\0';
 #ifdef FILESYS
-    {
-       const char *err_msg;
-/*
-add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, const char *volname, const char *rootdir, int readonly, 
-	int secspertrack, int surfaces, int reserved,
-	int blocksize, int bootpri, int donotmount, int autoboot,
-	const char *filesysdir, int hdc, int flags)
-*/
-      err_msg = add_filesys_unit (currprefs.mountinfo, 0, 0, x4, 0, atoi (x0), atoi (x1), atoi (x2), atoi (x3), 0, 0, 0, 0, 0, 0);
-//       err_msg = add_filesys_unit (currprefs.mountinfo, 0, 0, x4, 0, atoi (x0), atoi (x1), atoi (x2), atoi (x3), 0, 0, 0);
-       if (err_msg)
-		   write_log ("%s\n", err_msg);
-    }
+	//_tcscpy (uci.rootdir, x4);
+	add_filesys_config (p, -1, NULL, NULL, x4, 0, 0, _tstoi (x0), _tstoi (x1), _tstoi (x2), _tstoi (x3), 0, 0, 0);
 #endif
     free (x0);
     return;
@@ -2704,7 +3273,7 @@ int parse_cmdline_option (struct uae_prefs *p, char c, char *arg)
     case 'p': strncpy (p->prtname, arg, 255); p->prtname[255] = 0; break;
 	/*     case 'I': strncpy (p->sername, arg, 255); p->sername[255] = 0; currprefs.use_serial = 1; break; */
     case 'm': case 'M': parse_filesys_spec (c == 'M', arg); break;
-    case 'W': parse_hardfile_spec (arg); break;
+    case 'W': parse_hardfile_spec (p, arg); break;
     case 'S': parse_sound_spec (p, arg); break;
     case 'R': p->gfx_framerate = atoi (arg); break;
     case 'x': p->no_xhair = 1; break;
@@ -2839,7 +3408,7 @@ void cfgfile_addcfgparam (char *line)
     u->next = temp_lines;
     temp_lines = u;
 }
-
+#if 0
 unsigned int cmdlineparser (const char *s, char *outp[], unsigned int max)
 {
     int j;
@@ -2891,6 +3460,64 @@ unsigned int cmdlineparser (const char *s, char *outp[], unsigned int max)
 	outp[cnt++] = my_strdup (tmp1);
 
     return cnt;
+}
+#endif
+
+int cmdlineparser (const TCHAR *s, TCHAR *outp[], int max)
+{
+	int j, cnt = 0;
+	int slash = 0;
+	int quote = 0;
+	TCHAR tmp1[MAX_DPATH];
+	const TCHAR *prev;
+	int doout;
+
+	doout = 0;
+	prev = s;
+	j = 0;
+	outp[0] = 0;
+	while (cnt < max) {
+		TCHAR c = *s++;
+		if (!c)
+			break;
+		if (c < 32)
+			continue;
+		if (c == '\\')
+			slash = 1;
+		if (!slash && c == '"') {
+			if (quote) {
+				quote = 0;
+				doout = 1;
+			} else {
+				quote = 1;
+				j = -1;
+			}
+		}
+		if (!quote && c == ' ')
+			doout = 1;
+		if (!doout) {
+			if (j >= 0) {
+				tmp1[j] = c;
+				tmp1[j + 1] = 0;
+			}
+			j++;
+		}
+		if (doout) {
+			if (_tcslen (tmp1) > 0) {
+				outp[cnt++] = my_strdup (tmp1);
+				outp[cnt] = 0;
+			}
+			tmp1[0] = 0;
+			doout = 0;
+			j = 0;
+		}
+		slash = 0;
+	}
+	if (j > 0 && cnt < max) {
+		outp[cnt++] = my_strdup (tmp1);
+		outp[cnt] = 0;
+	}
+	return cnt;
 }
 
 #define UAELIB_MAX_PARSE 100
@@ -3135,7 +3762,7 @@ uae_u8 *restore_configuration (const uae_u8 *src)
 
 uae_u8 *save_configuration (uae_u32 *len)
 {
-	int tmpsize = 30000;
+	int tmpsize = 100000;
 	uae_u8 *dstbak, *dst, *p;
 	int index = -1;
 
@@ -3151,12 +3778,13 @@ uae_u8 *save_configuration (uae_u32 *len)
 			char *out;
 			if (!_tcsncmp (tmpout, "input.", 6))
 				continue;
-			out = (tmpout);
+			//write_log (_T("'%s'\n"), tmpout);
+			out = uutf8 (tmpout);
 			strcpy ((char*)p, out);
 			xfree (out);
 			strcat ((char*)p, "\n");
 			p += strlen ((char*)p);
-			if (p - dstbak >= tmpsize - sizeof (tmpout))
+			if ((size_t)(p - dstbak) >= (size_t)(tmpsize - sizeof (tmpout)) )
 				break;
 		}
 		if (ret >= 0)
@@ -3767,6 +4395,17 @@ static int bip_cd32 (struct uae_prefs *p, int config, int compa, int romcheck)
 	int roms[2];
 
 	buildin_default_prefs_68020 (p);
+	p->cs_cd32c2p = p->cs_cd32cd = p->cs_cd32nvram = 1;
+	p->nr_floppies = 0;
+//	p->floppyslots[0].dfxtype = DRV_NONE;
+//	p->floppyslots[1].dfxtype = DRV_NONE;
+	p->dfxtype[0] = DRV_NONE;
+	p->dfxtype[1] = DRV_NONE;
+	set_68020_compa (p, compa, 1);
+	p->cs_compatible = CP_CD32;
+	built_in_chipset_prefs (p);
+	fetch_datapath (p->flashfile, sizeof (p->flashfile) / sizeof (TCHAR));
+	_tcscat (p->flashfile, _T("cd32.nvr"));
 	roms[0] = 64;
 	roms[1] = -1;
 	if (!configure_rom (p, roms, 0)) {
@@ -3783,15 +4422,6 @@ static int bip_cd32 (struct uae_prefs *p, int config, int compa, int romcheck)
 		if (!configure_rom (p, roms, romcheck))
 			return 0;
 	}
-	p->cs_cd32c2p = p->cs_cd32cd = p->cs_cd32nvram = 1;
-	p->nr_floppies = 0;
-	p->dfxtype[0] = DRV_NONE;
-	p->dfxtype[1] = DRV_NONE;
-	set_68020_compa (p, compa, 1);
-	p->cs_compatible = CP_CD32;
-	built_in_chipset_prefs (p);
-	//fetch_datapath (p->flashfile, sizeof (p->flashfile) / sizeof (char));
-	_tcscat (p->flashfile, "cd32.nvr");
 	return 1;
 }
 
@@ -3995,6 +4625,8 @@ static int bip_arcadia (struct uae_prefs *p, int config, int compa, int romcheck
 
 static int built_in_prefs (struct uae_prefs *p, int model, int config, int compa, int romcheck)
 {
+	write_log(_T("built in model: %d, config: %d, compa: %d, romchk: %d\n"), model, config, compa, romcheck);
+
 	int v = 0, i;
 
 	buildin_default_prefs (p);
