@@ -70,11 +70,12 @@ void cache_free (uae_u8 *cache)
 }
 
 #ifdef NATMEM_OFFSET
+#if 0
 void init_shm (void)
 {
     canbang = 1;
 }
-
+#endif 
 static uae_u32 lowmem (void)
 {
 	uae_u32 change = 0;
@@ -557,7 +558,6 @@ int my_shmctl (int shmid, int cmd, struct shmid_ds *buf)
 	}
 	return result;
 }
-
 int my_shmdt (const void *shmaddr)
 {
         return 0;

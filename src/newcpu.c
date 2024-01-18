@@ -1141,11 +1141,11 @@ void REGPARAM2 MakeFromSR (struct regstruct *regs)
 
     doint ();
 	if (regs->t1 || regs->t0)
-		set_special (regs, SPCFLAG_TRACE);
+		set_special (&regs, SPCFLAG_TRACE);
     else
 		/* Keep SPCFLAG_DOTRACE, we still want a trace exception for
 	   SR-modifying instructions (including STOP).  */
-		unset_special (regs, SPCFLAG_TRACE);
+		unset_special (&regs, SPCFLAG_TRACE);
 }
 
 STATIC_INLINE void exception_trace (struct regstruct *regs, unsigned int nr)
@@ -2875,7 +2875,7 @@ void execute_normal (void)
     start_pc = r->pc;
     for (;;) {
 		/* Take note: This is the do-it-normal loop */
-		uae_u16 opcode = get_iword (0);
+		uae_u16 opcode = get_iword (&regs, 0);
 
 		special_mem = DISTRUST_CONSISTENT_MEM;
 		pc_hist[blocklen].location = (uae_u16*)r->pc_p;
@@ -2914,7 +2914,7 @@ static void m68k_run_jit (void)
 		/* Whenever we return from that, we should check spcflags */
 		if (uae_int_requested) {
 			INTREQ_f (0x8008);
-		    set_special (regs, SPCFLAG_INT);
+		    set_special (&regs, SPCFLAG_INT);
 		}
 		if (regs.spcflags) {
 			if (do_specialties (0, &regs)) {

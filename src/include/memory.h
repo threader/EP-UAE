@@ -19,7 +19,7 @@ extern int special_mem;
 extern uae_u8 *cache_alloc (int);
 extern void cache_free (uae_u8*);
 
-int init_shm (void);
+extern int init_shm (void);
 void preinit_shm (void);
 extern int canbang, candirect;
 #endif

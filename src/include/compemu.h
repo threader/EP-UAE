@@ -343,6 +343,15 @@ DECLARE(imul_32_32(RW4 d, R4 s));
 DECLARE(mul_32_32(RW4 d, R4 s));
 DECLARE(mov_b_rr(W1 d, R1 s));
 DECLARE(mov_w_rr(W2 d, R2 s));
+DECLARE(mov_l_rrm_indexed(W4 d, R4 baser, R4 index));
+DECLARE(mov_w_rrm_indexed(W2 d, R4 baser, R4 index));
+DECLARE(mov_b_rrm_indexed(W1 d, R4 baser, R4 index));
+DECLARE(mov_l_mrr_indexed(R4 baser, R4 index, R4 s));
+DECLARE(mov_w_mrr_indexed(R4 baser, R4 index, R2 s));
+DECLARE(mov_b_mrr_indexed(R4 baser, R4 index, R1 s));
+DECLARE(mov_l_rm_indexed(W4 d, IMM base, R4 index));
+
+#if 0
 DECLARE(mov_l_rrm_indexed(W4 d,R4 baser, R4 index, IMM factor));
 DECLARE(mov_w_rrm_indexed(W2 d, R4 baser, R4 index, IMM factor));
 DECLARE(mov_b_rrm_indexed(W1 d, R4 baser, R4 index, IMM factor));
@@ -356,16 +365,7 @@ DECLARE(mov_l_brrm_indexed(W4 d, IMM base, R4 baser, R4 index, IMM factor));
 DECLARE(mov_w_brrm_indexed(W2 d, IMM base, R4 baser, R4 index, IMM factor));
 DECLARE(mov_b_brrm_indexed(W1 d, IMM base, R4 baser, R4 index, IMM factor));
 DECLARE(mov_l_rm_indexed(W4 d, IMM base, R4 index, IMM factor));
-=======
-DECLARE(mov_b_rr(W1 d, R1 s));
-DECLARE(mov_w_rr(W2 d, R2 s));
-DECLARE(mov_l_rrm_indexed(W4 d, R4 baser, R4 index));
-DECLARE(mov_w_rrm_indexed(W2 d, R4 baser, R4 index));
-DECLARE(mov_b_rrm_indexed(W1 d, R4 baser, R4 index));
-DECLARE(mov_l_mrr_indexed(R4 baser, R4 index, R4 s));
-DECLARE(mov_w_mrr_indexed(R4 baser, R4 index, R2 s));
-DECLARE(mov_b_mrr_indexed(R4 baser, R4 index, R1 s));
-DECLARE(mov_l_rm_indexed(W4 d, IMM base, R4 index));
+#endif
 DECLARE(mov_l_rR(W4 d, R4 s, IMM offset));
 DECLARE(mov_w_rR(W2 d, R4 s, IMM offset));
 DECLARE(mov_b_rR(W1 d, R4 s, IMM offset));
@@ -530,13 +530,14 @@ extern void readword(int address, int dest, int tmp);
 extern void readlong(int address, int dest, int tmp);
 
 extern void writebyte         (int address, int source, int tmp);
-extern void writeword_general (int address, int source, int tmp, int clobber);
-extern void writelong_general (int address, int source, int tmp, int clobber);
-
+//extern void writeword_general (int address, int source, int tmp, int clobber);
+//extern void writelong_general (int address, int source, int tmp, int clobber);
+#if 0
 #define writeword(address, source, tmp) writeword_general (address, source, tmp, 0)
 #define writelong(address, source, tmp) writelong_general (address, source, tmp, 0)
 #define writeword_clobber(address, source, tmp) writeword_general (address, source, tmp, 1)
 #define writelong_clobber(address, source, tmp) writelong_general (address, source, tmp, 1)
+#endif
 
 extern void readbyte(int address, int dest, int tmp);
 extern void readword(int address, int dest, int tmp);

@@ -5218,7 +5218,7 @@ static __inline__ int trigger_frh(int v)
 	return (v & (N_LINES - 1)) == 0;
 }
 
-static long int diff32 (frame_time_t x, frame_time_t y)
+long int diff32 (frame_time_t x, frame_time_t y)
 {
 	return (long int)(x - y);
 }

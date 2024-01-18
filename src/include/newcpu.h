@@ -170,20 +170,7 @@ struct regstruct
 };
 extern struct regstruct regs;
 
-typedef struct {
-  uae_u16* location;
-  uae_u8  cycles;
-  uae_u8  specmem;
-  uae_u8  dummy2;
-  uae_u8  dummy3;
-} cpu_history;
-
 struct blockinfo_t;
-
-typedef union {
-    cpuop_func* handler;
-    struct blockinfo_t* bi;
-} cacheline;
 
 
 STATIC_INLINE uae_u32 munge24 (uae_u32 x)
@@ -440,8 +427,6 @@ int notinrom (void)
 
 extern uae_u8* start_pc_p;
 extern uae_u32 start_pc;
-
-#define cacheline(x) (((uae_uintptr) x) & TAGMASK)
 
 void newcpu_showstate (void);
 

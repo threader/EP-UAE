@@ -28,7 +28,7 @@
 /* Cycles to next event pending */
 //unsigned long nextevent;
 
-#ifdef JIT
+#ifdef JIT2
 /* For faster cycles handling */
 signed long pissoff = 0;
 #endif

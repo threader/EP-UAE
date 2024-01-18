@@ -46,8 +46,8 @@
 #ifdef JIT
 int        have_done_picasso       = 0;         /* For the JIT compiler */
 # ifdef PICASSO96
-static int picasso_is_special      = PIC_WRITE; /* ditto */
-static int picasso_is_special_read = PIC_READ;  /* ditto */
+int picasso_is_special      = PIC_WRITE; /* ditto */
+int picasso_is_special_read = PIC_READ;  /* ditto */
 # endif
 #endif
 

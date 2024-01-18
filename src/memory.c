@@ -2343,7 +2343,7 @@ uae_u8 *mapped_malloc (size_t s, const char *file)
 		x->native_address = (uae_u8*)answer;
 		x->id = id;
 		x->size = s;
-		x->name = file;
+		//x->name = file;
 		x->next = shm_start;
 		x->prev = NULL;
 		if (x->next)
