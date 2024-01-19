@@ -1015,17 +1015,31 @@ LENDFUNC(NONE,NONE,2,raw_mov_l_rr,(W4 d, R4 s))
 
 LOWFUNC(NONE,WRITE,2,raw_mov_l_mr,(IMM d, R4 s))
 {
-    emit_byte(0x89);
-    emit_byte(0x05+8*s);
-    emit_long(d);
+#if defined(__x86_64__)
+	emit_byte(0x48); // Prefix for 64bit register
+	emit_byte(0x89);
+	emit_byte(0x04+8*s); // ModR/M for "use sib byte"
+	emit_byte(0x25); // sib byte for "direct no index"
+#else
+	emit_byte(0x89);
+	emit_byte(0x05+8*s);
+#endif // __x86_64__
+	emit_long(d);
 }
 LENDFUNC(NONE,WRITE,2,raw_mov_l_mr,(IMM d, R4 s))
 
 LOWFUNC(NONE,READ,2,raw_mov_l_rm,(W4 d, MEMR s))
 {
-    emit_byte(0x8b);
-    emit_byte(0x05+8*d);
-    emit_long(s);
+#if defined(__x86_64__)
+	emit_byte(0x48); // Prefix for 64bit register
+	emit_byte(0x8b);
+	emit_byte(0x04+8*d); // ModR/M for "use sib byte"
+	emit_byte(0x25); // sib byte for "direct no index"
+#else
+	emit_byte(0x8b);
+	emit_byte(0x05+8*d);
+#endif // __x86_64__
+	emit_long(s);
 }
 LENDFUNC(NONE,READ,2,raw_mov_l_rm,(W4 d, MEMR s))
 
@@ -1154,9 +1168,12 @@ LENDFUNC(WRITE,NONE,2,raw_test_b_rr,(R1 d, R1 s))
 
 LOWFUNC(WRITE,NONE,2,raw_and_l_ri,(RW4 d, IMM i))
 {
-    emit_byte(0x81);
-    emit_byte(0xe0+d);
-    emit_long(i);
+#if defined(__x86_64__)
+	emit_byte(0x48);
+#endif // defined(__x86_x64__)
+	emit_byte(0x81);
+	emit_byte(0xe0+d);
+	emit_long(i);
 }
 LENDFUNC(WRITE,NONE,2,raw_and_l_ri,(RW4 d, IMM i))
 
@@ -2546,7 +2563,6 @@ static void vec(int sig, siginfo_t* info, void* _ct)
 	signal(SIGSEGV,SIG_DFL);  /* returning here will cause a "real" SEGV */
 }
 #endif // not __APPLE__
-//#endif // win32?
 #endif
 
 /*************************************************************************

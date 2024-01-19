@@ -1,13 +1,17 @@
 
 #include "flags_x86.h"
 
-#ifdef CPU_64_BIT
+#ifdef __x86_64__
 typedef uae_u64 uintptr;
 #else
 typedef uae_u32 uintptr;
 #endif
 
-/* Flags for Bernie during development/debugging. Should go away eventually */
+#include "sysdeps.h"
+
+/* Now that we do block chaining, and also have linked lists on each tag,
+   TAGMASK can be much smaller and still do its job. Saves several megs
+   of memory! */
 #define DISTRUST_CONSISTENT_MEM 0
 #define TAGMASK 0x000fffff
 #define TAGSIZE (TAGMASK+1)
@@ -16,7 +20,7 @@ typedef uae_u32 uintptr;
 extern uae_u8* start_pc_p;
 extern uae_u32 start_pc;
 
-#define cacheline(x) (((uae_u32)x)&TAGMASK)
+#define cacheline(x) ((PTR_TO_UINT32(x)) & TAGMASK)
 
 typedef struct {
   uae_u16* location;
@@ -154,7 +158,11 @@ extern op_properties prop[65536];
 STATIC_INLINE int end_block(uae_u16 opcode)
 {
     return prop[opcode].is_jump ||
-	(prop[opcode].is_const_jump && !currprefs.comp_constjump);
+  (prop[opcode].is_const_jump
+#ifdef JIT
+  && !currprefs.comp_constjump
+#endif
+  );
 }
 
 #define PC_P 16

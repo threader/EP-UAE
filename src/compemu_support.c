@@ -6368,10 +6368,10 @@ void compile_block(cpu_history* pc_hist, int blocklen, int totcycles)
 	    }
 #endif
 
-	    if (next_pc_p) { /* A branch was registered */
-		uae_uintptr t1=next_pc_p;
-		uae_uintptr t2=taken_pc_p;
-		int         cc=branch_cc;
+			if (next_pc_p) { /* A branch was registered */
+				uae_u32 t1=next_pc_p;
+				uae_u32 t2=taken_pc_p;
+				int     cc=branch_cc;
 
 		uae_u32* branchadd;
 		uae_u32* tba;

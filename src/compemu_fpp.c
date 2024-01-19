@@ -1204,6 +1204,7 @@ void comp_fpp_opp (uae_u32 opcode, uae_u16 extra)
 		    fmov_ext_rm(dreg,(uae_u32)&xhex_1e4096);
 		break;
 	     default:
+		/* This is not valid, so we fail */
 		FAIL(1);
 		return;
 	    }

@@ -70,13 +70,14 @@ typedef uae_u32        uaecptr;
 # define VAL64(a)  (a ## LL)
 # define UVAL64(a) (a ## uLL)
 #elif SIZEOF___INT64 == 8
-# define uae_s64   __int64
-# define uae_u64   unsigned __int64
+typedef __int64 long uae_s64;
+typedef unsigned __int64 uae_u64;
 # define VAL64(a)  (a)
 # define UVAL64(a) (a)
 #elif SIZEOF_LONG == 8
-# define uae_s64   long;
-# define uae_u64   unsigned long;
+#warning "if you reach this code probably something went wrong..."
+typedef long uae_s64;
+typedef unsigned long uae_u64;
 # define VAL64(a)  (a ## l)
 # define UVAL64(a) (a ## ul)
 #endif
@@ -91,6 +92,20 @@ typedef unsigned int      uae_uintptr;
 # error Unknown/unsupported pointer size
 #endif
 
+  //typedef struct { uae_u8 RGB[3]; } RGB;
+
+# if defined(__cplusplus)
+#   include <cstdint>
+# else
+# include <stdint.h>
+# endif // __cplusplus
+  typedef uint8_t uae_u8;
+  typedef  int8_t uae_s8;
+  typedef uint16_t uae_u16;
+  typedef  int16_t uae_s16;
+  typedef uint32_t uae_u32;
+  typedef  int32_t uae_s32;
+
 
 /* We can only rely on GNU C getting enums right. Mickeysoft VSC++ is known
  * to have problems, and it's likely that other compilers choke too. */
@@ -101,7 +116,6 @@ typedef unsigned int      uae_uintptr;
 # define ENUMDECL       enum
 # define ENUMNAME(name) ; typedef int name
 #endif
-
 
 /* When using the selective passing of parameters in registers (on x86 and
  * 68k hosts with GCC) REGPARAM will be defined by configure to contain the
