@@ -48,9 +48,9 @@ extern int fpp_movem_next[256];
 #endif
 
 struct regstruct;
-
-typedef uae_u32 cpuop_func REGPARAM3  (uae_u32,   struct regstruct *regs) REGPARAM;
-typedef  void REGPARAM3 cpuop_func_ce   (uae_u32,    struct regstruct *regs) REGPARAM;
+/* note */
+typedef uae_u32 REGPARAM3 cpuop_func (uae_u32,   struct regstruct *regs) REGPARAM;
+typedef  void REGPARAM3 cpuop_func_ce (uae_u32,    struct regstruct *regs) REGPARAM;
 
 struct cputbl {
     cpuop_func *handler;
