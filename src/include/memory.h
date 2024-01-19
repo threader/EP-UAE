@@ -392,10 +392,10 @@ extern shmpiece *shm_start;
 struct shmid_ds;
 
 /* Prototypes from src/memory.c used elsewhere, too */
-int my_shmdt (const void *shmaddr);
-void *my_shmat (int shmid, void *shmaddr, int shmflg);
-int my_shmget (key_t key, size_t size, int shmflg, const TCHAR *name);
-int my_shmctl (int shmid, int cmd, struct shmid_ds *buf);
+//extern int my_shmdt (const void *shmaddr);
+//extern void *my_shmat (int shmid, void *shmaddr, int shmflg);
+extern int my_shmget (key_t key, size_t size, int shmflg, const TCHAR *name);
+extern int my_shmctl (int shmid, int cmd, struct shmid_ds *buf);
 
 #endif
 
