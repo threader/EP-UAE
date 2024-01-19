@@ -2174,7 +2174,6 @@ int EvalException ( LPEXCEPTION_POINTERS blah, int n_except )
 #else
 #define CONTEXT_MEMBER(x) x
 #endif
-#endif // win32
 
 #ifdef __APPLE__
 static void vec(int x, siginfo_t *info, ucontext_t *uap)
@@ -2564,6 +2563,7 @@ static void vec(int sig, siginfo_t* info, void* _ct)
 }
 #endif // not __APPLE__
 #endif
+#endif // win32
 
 /*************************************************************************
  * Checking for CPU features                                             *
