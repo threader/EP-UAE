@@ -389,6 +389,14 @@ typedef struct shmpiece_reg {
 
 extern shmpiece *shm_start;
 
+struct shmid_ds;
+
+/* Prototypes from src/memory.c used elsewhere, too */
+int my_shmdt (const void *shmaddr);
+void *my_shmat (int shmid, void *shmaddr, int shmflg);
+int my_shmget (key_t key, size_t size, int shmflg, const TCHAR *name);
+int my_shmctl (int shmid, int cmd, struct shmid_ds *buf);
+
 #endif
 
 extern uae_u8 *mapped_malloc (size_t, const TCHAR*);

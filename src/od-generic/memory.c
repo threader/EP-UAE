@@ -59,11 +59,16 @@ struct shmid_ds {
 	int    maprom;
 };
 
+typedef struct {
+	int dwPageSize;
+} SYSTEM_INFO;
+
 static struct shmid_ds shmids[MAX_SHMID];
 static int memwatchok = 0;
 uae_u8 *natmem_offset, *natmem_offset_end;
 static uae_u8 *p96mem_offset;
 static int p96mem_size;
+static SYSTEM_INFO si;
 static uae_u8 *memwatchtable;
 static uae_u64 size64;
 int maxmem;
@@ -94,6 +99,54 @@ uae_u8 *cache_alloc (int size)
 		mprotect (cache, size, PROT_READ|PROT_WRITE|PROT_EXEC);
 
    return cache;
+}
+
+static void GetSystemInfo(SYSTEM_INFO *si)
+{
+	si->dwPageSize = sysconf(_SC_PAGESIZE); //PAGE_SIZE <asm/page.h>
+}
+
+/*
+ * mmap() anonymous space, depending on the system's mmap() style. On systems
+ * that use the /dev/zero mapping idiom, zerofd will be set to the file descriptor
+ * of the opened /dev/zero.
+ */
+#if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+
+static void *mmap_anon(void *addr, size_t len, int prot, int flags, off_t offset)
+{
+	void *result;
+
+#if defined(MAP_SHARED) && defined(MAP_PRIVATE)
+	flags = (flags & ~MAP_SHARED) | MAP_PRIVATE;
+#endif
+
+#ifdef MAP_ANONYMOUS
+	/* BSD-style anonymous mapping */
+	result = mmap(addr, len, prot, flags | MAP_ANONYMOUS, -1, offset);
+#else
+	/* SysV-style anonymous mapping */
+	int fd;
+	fd = open("/dev/zero", O_RDWR);
+	if (fd < 0){
+		write_log ( "MMAP: Cannot open /dev/zero for R+W. Error: ");
+		return NULL;
+	}
+
+	result = mmap(addr, len, prot, flags, fd, offset);
+	close(fd);
+#endif /* MAP_ANONYMOUS */
+	if (result == MAP_FAILED) {
+		write_log("MMAPed failed addr: 0x%08X, %d bytes (%d MB)\n",
+					addr, (uae_u32)len, (uae_u32)len / 0x100000);
+	} else {
+		write_log("MMAPed OK range: 0x%08X - 0x%08X, %d bytes (%d MB)\n",
+					PTR_TO_UINT32(result), PTR_TO_UINT32(result) + (uae_u32)len,
+					(uae_u32)len, (uae_u32)len / 0x100000);
+	}
+	return result;
 }
 
 static void *VirtualAlloc(LPVOID lpAddress, int dwSize, DWORD flAllocationType, DWORD flProtect) {
