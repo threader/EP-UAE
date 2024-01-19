@@ -534,31 +534,28 @@ extern unsigned long foink3, oink;
 
 void comp_fbcc_opp (uae_u32 opcode)
 {
-    uae_u32 start_68k_offset=m68k_pc_offset;
-    uae_u32 off;
-    uae_u32 v1;
-    uae_u32 v2;
-    uae_u32 nh;
-    int cc;
+	uae_u32 start_68k_offset = m68k_pc_offset;
+	uae_u32 off, v1, v2;
+	int cc;
 
-    if (!currprefs.compfpu) {
-	FAIL(1);
-	return;
-    }
+	if (!currprefs.compfpu) {
+		FAIL (1);
+		return;
+	}
 
-    if (opcode&0x20) {  /* only cc from 00 to 1f are defined */
-	FAIL(1);
-	return;
-    }
-    if ((opcode&0x40)==0) {
-	off=(uae_s32)(uae_s16)comp_get_iword((m68k_pc_offset+=2)-2);
-    }
-    else {
-	off=comp_get_ilong((m68k_pc_offset+=4)-4);
-    }
-    mov_l_ri(S1,(uae_u32)
-	     (comp_pc_p+off-(m68k_pc_offset-start_68k_offset)));
-    mov_l_ri(PC_P,(uae_u32)comp_pc_p);
+	if (opcode & 0x20) {  /* only cc from 00 to 1f are defined */
+		FAIL (1);
+		return;
+	}
+	if (!(opcode & 0x40)) {
+		off = (uae_s32) (uae_s16) comp_get_iword ((m68k_pc_offset += 2) - 2);
+	}
+	else {
+		off = comp_get_ilong ((m68k_pc_offset += 4) - 4);
+	}
+	mov_l_ri (S1, PTR_TO_UINT32(
+			  comp_pc_p + off - (m68k_pc_offset - start_68k_offset)));
+	mov_l_ri (PC_P, PTR_TO_UINT32(comp_pc_p));
 
     /* Now they are both constant. Might as well fold in m68k_pc_offset */
     add_l_ri(S1,m68k_pc_offset);
