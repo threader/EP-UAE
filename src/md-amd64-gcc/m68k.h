@@ -1,11 +1,11 @@
- /*
-  * UAE - The Un*x Amiga Emulator
-  *
-  * MC68000 emulation - machine dependent bits
-  *
-  * Copyright 1996 Bernd Schmidt
-  * Copyright 2004-2007 Richard Drummond
-  */
+/*
+ * UAE - The Un*x Amiga Emulator
+ *
+ * MC68000 emulation - machine dependent bits
+ *
+ * Copyright 1996 Bernd Schmidt
+ * Copyright 2004-2007 Richard Drummond
+ */
 
  /*
   * Machine dependent structure for holding the 68k CCR flags
@@ -15,7 +15,7 @@ struct flag_struct {
     unsigned int x;
 };
 
-// extern struct flag_struct regflags;
+extern struct flag_struct regflags;
 
 /*
  * The bits in the cznv field in the above structure are assigned to
@@ -24,7 +24,7 @@ struct flag_struct {
  * with a setto %AL instr and the other flags copied to AH with an
  * lahf instr).
  *
- * The 68k CZNV flags are thus assinged in cznv as:
+ * The 68k CZNV flags are thus assigned in cznv as:
  *
  * <--AL-->  <--AH-->
  * 76543210  FEDCBA98 --------- ---------
@@ -43,24 +43,24 @@ struct flag_struct {
 #define FLAGVAL_V	(1 << FLAGBIT_V)
 #define FLAGVAL_X	(1 << FLAGBIT_X)
 
-#define SET_ZFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_Z) | ((y) << FLAGBIT_Z))
-#define SET_CFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_C) | ((y) << FLAGBIT_C))
-#define SET_VFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_V) | ((y) << FLAGBIT_V))
-#define SET_NFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_N) | ((y) << FLAGBIT_N))
-#define SET_XFLG(flags, y)	((flags)->x    = (y) << FLAGBIT_X)
+#define SET_ZFLG(flags,y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_Z) | (((y) ? 1 : 0) << FLAGBIT_Z))
+#define SET_CFLG(flags,y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_C) | (((y) ? 1 : 0) << FLAGBIT_C))
+#define SET_VFLG(flags,y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_V) | (((y) ? 1 : 0) << FLAGBIT_V))
+#define SET_NFLG(flags,y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_N) | (((y) ? 1 : 0) << FLAGBIT_N))
+#define SET_XFLG(flags,y)	((flags)->x    = ((y) ? 1 : 0) << FLAGBIT_X)
 
-#define GET_ZFLG(flags)		(((flags)->cznv >> FLAGBIT_Z) & 1)
-#define GET_CFLG(flags)		(((flags)->cznv >> FLAGBIT_C) & 1)
-#define GET_VFLG(flags)		(((flags)->cznv >> FLAGBIT_V) & 1)
-#define GET_NFLG(flags)		(((flags)->cznv >> FLAGBIT_N) & 1)
-#define GET_XFLG(flags)		(((flags)->x    >> FLAGBIT_X) & 1)
+#define GET_ZFLG(flags)	(((flags)->cznv >> FLAGBIT_Z) & 1)
+#define GET_CFLG(flags)	(((flags)->cznv >> FLAGBIT_C) & 1)
+#define GET_VFLG(flags)	(((flags)->cznv >> FLAGBIT_V) & 1)
+#define GET_NFLG(flags)	(((flags)->cznv >> FLAGBIT_N) & 1)
+#define GET_XFLG(flags)	(((flags)->x    >> FLAGBIT_X) & 1)
 
 #define CLEAR_CZNV(flags)	((flags)->cznv  = 0)
-#define GET_CZNV(flags)		((flags)->cznv)
-#define IOR_CZNV(flags, X)	((flags)->cznv |= (X))
-#define SET_CZNV(flags, X)	((flags)->cznv  = (X))
+#define GET_CZNV	((flags)->cznv)
+#define IOR_CZNV(flags, X) ((flags)->cznv |= (X))
+#define SET_CZNV(flags, X) ((flags)->cznv = (X))
 
-#define COPY_CARRY(flags)	((flags)->x = (flags)->cznv)
+#define COPY_CARRY(flags) ((flags)->x = (flags)->cznv)
 
 
 /*
@@ -95,23 +95,3 @@ STATIC_INLINE int cctrue (struct flag_struct *flags, int cc)
 }
 
 #define USE_X86_FPUCW 1
-#if 0
-#define SET_ZFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_Z) | (((y) ? 1 : 0) << FLAGBIT_Z))
-#define SET_CFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_C) | (((y) ? 1 : 0) << FLAGBIT_C))
-#define SET_VFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_V) | (((y) ? 1 : 0) << FLAGBIT_V))
-#define SET_NFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_N) | (((y) ? 1 : 0) << FLAGBIT_N))
-#define SET_XFLG(y)	(regflags.x    = ((y) ? 1 : 0) << FLAGBIT_X)
-
-#define GET_ZFLG()	((regflags.cznv >> FLAGBIT_Z) & 1)
-#define GET_CFLG()	((regflags.cznv >> FLAGBIT_C) & 1)
-#define GET_VFLG()	((regflags.cznv >> FLAGBIT_V) & 1)
-#define GET_NFLG()	((regflags.cznv >> FLAGBIT_N) & 1)
-#define GET_XFLG()	((regflags.x    >> FLAGBIT_X) & 1)
-
-#define CLEAR_CZNV()	(regflags.cznv  = 0)
-#define GET_CZNV	(regflags.cznv)
-#define IOR_CZNV(X) (regflags.cznv |= (X))
-#define SET_CZNV(X) (regflags.cznv = (X))
-
-#define COPY_CARRY (regflags.x = regflags.cznv)
-#endif
