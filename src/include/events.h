@@ -34,8 +34,9 @@
 #define OFFICIAL_CYCLE_UNIT 512
 
 extern volatile frame_time_t vsynctime, vsyncmintime;
+extern int  syncbase;
 extern void reset_frame_rate_hack (void);
-extern frame_time_t syncbase;
+//extern frame_time_t syncbase;
 
 extern void compute_vsynctime (void);
 extern void init_eventtab (void);

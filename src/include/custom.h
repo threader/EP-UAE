@@ -126,7 +126,7 @@ extern unsigned int maxvpos, maxvpos_nom;
 extern unsigned int minfirstline, vblank_endline, numscrlines;
 extern double vblank_hz, fake_vblank_hz;
 extern int vblank_skip, doublescan;
-extern frame_time_t syncbase;
+//extern frame_time_t syncbase;
 #define NUMSCRLINES (maxvpos + 1 - minfirstline + 1)
 
 #define DMA_AUD0      0x0001
