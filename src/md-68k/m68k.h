@@ -33,44 +33,24 @@ extern struct flag_struct regflags;
 #define FLAGVAL_V	(1 << FLAGBIT_V)
 #define FLAGVAL_X	(1 << FLAGBIT_X)
 
-#define SET_ZFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_Z) | ((y) << FLAGBIT_Z))
-#define SET_CFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_C) | ((y) << FLAGBIT_C))
-#define SET_VFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_V) | ((y) << FLAGBIT_V))
-#define SET_NFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_N) | ((y) << FLAGBIT_N))
-#define SET_XFLG(flags, y)	((flags)->x    = (y) << FLAGBIT_X)
+#define SET_ZFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_Z) | (((flags, y) ? 1 : 0) << FLAGBIT_Z))
+#define SET_CFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_C) | (((flags, y) ? 1 : 0) << FLAGBIT_C))
+#define SET_VFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_V) | (((flags, y) ? 1 : 0) << FLAGBIT_V))
+#define SET_NFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_N) | (((flags, y) ? 1 : 0) << FLAGBIT_N))
+#define SET_XFLG(flags, y)	((flags)->x    = ((flags, y) ? 1 : 0) << FLAGBIT_X)
 
-#define GET_ZFLG(flags)		(((flags)->cznv >> FLAGBIT_Z) & 1)
-#define GET_CFLG(flags)		(((flags)->cznv >> FLAGBIT_C) & 1)
-#define GET_VFLG(flags)		(((flags)->cznv >> FLAGBIT_V) & 1)
-#define GET_NFLG(flags)		(((flags)->cznv >> FLAGBIT_N) & 1)
-#define GET_XFLG(flags)		(((flags)->x >> FLAGBIT_X) & 1)
+#define GET_ZFLG()	(((flags)->cznv >> FLAGBIT_Z) & 1)
+#define GET_CFLG()	(((flags)->cznv >> FLAGBIT_C) & 1)
+#define GET_VFLG()	(((flags)->cznv >> FLAGBIT_V) & 1)
+#define GET_NFLG()	(((flags)->cznv >> FLAGBIT_N) & 1)
+#define GET_XFLG()	(((flags)->x    >> FLAGBIT_X) & 1)
 
-#define CLEAR_CZNV(flags)	((flags)->cznv = 0)
-#define GET_CZNV(flags)		((flags)->cznv)
-#define IOR_CZNV(flags, X)	((flags)->cznv |= (X))
-#define SET_CZNV(flags, X)	((flags)->cznv = (X))
+#define CLEAR_CZNV()	((flags)->cznv  = 0)
+#define GET_CZNV	((flags)->cznv)
+#define IOR_CZNV(X) ((flags)->cznv |= (X))
+#define SET_CZNV(X) ((flags)->cznv = (X))
 
-#define COPY_CARRY(flags)	((flags)->x = (flags)->cznv)
-#if 0
-#define SET_ZFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_Z) | (((y) ? 1 : 0) << FLAGBIT_Z))
-#define SET_CFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_C) | (((y) ? 1 : 0) << FLAGBIT_C))
-#define SET_VFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_V) | (((y) ? 1 : 0) << FLAGBIT_V))
-#define SET_NFLG(y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_N) | (((y) ? 1 : 0) << FLAGBIT_N))
-#define SET_XFLG(y)	(regflags.x    = ((y) ? 1 : 0) << FLAGBIT_X)
-
-#define GET_ZFLG()	((regflags.cznv >> FLAGBIT_Z) & 1)
-#define GET_CFLG()	((regflags.cznv >> FLAGBIT_C) & 1)
-#define GET_VFLG()	((regflags.cznv >> FLAGBIT_V) & 1)
-#define GET_NFLG()	((regflags.cznv >> FLAGBIT_N) & 1)
-#define GET_XFLG()	((regflags.x    >> FLAGBIT_X) & 1)
-
-#define CLEAR_CZNV()	(regflags.cznv  = 0)
-#define GET_CZNV	(regflags.cznv)
-#define IOR_CZNV(X) (regflags.cznv |= (X))
-#define SET_CZNV(X) (regflags.cznv = (X))
-
-#define COPY_CARRY (regflags.x = regflags.cznv)
-#endif
+#define COPY_CARRY ((flags)->x = (flags)->cznv)
 
 /*
  * Test CCR condition

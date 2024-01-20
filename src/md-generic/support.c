@@ -12,7 +12,7 @@
 
 #include "options.h"
 #include "machdep/m68k.h"
-/* notes regflag */
+
 struct flag_struct regflags;
 
 int machdep_init (void)

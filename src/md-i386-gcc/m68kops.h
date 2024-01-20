@@ -26,28 +26,28 @@
    I.e. any way to tell gcc that some byte-sized value is in %al? */
 //#if defined(__APPLE__) && !defined(__x86_64__)
 #ifndef __x86_64__
-#define optflag_testl(v) \
+#define optflag_testl(regs, v) \
   __asm__ __volatile__ ("andl %0,%0\n\t" \
 			"lahf\n\t" \
 			"seto %%al\n\t" \
 			"movb %%al,_regflags\n\t" \
 			"movb %%ah,_regflags+1\n\t" \
-			:: "r" (v) : "%eax","cc","memory")
-#define optflag_testw(v) \
+			:: "r" (regs, v) : "%eax","cc","memory")
+#define optflag_testw(regs, v) \
   __asm__ __volatile__ ("andw %w0,%w0\n\t" \
 			"lahf\n\t" \
 			"seto %%al\n\t" \
 			"movb %%al,_regflags\n\t" \
 			"movb %%ah,_regflags+1\n\t" \
-			:: "r" (v) : "%eax","cc","memory")
+			:: "r" (regs, v) : "%eax","cc","memory")
 
-#define optflag_testb(v) \
+#define optflag_testb(regs, v) \
   __asm__ __volatile__ ("andb %b0,%b0\n\t" \
 			"lahf\n\t" \
 			"seto %%al\n\t" \
 			"movb %%al,_regflags\n\t" \
 			"movb %%ah,_regflags+1\n\t" \
-			:: "q" (v) : "%eax","cc","memory")
+			:: "q" (regs, v) : "%eax","cc","memory")
 
 #define optflag_addl(v, s, d) do { \
   __asm__ __volatile__ ("addl %k1,%k0\n\t" \
@@ -55,7 +55,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,_regflags\n\t" \
 			"movb %%ah,_regflags+1\n\t" \
-			:"=r" (v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
+			:"=r" (regs, v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 #define optflag_addw(v, s, d) do { \
@@ -64,7 +64,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,_regflags\n\t" \
 			"movb %%ah,_regflags+1\n\t" \
-			: "=r" (v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
+			: "=r" (regs, v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 
@@ -74,7 +74,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,_regflags\n\t" \
 			"movb %%ah,_regflags+1\n\t" \
-			:"=q" (v) : "qmi" (s), "0" (d) : "%eax","cc","memory"); \
+			:"=q" (regs, v) : "qmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 
@@ -84,7 +84,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,_regflags\n\t" \
 			"movb %%ah,_regflags+1\n\t" \
-			: "=r" (v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
+			: "=r" (regs, v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 
@@ -94,7 +94,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,_regflags\n\t" \
 			"movb %%ah,_regflags+1\n\t" \
-			: "=r" (v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
+			: "=r" (regs, v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 
@@ -104,7 +104,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,_regflags\n\t" \
 			"movb %%ah,_regflags+1\n\t" \
-			: "=q" (v) : "qmi" (s), "0" (d) : "%eax","cc","memory"); \
+			: "=q" (regs, v) : "qmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 
@@ -132,28 +132,28 @@
 			"movb %%ah,_regflags+1\n\t" \
 			:: "qmi" (s), "q" (d) : "%eax","cc","memory")
 #else /*ifdef apple*/
-#define optflag_testl(v) \
+#define optflag_testl(regs, v) \
   __asm__ __volatile__ ("andl %0,%0\n\t" \
 			"lahf\n\t" \
 			"seto %%al\n\t" \
 			"movb %%al,regflags\n\t" \
 			"movb %%ah,regflags+1\n\t" \
-			:: "r" (v) : "%eax","cc","memory")
-#define optflag_testw(v) \
+			:: "r" (regs, v) : "%eax","cc","memory")
+#define optflag_testw(regs, v) \
   __asm__ __volatile__ ("andw %w0,%w0\n\t" \
 			"lahf\n\t" \
 			"seto %%al\n\t" \
 			"movb %%al,regflags\n\t" \
 			"movb %%ah,regflags+1\n\t" \
-			:: "r" (v) : "%eax","cc","memory")
+			:: "r" (regs, v) : "%eax","cc","memory")
 
-#define optflag_testb(v) \
+#define optflag_testb(regs, v) \
   __asm__ __volatile__ ("andb %b0,%b0\n\t" \
 			"lahf\n\t" \
 			"seto %%al\n\t" \
 			"movb %%al,regflags\n\t" \
 			"movb %%ah,regflags+1\n\t" \
-			:: "q" (v) : "%eax","cc","memory")
+			:: "q" (regs, v) : "%eax","cc","memory")
 
 #define optflag_addl(v, s, d) do { \
   __asm__ __volatile__ ("addl %k1,%k0\n\t" \
@@ -161,7 +161,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,regflags\n\t" \
 			"movb %%ah,regflags+1\n\t" \
-			:"=r" (v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
+			:"=r" (regs, v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 #define optflag_addw(v, s, d) do { \
@@ -170,7 +170,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,regflags\n\t" \
 			"movb %%ah,regflags+1\n\t" \
-			: "=r" (v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
+			: "=r" (regs, v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 
@@ -180,7 +180,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,regflags\n\t" \
 			"movb %%ah,regflags+1\n\t" \
-			:"=q" (v) : "qmi" (s), "0" (d) : "%eax","cc","memory"); \
+			:"=q" (regs, v) : "qmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 
@@ -190,7 +190,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,regflags\n\t" \
 			"movb %%ah,regflags+1\n\t" \
-			: "=r" (v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
+			: "=r" (regs, v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 
@@ -200,7 +200,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,regflags\n\t" \
 			"movb %%ah,regflags+1\n\t" \
-			: "=r" (v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
+			: "=r" (regs, v) : "rmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 
@@ -210,7 +210,7 @@
 			"seto %%al\n\t" \
 			"movb %%al,regflags\n\t" \
 			"movb %%ah,regflags+1\n\t" \
-			: "=q" (v) : "qmi" (s), "0" (d) : "%eax","cc","memory"); \
+			: "=q" (regs, v) : "qmi" (s), "0" (d) : "%eax","cc","memory"); \
 	regflags.x = regflags.cznv; \
     } while (0)
 

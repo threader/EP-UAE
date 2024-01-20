@@ -56,31 +56,32 @@ extern struct flag_struct regflags;
 #define FLAGVAL_V	(1 << FLAGBIT_V)
 #define FLAGVAL_X	(1 << FLAGBIT_X)
 
-#define SET_ZFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_Z) | ((y) << FLAGBIT_Z))
-#define SET_CFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_C) | ((y) << FLAGBIT_C))
-#define SET_VFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_V) | ((y) << FLAGBIT_V))
-#define SET_NFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_N) | ((y) << FLAGBIT_N))
-#define SET_XFLG(flags, y)	((flags)->x    = ((y) << FLAGBIT_X))
+#define SET_ZFLG(flags, y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_Z) | (((flags, y) ? 1 : 0) << FLAGBIT_Z))
+#define SET_CFLG(flags, y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_C) | (((flags, y) ? 1 : 0) << FLAGBIT_C))
+#define SET_VFLG(flags, y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_V) | (((flags, y) ? 1 : 0) << FLAGBIT_V))
+#define SET_NFLG(flags, y)	(regflags.cznv = (regflags.cznv & ~FLAGVAL_N) | (((flags, y) ? 1 : 0) << FLAGBIT_N))
+#define SET_XFLG(flags, y)	(regflags.x    = ((flags, y) ? 1 : 0) << FLAGBIT_X)
 
 #define GET_ZFLG(flags)	(((flags)->cznv >> FLAGBIT_Z) & 1)
 #define GET_CFLG(flags)	(((flags)->cznv >> FLAGBIT_C) & 1)
 #define GET_VFLG(flags)	(((flags)->cznv >> FLAGBIT_V) & 1)
 #define GET_NFLG(flags)	(((flags)->cznv >> FLAGBIT_N) & 1)
-#define GET_XFLG(flags)	(((flags)->x >> FLAGBIT_X) & 1)
+#define GET_XFLG(flags)	(((flags)->x    >> FLAGBIT_X) & 1)
 
 #define CLEAR_CZNV(flags)	((flags)->cznv  = 0)
-#define GET_CZNV(flags)	        ((flags)->cznv)
-#define IOR_CZNV(flags, X)	((flags)->cznv |= (X))
-#define SET_CZNV(flags, X)	((flags)->cznv  = (X))
+#define GET_CZNV	((flags)->cznv)
+#define IOR_CZNV(X) ((flags)->cznv |= (X))
+#define SET_CZNV(X) ((flags)->cznv = (X))
 
-#define COPY_CARRY(flags)	((flags)->x = (flags)->cznv)
+#define COPY_CARRY(flags) ((flags)->x = (flags)->cznv)
+
 
 /*
  * Test CCR condition
  */
-STATIC_INLINE int cctrue (const struct flag_struct *flags, int cc)
+STATIC_INLINE int cctrue(int cc)
 {
-    uae_u32 cznv = flags->cznv;
+    uae_u32 cznv = (flags)->cznv;
 
     switch (cc) {
 	case 0:  return 1;								/*				T  */

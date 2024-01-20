@@ -124,6 +124,11 @@ in Tiger or later */
     }
 }
 
+-(void)performAbout:(id)sender
+{
+	[NSApp orderFrontStandardAboutPanelWithOptions: nil];
+}
+
 static void setApplicationMenu (void)
 {
     /* warning: this code is very odd */
@@ -284,7 +289,7 @@ NSString *finderLaunchFilename = nil;
     {
       
 	/* Hand off to main application code */
-	real_main (gArgc, gArgv);
+	//real_main (gArgc, gArgv);
     /* if (init_sdl ()) */
 #endif
     {

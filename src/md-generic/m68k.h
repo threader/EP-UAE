@@ -15,37 +15,38 @@ struct flag_struct {
     unsigned int x;
 };
 
-#define FLAGBIT_N		31
-#define FLAGBIT_Z		2
-#define FLAGBIT_V		1
-#define FLAGBIT_C		0
-#define FLAGBIT_X		0
+extern struct flag_struct regflags;
 
-#define FLAGVAL_N		(1 << FLAGBIT_N)
-#define FLAGVAL_Z		(1 << FLAGBIT_Z)
-#define FLAGVAL_C		(1 << FLAGBIT_C)
-#define FLAGVAL_V		(1 << FLAGBIT_V)
-#define FLAGVAL_X		(1 << FLAGBIT_X)
+#define FLAGBIT_N	15
+#define FLAGBIT_Z	14
+#define FLAGBIT_C	8
+#define FLAGBIT_V	0
+#define FLAGBIT_X	8
 
-#define SET_ZFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_Z) | ((y) << FLAGBIT_Z))
-#define SET_CFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_C) | ((y) << FLAGBIT_C))
-#define SET_VFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_V) | ((y) << FLAGBIT_V))
-#define SET_NFLG(flags, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_N) | ((y) << FLAGBIT_N))
-#define SET_XFLG(flags, y)	((flags)->x    = (y) << FLAGBIT_X)
+#define FLAGVAL_N	(1 << FLAGBIT_N)
+#define FLAGVAL_Z 	(1 << FLAGBIT_Z)
+#define FLAGVAL_C	(1 << FLAGBIT_C)
+#define FLAGVAL_V	(1 << FLAGBIT_V)
+#define FLAGVAL_X	(1 << FLAGBIT_X)
 
-#define GET_ZFLG(flags)		(((flags)->cznv >> FLAGBIT_Z) & 1)
-#define GET_CFLG(flags)		(((flags)->cznv >> FLAGBIT_C) & 1)
-#define GET_VFLG(flags)		(((flags)->cznv >> FLAGBIT_V) & 1)
-#define GET_NFLG(flags)		(((flags)->cznv >> FLAGBIT_N) & 1)
-#define GET_XFLG(flags)		(((flags)->x    >> FLAGBIT_X) & 1)
+#define SET_ZFLG(regs, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_Z) | (((regs, y) ? 1 : 0) << FLAGBIT_Z))
+#define SET_CFLG(regs, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_C) | (((regs, y) ? 1 : 0) << FLAGBIT_C))
+#define SET_VFLG(regs, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_V) | (((regs, y) ? 1 : 0) << FLAGBIT_V))
+#define SET_NFLG(regs, y)	((flags)->cznv = ((flags)->cznv & ~FLAGVAL_N) | (((regs, y) ? 1 : 0) << FLAGBIT_N))
+#define SET_XFLG(regs, y)	((flags)->x    = ((regs, y) ? 1 : 0) << FLAGBIT_X)
 
-#define CLEAR_CZNV(flags)	((flags)->cznv  = 0)
-#define GET_CZNV(flags)		((flags)->cznv)
-#define IOR_CZNV(flags, X)	((flags)->cznv |= (X))
-#define SET_CZNV(flags, X)	((flags)->cznv  = (X))
+#define GET_ZFLG()	(((flags)->cznv >> FLAGBIT_Z) & 1)
+#define GET_CFLG()	(((flags)->cznv >> FLAGBIT_C) & 1)
+#define GET_VFLG()	(((flags)->cznv >> FLAGBIT_V) & 1)
+#define GET_NFLG()	(((flags)->cznv >> FLAGBIT_N) & 1)
+#define GET_XFLG()	(((flags)->x    >> FLAGBIT_X) & 1)
 
-#define COPY_CARRY(flags)	((flags)->x = (flags)->cznv)
+#define CLEAR_CZNV()	((flags)->cznv  = 0)
+#define GET_CZNV	((flags)->cznv)
+#define IOR_CZNV(X)	((flags)->cznv |= (X))
+#define SET_CZNV(X)	((flags)->cznv  = (X))
 
+#define COPY_CARRY() ((flags)->x = (flags)->cznv)
 
 /*
  * Test CCR condition
@@ -73,37 +74,7 @@ STATIC_INLINE int cctrue (struct flag_struct *flags, int cc)
 		 return (((cznv << (FLAGBIT_N - FLAGBIT_V)) ^ cznv) & (FLAGVAL_N | FLAGVAL_Z)) == 0;
 	case 15: cznv &= (FLAGVAL_N | FLAGVAL_Z | FLAGVAL_V);				/* ZFLG && (NFLG != VFLG)	LE */
 		 return (((cznv << (FLAGBIT_N - FLAGBIT_V)) ^ cznv) & (FLAGVAL_N | FLAGVAL_Z)) != 0;
-
-#if 0
-extern struct flag_struct regflags;
-
-#define ZFLG (regflags.z)
-#define NFLG (regflags.n)
-#define CFLG (regflags.c)
-#define VFLG (regflags.v)
-#define XFLG (regflags.x)
-
-STATIC_INLINE int cctrue(int cc)
-{
-    switch (cc) {
-	case 0:  return 1;								/*				T  */
-	case 1:  return 0;								/*				F  */
-     case 2: return !CFLG && !ZFLG;          /* HI */
-     case 3: return CFLG || ZFLG;            /* LS */
-     case 4: return !CFLG;                   /* CC */
-     case 5: return CFLG;                    /* CS */
-     case 6: return !ZFLG;                   /* NE */
-     case 7: return ZFLG;                    /* EQ */
-     case 8: return !VFLG;                   /* VC */
-     case 9: return VFLG;                    /* VS */
-     case 10:return !NFLG;                   /* PL */
-     case 11:return NFLG;                    /* MI */
-     case 12:return NFLG == VFLG;            /* GE */
-     case 13:return NFLG != VFLG;            /* LT */
-     case 14:return !ZFLG && (NFLG == VFLG); /* GT */
-     case 15:return ZFLG || (NFLG != VFLG);  /* LE */
     }
     abort ();
     return 0;
 }
-#endif 
