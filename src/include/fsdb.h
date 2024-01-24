@@ -40,6 +40,7 @@
 #define ERROR_NOT_A_DOS_DISK		225
 #define ERROR_NO_DISK			226
 #define ERROR_NO_MORE_ENTRIES		232
+#define ERROR_IS_SOFT_LINK			233
 #define ERROR_NOT_IMPLEMENTED		236
 
 #define A_FIBF_HIDDEN  (1<<7)
@@ -80,6 +81,7 @@ typedef struct a_inode_struct {
     int shlock;
     long db_offset;
     unsigned int dir:1;
+    unsigned int softlink:2;
     unsigned int elock:1;
     /* Nonzero if this came from an entry in our database.  */
     unsigned int has_dbentry:1;
