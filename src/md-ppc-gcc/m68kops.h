@@ -31,7 +31,7 @@
  *
  * Evaluate operand and set Z and N flags. Always clear C and V.
  */
-#define optflag_testl(v) \
+#define optflag_testl(regs, v) \
     do { \
 	register uae_s32 tmp; \
 	__asm__ __volatile__ ( \
