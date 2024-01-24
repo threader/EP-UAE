@@ -46,6 +46,7 @@
 #include "savestate.h"
 #include "a2091.h"
 #include "consolehook.h"
+#include "isofs_api.h"
 
 //FIXME: ---start
 #ifdef TARGET_AMIGAOS
@@ -174,6 +175,7 @@ typedef struct {
 	struct zvolume *zarchive;
 	char *rootdirdiff; /* "diff" file/directory */
     int readonly; /* disallow write access? */
+	bool unknown_media; /* ID_UNREADABLE_DISK */
 	int bootpri; /* boot priority. -128 = no autoboot, -129 = no mount */
     int devno;
 	int controller;
@@ -741,8 +743,8 @@ int sprintf_filesys_unit (const struct uaedev_mount_info *mountinfo, char *buffe
 		_stprintf (buffer, "(DH%d:) Filesystem, %s: %s %s", num, uip[num].volname,
 		uip[num].rootdir, uip[num].readonly ? "ro" : "");
 	else
-		_stprintf (buffer, "(DH%d:) Hardfile, \"%s\", size %d Mbytes", num,
-		uip[num].rootdir, uip[num].hf.virtsize / (1024 * 1024));
+		_stprintf (buffer, _T("(DH%d:) Hardfile, \"%s\", size %d Mbytes"), num,
+		uip[num].rootdir, (int)(uip[num].hf.virtsize / (1024 * 1024)));
 	return 0;
 }
 
@@ -789,7 +791,7 @@ struct hardfiledata *get_hardfile_data (int nr)
 #define dp64_Arg5 56
 
 /* result codes */
-#define DOS_TRUE ((unsigned int)-1L)
+#define DOS_TRUE ((uae_u32)-1L)
 #define DOS_FALSE (0L)
 
 #define MAXFILESIZE32 (0x7fffffff)
@@ -929,7 +931,7 @@ typedef struct _unit {
 
 	/* ExAll */
 	ExAllKey exalls[EXALLKEYS];
-	int exallid;
+	uae_u32 exallid;
 
     /* Keys */
     struct key *keys;
@@ -1118,10 +1120,12 @@ static void fs_closedir (struct fs_dirhandle *fsd)
 {
 	if (!fsd)
 		return;
-/*	if (fsd->isarch)
+	if (fsd->isarch  == FS_ARCHIVE)
 		zfile_closedir_archive (fsd->zd);
-	else*/
+	else if (fsd->isarch == FS_DIRECTORY)
 		my_closedir (fsd->od);
+/*	else if (fsd->isarch == FS_CDFS)
+		isofs_closedir (fsd->isod);*/
 	xfree (fsd);
 }
 static struct fs_filehandle *fs_open (Unit *unit, const TCHAR *name, char *flags)
@@ -1146,32 +1150,51 @@ static void fs_close (struct fs_filehandle *fd)
 }
 static unsigned int fs_read (struct fs_filehandle *fsf, void *b, unsigned int size)
 {
-/*	if (fsf->isarch)
+	if (fsf->isarch == FS_ARCHIVE)
 		return zfile_read_archive (fsf->zf, b, size);
-	else*/
-		return fread (b, 1, size, fsf->of);
+	else if (fsf->isarch == FS_DIRECTORY)
+		return my_read (fsf->of, b, size);
+/*	else if (fsf->isarch == FS_CDFS)
+		return isofs_read (fsf->isof, b, size);*/
+	return 0;
 }
 static unsigned int fs_write (struct fs_filehandle *fsf, void *b, unsigned int size)
 {
-/*	if (fsf->isarch)
-		return 0;*/
-	return fwrite (b, 1, size, fsf->of);
+	if (fsf->isarch == FS_DIRECTORY)
+		return my_write (fsf->of, b, size);
+	return 0;
 }
 
-static uae_u64 fs_lseek64 (struct fs_filehandle *fsf, uae_s64 offset, int whence)
+/* return value = old position. -1 = error. */
+static uae_s64 fs_lseek64 (struct fs_filehandle *fsf, uae_s64 offset, int whence)
 {
-/*	if (fsf->isarch)
+	if (fsf->isarch == FS_ARCHIVE)
 		return zfile_lseek_archive (fsf->zf, offset, whence);
-	else*/
+	else if (fsf->isarch == FS_DIRECTORY)
 		return my_lseek (fsf->of, offset, whence);
+/*	else if (fsf->isarch == FS_CDFS)
+		return isofs_lseek (fsf->isof, offset, whence);*/
+	return -1;
 }
-static uae_u32 fs_lseek (struct fs_filehandle *fsf, uae_s32 offset, int whence)
+static uae_s32 fs_lseek (struct fs_filehandle *fsf, uae_s32 offset, int whence)
 {
-/*	if (fsf->isarch)
-		return (uae_u32)zfile_lseek_archive (fsf->zf, (uae_s32)offset, whence);
-	else*/
-		return (uae_u32)my_lseek (fsf->of, (uae_s32)offset, whence);
+	uae_s64 v = fs_lseek64 (fsf, offset, whence);
+	if (v < 0 || v > 0x7fffffff)
+		return -1;
+	return (uae_s32)v;
 }
+static uae_s64 fs_fsize64 (struct fs_filehandle *fsf)
+{
+	if (fsf->isarch == FS_ARCHIVE)
+		return zfile_fsize_archive (fsf->zf);
+	else if (fsf->isarch == FS_DIRECTORY)
+		return my_fsize (fsf->of);
+/*	else if (fsf->fstype == FS_CDFS)
+		return isofs_fsize (fsf->isof);*/
+	return -1;
+}
+
+/* note puae 2.x timeval */
 static void set_volume_name (Unit *unit)
 {
 	int namelen;
@@ -1192,7 +1215,9 @@ static void set_volume_name (Unit *unit)
 
 static int filesys_isvolume (Unit *unit)
 {
-	return get_byte (unit->volume + 44);
+	if (!unit->volume)
+		return 0;
+	return get_byte (unit->volume + 44) || unit->ui.unknown_media;
 }
 
 static void clear_exkeys (Unit *unit)
@@ -1293,6 +1318,9 @@ int filesys_media_change (struct uaedev_mount_info *mountinfo, const char *rootd
 		return 0;
 	if (automountunit >= 0)
 		return -1;
+	
+	write_log (_T("filesys_media_change('%s',%d,%p)\n"), rootdir, inserted, uci);
+	
 	nr = -1;
 	for (u = units; u; u = u->next) {
 		if (is_hardfile (&current_mountinfo, u->unit) == FILESYS_VIRTUAL) {
@@ -1518,7 +1546,7 @@ static void dispose_aino (Unit *unit, a_inode **aip, a_inode *aino)
 static void free_all_ainos (Unit *u, a_inode *parent)
 {
 	a_inode *a;
-	while (a = parent->child) {
+	while ((a = parent->child)) {
 		free_all_ainos (u, a);
 		dispose_aino (u, &parent->child, a);
 	}
@@ -1854,6 +1882,22 @@ static int fill_file_attrs (Unit *u, a_inode *base, a_inode *c)
 	return 0;
 }
 
+static int test_softlink (a_inode *aino)
+{
+	int err;
+	if (aino->softlink && my_resolvesoftlink (aino->nname, -1))
+		err = ERROR_IS_SOFT_LINK;
+	else
+		err = ERROR_OBJECT_NOT_AROUND;
+	return err;
+}
+
+static void handle_softlink (Unit *unit, dpacket packet, a_inode *aino)
+{
+	PUT_PCK_RES1 (packet, DOS_FALSE);
+	PUT_PCK_RES2 (packet, test_softlink (aino));
+}
+
 /*
  * This gets called if an ACTION_EXAMINE_NEXT happens and we hit an object
  * for which we know the name on the native filesystem, but no corresponding
@@ -2099,7 +2143,6 @@ static a_inode *get_aino (Unit *unit, a_inode *base, const char *rel, uae_u32 *e
 				p = component_end+1;
 			else
 				break;
-
 		}
 	}
     xfree (tmp);
@@ -2429,6 +2472,7 @@ static Key *new_key (Unit *unit)
     return k;
 }
 
+#if TRACING_ENABLED
 static void
 dumplock (Unit *unit, uaecptr lock)
 {
@@ -2450,6 +2494,7 @@ dumplock (Unit *unit, uaecptr lock)
 	}
 	TRACE((" }\n"));
 }
+#endif
 
 static a_inode *find_aino (Unit *unit, uaecptr lock, const char *name, uae_u32 *err)
 {
@@ -2639,9 +2684,9 @@ action_remove_notify (Unit *unit, dpacket packet)
 				return;
 		    }
 		}
-    }
-	//write_log ("Tried to free non-existing NotifyRequest %08.8X\n", nr);
-    PUT_PCK_RES1 (packet, DOS_TRUE);
+	}
+	write_log (_T("Tried to free non-existing NotifyRequest %08X\n"), nr);
+	PUT_PCK_RES1 (packet, DOS_TRUE);
 }
 
 static void free_lock (Unit *unit, uaecptr lock)
@@ -2688,8 +2733,11 @@ action_lock (Unit *unit, dpacket packet)
 	TRACE(("ACTION_LOCK(0x%lx, \"%s\", %d)\n", lock, bstr (unit, name), mode));
     DUMPLOCK(unit, lock);
 
-    a = find_aino (unit, lock, bstr (unit, name), &err);
-    if (err == 0 && (a->elock || (mode != SHARED_LOCK && a->shlock > 0))) {
+	a = find_aino (unit, lock, bstr (unit, name), &err);
+	if (err == 0 && a->softlink) {
+		err = test_softlink (a);
+	}
+	if (err == 0 && (a->elock || (mode != SHARED_LOCK && a->shlock > 0))) {
 		err = ERROR_OBJECT_IN_USE;
     }
     /* Lock() doesn't do access checks. */
@@ -2940,12 +2988,12 @@ found:
 		/* Things will probably go wrong, but most likely the Amiga will crash
 		 * before this happens because of something else. */
 		uniq = 1;
-    }
-    unit->next_exkey = uniq+1;
-    ek->aino = aino;
-    ek->curr_file = 0;
-    ek->uniq = uniq;
-    return ek;
+	}
+	unit->next_exkey = uniq + 1;
+	ek->aino = aino;
+	ek->curr_file = 0;
+	ek->uniq = uniq;
+	return ek;
 }
 
 static void move_exkeys (Unit *unit, a_inode *from, a_inode *to)
@@ -3154,7 +3202,7 @@ static int exalldo (uaecptr exalldata, uae_u32 exalldatasize, uae_u32 type, uaec
 	if (type >= 6) {
 		size2 += 4;
 		if (aino->comment == 0 || !fsdb_can)
-			commentx = "";
+			commentx = _T("");
 		else
 			commentx = aino->comment;
 		comment = ua_fs (commentx, -1);
@@ -3764,7 +3812,7 @@ action_fh_from_lock (Unit *unit, dpacket packet)
 static void
 action_find_input (Unit *unit, dpacket packet)
 {
-    do_find(unit, packet, A_FIBF_READ|A_FIBF_WRITE, 0, 1);
+	do_find (unit, packet, A_FIBF_READ | A_FIBF_WRITE, 0, 1);
 }
 
 static void
@@ -3916,55 +3964,71 @@ static void
 static void
 action_write (Unit *unit, dpacket packet)
 {
-    Key *k = lookup_key (unit, GET_PCK_ARG1 (packet));
-    uaecptr addr = GET_PCK_ARG2 (packet);
-    long size = GET_PCK_ARG3 (packet);
-    long actual;
+	Key *k = lookup_key (unit, GET_PCK_ARG1 (packet));
+	uaecptr addr = GET_PCK_ARG2 (packet);
+	uae_u32 size = GET_PCK_ARG3 (packet);
+	uae_u32 actual;
 	uae_u8 *buf;
-    int i;
+	uae_u32 i;
 
-    if (k == 0) {
-	PUT_PCK_RES1 (packet, DOS_FALSE);
-	/* PUT_PCK_RES2 (packet, EINVAL); */
-	return;
-    }
+	if (k == 0) {
+		PUT_PCK_RES1 (packet, DOS_FALSE);
+		/* PUT_PCK_RES2 (packet, EINVAL); */
+		return;
+	}
 
 	gui_flicker_led (LED_HD, unit->unit, 2);
-    TRACE(("ACTION_WRITE(%s,0x%lx,%ld)\n",k->aino->nname,addr,size));
+	TRACE((_T("ACTION_WRITE(%s,0x%x,%d)\n"), k->aino->nname, addr, size));
+//	if (unit->ui.readonly || unit->ui.locked) {
+	if (unit->ui.readonly) {
+		PUT_PCK_RES1 (packet, DOS_FALSE);
+		PUT_PCK_RES2 (packet, ERROR_DISK_WRITE_PROTECTED);
+		return;
+	}
 
-    if (unit->ui.readonly) {
-	PUT_PCK_RES1 (packet, DOS_FALSE);
-	PUT_PCK_RES2 (packet, ERROR_DISK_WRITE_PROTECTED);
-	return;
-    }
-
-	if (valid_address (addr, size)) {
+	if (size == 0) {
+		actual = 0;
+		PUT_PCK_RES1 (packet, 0);
+		PUT_PCK_RES2 (packet, 0);
+	} else if (valid_address (addr, size)) {
 		uae_u8 *realpt = get_real_address (addr);
+
+		if (fs_lseek64 (k->fd, k->file_pos, SEEK_SET) < 0) {
+			PUT_PCK_RES1 (packet, 0);
+			PUT_PCK_RES2 (packet, dos_errno ());
+			return;
+		}
+
 		actual = fs_write (k->fd, realpt, size);
-
 	} else {
+		write_log (_T("unixfs warning: Bad pointer passed for write: %08x, size %d\n"), addr, size);
+		/* ugh this is inefficient but easy */
 
-		write_log ("unixfs warning: Bad pointer passed for write: %08x, size %d\n", addr, size);
-	    /* ugh this is inefficient but easy */
+		if (fs_lseek64 (k->fd, k->file_pos, SEEK_SET) < 0) {
+			PUT_PCK_RES1 (packet, 0);
+			PUT_PCK_RES2 (packet, dos_errno ());
+			return;
+		}
+
 		buf = xmalloc (uae_u8, size);
-	    if (!buf) {
+		if (!buf) {
 			PUT_PCK_RES1 (packet, -1);
 			PUT_PCK_RES2 (packet, ERROR_NO_FREE_STORE);
 			return;
-	    }
+		}
 
-	    for (i = 0; i < size; i++)
+		for (i = 0; i < size; i++)
 			buf[i] = get_byte (addr + i);
 
 		actual = fs_write (k->fd, buf, size);
-	    xfree (buf);
+		xfree (buf);
 	}
 
-	TRACE(("=%d\n", actual));
-    PUT_PCK_RES1 (packet, actual);
-    if (actual != size)
+	TRACE((_T("=%d\n"), actual));
+	PUT_PCK_RES1 (packet, actual);
+	if (actual != size)
 		PUT_PCK_RES2 (packet, dos_errno ());
-    if (actual >= 0)
+	if ((uae_s32)actual != -1)
 		k->file_pos += actual;
 
     k->notifyactive = 1;
@@ -3973,57 +4037,51 @@ action_write (Unit *unit, dpacket packet)
 static void
 action_seek (Unit *unit, dpacket packet)
 {
-    Key *k = lookup_key (unit, GET_PCK_ARG1 (packet));
-    long pos = (uae_s32)GET_PCK_ARG2 (packet);
-    long mode = (uae_s32)GET_PCK_ARG3 (packet);
-    off_t res;
-    long old;
-    int whence = SEEK_CUR;
+	Key *k = lookup_key (unit, GET_PCK_ARG1 (packet));
+	long pos = (uae_s32)GET_PCK_ARG2 (packet);
+	long mode = (uae_s32)GET_PCK_ARG3 (packet);
+	uae_s64 res;
+	uae_s64 cur;
+	int whence = SEEK_CUR;
+	uae_s64 temppos = 0, filesize = 0;
 
-    if (k == 0) {
+	if (k == 0) {
 		PUT_PCK_RES1 (packet, -1);
 		PUT_PCK_RES2 (packet, ERROR_INVALID_LOCK);
 		return;
-    }
+	}
 
 	if (mode > 0)
 		whence = SEEK_END;
 	if (mode < 0)
 		whence = SEEK_SET;
 
-    TRACE(("ACTION_SEEK(%s,%d,%d)\n", k->aino->nname, pos, mode));
+	cur = k->file_pos;
+	TRACE((_T("ACTION_SEEK(%s,%ld,%ld)=%lld\n"), k->aino->nname, pos, mode, cur));
 	gui_flicker_led (LED_HD, unit->unit, 1);
 
-	old = fs_lseek (k->fd, 0, SEEK_CUR);
-    {
-		uae_s32 temppos;
-		long filesize = fs_lseek64 (k->fd, 0, SEEK_END);
-		fs_lseek (k->fd, old, SEEK_SET);
-
-		if (whence == SEEK_CUR)
-			temppos = old + pos;
-		if (whence == SEEK_SET)
-			temppos = pos;
-		if (whence == SEEK_END)
-			temppos = filesize + pos;
-		if (filesize < temppos) {
-		    res = -1;
-		    PUT_PCK_RES1 (packet,res);
-		    PUT_PCK_RES2 (packet, ERROR_SEEK_ERROR);
-		    return;
-		}
-    }
-	res = fs_lseek64 (k->fd, pos, whence);
-
-    if (-1 == res || old > MAXFILESIZE32) {
+	filesize = fs_fsize64 (k->fd);
+	if (whence == SEEK_CUR)
+		temppos = cur + pos;
+	if (whence == SEEK_SET)
+		temppos = pos;
+	if (whence == SEEK_END)
+		temppos = filesize + pos;
+	if (filesize < temppos) {
 		PUT_PCK_RES1 (packet, -1);
 		PUT_PCK_RES2 (packet, ERROR_SEEK_ERROR);
-		fs_lseek64 (k->fd, old, SEEK_SET);
-		res = old;
-	} else {
-		PUT_PCK_RES1 (packet, old);
+		return;
 	}
-    k->file_pos = res;
+
+	res = fs_lseek64 (k->fd, pos, whence);
+	if (-1 == res || cur > MAXFILESIZE32) {
+		PUT_PCK_RES1 (packet, -1);
+		PUT_PCK_RES2 (packet, ERROR_SEEK_ERROR);
+		fs_lseek64 (k->fd, cur, SEEK_SET);
+	} else {
+		PUT_PCK_RES1 (packet, cur);
+		k->file_pos = fs_lseek64 (k->fd, 0, SEEK_CUR);
+	}
 }
 
 static void
@@ -4709,8 +4767,8 @@ static void
 {
 	PUT_PCK_RES1 (packet, DOS_TRUE);
 	flush_cache (unit, 0);
-	unit->inhibited = GET_PCK_ARG1 (packet);
-	TRACE(("ACTION_INHIBIT(%d:%d)\n", unit->unit, unit->inhibited));
+	unit->inhibited = GET_PCK_ARG1 (packet) != 0;
+	TRACE((_T("ACTION_INHIBIT(%d:%d)\n"), unit->unit, unit->inhibited));
 }
 
 static void
@@ -4725,7 +4783,7 @@ static void
 		}
 	} else {
 		if (unit->ui.readonly & 2) {
-			if (unit->lockkey == GET_PCK_ARG2 (packet) || unit->lockkey == 0) {
+			if (unit->lockkey == (uae_u32)GET_PCK_ARG2 (packet) || unit->lockkey == 0) {
 				unit->ui.readonly &= ~2;
 			} else {
 				PUT_PCK_RES1 (packet, DOS_FALSE);
@@ -4741,7 +4799,7 @@ static void action_change_file_position64 (Unit *unit, dpacket packet)
 	uae_s64 pos = GET_PCK64_ARG2 (packet);
 	long mode = GET_PCK64_ARG3 (packet);
 	long whence = SEEK_CUR;
-	uae_s64 res, old;
+	uae_s64 res, cur;
 
 	PUT_PCK64_RES0 (packet, DP64_INIT);
 
@@ -4756,17 +4814,16 @@ static void action_change_file_position64 (Unit *unit, dpacket packet)
 	if (mode < 0)
 		whence = SEEK_SET;
 
-	TRACE(("ACTION_CHANGE_FILE_POSITION64(%s,%I64d,%d)\n", k->aino->nname, pos, mode));
+	TRACE((_T("ACTION_CHANGE_FILE_POSITION64(%s,%lld,%ld)\n"), k->aino->nname, pos, mode));
 	gui_flicker_led (LED_HD, unit->unit, 1);
 
-	old = fs_lseek64 (k->fd, 0, SEEK_CUR);
+	cur = k->file_pos;
 	{
-		uae_s64 temppos;
-		uae_s64 filesize = fs_lseek64 (k->fd, 0, SEEK_END);
-		fs_lseek64 (k->fd, old, SEEK_SET);
+		uae_s64 temppos = 0;
+		uae_s64 filesize = fs_fsize64 (k->fd);
 
 		if (whence == SEEK_CUR)
-			temppos = old + pos;
+			temppos = cur + pos;
 		if (whence == SEEK_SET)
 			temppos = pos;
 		if (whence == SEEK_END)
@@ -4784,10 +4841,11 @@ static void action_change_file_position64 (Unit *unit, dpacket packet)
 		PUT_PCK64_RES1 (packet, DOS_FALSE);
 		PUT_PCK64_RES2 (packet, ERROR_SEEK_ERROR);
 	} else {
-		PUT_PCK64_RES1 (packet, TRUE);
+		PUT_PCK64_RES1 (packet, true);
 		PUT_PCK64_RES2 (packet, 0);
-		k->file_pos = res;
+		k->file_pos = fs_lseek64 (k->fd, 0, SEEK_CUR);
 	}
+	TRACE((_T("= oldpos %lld newpos %lld\n"), cur, (long long) k->file_pos));
 
 }
 
@@ -4798,11 +4856,11 @@ static void action_get_file_position64 (Unit *unit, dpacket packet)
 	PUT_PCK64_RES0 (packet, DP64_INIT);
 
 	if (k == 0) {
-		PUT_PCK64_RES1 (packet, DOS_FALSE);
+		PUT_PCK64_RES1 (packet, -1);
 		PUT_PCK64_RES2 (packet, ERROR_INVALID_LOCK);
 		return;
 	}
-	TRACE(("ACTION_GET_FILE_POSITION64(%s)\n", k->aino->nname));
+	TRACE((_T("ACTION_GET_FILE_POSITION64(%s)=%lld\n"), k->aino->nname, (long long) k->file_pos));
 	PUT_PCK64_RES1 (packet, k->file_pos);
 	PUT_PCK64_RES2 (packet, 0);
 }
@@ -4842,11 +4900,12 @@ static void action_change_file_size64 (Unit *unit, dpacket packet)
 	}
 
 	/* Write one then truncate: that should give the right size in all cases.  */
-	offset = fs_lseek (k->fd, offset, whence);
+	fs_lseek (k->fd, offset, whence);
+	offset = fs_lseek64 (k->fd, offset, whence);
 	fs_write (k->fd, /* whatever */(uae_u8*)&k1, 1);
 	if (k->file_pos > offset)
 		k->file_pos = offset;
-	fs_lseek (k->fd, k->file_pos, SEEK_SET);
+	fs_lseek64 (k->fd, k->file_pos, SEEK_SET);
 
 	if (my_truncate (k->aino->nname, offset) == -1) {
 		PUT_PCK64_RES1 (packet, DOS_FALSE);
@@ -5302,12 +5361,12 @@ void filesys_reset (void)
 
 static void filesys_prepare_reset2 (void)
 {
+#ifdef UAE_FILESYS_THREADS
 	UnitInfo *uip;
 	//    Unit *u;
 	int i;
 
     uip = current_mountinfo.ui;
-#ifdef UAE_FILESYS_THREADS
 	for (i = 0; i < MAX_FILESYSTEM_UNITS; i++) {
 		if (uip[i].open && uip[i].unit_pipe != 0) {
 	    uae_sem_init ((uae_sem_t *)&uip[i].reset_sync_sem, 0, 0);
@@ -5318,8 +5377,8 @@ static void filesys_prepare_reset2 (void)
 	    write_comm_pipe_int (uip[i].unit_pipe, 0, 1);
 	    uae_sem_wait ((uae_sem_t *)&uip[i].reset_sync_sem);
 			uae_end_thread (&uip[i].tid);
+		}
 	}
-    }
 #endif
 	filesys_free_handles();
 #if 0
@@ -5386,21 +5445,22 @@ static uae_u32 REGPARAM2 filesys_diagentry (TrapContext *context)
 #ifdef UAESERIAL
 	resaddr = uaeserialdev_startup (resaddr);
 #endif
-    /* scan for Residents and return pointer to array of them */
-    residents = resaddr;
-    while (tmp < residents && tmp > start) {
-	if (get_word (tmp) == 0x4AFC &&
-	    get_long (tmp + 0x2) == tmp) {
-	    put_word (resaddr, 0x227C);         /* movea.l #tmp,a1 */
-	    put_long (resaddr + 2, tmp);
-	    put_word (resaddr + 6, 0x7200);     /* moveq.l #0,d1 */
-	    put_long (resaddr + 8, 0x4EAEFF9A); /* jsr -$66(a6) ; InitResident */
-	    resaddr += 12;
-	    tmp = get_long (tmp + 0x6);
-	} else {
-	    tmp++;
+
+	/* scan for Residents and return pointer to array of them */
+	residents = resaddr;
+	while (tmp < residents && tmp > start) {
+		if (get_word (tmp) == 0x4AFC &&
+			get_long (tmp + 0x2) == tmp) {
+				put_word (resaddr, 0x227C);         /* move.l #tmp,a1 */
+				put_long (resaddr + 2, tmp);
+				put_word (resaddr + 6, 0x7200);     /* moveq #0,d1 */
+				put_long (resaddr + 8, 0x4EAEFF9A); /* jsr -$66(a6) ; InitResident */
+				resaddr += 12;
+				tmp = get_long (tmp + 0x6);
+		} else {
+			tmp += 2;
+		}
 	}
-    }
     /* call setup_exter */
     put_word (resaddr +  0, 0x2079);
 	put_long (resaddr +  2, rtarea_base + bootrom_header + 4 + 5 * 4); /* move.l RTAREA_BASE+setup_exter,a0 */
@@ -5460,10 +5520,12 @@ static uae_u32 REGPARAM2 filesys_init_storeinfo (TrapContext *context)
 	int ret = -1;
 	switch (m68k_dreg (&context->regs, 1))
 	{
-/*	case 1:
+	case 1:
 		mountertask = m68k_areg (&context->regs, 1);
+#ifdef PICASSO96
 		picasso96_alloc (context);
-		break;*/
+#endif
+		break;
 	case 2:
 		ret = automountunit;
 		automountunit = -1;
@@ -5503,12 +5565,12 @@ static int legalrdbblock (UnitInfo *uip, unsigned int block)
 {
 	if (block <= 0)
 		return 0;
-	if (block >= uip->hf.virtsize / uip->hf.blocksize)
+	if ((uae_u64)block >= (uip->hf.virtsize / uip->hf.blocksize) )
 		return 0;
     return 1;
 }
 
-static unsigned int rl (uae_u8 *p)
+static uae_u32 rl (uae_u8 *p)
 {
     return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | (p[3]);
 }
@@ -5518,19 +5580,21 @@ static int rdb_checksum (const char *id, uae_u8 *p, int block)
     uae_u32 sum = 0;
     int i, blocksize;
 
-    if (memcmp (id, p, 4))
-	return 0;
-    blocksize = rl (p + 4);
-    if (blocksize < 1 || blocksize * 4 > FILESYS_MAX_BLOCKSIZE)
-	return 0;
-    for (i = 0; i < blocksize; i++)
-	sum += rl (p + i * 4);
-    sum = -sum;
-    if (sum) {
-	write_log ("RDB: block %d ('%s') checksum error\n", block, id);
+	if (memcmp (id, p, 4))
+		return 0;
+	blocksize = rl (p + 4);
+	if (blocksize < 1 || blocksize * 4 > FILESYS_MAX_BLOCKSIZE)
+		return 0;
+	for (i = 0; i < blocksize; i++)
+		sum += rl (p + i * 4);
+	sum = -sum;
+	if (sum) {
+		TCHAR *s = au (id);
+		write_log (_T("RDB: block %d ('%s') checksum error\n"), block, s);
+		xfree (s);
+		return 0;
+	}
 	return 1;
-    }
-    return 1;
 }
 
 static int device_isdup (uaecptr expbase, TCHAR *devname)
@@ -5620,8 +5684,8 @@ static int rdb_mount (UnitInfo *uip, int unit_no, unsigned int partnum, uaecptr 
 		rdbmnt
 		write_log ("failed, blocksize == 0\n");
 		return -1;
-    }
-	if (lastblock * hfd->blocksize > hfd->virtsize) {
+	}
+	if ((lastblock > 0) && (((uae_u64)lastblock * hfd->blocksize) > hfd->virtsize) ) {
 		rdbmnt
 		write_log ("failed, too small (%d*%d > %I64u)\n", lastblock, hfd->blocksize, hfd->virtsize);
 		return -2;
@@ -5630,14 +5694,16 @@ static int rdb_mount (UnitInfo *uip, int unit_no, unsigned int partnum, uaecptr 
 		hdf_read (hfd, bufrdb, rdblock * hfd->blocksize, hfd->blocksize);
 		if (rdb_checksum ("RDSK", bufrdb, rdblock))
 		    break;
+		if (rdb_checksum ("CDSK", bufrdb, rdblock))
+			break;
 		hdf_read (hfd, bufrdb, rdblock * hfd->blocksize, hfd->blocksize);
 		if (!memcmp ("RDSK", bufrdb, 4)) {
-		    bufrdb[0xdc] = 0;
-		    bufrdb[0xdd] = 0;
-		    bufrdb[0xde] = 0;
-		    bufrdb[0xdf] = 0;
-		    if (rdb_checksum ("RDSK", bufrdb, rdblock)) {
-				write_log ("Windows trashed RDB detected, fixing..\n");
+			bufrdb[0xdc] = 0;
+			bufrdb[0xdd] = 0;
+			bufrdb[0xde] = 0;
+			bufrdb[0xdf] = 0;
+			if (rdb_checksum ("RDSK", bufrdb, rdblock)) {
+				write_log (_T("Windows 95/98/ME trashed RDB detected, fixing..\n"));
 				hdf_write (hfd, bufrdb, rdblock * hfd->blocksize, hfd->blocksize);
 				break;
 		    }
