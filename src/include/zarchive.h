@@ -2,6 +2,7 @@
 typedef uae_s64 (*ZFILEREAD)(void*, uae_u64, uae_u64, struct zfile*);
 typedef uae_s64 (*ZFILEWRITE)(void*, uae_u64, uae_u64, struct zfile*);
 typedef uae_s64 (*ZFILESEEK)(struct zfile*, uae_s64, int);
+typedef int (*zfile_callback)(struct zfile*, void*);
 
 struct zfile {
     TCHAR *name;
@@ -10,7 +11,10 @@ struct zfile {
     FILE *f;
     uae_u8 *data;
     int dataseek;
+    struct zfile *archiveparent; // set if parent is archive and this has not yet been unpacked (datasize < size)
+    int archiveid;
     uae_s64 size;
+    uae_s64 datasize; // available size (not yet unpacked completely?)
     uae_s64 seek;
     int deleteafterclose;
     int textmode;
@@ -45,7 +49,8 @@ struct znode {
     struct zfile *f;
     TCHAR *comment;
     int flags;
-    time_t mtime;
+    struct mytimeval mtime;
+  //  time_t mtime;
     /* decompressor specific */
     unsigned int offset;
     unsigned int offset2;
@@ -77,6 +82,7 @@ struct zarchive_info
     uae_s64 size;
     int flags;
     TCHAR *comment;
+    struct mytimeval tv;
     time_t t;
 };
 
@@ -94,6 +100,10 @@ struct zarchive_info
 #define ArchiveFormatFAT 'FAT '
 #define ArchiveFormatTAR 'tar '
 
+#define PEEK_BYTES 1024
+#define FILE_PEEK 1
+#define FILE_DELAYEDOPEN 2
+
 extern int zfile_is_ignore_ext(const TCHAR *name);
 
 extern struct zvolume *zvolume_alloc(struct zfile *z, unsigned int id, void *handle, const TCHAR*);
@@ -104,7 +114,7 @@ extern struct znode *zvolume_adddir_abs(struct zvolume *zv, struct zarchive_info
 extern struct znode *znode_adddir(struct znode *parent, const TCHAR *name, struct zarchive_info*);
 
 extern struct zvolume *archive_directory_plain (struct zfile *zf);
-extern struct zfile *archive_access_plain (struct znode *zn);
+//extern struct zfile *archive_access_plain (struct znode *zn);
 extern struct zvolume *archive_directory_lha(struct zfile *zf);
 extern struct zfile *archive_access_lha (struct znode *zn);
 extern struct zvolume *archive_directory_zip(struct zfile *zf);
@@ -118,12 +128,12 @@ extern struct zfile *archive_access_lzx (struct znode *zn);
 extern struct zvolume *archive_directory_arcacc (struct zfile *z, unsigned int id);
 extern struct zfile *archive_access_arcacc (struct znode *zn);
 extern struct zvolume *archive_directory_adf (struct znode *zn, struct zfile *z);
-extern struct zfile *archive_access_adf (struct znode *zn);
+//extern struct zfile *archive_access_adf (struct znode *zn);
 extern struct zvolume *archive_directory_rdb (struct zfile *z);
-extern struct zfile *archive_access_rdb (struct znode *zn);
+//extern struct zfile *archive_access_rdb (struct znode *zn);
 extern struct zvolume *archive_directory_fat (struct zfile *z);
-extern struct zfile *archive_access_fat (struct znode *zn);
-extern struct zfile *archive_access_dir (struct znode *zn);
+//extern struct zfile *archive_access_fat (struct znode *zn);
+//extern struct zfile *archive_access_dir (struct znode *zn);
 extern struct zvolume *archive_directory_tar (struct zfile *zf);
 extern struct zfile *archive_access_tar (struct znode *zn);
 
@@ -135,6 +145,7 @@ extern void archive_access_scan (struct zfile *zf, zfile_callback zc, void *user
 
 extern void archive_access_close (void *handle, unsigned int id);
 
-extern struct zfile *archive_getzfile(struct znode *zn, unsigned int id);
+extern struct zfile *archive_getzfile (struct znode *zn, unsigned int id, int flags);
+extern struct zfile *archive_unpackzfile (struct zfile *zf);
 
 extern struct zfile *decompress_zfd (struct zfile*);

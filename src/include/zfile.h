@@ -5,6 +5,9 @@
   *
   * (c) 1996 Samuel Devulder
   */
+#pragma once
+#ifndef ZFILE_H
+#define ZFILE_H
 
 struct zfile;
 extern int is_zlib;
@@ -22,6 +25,15 @@ extern int execute_command (char *);
 
 struct zvolume;
 struct zdirectory;
+//#include "fsdb.h"
+//#include "zarchive.h"
+//#include "fsusage.h"
+
+#define FSDB_DIR_SEPARATOR_S "/"
+
+#define FS_DIRECTORY 0
+#define FS_ARCHIVE 1
+#define FS_CDFS 2
 
 struct fs_dirhandle
 {
@@ -81,7 +93,7 @@ extern int zfile_is_diskimage (const TCHAR *name);
 extern int iszip (struct zfile *z);
 extern int zfile_convertimage (const TCHAR *src, const TCHAR *dst);
 //extern struct zfile *zuncompress (struct znode*, struct zfile *z, int dodefault, int mask, int *retcode, int index);
-static struct zfile *zuncompress (struct zfile *z);
+extern struct zfile *zuncompress (struct zfile *z);
 extern void zfile_seterror (const TCHAR *format, ...);
 extern TCHAR *zfile_geterror (void);
 
@@ -91,8 +103,11 @@ extern TCHAR *zfile_geterror (void);
 #define ZFD_HD 4 //rdb/hdf
 #define ZFD_UNPACK 8 //gzip,dms
 #define ZFD_RAWDISK 16  //fdi->adf,ipf->adf etc..
+#define ZFD_CD 32 //cue/iso, cue has priority over iso
 #define ZFD_DISKHISTORY 0x100 //allow diskhistory (if disk image)
 #define ZFD_CHECKONLY 0x200 //file exists checkc
+#define ZFD_DELAYEDOPEN 0x400 //do not unpack, just get metadata
+#define ZFD_NORECURSE 0x10000 // do not recurse archives
 #define ZFD_NORMAL (ZFD_ARCHIVE|ZFD_UNPACK)
 #define ZFD_ALL 0x0000ffff
 
@@ -119,16 +134,25 @@ extern struct zvolume *zfile_fopen_archive_root (const TCHAR *filename);
 extern void zfile_fclose_archive (struct zvolume *zv);
 //extern int zfile_fs_usage_archive (const TCHAR *path, const TCHAR *disk, struct fs_usage *fsp);
 extern int zfile_stat_archive (const TCHAR *path, struct _stat64 *statbuf);
-extern void *zfile_opendir_archive (const TCHAR *path);
-extern void zfile_closedir_archive (void*);
-extern int zfile_readdir_archive (void*, TCHAR*);
-extern void zfile_resetdir_archive (void*);
+//extern void *zfile_opendir_archive (const TCHAR *path);
+extern struct zdirectory *zfile_opendir_archive (const TCHAR *path);
+extern struct zdirectory *zfile_opendir_archive2 (const TCHAR *path, int flags);
+extern void zfile_closedir_archive (struct zdirectory *);
+//extern int zfile_readdir_archive (void*, TCHAR*);
+//extern void zfile_resetdir_archive (void*);
+extern int zfile_readdir_archive (struct zdirectory *, TCHAR*);
 extern unsigned int zfile_fill_file_attrs_archive (const TCHAR *path, int *isdir, int *flags, TCHAR **comment);
-extern uae_s64 zfile_lseek_archive (void *d, uae_s64 offset, int whence);
-extern unsigned int zfile_read_archive (void *d, void *b, unsigned int size);
+//extern uae_s64 zfile_lseek_archive (void *d, uae_s64 offset, int whence);
+extern uae_s64 zfile_lseek_archive (struct zfile *d, uae_s64 offset, int whence);
+extern uae_s64 zfile_fsize_archive (struct zfile *d);
+extern unsigned int zfile_read_archive (struct zfile *d, void *b, unsigned int size);
+//extern unsigned int zfile_read_archive (void *d, void *b, unsigned int size);
 extern void zfile_close_archive (void *d);
-extern void *zfile_open_archive (const TCHAR *path, int flags);
+extern struct zfile *zfile_open_archive (const TCHAR *path, int flags);
+//extern void *zfile_open_archive (const TCHAR *path, int flags);
 extern int zfile_exists_archive(const TCHAR *path, const TCHAR *rel);
 
 extern void timeval_to_amiga (struct mytimeval *tv, int* days, int* mins, int* ticks);
 extern void amiga_to_timeval (struct mytimeval *tv, int days, int mins, int ticks);
+
+#endif // ZFILE_H

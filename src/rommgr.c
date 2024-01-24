@@ -15,7 +15,7 @@
 #include "memory.h"
 #include "zfile.h"
 #include "crc32.h"
-#include "fsdb.h"
+//#include "fsdb.h"
 
 #include "autoconf.h"
 
