@@ -135,7 +135,7 @@ EXTRA_DIST = \
 uae_SOURCES = \
 	main.c newcpu.c memory.c events.c rommgr.c custom.c serial.c dongle.c cia.c \
 	blitter.c autoconf.c traps.c ersatz.c keybuf.c expansion.c \
-	diskutil.c zfile.c cfgfile.c picasso96.c inputdevice.c \
+	diskutil.c zfile.c zfile_archive.c cfgfile.c picasso96.c inputdevice.c \
 	gfxutil.c audio.c sinctable.c drawing.c consolehook.c \
 	native2amiga.c disk.c crc32.c savestate.c unzip.c arcadia.c cdtv.c cd32_fmv.c \
 	uaeexe.c uaelib.c uaeresource.c fdi2raw.c hotkeys.c amax.c \
