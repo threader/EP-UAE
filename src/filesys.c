@@ -4427,7 +4427,9 @@ action_set_file_size (Unit *unit, dpacket packet)
     }
 
     /* Write one then truncate: that should give the right size in all cases.  */
-	offset = fs_lseek (k->fd, offset, whence);
+	//offset = fs_lseek (k->fd, offset, whence);
+	fs_lseek (k->fd, offset, whence);
+	offset = fs_lseek (k->fd, 0, SEEK_CUR);
 	fs_write (k->fd, /* whatever */(uae_u8*)&k1, 1);
     if (k->file_pos > offset)
 		k->file_pos = offset;
