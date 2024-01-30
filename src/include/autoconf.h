@@ -50,8 +50,8 @@ struct mountedinfo
     int nrcyls;
 };
 /* note */
-extern int add_filesys_unitconfig (struct uae_prefs *p, int index, char *error);
-extern int get_filesys_unitconfig (struct uae_prefs *p, int index, struct mountedinfo*);
+extern int add_filesys_unitconfig (struct uaedev_mount_info *mountinfo, struct uae_prefs *p, int index, char *error);
+extern int get_filesys_unitconfig (struct uaedev_mount_info *mountinfo, struct uae_prefs *p, int index, struct mountedinfo*);
 extern int kill_filesys_unitconfig (struct uae_prefs *p, int nr);
 extern int move_filesys_unitconfig (struct uae_prefs *p, int nr, int to);
 /* end note */

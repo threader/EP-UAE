@@ -222,27 +222,27 @@ extern void free_fastmemory (void);
 
 STATIC_INLINE uae_u32 get_long(uaecptr addr)
 {
-    addr &= MEMORY_RANGE_MASK;
+   // addr &= MEMORY_RANGE_MASK;
     return longget(addr);
 }
 STATIC_INLINE uae_u32 get_word(uaecptr addr)
 {
-    addr &= MEMORY_RANGE_MASK;
+   // addr &= MEMORY_RANGE_MASK;
     return wordget(addr);
 }
 STATIC_INLINE uae_u32 get_byte(uaecptr addr)
 {
-    addr &= MEMORY_RANGE_MASK;
+   // addr &= MEMORY_RANGE_MASK;
     return byteget(addr);
 }
 STATIC_INLINE uae_u32 get_longi(uaecptr addr)
 {
-    addr &= MEMORY_RANGE_MASK;
+   // addr &= MEMORY_RANGE_MASK;
     return longgeti(addr);
 }
 STATIC_INLINE uae_u32 get_wordi(uaecptr addr)
 {
-    addr &= MEMORY_RANGE_MASK;
+   // addr &= MEMORY_RANGE_MASK;
     return wordgeti(addr);
 }
 

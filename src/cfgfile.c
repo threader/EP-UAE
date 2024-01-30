@@ -14,6 +14,7 @@
 #include "sysdeps.h"
 
 #include <ctype.h>
+#include <wctype.h>
 
 #include "cfgfile.h"
 #include "uae.h"
@@ -214,6 +215,24 @@ static const char *obsolete[] = {
 };
 
 #define UNEXPANDED "$(FILE_PATH)"
+
+
+/* internal prototypes */
+void cfgfile_write_str (FILE *f, const TCHAR *option, const TCHAR *value);
+void cfgfile_dwrite_str (FILE *f, const TCHAR *option, const TCHAR *value);
+void cfgfile_target_write_str (FILE *f, const TCHAR *option, const TCHAR *value);
+void cfgfile_target_dwrite_str (FILE *f, const TCHAR *option, const TCHAR *value);
+void cfgfile_save_options (FILE *f, struct uae_prefs *p, int type);
+int cfgfile_yesno2 (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location);
+int cfgfile_doubleval (const TCHAR *option, const TCHAR *value, const TCHAR *name, double *location);
+int cfgfile_floatval (const TCHAR *option, const TCHAR *value, const TCHAR *name, float *location);
+int cfgfile_intval_unsigned (const TCHAR *option, const TCHAR *value, const TCHAR *name, unsigned int *location, int scale);
+int cfgfile_strboolval (const TCHAR *option, const TCHAR *value, const TCHAR *name, bool *location, const TCHAR *table[], int more);
+int cfgfile_path_mp (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz, struct multipath *mp);
+//int cfgfile_path (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz);
+int cfgfile_multipath (const TCHAR *option, const TCHAR *value, const TCHAR *name, struct multipath *mp);
+int cfgfile_rom (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz);
+
 
 /*
  * The beginnings of a less brittle, more easily maintainable way of handling
@@ -531,7 +550,7 @@ static void write_compatibility_cpu (FILE *f, const struct uae_prefs *p)
 	cfgfile_write (f, _T("cpu_type"), tmp);
 }
 
-static void cfgfile_save_options (FILE *f, const struct uae_prefs *p, int type)
+void cfgfile_save_options (FILE *f, struct uae_prefs *p, int type)
 {
     struct strlist *sl;
 	char *str, tmp[MAX_DPATH];
@@ -908,12 +927,12 @@ static int cfgfile_floatval_ext (const TCHAR *option, const TCHAR *value, const 
 	*location = (float)_tcstod (value, &endptr);
 	return 1;
 }
-static int cfgfile_floatval (const TCHAR *option, const TCHAR *value, const TCHAR *name, float *location)
+int cfgfile_floatval (const TCHAR *option, const TCHAR *value, const TCHAR *name, float *location)
 {
 	return cfgfile_floatval_ext (option, value, name, NULL, location);
 }
 
-int cfgfile_intval_real (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, unsigned int *location, int scale)
+static int cfgfile_intval_real (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, unsigned int *location, int scale)
 {
 	int base = 10;
 	TCHAR *endptr;
@@ -972,7 +991,7 @@ static int cfgfile_intval_ext (const TCHAR *option, const TCHAR *value, const TC
 	return r;
 }
 
-static int cfgfile_strval_ext (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, int *location, const TCHAR *table[], int more)
+staic int cfgfile_strval_ext (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, int *location, const TCHAR *table[], int more)
 {
 	int val;
 	TCHAR tmp[MAX_DPATH];
@@ -1146,16 +1165,7 @@ int cfgfile_strval (const char *option, const char *value, const char *name, int
     *location = val;
     return 1;
 }
-#if 0
-int cfgfile_string (const char *option, const char *value, const char *name, char *location, int maxsz)
-{
-	if (_tcscmp (option, name) != 0)
-		return 0;
-	_tcsncpy (location, value, maxsz - 1);
-    location[maxsz - 1] = '\0';
-    return 1;
-}
-#endif 
+
 static int getintval (char **p, int *result, int delim)
 {
 	char *value = *p;

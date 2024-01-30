@@ -454,7 +454,7 @@ static void set_hd_state (void)
 		/* We always use currprefs.mountinfo for the GUI.  The filesystem
 		   code makes a private copy which is updated every reset.  */
 			struct mountedinfo mi;
-		ret = get_filesys_unitconfig (&currprefs, i, &mi);
+		ret = get_filesys_unitconfig (currprefs.mountinfo, &currprefs, i, &mi);
 /*		failure = get_filesys_unit (i,
 				    &devname, &volname, &rootdir, &readonly,
 				    &secspertrack, &surfaces, &reserved,

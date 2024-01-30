@@ -8,7 +8,7 @@
   *
   * Version 0.4: 970308
   *
-  * Based on example code (c) 1988 The Software Distillery
+  * Based on example codRe (c) 1988 The Software Distillery
   * and published in Transactor for the Amiga, Volume 2, Issues 2-5.
   * (May - August 1989)
   *
@@ -299,9 +299,9 @@ static UnitInfo *getuip(struct uaedev_mount_info *mountinfo, struct uae_prefs *p
 	return &mountinfo->ui[index];
 }
 
-int get_filesys_unitconfig (struct uae_prefs *p, int index, struct mountedinfo *mi)
+int get_filesys_unitconfig (struct uaedev_mount_info *mountinfo, struct uae_prefs *p, int index, struct mountedinfo *mi)
 {
-	UnitInfo *ui = getuip(&current_mountinfo, p, index);
+	UnitInfo *ui = getuip(mountinfo, p, index);
 	struct uaedev_config_info *uci = &p->mountconfig[index];
 	UnitInfo uitmp;
 
@@ -5658,7 +5658,7 @@ static void dump_partinfo (const char *name, int num, uaecptr pp, int partblock)
 	       get_long (pp + 60), get_long (pp + 64), get_long (pp + 68), get_long (pp + 76));
 }
 
-#define rdbmnt write_log ("Mounting uaehf.device %d (%d) (size=%I64u):\n", unit_no, partnum, hfd->virtsize);
+#define rdbmnt write_log (_T("Mounting uaehf.device %d (%d) (size=%llu):\n"), unit_no, partnum, hfd->virtsize);
 
 static int rdb_mount (UnitInfo *uip, int unit_no, unsigned int partnum, uaecptr parmpacket)
 {
@@ -5675,6 +5675,7 @@ static int rdb_mount (UnitInfo *uip, int unit_no, unsigned int partnum, uaecptr 
     int err = 0;
     int oldversion, oldrevision;
     int newversion, newrevision;
+	TCHAR *s;
 
 	write_log ("%s:\n", uip->rootdir);
 	if (hfd->drive_empty) {
@@ -5705,7 +5706,7 @@ static int rdb_mount (UnitInfo *uip, int unit_no, unsigned int partnum, uaecptr 
 			bufrdb[0xde] = 0;
 			bufrdb[0xdf] = 0;
 			if (rdb_checksum ("RDSK", bufrdb, rdblock)) {
-				write_log (_T("Windows 95/98/ME trashed RDB detected, fixing..\n"));
+				write_log (_T("Windows trashed RDB detected, fixing..\n"));
 				hdf_write (hfd, bufrdb, rdblock * hfd->blocksize, hfd->blocksize);
 				break;
 		    }
@@ -5767,10 +5768,12 @@ static int rdb_mount (UnitInfo *uip, int unit_no, unsigned int partnum, uaecptr 
     }
 
     if (!(flags & 1)) /* not bootable */
-	m68k_dreg (&regs, 7) = 0;
+		m68k_dreg (&regs, 7) = m68k_dreg (&regs, 7) & ~1;
 
     buf[37 + buf[36]] = 0; /* zero terminate BSTR */
-    uip->rdb_devname_amiga[partnum] = ds (device_dupfix (get_long (parmpacket + PP_EXPLIB), (char *)(buf + 37)));
+	s = au ((char*)buf + 37);
+	uip->rdb_devname_amiga[partnum] = ds (device_dupfix (get_long (parmpacket + PP_EXPLIB), s));
+	xfree (s);
     put_long (parmpacket, uip->rdb_devname_amiga[partnum]); /* name */
     put_long (parmpacket + 4, ROM_hardfile_resname);
     put_long (parmpacket + 8, uip->devno);
@@ -6001,7 +6004,7 @@ static void get_new_device (int type, uaecptr parmpacket, TCHAR **devname, uaecp
 	}
 	*devname_amiga = ds (device_dupfix (expbase, buffer));
     if (type == FILESYS_VIRTUAL)
-		write_log ("FS: mounted virtual unit %s (%s)\n", buffer, current_mountinfo.ui[unit_no].rootdir);
+	write_log ("FS: mounted virtual unit %s (%s)\n", buffer, current_mountinfo.ui[unit_no].rootdir);
     else
 		write_log ("FS: mounted HDF unit %s (%04x-%08x, %s)\n", buffer,
 		(uae_u32)(current_mountinfo.ui[unit_no].hf.virtsize >> 32),
@@ -6013,7 +6016,7 @@ static void get_new_device (int type, uaecptr parmpacket, TCHAR **devname, uaecp
 static uae_u32 REGPARAM2 filesys_dev_storeinfo (TrapContext *context)
 {
     UnitInfo *uip = current_mountinfo.ui;
-    uae_u32 no = m68k_dreg (&context->regs, 6);
+    uae_u32 no = m68k_dreg (&context->regs, 6) & 0x7fffffff;
     int unit_no = no & 65535;
     int sub_no = no >> 16;
     int type = is_hardfile (&current_mountinfo, unit_no);
