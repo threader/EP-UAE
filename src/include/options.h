@@ -329,7 +329,7 @@ struct uae_prefs {
     TCHAR path_floppy[256];
     TCHAR path_hardfile[256];
     TCHAR path_rom[256];
-
+	uae_u32 romextfile2addr;
 	TCHAR a2091romfile[MAX_DPATH];
 	TCHAR a2091romident[256];
 	TCHAR a2091romfile2[MAX_DPATH];
