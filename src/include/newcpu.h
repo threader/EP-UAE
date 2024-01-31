@@ -299,13 +299,13 @@ STATIC_INLINE uae_u32 next_ilong (struct regstruct *regs)
 }
 STATIC_INLINE uae_u32 next_iwordi (struct regstruct *regs)
 {
-	uae_u32 r = get_iwordi  (0);
+	uae_u32 r = get_iwordi (m68k_getpci (regs));
     m68k_incpc (regs, 2);
     return r;
 }
 STATIC_INLINE uae_u32 next_ilongi (struct regstruct *regs)
 {
-	uae_u32 r = get_ilongi (m68k_getpci (0));
+	uae_u32 r = get_ilongi (m68k_getpci (regs));
     m68k_incpc (regs, 4);
     return r;
 }

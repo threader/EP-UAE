@@ -991,7 +991,7 @@ static int cfgfile_intval_ext (const TCHAR *option, const TCHAR *value, const TC
 	return r;
 }
 
-staic int cfgfile_strval_ext (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, int *location, const TCHAR *table[], int more)
+static int cfgfile_strval_ext (const TCHAR *option, const TCHAR *value, const TCHAR *name, const TCHAR *nameext, int *location, const TCHAR *table[], int more)
 {
 	int val;
 	TCHAR tmp[MAX_DPATH];
@@ -2282,6 +2282,7 @@ static int cfgfile_parse_hardware (struct uae_prefs *p, char *option, char *valu
 		|| cfgfile_intval (option, value, "parallel_autoflush", &p->parallel_autoflush_time, 1)
 		|| cfgfile_intval (option, value, "uae_hide", &p->uae_hide, 1)
 		|| cfgfile_intval (option, value, "cpu_frequency", &p->cpu_frequency, 1)
+		|| cfgfile_intval_unsigned (option, value, _T("kickstart_ext_rom_file2addr"), &p->romextfile2addr, 1)
 		|| cfgfile_intval (option, value, "catweasel", &p->catweasel, 1))
 	return 1;
 

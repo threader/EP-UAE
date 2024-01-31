@@ -1,26 +1,26 @@
- /*
-  * UAE - The Un*x Amiga Emulator
-  *
-  * Unix file system handler for AmigaDOS
-  *
-  * Copyright 1996 Ed Hanway
-  * Copyright 1996, 1997 Bernd Schmidt
-  *
-  * Version 0.4: 970308
-  *
-  * Based on example codRe (c) 1988 The Software Distillery
-  * and published in Transactor for the Amiga, Volume 2, Issues 2-5.
-  * (May - August 1989)
-  *
-  * Known limitations:
-  * Does not support several (useless) 2.0+ packet types.
-  * May not return the correct error code in some cases.
-  * Does not check for sane values passed by AmigaDOS.  May crash the emulation
-  * if passed garbage values.
-  * Could do tighter checks on malloc return values.
-  * Will probably fail spectacularly in some cases if the filesystem is
-  * modified at the same time by another process while UAE is running.
-  */
+/*
+ * UAE - The Un*x Amiga Emulator
+ *
+ * Unix file system handler for AmigaDOS
+ *
+ * Copyright 1996 Ed Hanway
+ * Copyright 1996, 1997 Bernd Schmidt
+ *
+ * Version 0.4: 970308
+ *
+ * Based on example code (c) 1988 The Software Distillery
+ * and published in Transactor for the Amiga, Volume 2, Issues 2-5.
+ * (May - August 1989)
+ *
+ * Known limitations:
+ * Does not support several (useless) 2.0+ packet types.
+ * May not return the correct error code in some cases.
+ * Does not check for sane values passed by AmigaDOS.  May crash the emulation
+ * if passed garbage values.
+ * Could do tighter checks on malloc return values.
+ * Will probably fail spectacularly in some cases if the filesystem is
+ * modified at the same time by another process while UAE is running.
+ */
 
 #include "sysconfig.h"
 #include "sysdeps.h"
