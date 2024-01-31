@@ -305,10 +305,6 @@ struct uae_prefs {
 
     TCHAR df[4][MAX_DPATH];
     TCHAR dfxlist[MAX_SPARE_DRIVES][MAX_DPATH];
-    TCHAR romfile[MAX_DPATH];
-    TCHAR romident[256];
-    TCHAR romextfile[MAX_DPATH];
-    TCHAR romextident[256];
     char keyfile[256];
     TCHAR flashfile[MAX_DPATH];
 #ifdef ACTION_REPLAY
@@ -329,7 +325,12 @@ struct uae_prefs {
     TCHAR path_floppy[256];
     TCHAR path_hardfile[256];
     TCHAR path_rom[256];
-
+	TCHAR romfile[MAX_DPATH];
+	TCHAR romident[256];
+	TCHAR romextfile[MAX_DPATH];
+	uae_u32 romextfile2addr;
+	TCHAR romextfile2[MAX_DPATH];
+	TCHAR romextident[256];
 	TCHAR a2091romfile[MAX_DPATH];
 	TCHAR a2091romident[256];
 	TCHAR a2091romfile2[MAX_DPATH];
