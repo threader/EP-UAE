@@ -79,10 +79,10 @@ extern uae_u16 kickstart_version;
 
 #define cardmem_start 0x00E00000
 #define kickmem_start 0x00F80000
-extern uae_u32 z3fastmem_start, z3fastmem2_start;
-extern uae_u32 p96ram_start;
-extern uae_u32 fastmem_start;
-extern uae_u32 a3000lmem_start, a3000hmem_start;
+extern uaecptr z3fastmem_start, z3fastmem2_start;
+extern uaecptr p96ram_start;
+extern uaecptr fastmem_start;
+extern uaecptr a3000lmem_start, a3000hmem_start;
 
 extern int ersatzkickfile;
 extern int cloanto_rom, kickstart_rom;

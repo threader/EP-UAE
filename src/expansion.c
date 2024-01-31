@@ -404,8 +404,8 @@ static void fastmem_bput (uaecptr, uae_u32) REGPARAM;
 static int fastmem_check (uaecptr addr, uae_u32 size) REGPARAM;
 static uae_u8 *fastmem_xlate (uaecptr addr) REGPARAM;
 
-uae_u32 fastmem_start; /* Determined by the OS */
-uae_u8 *fastmemory;
+uaecptr fastmem_start; /* Determined by the OS */
+static uae_u8 *fastmemory;
 
 static uae_u32 REGPARAM2 fastmem_lget (uaecptr addr)
 {
@@ -607,7 +607,7 @@ static void expamem_init_catweasel (void)
 }
 
 #endif
-#if 0
+
 #ifdef CDTV
 /*
  * CDTV DMAC
@@ -711,7 +711,7 @@ static void REGPARAM2 dmac_bput (uaecptr addr, uae_u32 b)
     addr &= 65535;
 #ifdef CDTV_DEBUG
     dmacmemory[addr] = b;
-    switch (addr)interrupt
+    switch (addr)
     {
 	case 0xa1:
 	if (cdtv_command_len >= sizeof (cdtv_command_buf))
@@ -739,7 +739,6 @@ addrbank dmac_bank = {
     default_xlate, default_check, NULL
 };
 #endif 
-#endif // 0
 #endif
 
 #ifdef FILESYS
@@ -835,9 +834,9 @@ static addrbank filesys_bank = {
  *  Z3fastmem Memory
  */
 
- uae_u32 z3fastmem_mask, z3fastmem2_mask;
- uae_u32 z3fastmem_start, z3fastmem2_start;
- uae_u8 *z3fastmem, *z3fastmem2;
+static uae_u32 z3fastmem_mask, z3fastmem2_mask;
+uaecptr z3fastmem_start, z3fastmem2_start;
+static uae_u8 *z3fastmem, *z3fastmem2;
 
 static uae_u32 z3fastmem_lget (uaecptr) REGPARAM;
 static uae_u32 z3fastmem_wget (uaecptr) REGPARAM;
@@ -1459,12 +1458,12 @@ void expamem_reset (void)
 		uae_id = hackers_id;
 
     allocate_expamem ();
-#if 0
+
 #ifdef CDTV
     if (cdtv_enabled)
         map_banks (&dmac_bank, dmac_start >> 16, 0x10000 >> 16, 0x10000);
 #endif
-#endif 
+
     /* check if Kickstart version is below 1.3 */
     if (! ersatzkickfile && kickstart_version
 	&& (/* Kickstart 1.0 & 1.1! */
