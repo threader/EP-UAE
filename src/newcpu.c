@@ -1141,11 +1141,11 @@ void REGPARAM2 MakeFromSR (struct regstruct *regs)
 
     doint ();
 	if (regs->t1 || regs->t0)
-		set_special (&regs, SPCFLAG_TRACE);
+		set_special (regs, SPCFLAG_TRACE);
     else
 		/* Keep SPCFLAG_DOTRACE, we still want a trace exception for
 	   SR-modifying instructions (including STOP).  */
-		unset_special (&regs, SPCFLAG_TRACE);
+		unset_special (regs, SPCFLAG_TRACE);
 }
 
 STATIC_INLINE void exception_trace (struct regstruct *regs, unsigned int nr)
@@ -2874,8 +2874,8 @@ void execute_normal (void)
     start_pc_p = r->pc_oldp;
     start_pc = r->pc;
     for (;;) {
-		/* Take note: This is the do-it-normal loop */
-		uae_u16 opcode = get_iword (&regs, 0);
+	/* Take note: This is the do-it-normal loop */
+	uae_u32 opcode = get_iword (r, 0);
 
 		special_mem = DISTRUST_CONSISTENT_MEM;
 		pc_hist[blocklen].location = (uae_u16*)r->pc_p;
@@ -3962,7 +3962,7 @@ void m68k_setstopped (struct regstruct *regs, int stop)
 	/* A traced STOP instruction drops through immediately without
 	actually stopping.  */
 	if ((regs->spcflags & SPCFLAG_DOTRACE) == 0)
-		set_special (&regs, SPCFLAG_STOP);
+		set_special (regs, SPCFLAG_STOP);
 	else
 		m68k_resumestopped ();
 }
