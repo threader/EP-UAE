@@ -8,29 +8,25 @@ eye on the tickets on the sourceforge project page for that project.
 First comes x86/X86_64, PPC JIT likely comes after unless I need 
 ARM/AARCH64 to continue debugging in the wild or so.
 
-Supported platforms ought remain: Amiga, *BSD, *nix and MacOSx.
+Supported platforms ought remain: Amiga, BEOS, *BSD, *nix and MacOSx.
 
 Status:
 Boots to Workbench, from floppy, with a basic configuration of chipmem,
 but runs waay too fast, one bottom screen LED, if enabled in config tops
 out at 999. Adding fast memory chokes the emulatior. 
 It cannot use the a500-a600-a2000-cdtv kickstart, use a1200/3000/4000, 
-this is tested and consistent with 1.3 to 3.1. Interesting things happen
-when you use the a500-a600-a2000 kickstart and add any fastmem, it 
-strangely goes beyond the green screen you get to if you run the 
-configration that works with the a1200 kick and starts booting 
-Workbench, something the a1200 kick does not with fastmem..
+this is tested and consistent with 1.3 to 3.1.
 For some reason the mouse cursor is missing but you can click
 and select things if you figure out where you are, runs too fast
 for double clicking, but if you bog down your machine with say, 
 compiling something, it slows down enough for this.
+
 The Aros kickstart replacement is included/built in though I've not 
 taken this beyond the kickstart.
 
-Added the option --enable-m32 to the configure script to aid enabling JIT
-and building a 32bit version, does not enable JIT, use --enable-jit. 
-I've not added i386 multiarch to the machine I'm doing this project from
-but I ensured it builds ofc.
+Added the option --enable-m32 to the configure script to aid and building 
+a 32bit version. I've not added i386 multiarch to the machine I'm doing 
+this project from so i've not tested but I ensured it builds.
 
 Filesystem Isn't fixed yet, so I can't mount a directory, I've not tried
 hardfiles or ISO's, don't throw files at it you care about in any case.
