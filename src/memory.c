@@ -1132,9 +1132,9 @@ static void kickmem_wput (uaecptr, uae_u32) REGPARAM;
 static void REGPARAM3 kickmem_bput (uaecptr, uae_u32) REGPARAM;
 static void REGPARAM3 kickmem_lput (uaecptr, uae_u32) REGPARAM;
 static void REGPARAM3 kickmem_wput (uaecptr, uae_u32) REGPARAM;
-static void kickmem2_lput (uaecptr addr, uae_u32) REGPARAM;
-static void kickmem2_wput (uaecptr addr, uae_u32) REGPARAM;
-static void kickmem2_bput (uaecptr addr, uae_u32) REGPARAM;
+static void REGPARAM3 kickmem2_lput (uaecptr addr, uae_u32) REGPARAM;
+static void REGPARAM3 kickmem2_wput (uaecptr addr, uae_u32) REGPARAM;
+static void REGPARAM3 kickmem2_bput (uaecptr addr, uae_u32) REGPARAM;
 static int REGPARAM3 kickmem_check (uaecptr addr, uae_u32 size) REGPARAM;
 static uae_u8 *REGPARAM3 kickmem_xlate (uaecptr addr) REGPARAM;
 
