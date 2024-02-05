@@ -507,7 +507,7 @@ static void fill_prefetch_finish (void)
 	if (using_prefetch) {
 		fill_prefetch_1 (m68k_pc_offset);
 	}
-    fill_prefetch_1 (m68k_pc_offset);
+   // fill_prefetch_1 (m68k_pc_offset);
 }
 
 static void setpc (const char *format, ...)
