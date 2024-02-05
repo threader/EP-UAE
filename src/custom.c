@@ -5390,6 +5390,8 @@ void hsync_handler (void)
 #endif
 	CIA_hsync_prehandler ();
 
+	hsync_counter++;
+
 	if (islinetoggle ())
 		lol ^= 1;
 
@@ -5407,7 +5409,7 @@ void hsync_handler (void)
 
 	if (currprefs.cs_ciaatod > 0) {
 		static int cia_hsync;
-		if (cia_hsync < maxhpos) {
+		if (cia_hsync < (int)maxhpos) {
 			int newcount;
 			CIAA_tod_inc (cia_hsync);
 			newcount = (vblank_hz * (2 * maxvpos + (interlace_seen ? 1 : 0)) * (2 * maxhpos + (islinetoggle () ? 1 : 0))) / ((currprefs.cs_ciaatod == 2 ? 60 : 50) * 4);
@@ -5607,7 +5609,7 @@ void hsync_handler (void)
 	scsi_hsync ();
 #endif
 
-	hsync_counter++;
+	//hsync_counter++;
 	//copper_check (2);
 
 	if (GET_PLANES (bplcon0) > 0 && dmaen (DMA_BITPLANE)) {
