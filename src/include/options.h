@@ -188,10 +188,9 @@ struct uae_prefs {
     int comp_constjump;
     int comp_oldsegv;
 
-    int cachesize;
     int optcount[10];
 #endif
-
+    int cachesize;
     int avoid_cmov;
     int avoid_dga;
     int avoid_vid;
