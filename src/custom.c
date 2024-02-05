@@ -5108,6 +5108,8 @@ static void vsync_handler (void)
 #ifdef JIT
 			if (!compiled_code) {
 #endif
+	CIA_vsync_prehandler ();
+
 				if (currprefs.m68k_speed == -1) {
 					frame_time_t curr_time = uae_gethrtime ();
 					vsyncmintime += vsynctime;
@@ -5386,6 +5388,7 @@ void hsync_handler (void)
 		memset (cycle_line, 0, sizeof cycle_line);
 	}
 #endif
+	CIA_hsync_prehandler ();
 
 	if (islinetoggle ())
 		lol ^= 1;
@@ -5404,10 +5407,23 @@ void hsync_handler (void)
 
 	if (currprefs.cs_ciaatod > 0) {
 		static int cia_hsync;
-		cia_hsync -= 256;
-		if (cia_hsync <= 0) {
-			CIA_vsync_prehandler ();
-			cia_hsync += ((MAXVPOS_PAL * MAXHPOS_PAL * 50 * 256) / (maxhpos * (currprefs.cs_ciaatod == 2 ? 60 : 50)));
+		if (cia_hsync < maxhpos) {
+			int newcount;
+			CIAA_tod_inc (cia_hsync);
+			newcount = (vblank_hz * (2 * maxvpos + (interlace_seen ? 1 : 0)) * (2 * maxhpos + (islinetoggle () ? 1 : 0))) / ((currprefs.cs_ciaatod == 2 ? 60 : 50) * 4);
+			cia_hsync += newcount;
+		} else {
+			cia_hsync -= maxhpos;
+		}
+	} else if (currprefs.cs_ciaatod == 0 && ciavsyncs) {
+		// CIA-A TOD counter increases when vsync pulse ends
+		if (beamcon0 & 0x80) {
+			if (vpos == vsstop)
+				CIAA_tod_inc (lof_store ? hsstop : hsstop + hcenter);
+		} else {
+			if (vpos == (currprefs.ntscmode ? VSYNC_ENDLINE_NTSC : VSYNC_ENDLINE_PAL)) {
+				CIAA_tod_inc (lof_store ? 132 : 18);
+			}
 		}
 	}
 
