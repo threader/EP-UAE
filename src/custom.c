@@ -141,7 +141,6 @@ extern uae_u8* compiled_code;
 
 unsigned int vpos;
 static int vpos_count, vpos_count_prev;
-int hack_vpos;
 static uae_u16 lof;
 static int lof_store, lof_current, lol;
 static int next_lineno, prev_lineno;
@@ -232,7 +231,8 @@ static uae_u16 sprdata[MAX_SPRITES][4], sprdatb[MAX_SPRITES][4];
 static uae_u16 sprdata[MAX_SPRITES][1], sprdatb[MAX_SPRITES][1];
 #endif
 static unsigned int sprite_last_drawn_at[MAX_SPRITES];
-static unsigned int last_sprite_point, nr_armed;
+static int nr_armed;
+static unsigned int last_sprite_point;
 static unsigned int sprite_width, sprres;
 
 
@@ -316,7 +316,7 @@ struct copper {
 
 	int strobe; /* COPJMP1 / COPJMP2 accessed */
 	int last_write, last_write_hpos;
-	unsigned int moveaddr, movedata, movedelay;
+	 int moveaddr, movedata, movedelay;
 };
 
 static struct copper cop_state;
@@ -720,7 +720,7 @@ static uae_u8 cycle_diagram_free_cycles[3][3][9];
 static uae_u8 cycle_diagram_total_cycles[3][3][9];
 static uae_u8 *curr_diagram;
 static uae_u8 cycle_sequences[3 * 8] = { 2,1,2,1,2,1,2,1, 4,2,3,1,4,2,3,1, 8,4,6,2,7,3,5,1 };
-/* note */
+
 static void debug_cycle_diagram (void)
 {
 	int fm, res, planes, cycle, v;
@@ -749,7 +749,7 @@ static void create_cycle_diagram_table (void)
 {
     unsigned int fm, res, cycle, planes, rplanes, v;
     unsigned int fetch_start, max_planes, freecycles;
-    const uae_u8 *cycle_sequence;
+    uae_u8 *cycle_sequence;
 
 	for (fm = 0; fm <= 2; fm++) {
 		for (res = 0; res <= 2; res++) {
@@ -2783,17 +2783,6 @@ void init_hz (void)
 	isntsc = (beamcon0 & 0x20) ? 0 : 1;
 	if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
 		isntsc = currprefs.ntscmode ? 1 : 0;
-    if (hack_vpos > 0) {
-	if ((int)maxvpos == hack_vpos)
-	    return;
-	maxvpos = hack_vpos;
-	vblank_hz = 15600 / hack_vpos;
-	hack_vpos = -1;
-    } else if (hack_vpos < 0) {
-	hack_vpos = 0;
-    }
-    if (hack_vpos == 0) {
-
 	if (!isntsc) {
 		maxvpos = MAXVPOS_PAL;
 		maxhpos = MAXHPOS_PAL;
@@ -2808,7 +2797,6 @@ void init_hz (void)
 		vblank_hz = VBLANK_HZ_NTSC;
 		sprite_vblank_endline = VBLANK_SPRITE_NTSC;
 		equ_vblank_endline = EQU_ENDLINE_NTSC;
-	}
 	}
 	maxvpos_nom = maxvpos;
 	if (vpos_count > 0) {
@@ -2842,7 +2830,7 @@ void init_hz (void)
 	}
 	if (currprefs.gfx_scandoubler && doublescan == 0)
 		doublescan = -1;
-	if (doublescan != odbl || (int)maxvpos != (int)omaxvpos)
+	if (doublescan != odbl || maxvpos != omaxvpos)
 		hzc = 1;
 	/* limit to sane values */
 	if (vblank_hz < 10)
@@ -3098,8 +3086,6 @@ static void VPOSW (uae_u16 v)
 		lol = (v & 0x0080) ? 1 : 0;
 	if (lof_changed)
 		return;
-    if ( (v & 1) && vpos > 0)
-	hack_vpos = vpos;
 	vpos &= 0x00ff;
 	v &= 7;
 	if (!(currprefs.chipset_mask & CSMASK_ECS_AGNUS))
@@ -3284,7 +3270,6 @@ static void DMACON (unsigned int hpos, uae_u16 v)
 			compute_spcflag_copper (hpos);
 		} else if (!newcop) {
 			copper_enabled_thisline = 0;
-			unset_special (&regs, SPCFLAG_COPPER);
 	    unset_special (&regs, SPCFLAG_COPPER);
 		}
 	}
@@ -3583,7 +3568,6 @@ static void varsync (void)
 	if (!(beamcon0 & 0x80))
 		return;
 	vpos_count = 0;
-    hack_vpos = -1;
 	dumpsync ();
 }
 
@@ -3986,8 +3970,8 @@ STATIC_INLINE void sprstartstop (struct sprite *s)
 
 STATIC_INLINE void SPRxCTLPOS (int num)
 {
-	int sprxp;
-	struct sprite *s = &spr[num];
+    unsigned int sprxp;
+    struct sprite *s = &spr[num];
 
 	sprstartstop (s);
 	sprxp = (sprpos[num] & 0xFF) * 2 + (sprctl[num] & 1);
@@ -5087,8 +5071,8 @@ static void fpscounter (void)
 
 	if (bogusframe)
 		return;
-/* note */
-    frametime += (1000*last/syncbase);
+
+	frametime += last;
 	frametime2 += last;
 	timeframes++;
 	if ((timeframes % mcnt) == 0) {
@@ -5188,7 +5172,7 @@ static void vsync_handler (void)
 		vpos_count = p96refresh_active;
 		vtotal = vpos_count;
 	}
-	if ((beamcon0 & (0x20 | 0x80)) != (new_beamcon0 & (0x20 | 0x80)) || hack_vpos ||(abs (vpos_count - vpos_count_prev) > 1))
+	if ((beamcon0 & (0x20 | 0x80)) != (new_beamcon0 & (0x20 | 0x80)) || (abs (vpos_count - vpos_count_prev) > 1))
 		init_hz ();
 	if (lof_changed)
 		compute_vsynctime ();
@@ -5792,7 +5776,6 @@ void customreset (int hardreset)
 	set_cycles (0);
 
 	vpos_count = vpos_count_prev = 0;
-    hack_vpos = 0;
 	init_hz ();
 	vpos_lpen = -1;
 
