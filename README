@@ -20,6 +20,7 @@ For some reason the mouse cursor is missing but you can click
 and select things if you figure out where you are, runs too fast
 for double clicking, but if you bog down your machine with say, 
 compiling something, it slows down enough for this.
+Some demos and games run at normal speed.
 
 The Aros kickstart replacement is included/built in though I've not 
 taken this beyond the kickstart.
