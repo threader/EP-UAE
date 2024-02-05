@@ -3295,7 +3295,7 @@ static void DMACON (unsigned int hpos, uae_u16 v)
 }
 
 
-static void MISC_handler (void)
+void MISC_handler (void)
 {
 	int i, recheck;
 	evt mintime;
@@ -3333,7 +3333,7 @@ static void MISC_handler (void)
 	}
 	recursive--;
 }
-
+#if 0
 STATIC_INLINE void event2_newevent_xx (int no, evt t, uae_u32 data, evfunc2 func)
 {
 	evt et;
@@ -3384,7 +3384,7 @@ void event2_newevent2 (evt t, uae_u32 data, evfunc2 func)
 {
 	event2_newevent_x (-1, t, data, func);
 }
-
+#endif 
 static int irq_nmi;
 
 void NMI_delayed (void)
@@ -5239,7 +5239,7 @@ static void copper_check (int n)
 		}
 	}
 }
-
+#if 0
 static void CIA_vsync_prehandler (int dotod)
 {
 	CIA_vsync_handler (dotod);
@@ -5260,7 +5260,7 @@ static void CIA_vsync_prehandler (int dotod)
 #endif
 	ciavsync_counter++;
 }
-
+#endif 
 /*
 
 0 0 -
@@ -5394,12 +5394,19 @@ void hsync_handler (void)
 	eventtab[ev_hsync].evtime = get_cycles () + HSYNCTIME;
 	eventtab[ev_hsync].oldcycles = get_cycles ();
 
-	CIA_hsync_handler (!(bplcon0 & 2) || ((bplcon0 & 2) && currprefs.genlock));
+//	CIA_hsync_handler (!(bplcon0 & 2) || ((bplcon0 & 2) && currprefs.genlock));
+	bool ciahsyncs = !(bplcon0 & 2) || ((bplcon0 & 2) && currprefs.genlock && (!currprefs.ntscmode));
+	bool ciavsyncs = !(bplcon0 & 2) || ((bplcon0 & 2) && currprefs.genlock);
+
+	CIA_hsync_posthandler (ciahsyncs);
+	if (ciahsyncs)
+		CIAB_tod_handler ((beamcon0 & 0x80) ? hsstop : 18);
+
 	if (currprefs.cs_ciaatod > 0) {
 		static int cia_hsync;
 		cia_hsync -= 256;
 		if (cia_hsync <= 0) {
-			CIA_vsync_prehandler (1);
+			CIA_vsync_prehandler ();
 			cia_hsync += ((MAXVPOS_PAL * MAXHPOS_PAL * 50 * 256) / (maxhpos * (currprefs.cs_ciaatod == 2 ? 60 : 50)));
 		}
 	}
@@ -5457,8 +5464,8 @@ void hsync_handler (void)
 		}
 #endif
 		vsync_counter++;
-		if (currprefs.cs_ciaatod == 0)
-			CIA_vsync_prehandler (!(bplcon0 & 2) || ((bplcon0 & 2) && currprefs.genlock));
+//		if (currprefs.cs_ciaatod == 0)
+//			CIA_vsync_prehandler (!(bplcon0 & 2) || ((bplcon0 & 2) && currprefs.genlock));
 	}
 	// DIP Agnus (8361): vblank interrupt is triggered on line 1!
 	if (currprefs.cs_dipagnus) {
@@ -5638,11 +5645,6 @@ void hsync_handler (void)
 			skip = 0;
 	}
 #endif
-}
-
-void event2_remevent (int no)
-{
-	eventtab2[no].active = 0;
 }
 
 void init_eventtab (void)

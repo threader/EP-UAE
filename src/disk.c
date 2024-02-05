@@ -44,7 +44,7 @@
 #endif
 #include "crc32.h"
 #include <ctype.h>
-
+#include "amax.h"
 #undef CATWEASEL
 
 static int longwritemode = 0;
@@ -107,6 +107,9 @@ static uae_u16 word, dsksync;
 /* Always carried through to the next line.  */
 static unsigned int disk_hpos;
 static int disk_jitter;
+
+static uae_u8 prev_data;
+static int prev_step;
 
 typedef enum { TRACK_AMIGADOS, TRACK_RAW, TRACK_RAW1, TRACK_PCDOS, TRACK_DISKSPARE, TRACK_NONE } image_tracktype;
 typedef struct {
@@ -2376,6 +2379,21 @@ static char *tobin (uae_u8 v)
     return buf;
 }
 
+static void fetch_DISK_select(uae_u8 data)
+{
+	selected = (data >> 3) & 15;
+	side = 1 - ((data >> 2) & 1);
+	direction = (data >> 1) & 1;
+}
+
+void DISK_select_set (uae_u8 data)
+{
+	prev_data = data;
+	prev_step = data & 1;
+
+	fetch_DISK_select (data);
+}
+
 void DISK_select (uae_u8 data)
 {
     unsigned int step_pulse, lastselected, dr;
@@ -2797,7 +2815,8 @@ static void disk_doupdate_predict (drive * drv, int startcycle)
 	updatetrackspeed (drv, drv->mfmpos);
 	if (diskevent_flag) {
 	disk_sync_cycle = startcycle >> 8;
-	event2_newevent(ev2_disk, (startcycle - firstcycle) / CYCLE_UNIT);
+/* note */
+	event2_newevent(ev2_disk, (startcycle - firstcycle) / CYCLE_UNIT, 0);
     }
 }
 

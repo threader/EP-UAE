@@ -14,6 +14,7 @@ typedef enum { DRV_NONE = -1, DRV_35_DD = 0, DRV_35_HD, DRV_525_SD, DRV_35_DD_ES
 extern void DISK_init (void);
 extern void DISK_free (void);
 extern void DISK_select (uae_u8 data);
+extern void DISK_select_set (uae_u8 data);
 extern uae_u8 DISK_status (void);
 extern void disk_eject (int num);
 extern int disk_empty (int num);

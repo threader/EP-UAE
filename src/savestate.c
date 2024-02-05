@@ -827,7 +827,7 @@ int save_state (const TCHAR *filename, const TCHAR *description)
 	save_chunk (f, dst, len, "CIAB", 0);
     xfree (dst);
 
-    dst = save_keyboard (&len);
+    dst = save_keyboard (&len, NULL);
 	save_chunk (f, dst, len, "KEYB", 0);
     xfree (dst);
 

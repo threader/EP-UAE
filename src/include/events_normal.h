@@ -2,9 +2,7 @@
 STATIC_INLINE void cycles_do_special (void)
 {
 }
-STATIC_INLINE void set_cycles (int c)
-{
-}
+
 
 STATIC_INLINE void events_schedule (void)
 {
@@ -20,7 +18,7 @@ STATIC_INLINE void events_schedule (void)
     }
     nextevent = currcycle + mintime;
 }
-
+#if 0
 STATIC_INLINE void do_cycles_slow (unsigned long cycles_to_add)
 {
     if (is_lastline && eventtab[ev_hsync].evtime - currcycle <= cycles_to_add
@@ -41,7 +39,7 @@ STATIC_INLINE void do_cycles_slow (unsigned long cycles_to_add)
     }
     currcycle += cycles_to_add;
 }
-
+#endif 
 STATIC_INLINE void do_cycles_fast (void)
 {
     if (is_lastline && eventtab[ev_hsync].evtime - currcycle <= 1
@@ -76,12 +74,8 @@ STATIC_INLINE void handle_active_events (void)
     }
 }
 
-STATIC_INLINE unsigned long get_cycles (void)
-{
-    return currcycle;
-}
 
-// extern void init_eventtab (void);
+extern void init_eventtab (void);
 
 #if /* M68K_SPEED == 1 */  0
 #define do_cycles do_cycles_fast

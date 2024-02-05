@@ -170,6 +170,7 @@ int inputdevice_uaelib (const char *s, const char *parm)
 static struct uae_input_device *joysticks;
 static struct uae_input_device *mice;
 static struct uae_input_device *keyboards;
+static struct uae_input_device *internalevents;
 static struct uae_input_device_kbr_default *keyboard_default;
 static int **keyboard_default_kbmaps;
 
@@ -1881,6 +1882,7 @@ void inputdevice_do_keyboard (int code, int state)
 			if (!r && currprefs.cs_resetwarning && resetwarning_do (1))
 				return;
 		    memset (keybuf, 0, sizeof (keybuf));
+			send_internalevent (INTERNALEVENT_KBRESET);
 		    uae_reset (r);
 		}
 		if (record_key ((uae_u8)((key << 1) | (key >> 7)))) {
@@ -3639,6 +3641,11 @@ int inputdevice_translatekeycode (int keyboard, int scancode, int state)
 
 struct inputdevice_functions idev[3];
 
+void send_internalevent (int eventid)
+{
+	setbuttonstateall (&internalevents[0], NULL, eventid, -1);
+}
+
 void inputdevice_init (void)
 {
     idev[IDTYPE_JOYSTICK] = inputdevicefunc_joystick;
@@ -3654,6 +3661,7 @@ void inputdevice_close (void)
     idev[IDTYPE_JOYSTICK].close ();
     idev[IDTYPE_MOUSE].close ();
     idev[IDTYPE_KEYBOARD].close ();
+	idev[IDTYPE_INTERNALEVENT].close ();
 }
 
 static struct uae_input_device *get_uid (const struct inputdevice_functions *id, int devnum)
@@ -3665,6 +3673,8 @@ static struct uae_input_device *get_uid (const struct inputdevice_functions *id,
 	uid = &mice[devnum];
     } else if (id == &idev[IDTYPE_KEYBOARD]) {
 	uid = &keyboards[devnum];
+	} else if (id == &idev[IDTYPE_INTERNALEVENT]) {
+		uid = &internalevents[devnum];
     }
     return uid;
 }

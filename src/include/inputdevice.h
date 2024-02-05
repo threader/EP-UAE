@@ -11,6 +11,7 @@
 #define IDTYPE_JOYSTICK 0
 #define IDTYPE_MOUSE 1
 #define IDTYPE_KEYBOARD 2
+#define IDTYPE_INTERNALEVENT 3
 
 struct inputdevice_functions {
     int           (*init)             (void);
@@ -125,6 +126,9 @@ void inputdevice_release_all_keys (void);
  int inputdevice_synccapslock (int, int*);
  void inputdevice_testrecord (int type, int num, int wtype, int wnum, int state);
 
+#define INTERNALEVENT_KBRESET 1
+
+void send_internalevent (int eventid);
 
 extern uae_u16 potgo_value;
  uae_u16 POTGOR (void);

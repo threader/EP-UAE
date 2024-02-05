@@ -15,6 +15,7 @@
 
 #include "options.h"
 #include "events.h"
+
 #include "custom.h"
 #include "cia.h"
 #include "blitter.h"
@@ -27,7 +28,7 @@
 
 /* Cycles to next event pending */
 //unsigned long nextevent;
-
+int event2_count;
 #ifdef JIT2
 /* For faster cycles handling */
 signed long pissoff = 0;
@@ -95,3 +96,35 @@ void handle_active_events (void)
 }
 
 #endif 
+
+void event2_newevent_xx (int no, evt t, uae_u32 data, evfunc2 func)
+{
+	evt et;
+	static int next = ev2_misc;
+
+	et = t + get_cycles ();
+	if (no < 0) {
+		no = next;
+		for (;;) {
+			if (!eventtab2[no].active) {
+				event2_count++;
+				break;
+			}
+			if (eventtab2[no].evtime == et && eventtab2[no].handler == func && eventtab2[no].data == data)
+				break;
+			no++;
+			if (no == ev2_max)
+				no = ev2_misc;
+			if (no == next) {
+				write_log (_T("out of event2's!\n"));
+				return;
+			}
+		}
+		next = no;
+	}
+	eventtab2[no].active = true;
+	eventtab2[no].evtime = et;
+	eventtab2[no].handler = func;
+	eventtab2[no].data = data;
+	MISC_handler ();
+}

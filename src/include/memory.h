@@ -173,6 +173,10 @@ extern int default_check(uaecptr addr, uae_u32 size) REGPARAM;
 extern uae_u8 *default_xlate(uaecptr addr) REGPARAM;
 extern uae_u16 last_custom_value1;
 
+extern void dummy_put (uaecptr addr, int size, uae_u32 val);
+//extern uae_u32 dummy_get (uaecptr addr, int size, bool inst);
+extern uae_u32 dummy_get (uaecptr addr, int size);
+
 /* Default memory access functions */
 
 extern int REGPARAM3 default_check(uaecptr addr, uae_u32 size) REGPARAM;

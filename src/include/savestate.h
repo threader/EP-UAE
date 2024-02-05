@@ -85,6 +85,8 @@ extern       uae_u8 *save_audio    (unsigned int channel, uae_u32 *len, uae_u8 *
 
 extern const uae_u8 *restore_cia (unsigned int num, const uae_u8 *src);
 extern       uae_u8 *save_cia    (unsigned int num, uae_u32 *len, uae_u8 *dstptr);
+extern void restore_cia_finish (void);
+extern void restore_cia_start (void);
 
 extern const uae_u8 *restore_expansion (const uae_u8 *src);
 extern       uae_u8 *save_expansion    (uae_u32 *len, uae_u8 *dstptr);
@@ -94,7 +96,7 @@ extern uae_u8 *save_p96 (uae_u32 *len, uae_u8 *);
 extern void restore_p96_finish (void);
 
 extern const uae_u8 *restore_keyboard (const uae_u8 *src);
-extern       uae_u8 *save_keyboard    (uae_u32 *len);
+extern       uae_u8 *save_keyboard    (uae_u32 *len, uae_u8*);
 
 extern const uae_u8 *restore_akiko (const uae_u8 *src);
 extern uae_u8 *save_akiko (uae_u32 *len, uae_u8*);

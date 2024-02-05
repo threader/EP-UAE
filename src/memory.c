@@ -318,6 +318,60 @@ int REGPARAM2 dummy_check (uaecptr addr, uae_u32 size)
     return 0;
 }
 #endif
+void dummy_put (uaecptr addr, int size, uae_u32 val)
+{
+#ifdef GAYLE
+	if (gary_nonrange(addr) || (size > 1 && gary_nonrange(addr + size - 1))) {
+		if (gary_timeout)
+			gary_wait (addr, size);
+		if (gary_toenb && currprefs.mmu_model)
+			exception2 (addr, true, size, regs.s ? 4 : 0);
+	}
+#endif
+}
+#if 0
+uae_u32 dummy_get (uaecptr addr, int size, bool inst)
+{
+	uae_u32 v = NONEXISTINGDATA;
+
+#ifdef GAYLE
+	if (gary_nonrange(addr) || (size > 1 && gary_nonrange(addr + size - 1))) {
+		if (gary_timeout)
+			gary_wait (addr, size);
+		if (gary_toenb && currprefs.mmu_model)
+			exception2 (addr, false, size, (regs.s ? 4 : 0) | (inst ? 0 : 1));
+		return v;
+	}
+#endif
+
+	if (currprefs.cpu_model >= 68040)
+		return v;
+	if (!currprefs.cpu_compatible)
+		return v;
+	if (currprefs.address_space_24)
+		addr &= 0x00ffffff;
+	if (addr >= 0x10000000)
+		return v;
+	if ((currprefs.cpu_model <= 68010) || (currprefs.cpu_model == 68020 && (currprefs.chipset_mask & CSMASK_AGA) && currprefs.address_space_24)) {
+		if (size == 4) {
+			v = regs.db & 0xffff;
+			if (addr & 1)
+				v = (v << 8) | (v >> 8);
+			v = (v << 16) | v;
+		} else if (size == 2) {
+			v = regs.db & 0xffff;
+			if (addr & 1)
+				v = (v << 8) | (v >> 8);
+		} else {
+			v = regs.db;
+			v = (addr & 1) ? (v & 0xff) : ((v >> 8) & 0xff);
+		}
+	}
+
+	return v;
+}
+#endif
+
 #if defined AUTOCONFIG && defined A3000MBRES
 /* A3000 "motherboard resources" bank.  */
 static uae_u32 mbres_lget (uaecptr) REGPARAM;
@@ -432,7 +486,7 @@ static void dummylog (int rw, uaecptr addr, int size, uae_u32 val, int ins)
     }
 }
 
-static uae_u32 dummy_get (uaecptr addr, int size)
+ uae_u32 dummy_get (uaecptr addr, int size)
 {
     uae_u32 v;
     if (currprefs.cpu_model >= 68020)
@@ -460,7 +514,7 @@ static uae_u32 REGPARAM2 dummy_lget (uaecptr addr)
 	if (currprefs.illegal_mem)
 		dummylog (0, addr, 4, 0, 0);
 	return dummy_get (addr, 4);
-	}
+}
 uae_u32 REGPARAM2 dummy_lgeti (uaecptr addr)
 {
 #ifdef JIT
@@ -468,7 +522,7 @@ uae_u32 REGPARAM2 dummy_lgeti (uaecptr addr)
 #endif
     if (currprefs.illegal_mem)
 		dummylog (0, addr, 4, 0, 1);
-    return dummy_get (addr, 4);
+	return dummy_get (addr, 4);
 }
 
 static uae_u32 REGPARAM2 dummy_wget (uaecptr addr)
@@ -487,7 +541,7 @@ uae_u32 REGPARAM2 dummy_wgeti (uaecptr addr)
 #endif
     if (currprefs.illegal_mem)
 		dummylog (0, addr, 2, 0, 1);
-    return dummy_get (addr, 2);
+	return dummy_get (addr, 2);
 }
 
 static uae_u32 REGPARAM2 dummy_bget (uaecptr addr)
@@ -507,7 +561,7 @@ static void REGPARAM2 dummy_lput (uaecptr addr, uae_u32 l)
 #endif
 	if (currprefs.illegal_mem)
 		dummylog (1, addr, 4, l, 0);
-	//dummy_put (addr, 4, l);
+	dummy_put (addr, 4, l);
 }
 static void REGPARAM2 dummy_wput (uaecptr addr, uae_u32 w)
 {
@@ -516,7 +570,7 @@ static void REGPARAM2 dummy_wput (uaecptr addr, uae_u32 w)
 #endif
 	if (currprefs.illegal_mem)
 		dummylog (1, addr, 2, w, 0);
-	//dummy_put (addr, 2, w);
+	dummy_put (addr, 2, w);
 }
 static void REGPARAM2 dummy_bput (uaecptr addr, uae_u32 b)
 {
@@ -525,7 +579,7 @@ static void REGPARAM2 dummy_bput (uaecptr addr, uae_u32 b)
 #endif
 	if (currprefs.illegal_mem)
 		dummylog (1, addr, 1, b, 0);
-	//dummy_put (addr, 1, b);
+	dummy_put (addr, 1, b);
 }
 
 static int REGPARAM2 dummy_check (uaecptr addr, uae_u32 size)
