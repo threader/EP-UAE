@@ -13,7 +13,7 @@
 #include "sysdeps.h"
 #include <assert.h>
 
-#include "options.h"
+#include "cfgfile.h"
 #include "threaddep/thread.h"
 #include "uae.h"
 #include "audio.h"
@@ -625,7 +625,7 @@ void fixup_prefs (struct uae_prefs *p)
 	}
     fixup_prefs_dimensions (p);
 
-#ifdef JIT
+#if !defined (JIT)
 	p->cachesize = 0;
 #endif
 #ifdef CPU_68000_ONLY
@@ -1372,6 +1372,9 @@ void reset_all_systems (void)
 	filesys_prepare_reset ();
 	filesys_reset ();
 #endif
+#ifdef NATMEM_OFFSET
+	init_shm ();
+#endif
 	memory_reset ();
 #if defined (BSDSOCKET)
 	bsdlib_reset ();
@@ -1461,12 +1464,16 @@ void do_leave_program (void)
 //	device_func_reset (); //blkdev
 	savestate_free ();
 	memory_cleanup ();
+#ifdef NATMEM_OFFSET
+	free_shm ();
+#endif
 	cfgfile_addcfgparam (0);
 	machdep_free ();
 }
 
 void start_program (void)
 {
+
 	do_start_program ();
 }
 
@@ -1676,6 +1683,7 @@ void real_main (int argc, char **argv)
 int main (int argc, char **argv)
 {
     init_sdl ();
+    gui_init ();
 	show_version_full ();
     real_main (argc, argv);
     return 0;
