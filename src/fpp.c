@@ -926,7 +926,7 @@ void fpuop_trapcc (uae_u32 opcode, struct regstruct *regs, uaecptr oldpc, uae_u1
 
 	cc = fpp_cond (extra & 0x3f);
     if (cc == -1) {
-		fpu_op_illg (opcode, m68k_getpc (regs) - oldpc, 0);
+		fpu_op_illg (opcode, regs, m68k_getpc (regs) - oldpc);
     }
     if (cc)
 	Exception (7, regs, oldpc - 2);
@@ -946,7 +946,7 @@ void fpuop_bcc (uae_u32 opcode, struct regstruct *regs, uaecptr pc, uae_u32 extr
 	cc = fpp_cond (opcode & 0x3f);
     if (cc == -1) {
 /* note */ 
-		fpu_op_illg (opcode, m68k_getpc((regs) - pc), 0);
+		fpu_op_illg (opcode, regs, m68k_getpc(regs) - pc);
     } else if (cc) {
 	if ((opcode & 0x40) == 0)
 	    extra = (uae_s32) (uae_s16) extra;
