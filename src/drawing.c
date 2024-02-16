@@ -487,8 +487,8 @@ void get_custom_mouse_limits (int *pw, int *ph, int *pdx, int *pdy, int dbl)
     
     delay1 = (firstword_bplcon1 & 0x0f) | ((firstword_bplcon1 & 0x0c00) >> 6);
     delay2 = ((firstword_bplcon1 >> 4) & 0x0f) | (((firstword_bplcon1 >> 4) & 0x0c00) >> 6);
-   // if (delay1 == delay2)
-	//	;//dx += delay1;
+    if (delay1 == delay2)
+		;//dx += delay1;
 
     dx = xshift (dx, res_shift);
 
@@ -2023,15 +2023,13 @@ static void pfield_draw_line (int lineno, int gfx_ypos, int follow_ypos)
     case LINE_REMEMBERED_AS_BLACK:
 		return;
 
-    case LINE_AS_PREVIOUS:
-	dp_for_drawing--;
-	dip_for_drawing--;
-	linestate[lineno] = LINE_DONE_AS_PREVIOUS;
-	if (!dp_for_drawing->valid)
-	    return;
-	if (dp_for_drawing->plfleft == -1)
-	    border = 1;
-	break;
+	case LINE_AS_PREVIOUS:
+		dp_for_drawing--;
+		dip_for_drawing--;
+		linestate[lineno] = LINE_DONE_AS_PREVIOUS;
+		if (dp_for_drawing->plfleft == -1)
+			border = 1;
+		break;
 
     case LINE_DONE_AS_PREVIOUS:
 		/* fall through */
