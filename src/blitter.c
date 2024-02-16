@@ -73,7 +73,7 @@ static unsigned long blit_firstline_cycles;
 static unsigned long blit_first_cycle;
 static unsigned int blit_last_cycle, blit_dmacount, blit_dmacount2;
 static int blit_linecycles, blit_extracycles;
-static const uae_s8 *blit_diag;
+static const int *blit_diag;
 static int blit_frozen, blit_faulty;
 static int blit_final;
 static int blt_delayed_irq;
@@ -176,17 +176,17 @@ There is at least one demo that does this..
 */
 
 // 5 = internal "processing cycle"
-static const uae_s8 blit_cycle_diagram_line[] =
+static const int blit_cycle_diagram_line[] =
 {
 	4, 0,3,5,4,	    0,3,5,4
 };
 
-static const uae_s8 blit_cycle_diagram_finald[] =
+static const int blit_cycle_diagram_finald[] =
 {
 	2, 0,4,	    0,4
 };
 
-static const uae_s8 blit_cycle_diagram_finalld[] =
+static const int blit_cycle_diagram_finalld[] =
 {
 	2, 0,0,	    0,0
 };
