@@ -1880,7 +1880,7 @@ static void did_hdchange (void)
 }
 static void did_hddel (void)
 {
-    kill_filesys_unit (currprefs.mountinfo, selected_hd_row);
+    kill_filesys_unitconfig (&currprefs, selected_hd_row);
     set_hd_state ();
 }
 
