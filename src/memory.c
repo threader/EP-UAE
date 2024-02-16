@@ -627,7 +627,7 @@ uae_u32 REGPARAM2 chipmem_lget_ce2 (uaecptr addr)
 #ifdef JIT
 	special_mem |= S_READ;
 #endif
-    addr -= chipmem_start & chipmem_mask;
+  //  addr -= chipmem_start & chipmem_mask;
     addr &= chipmem_mask;
     m = (uae_u32 *)(chipmemory + addr);
     ce2_timeout ();
