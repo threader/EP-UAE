@@ -245,7 +245,7 @@ static void mmu_dump_table(const TCHAR * label, uaecptr root_ptr)
 #endif
 
 /* {{{ mmu_dump_atc */
-void mmu_dump_atc(void)
+static void mmu_dump_atc(void)
 {
 	int i, j;
 	for (i = 0; i < 2; i++) {

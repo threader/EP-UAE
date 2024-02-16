@@ -536,20 +536,6 @@ extern uae_u32 m68k_pc_offset;
 extern void readbyte(int address, int dest, int tmp);
 extern void readword(int address, int dest, int tmp);
 extern void readlong(int address, int dest, int tmp);
-
-extern void writebyte         (int address, int source, int tmp);
-//extern void writeword_general (int address, int source, int tmp, int clobber);
-//extern void writelong_general (int address, int source, int tmp, int clobber);
-#if 0
-#define writeword(address, source, tmp) writeword_general (address, source, tmp, 0)
-#define writelong(address, source, tmp) writelong_general (address, source, tmp, 0)
-#define writeword_clobber(address, source, tmp) writeword_general (address, source, tmp, 1)
-#define writelong_clobber(address, source, tmp) writelong_general (address, source, tmp, 1)
-#endif
-
-extern void readbyte(int address, int dest, int tmp);
-extern void readword(int address, int dest, int tmp);
-extern void readlong(int address, int dest, int tmp);
 extern void writebyte         (int address, int source, int tmp);
 extern void writeword(int address, int source, int tmp);
 extern void writelong(int address, int source, int tmp);
