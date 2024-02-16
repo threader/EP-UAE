@@ -45,6 +45,7 @@
 #include "gayle.h"
 #include "savestate.h"
 #include "a2091.h"
+#include "cdtv.h"
 #include "consolehook.h"
 #include "isofs_api.h"
 
@@ -577,6 +578,7 @@ static int *set_filesys_unit_1 (struct uaedev_mount_info *mountinfo,int nr,
 	ui->wasisempty = emptydrive;
 	ui->canremove = emptydrive && (flags & MYVOLUMEINFO_REUSABLE);
 	ui->rootdir = my_strdup (rootdir);
+    if (devname != 0 && strlen (devname) != 0)
 	ui->devname = my_strdup (devname);
 	stripsemicolon(ui->devname);
 	if (filesysdir && filesysdir[0])
@@ -628,21 +630,6 @@ int *add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname,
 		secspertrack, surfaces, reserved, blocksize,
 		bootpri, donotmount, autoboot, filesysdir, hdc, flags);
 	return ret;
-}
-
-int kill_filesys_unit (struct uaedev_mount_info *mountinfo, int nr)
-{
-    UnitInfo *uip = mountinfo->ui;
-    if (nr >= mountinfo->num_units || nr < 0)
-	return -1;
-
-    close_filesys_unit (mountinfo->ui + nr);
-
-    mountinfo->num_units--;
-    for (; nr < mountinfo->num_units; nr++) {
-	uip[nr] = uip[nr+1];
-    }
-    return 0;
 }
 
 int kill_filesys_unitconfig (struct uae_prefs *p, int nr)
