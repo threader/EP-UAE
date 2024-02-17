@@ -7,6 +7,7 @@
   * Copyright 2006 Richard Drummond
   */
 
+#include "sysdeps.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -29,11 +30,12 @@ static void led_size_request (GtkWidget *widget, GtkRequisition *requisition);
 static void led_size_allocate (GtkWidget *widget, GtkAllocation *allocation);
 
 
-guint led_get_type ()
+GtkType led_get_type ()
 {
-    static guint led_type = 0;
+	static bool hasLed = false;
+    static GtkType led_type;
 
-    if (!led_type) {
+    if (!hasLed) {
 	static const GtkTypeInfo led_info = {
 	    (char *) "Led",
 	    sizeof (Led),
@@ -45,6 +47,7 @@ guint led_get_type ()
 	    (GtkClassInitFunc) NULL
 	};
 	led_type = gtk_type_unique (gtk_misc_get_type (), &led_info);
+		hasLed = true;
     }
     return led_type;
 }
@@ -72,14 +75,17 @@ static void led_init (Led *theled)
 
 GtkWidget *led_new (void)
 {
-    return gtk_type_new (led_get_type ());
+//    return gtk_type_new (led_get_type ());
+    Led *w = LED (gtk_type_new (led_get_type()));
+
+    return GTK_WIDGET (w);
 }
 
 static gint led_expose (GtkWidget *w, GdkEventExpose *event)
 {
     if (w && GTK_WIDGET_DRAWABLE (w)) {
 	Led *theled = LED (w);
-	gdk_draw_rectangle (w->window, theled->gc, TRUE, 0, 0,
+	gdk_draw_rectangle (w->window, theled->gc, true, 0, 0,
 			    w->allocation.width, w->allocation.height);
     }
     return 0;
@@ -136,7 +142,7 @@ static void led_size_request (GtkWidget *widget, GtkRequisition *requisition)
 
 static void led_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
-    Led *theled = LED (widget);
+//    Led *theled = LED (widget);
 
     g_return_if_fail (widget != NULL);
     g_return_if_fail (IS_LED (widget));
