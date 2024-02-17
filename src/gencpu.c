@@ -3671,10 +3671,25 @@ static void gen_opcode (unsigned long int opcode)
 		break;
 /*note */
      case i_CINVL:
+	printf ("\tif (opcode&0x80)\n"
+		"\t\tflush_icache(0, 31);\n");
+	break;
      case i_CINVP:
+	printf ("\tif (opcode&0x80)\n"
+		"\t\tflush_icache(0, 32);\n");
+	break;
      case i_CINVA:
+	printf ("\tif (opcode&0x80)\n"
+		"\t\tflush_icache(0, 33);\n");
+	break;
      case i_CPUSHL:
+	printf ("\tif (opcode&0x80)\n"
+		"\t\tflush_icache(0, 41);\n");
+	break;
      case i_CPUSHP:
+	printf ("\tif (opcode&0x80)\n"
+		"\t\tflush_icache(0, 42);\n");
+	break;
      case i_CPUSHA:
 		if (using_mmu)
 			printf ("\tflush_mmu(m68k_areg (regs, opcode & 3), (opcode >> 6) & 3);\n");
