@@ -11,7 +11,7 @@
 #include "uae.h"
 #include "threaddep/thread.h"
 #include "keybuf.h"
-
+#include "misc.h"
 #include "consolehook.h"
 
 static uaecptr beginio;
@@ -57,16 +57,15 @@ static void *console_thread (void *v)
 {
 	uae_set_thread_priority (2);
 	for (;;) {
-		char wc = "a"; //console_getch ();
-		char c[2];
+		TCHAR wc  = 0; //console_getch ();
+		char c[2] = { 0, 0 };
 
-		write_log ("*");
-		c[0] = 0;
-		c[1] = 0;
+		write_log (_T("*"));
 		ua_copy (c, 1, &wc);
 		record_key_direct ((0x10 << 1) | 0);
 		record_key_direct ((0x10 << 1) | 1);
 	}
+	return NULL;
 }
 
 int consolehook_activate (void)
@@ -94,8 +93,8 @@ uaecptr consolehook_beginio (uaecptr request)
 		char *buf;
 		const char *src = (char*)get_real_address (io_data);
 		int len = io_length;
-		if (io_length == -1)
-			len = strlen (src);
+		if (io_length == (uae_u32)-1)
+			len = (int)strlen (src);
 		buf = xmalloc (char, len + 1);
 		strncpy (buf, src, len);
 		buf[len] = 0;

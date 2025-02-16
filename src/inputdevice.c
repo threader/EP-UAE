@@ -21,7 +21,7 @@
 #include "sysconfig.h"
 #include "sysdeps.h"
 
-#include "options.h"
+#include "cfgfile.h"
 #include "keyboard.h"
 #include "inputdevice.h"
 #include "cia.h"

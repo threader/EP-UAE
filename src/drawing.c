@@ -1242,32 +1242,32 @@ static void pfield_do_linetoscr (int start, int stop)
 				if (issprites) {
 					if (res_shift == 0) {
 						switch (gfxvidinfo.pixbytes) {
-						case 1: src_pixel = linetoscr_8_spr (src_pixel, start, stop); break;
+//						case 1: src_pixel = linetoscr_8_spr (src_pixel, start, stop); break;
 						case 2: src_pixel = linetoscr_16_spr (src_pixel, start, stop); break;
 						case 4: src_pixel = linetoscr_32_spr (src_pixel, start, stop); break;
 						}
 					} else if (res_shift == 2) {
 						switch (gfxvidinfo.pixbytes) {
-						case 1: src_pixel = linetoscr_8_stretch2_spr (src_pixel, start, stop); break;
+//						case 1: src_pixel = linetoscr_8_stretch2_spr (src_pixel, start, stop); break;
 						case 2: src_pixel = linetoscr_16_stretch2_spr (src_pixel, start, stop); break;
 						case 4: src_pixel = linetoscr_32_stretch2_spr (src_pixel, start, stop); break;
 						}
 					} else if (res_shift == 1) {
 						switch (gfxvidinfo.pixbytes) {
-						case 1: src_pixel = linetoscr_8_stretch1_spr (src_pixel, start, stop); break;
+//						case 1: src_pixel = linetoscr_8_stretch1_spr (src_pixel, start, stop); break;
 						case 2: src_pixel = linetoscr_16_stretch1_spr (src_pixel, start, stop); break;
 						case 4: src_pixel = linetoscr_32_stretch1_spr (src_pixel, start, stop); break;
 						}
 					} else if (res_shift == -1) {
 						if (currprefs.gfx_lores_mode) {
 							switch (gfxvidinfo.pixbytes) {
-							case 1: src_pixel = linetoscr_8_shrink1f_spr (src_pixel, start, stop); break;
+//							case 1: src_pixel = linetoscr_8_shrink1f_spr (src_pixel, start, stop); break;
 							case 2: src_pixel = linetoscr_16_shrink1f_spr (src_pixel, start, stop); break;
 							case 4: src_pixel = linetoscr_32_shrink1f_spr (src_pixel, start, stop); break;
 							}
 						} else {
 							switch (gfxvidinfo.pixbytes) {
-							case 1: src_pixel = linetoscr_8_shrink1_spr (src_pixel, start, stop); break;
+//							case 1: src_pixel = linetoscr_8_shrink1_spr (src_pixel, start, stop); break;
 							case 2: src_pixel = linetoscr_16_shrink1_spr (src_pixel, start, stop); break;
 							case 4: src_pixel = linetoscr_32_shrink1_spr (src_pixel, start, stop); break;
 							}
@@ -1276,32 +1276,32 @@ static void pfield_do_linetoscr (int start, int stop)
 				} else {
 					if (res_shift == 0) {
 						switch (gfxvidinfo.pixbytes) {
-						case 1: src_pixel = linetoscr_8 (src_pixel, start, stop); break;
+//						case 1: src_pixel = linetoscr_8 (src_pixel, start, stop); break;
 						case 2: src_pixel = linetoscr_16 (src_pixel, start, stop); break;
 						case 4: src_pixel = linetoscr_32 (src_pixel, start, stop); break;
 						}
 					} else if (res_shift == 2) {
 						switch (gfxvidinfo.pixbytes) {
-						case 1: src_pixel = linetoscr_8_stretch2 (src_pixel, start, stop); break;
+//						case 1: src_pixel = linetoscr_8_stretch2 (src_pixel, start, stop); break;
 						case 2: src_pixel = linetoscr_16_stretch2 (src_pixel, start, stop); break;
 						case 4: src_pixel = linetoscr_32_stretch2 (src_pixel, start, stop); break;
 						}
 					} else if (res_shift == 1) {
 						switch (gfxvidinfo.pixbytes) {
-						case 1: src_pixel = linetoscr_8_stretch1 (src_pixel, start, stop); break;
+//						case 1: src_pixel = linetoscr_8_stretch1 (src_pixel, start, stop); break;
 						case 2: src_pixel = linetoscr_16_stretch1 (src_pixel, start, stop); break;
 						case 4: src_pixel = linetoscr_32_stretch1 (src_pixel, start, stop); break;
 						}
 					} else if (res_shift == -1) {
 						if (currprefs.gfx_lores_mode) {
 							switch (gfxvidinfo.pixbytes) {
-							case 1: src_pixel = linetoscr_8_shrink1f (src_pixel, start, stop); break;
+//							case 1: src_pixel = linetoscr_8_shrink1f (src_pixel, start, stop); break;
 							case 2: src_pixel = linetoscr_16_shrink1f (src_pixel, start, stop); break;
 							case 4: src_pixel = linetoscr_32_shrink1f (src_pixel, start, stop); break;
 							}
 						} else {
 							switch (gfxvidinfo.pixbytes) {
-							case 1: src_pixel = linetoscr_8_shrink1 (src_pixel, start, stop); break;
+//							case 1: src_pixel = linetoscr_8_shrink1 (src_pixel, start, stop); break;
 							case 2: src_pixel = linetoscr_16_shrink1 (src_pixel, start, stop); break;
 							case 4: src_pixel = linetoscr_32_shrink1 (src_pixel, start, stop); break;
 							}

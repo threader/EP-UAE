@@ -1458,7 +1458,7 @@ static struct zfile *zfile_fopen_nozip (const TCHAR *name, const TCHAR *mode)
 
 struct zfile *zuncompress (struct zfile *z)
 {
-	int retcode = 0, index = 0;
+	int *retcode = 0, index = 0;
     char *name = z->name;
     char *ext = strrchr (name, '.');
     uae_u8 header[4];

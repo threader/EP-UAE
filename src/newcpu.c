@@ -3367,13 +3367,13 @@ static void disasm_size (char *instrname, struct instr *dp)
 	}
 }
 
-void m68k_disasm_2 (char *buf, int bufsize, uaecptr addr, uaecptr *nextpc, int cnt, uae_u32 *seaddr, uae_u32 *deaddr, int safemode)
+void m68k_disasm_2 (void *buf, int bufsize, uaecptr addr, uaecptr *nextpc, int cnt, uae_u32 *seaddr, uae_u32 *deaddr, int safemode)
 {
     uaecptr newpc = 0;
     m68kpc_offset = addr - m68k_getpc (&regs);
 
 	if (buf)
-		memset (buf, 0, bufsize);
+		memset (buf, 0, bufsize * sizeof (TCHAR));
 	if (!table68k)
 		return;
     while (cnt-- > 0) {

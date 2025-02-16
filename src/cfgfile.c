@@ -2521,7 +2521,9 @@ add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, cons
 	int blocksize, int bootpri, int donotmount, int autoboot,
 	const char *filesysdir, int hdc, int flags)
 */
-	    err_msg = add_filesys_unit (currprefs.mountinfo, 0, aname, str, ro, secs, heads, reserved, bs, 0, 0, 0, 0, 0, 0);
+		add_filesys_config (p, -1, NULL, aname, str, ro, secs, heads, reserved, bs, 0, NULL, 0, 0);
+	//    err_msg = add_filesys_unit (currprefs.mountinfo, 0, aname, str, ro, secs, heads, reserved, bs, 0, 0, 0, 0, 0, 0);
+
 //	    err_msg = add_filesys_unit (currprefs.mountinfo, 0, aname, str, ro, secs, heads, reserved, bs, 0, 0, 0);
 
 	write_log ("-- ADD FILESYS UNIT --\n");
@@ -3143,7 +3145,7 @@ bad:
 	p->jports[1].id = v1;
 }
 
-static void parse_filesys_spec (int readonly, const char *spec)
+static void parse_filesys_spec (struct uae_prefs *p, int readonly, const char *spec)
 {
     char buf[256];
     char *s2;
@@ -3163,19 +3165,20 @@ static void parse_filesys_spec (int readonly, const char *spec)
 	s2 = 0;
 #ifdef FILESYS
 	{
-	    const char *err;
+		add_filesys_config (p, -1, NULL, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0, 0);
+	//    const char *err;
 /*
 add_filesys_unit (struct uaedev_mount_info *mountinfo, const char *devname, const char *volname, const char *rootdir, int readonly, 
 	int secspertrack, int surfaces, int reserved,
 	int blocksize, int bootpri, int donotmount, int autoboot,
-	const char *filesysdir, int hdc, int flags)
+	const char *filesysdir, err = add_filesys_unit (currprefs.mountinint hdc, int flags)
 */
-	    err = add_filesys_unit (currprefs.mountinfo, 0, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	//    err = add_filesys_unit (currprefs.mountinfo, 0, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 //	    err = add_filesys_unit (currprefs.mountinfo, 0, buf, s2, readonly, 0, 0, 0, 0, 0, 0, 0);
 
 
-	    if (err)
-		write_log ("%s\n", s2);
+	  //  if (err)
+		//write_log ("%s\n", s2);
 	}
 #endif
     } else {
@@ -3283,7 +3286,7 @@ int parse_cmdline_option (struct uae_prefs *p, char c, char *arg)
     case 'K': strncpy (p->keyfile, arg, 255); p->keyfile[255] = 0; break;
     case 'p': strncpy (p->prtname, arg, 255); p->prtname[255] = 0; break;
 	/*     case 'I': strncpy (p->sername, arg, 255); p->sername[255] = 0; currprefs.use_serial = 1; break; */
-    case 'm': case 'M': parse_filesys_spec (c == 'M', arg); break;
+    case 'm': case 'M': parse_filesys_spec (p, c == 'M', arg); break;
     case 'W': parse_hardfile_spec (p, arg); break;
     case 'S': parse_sound_spec (p, arg); break;
     case 'R': p->gfx_framerate = atoi (arg); break;

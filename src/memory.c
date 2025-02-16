@@ -2545,7 +2545,6 @@ static void allocate_memory (void)
 		need_hardreset = 1;
 	}
 //#if defined CDTV || defined CD32
-#ifdef CDTV
 	if ((int)allocated_cardmem != currprefs.cs_cdtvcard * 1024) {
 		if (cardmemory)
 			mapped_free (cardmemory);
@@ -2560,7 +2559,7 @@ static void allocate_memory (void)
 				allocated_cardmem = 0;
 			}
 		}
-
+#ifdef CDTV
 		cdtv_loadcardmem(cardmemory, allocated_cardmem);
 #endif
 	}

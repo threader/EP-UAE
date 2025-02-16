@@ -7,7 +7,8 @@
 #include "sysdeps.h"
 
 #include "misc.h"
-#include "options.h"
+//#include "options.h"
+#include "cfgfile.h"
 #include "memory.h"
 #include "custom.h"
 #include "newcpu.h"
@@ -28,6 +29,7 @@
 #include "hrtimer.h"
 #include "sleep.h"
 #include "zfile.h"
+#include "xwin.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -601,7 +603,7 @@ int get_guid_target (uae_u8 *out)
 	out[5] = Data2 >>  0;
 	out[6] = Data3 >>  8;
 	out[7] = Data3 >>  0;
-	memcpy (out + 8, Data4, 8);
+	memcpy (out + 8, (void*)(size_t)Data4, 8);
 	return 1;
 }
 
@@ -678,7 +680,7 @@ char *ua_copy (char *dst, int maxlen, const char *src)
 // --- win32gui.cpp ---
 static int qs_override;
 
-int target_cfgfile_load (struct uae_prefs *p, const char *filename, int type, int isdefault)
+int target_cfgfile_load (struct uae_prefs *p, const TCHAR *filename, int type, int isdefault)
 {
 	int v, i, type2;
 	int ct, ct2 = 0, size;

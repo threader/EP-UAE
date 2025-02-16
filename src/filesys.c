@@ -300,9 +300,9 @@ static UnitInfo *getuip(struct uaedev_mount_info *mountinfo, struct uae_prefs *p
 	return &mountinfo->ui[index];
 }
 
-int get_filesys_unitconfig (struct uaedev_mount_info *mountinfo, struct uae_prefs *p, int index, struct mountedinfo *mi)
+int get_filesys_unitconfig (struct uae_prefs *p, int index, struct mountedinfo *mi)
 {
-	UnitInfo *ui = getuip(mountinfo, p, index);
+	UnitInfo *ui = getuip(currprefs.mountinfo, p, index);
 	struct uaedev_config_info *uci = &p->mountconfig[index];
 	UnitInfo uitmp;
 
@@ -6163,7 +6163,7 @@ void filesys_install_code (void)
 
 #ifdef SAVESTATE
 
-static uae_u8 *restore_filesys_hardfile (UnitInfo *ui, const uae_u8 *src)
+static uae_u8 *restore_filesys_hardfile (struct uaedev_mount_info *mountinfo, UnitInfo *ui, const uae_u8 *src)
 {
 	struct hardfiledata *hfd = &ui->hf;
 	const TCHAR *s;
@@ -6755,7 +6755,7 @@ uae_u8 *save_filesys (int num, uae_u32 *len)
 	return dstbak;
 }
 
-uae_u8 *restore_filesys (struct uaedev_mount_info *mountinfo, const uae_u8 *src)
+uae_u8 *restore_filesys ( const uae_u8 *src)
 {
 	int type, devno;
 	UnitInfo *ui;

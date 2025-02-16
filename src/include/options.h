@@ -124,6 +124,26 @@ enum { CP_GENERIC = 1, CP_CDTV, CP_CD32, CP_A500, CP_A500P, CP_A600, CP_A1000,
 #define IDE_A600A1200 1
 #define IDE_A4000 2
 
+#define APMODE_NATIVE 0
+#define APMODE_RTG 1
+
+struct apmode
+{
+	int gfx_fullscreen;
+	int gfx_display;
+	int gfx_vsync;
+	// 0 = immediate flip
+	// -1 = wait for flip, before frame ends
+	// 1 = wait for flip, after new frame has started
+	int gfx_vflip;
+	// doubleframemode strobo
+	bool gfx_strobo;
+	int gfx_vsyncmode;
+	int gfx_backbuffers;
+	bool gfx_interlaced;
+	int gfx_refreshrate;
+};
+
 struct uae_prefs {
 
     struct strlist *all_lines;
@@ -211,6 +231,7 @@ struct uae_prefs {
     int gfx_scandoubler;
     int gfx_refreshrate;
     int gfx_avsync, gfx_pvsync;
+	struct apmode gfx_apmode[2];
     int gfx_resolution;
     int gfx_lores_mode;
     int gfx_linedbl;

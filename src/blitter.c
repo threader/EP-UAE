@@ -73,7 +73,7 @@ static unsigned long blit_firstline_cycles;
 static unsigned long blit_first_cycle;
 static unsigned int blit_last_cycle, blit_dmacount, blit_dmacount2;
 static int blit_linecycles, blit_extracycles;
-static const int *blit_diag;
+static const uae_s8 *blit_diag;
 static int blit_frozen, blit_faulty;
 static int blit_final;
 static int blt_delayed_irq;
@@ -82,6 +82,7 @@ static int ddat1use, ddat2use;
 
 static unsigned int blit_nod;
 
+static const uae_s8 *blit_diag;
 int blit_interrupt;
 
 static int last_blitter_hpos;
@@ -101,7 +102,7 @@ same in both block and line modes
 number of cycles, initial cycle, main cycle
 */
 
-static const int blit_cycle_diagram[][10] =
+static const  uae_s8  blit_cycle_diagram[][10] =
 {
 	{ 2, 0,0,	    0,0 },		/* 0 */
 	{ 2, 0,0,	    0,4 },		/* 1 */
@@ -176,17 +177,17 @@ There is at least one demo that does this..
 */
 
 // 5 = internal "processing cycle"
-static const int blit_cycle_diagram_line[] =
+static const uae_s8 blit_cycle_diagram_line[] =
 {
 	4, 0,3,5,4,	    0,3,5,4
 };
 
-static const int blit_cycle_diagram_finald[] =
+static const uae_s8 blit_cycle_diagram_finald[] =
 {
 	2, 0,4,	    0,4
 };
 
-static const int blit_cycle_diagram_finalld[] =
+static const uae_s8  blit_cycle_diagram_finalld[] =
 {
 	2, 0,0,	    0,0
 };
@@ -244,7 +245,7 @@ static void blitter_dump (void)
 		blt_info.bltamod & 0xffff, blt_info.bltbmod & 0xffff, blt_info.bltcmod & 0xffff, blt_info.bltdmod & 0xffff);
 }
 
-STATIC_INLINE const int *get_ch (void)
+STATIC_INLINE const uae_s8 *get_ch (void)
 {
 	if (blit_faulty)
 		return &blit_diag[0];
@@ -255,7 +256,7 @@ STATIC_INLINE const int *get_ch (void)
 
 STATIC_INLINE int channel_state (unsigned int cycles)
 {
-	const int *diag;
+	const uae_s8 *diag;
 	if ((int)cycles < 0)
 		return 0;
 	diag = get_ch ();
@@ -267,7 +268,7 @@ STATIC_INLINE int channel_state (unsigned int cycles)
 }
 STATIC_INLINE int channel_pos (unsigned int cycles)
 {
-	const int *diag;
+	const uae_s8 *diag;
 	if ((int)cycles < 0)
 		return 0;
 	diag =  get_ch ();
@@ -1119,7 +1120,7 @@ static void blitter_force_finish (void)
 static void blit_bltset (unsigned int con)
 {
 	int i;
-	const int *olddiag = blit_diag;
+	const uae_s8 *olddiag = blit_diag;
 
 	if (con & 2) {
 		blitdesc = bltcon1 & 2;
@@ -1150,8 +1151,9 @@ static void blit_bltset (unsigned int con)
 				blitife = 0;
 			}
 		}
-		if (blitfill && !blitdesc)
+		if (blitfill && !blitdesc) {
 			write_log ("fill without desc\n");
+		}
 		blit_diag = blitfill &&  blit_cycle_diagram_fill[blit_ch][0] ? blit_cycle_diagram_fill[blit_ch] : blit_cycle_diagram[blit_ch];
 	}
 	if ((bltcon1 & 0x80) && (currprefs.chipset_mask & CSMASK_ECS_AGNUS))

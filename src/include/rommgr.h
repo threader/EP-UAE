@@ -265,7 +265,7 @@ extern struct romdata *getromdatabycrc (uae_u32 crc32);
 extern struct romdata *getromdatabydata (uae_u8 *rom, int size);
 extern struct romdata *getromdatabyid (int id);
 extern struct romdata *getromdatabyidgroup (int id, int group, int subitem);
-//extern struct romdata *getromdatabyzfile (struct zfile *f);
+extern struct romdata *getromdatabyzfile (struct zfile *f);
 extern struct romlist **getarcadiaroms (void);
 extern struct romdata *getarcadiarombyname (const TCHAR *name);
 extern struct romlist **getromlistbyident (int ver, int rev, int subver, int subrev, const TCHAR *model, int romflags, bool all);
@@ -277,7 +277,7 @@ extern struct romlist *getromlistbyromdata (const struct romdata *rd);
 extern void romlist_add (const TCHAR *path, struct romdata *rd);
 extern TCHAR *romlist_get (const struct romdata *rd);
 extern void romlist_clear (void);
-extern struct zfile *read_rom (struct romdata *rd);
+extern struct zfile *read_rom (struct romdata **rd);
 extern struct zfile *read_rom_name (const TCHAR *filename);
 
 extern int load_keyring (struct uae_prefs *p, const TCHAR *path);

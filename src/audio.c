@@ -31,6 +31,7 @@
 #include "gui.h"
 #include "xwin.h"
 #include "debug.h"
+#include "misc.h"
 #ifdef AVIOUTPUT
 #include "avioutput.h"
 #endif

@@ -518,7 +518,7 @@ void restore_state (const TCHAR *filename)
 #ifdef FILESYS
 /* note */
 		else if (!_tcscmp (name, "FSYS"))
-			end = restore_filesys (filename, chunk);
+			end = restore_filesys (currprefs.mountinfo,chunk);
 		else if (!_tcscmp (name, "FSYC"))
 			end = restore_filesys_common (chunk);
 #endif

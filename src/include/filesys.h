@@ -167,7 +167,7 @@ extern struct hardfiledata *get_hardfile_data (int nr);
  void filesys_cleanup (void);
  int filesys_is_readonly (const char *path);
  int hdf_init (void);
- int get_native_path(struct uaedev_mount_info *mountinfo, uae_u32 lock, char *out);
+ int get_native_path(uae_u32 lock, char *out);
  void hardfile_do_disk_change (struct uaedev_config_info *uci, int insert);
 
 void hdf_hd_close(struct hd_hardfiledata *hfd);
